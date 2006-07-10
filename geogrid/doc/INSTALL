@@ -1,0 +1,12 @@
+To build:
+
+1) WRFV2 should already be compiled, so that gridgen_model can be built 
+   with the IO API implementations in WRF's external directory. Given
+   a compiled version of WRFV2, change gridgen's top-level Makefile by 
+   setting the value of WRF_DIR to the location of the WRFV2 directory.
+
+2) Ensure that the values of FC and CC for the target machine in the 
+   top-level Makefile are set to the compilers used to build WRFV2. 
+
+3) Type 'make'. If a symbolic link to src/gridgen_model.exe appears in 
+   the top-level directory, the compilation was successful.

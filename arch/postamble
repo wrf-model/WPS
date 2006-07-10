@@ -1,0 +1,42 @@
+#
+#	Macros, these should be generic for all machines
+
+LN	=	ln -sf
+MAKE	=	make -i -r
+RM	= 	/bin/rm -f
+CP	= 	/bin/cp
+
+.IGNORE:
+.SUFFIXES: .c .f90 .F90 .o
+
+#	There is probably no reason to modify these rules
+
+.c.o:
+	$(RM) $@
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c $<	
+
+.f90.o:
+	$(RM) $@ $*.mod
+	$(CP) $< $*.f
+	$(FC) $(FFLAGS) -c $*.f \
+		-I$(WRF_DIR)/external/io_netcdf \
+		-I$(WRF_DIR)/external/io_grib_share \
+		-I$(WRF_DIR)/external/io_grib1 \
+		-I$(WRF_DIR)/external/io_int
+	$(RM) $*.f
+
+.F90.o:
+	$(RM) $@ $*.mod
+	$(CPP) $(CPPFLAGS) $< \
+		-I$(WRF_DIR)/external/io_netcdf \
+		-I$(WRF_DIR)/external/io_grib_share \
+		-I$(WRF_DIR)/external/io_grib1 \
+		-I$(WRF_DIR)/external/io_int \
+		-I$(WRF_DIR)/inc > $*.f
+	$(FC) $(FFLAGS) -c $*.f \
+		-I$(WRF_DIR)/external/io_netcdf \
+		-I$(WRF_DIR)/external/io_grib_share \
+		-I$(WRF_DIR)/external/io_grib1 \
+		-I$(WRF_DIR)/external/io_int \
+		-I$(WRF_DIR)/inc
+	$(RM) $*.f

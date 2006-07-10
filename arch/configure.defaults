@@ -1,0 +1,145 @@
+###########################################################
+#ARCH	AIX	serial
+#
+FC		=	xlf90_r
+FFLAGS		=	-qfree=f90
+LDFLAGS		=	
+CC		=	cc
+CFLAGS		=	
+CPP		=	/usr/bin/cpp -C -P -traditional
+CPPFLAGS	=	-DIO_NETCDF -DIO_BINARY -DIO_GRIB1
+WRF_DIR		=	../WRFV2
+PERL		=	perl
+
+###########################################################
+#ARCH	AIX	DM parallel
+#
+FC		=	mpxlf90_r
+FFLAGS		=	-qfree=f90
+LDFLAGS		=	
+CC		=	mpcc_r
+CFLAGS		=	
+CPP		=	/usr/bin/cpp -C -P -traditional
+CPPFLAGS	=	-DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -D_MPI
+WRF_DIR		=	../WRFV2
+PERL		=	perl
+
+###########################################################
+#ARCH	Compaq OSF1 alpha	serial
+#
+FC		=	f90
+FFLAGS		=	-free -convert big_endian
+LDFLAGS		=	
+CC		=	cc
+CFLAGS		=	
+CPP		=	/usr/bin/cpp -C -P -traditional
+CPPFLAGS	=	-D_UNDERSCORE -DIO_NETCDF -DIO_BINARY -DIO_GRIB1
+WRF_DIR		=	../WRFV2
+PERL		=	perl
+
+###########################################################
+#ARCH	Compaq OSF1 alpha	DM parallel
+#
+FC		=	mpif90
+FFLAGS		=	-free -convert big_endian
+LDFLAGS		=	
+CC		=	mpicc
+CFLAGS		=	
+CPP		=	/usr/bin/cpp -C -P -traditional
+CPPFLAGS	=	-D_UNDERSCORE -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -D_MPI
+WRF_DIR		=	../WRFV2
+PERL		=	perl
+
+###########################################################
+#ARCH	PC Linux i486 i586 i686, PGI compiler	serial
+#
+FC		=	pgf90
+FFLAGS		=	-Mfree -byteswapio -O
+LDFLAGS		=	
+CC		=	pgcc
+CFLAGS		=	-O
+CPP		=	/lib/cpp -C -P -traditional
+CPPFLAGS	=	-D_UNDERSCORE -DIO_NETCDF -DIO_BINARY -DIO_GRIB1
+WRF_DIR		=	../WRFV2
+PERL		=	perl
+
+###########################################################
+#ARCH	PC Linux i486 i586 i686, PGI compiler	DM parallel
+#
+FC		=	mpif90 -f90=pgf90
+FFLAGS		=	-Mfree -byteswapio -O
+LDFLAGS		=	
+CC		=	mpicc -cc=gcc
+CFLAGS		=	-O
+CPP		=	/lib/cpp -C -P -traditional
+CPPFLAGS	=	-D_UNDERSCORE -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -D_MPI
+WRF_DIR		=	../WRFV2
+PERL		=	perl
+
+###########################################################
+#ARCH	PC Linux i486 i586 i686, Intel compiler	serial
+#
+FC		=	ifort
+FFLAGS		=	-FR -convert big_endian
+LDFLAGS		=	
+CC		=	gcc
+CFLAGS		=	-w
+CPP		=	/lib/cpp -C -P -traditional
+CPPFLAGS	=	-D_UNDERSCORE -DIO_NETCDF -DIO_BINARY -DIO_GRIB1
+WRF_DIR		=	../WRFV2
+PERL		=	perl
+
+###########################################################
+#ARCH	PC Linux i486 i586 i686, Intel compiler	DM parallel
+#
+FC		=	mpif90 -f90=ifort
+FFLAGS		=	-FR -convert big_endian
+LDFLAGS		=	
+CC		=	mpicc -cc=icc
+CFLAGS		=	-w
+CPP		=	/lib/cpp -C -P -traditional
+CPPFLAGS	=	-D_UNDERSCORE -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -D_MPI
+WRF_DIR		=	../WRFV2
+PERL		=	perl
+
+###########################################################
+#ARCH	SGI 64 bit IRIX64	serial
+#
+FC		=	f90
+FFLAGS		=	-freeform -64
+LDFLAGS		=	
+CC		=	cc
+CFLAGS		=	-64
+CPP		=	/lib/cpp -C -P
+CPPFLAGS	=	-DIO_NETCDF -DIO_BINARY -DIO_GRIB1
+WRF_DIR		=	../WRFV2
+PERL		=	perl
+
+###########################################################
+#ARCH	Sun SunOS	serial
+#
+FC		=	f90
+FFLAGS		=	-free
+LDFLAGS		=	
+CC		=	cc
+CFLAGS		=	-O
+CPP		=	/usr/ccs/lib/cpp -C -P
+CPPFLAGS	=	-D_UNDERSCORE -DIO_NETCDF -DIO_BINARY -DIO_GRIB1
+WRF_DIR		=	../WRFV2
+PERL		=	perl
+
+###########################################################
+#ARCH	Darwin	serial
+#
+FC		=	xlf90_r
+FFLAGS		=	-qfree
+LDFLAGS		=	-Wl,-stack_size,10000000,-stack_addr,0xc0000000
+CC		=	cc
+CFLAGS		=	-O
+CPP		=	/usr/bin/cpp -C -P
+CPPFLAGS	=	-DIO_NETCDF -DIO_BINARY -DIO_GRIB1
+WRF_DIR		=	../WRFV2
+PERL		=	perl
+
+##################################################################
+#ARCH	NULL

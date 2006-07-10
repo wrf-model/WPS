@@ -1,0 +1,140 @@
+========================================
+name=SEAICE 
+        interp_option=four_pt+average_4pt
+        interp_mask=LANDSEA(0) 
+        fill_missing=0.
+========================================
+name=LANDSEA 
+        interp_option=nearest_neighbor
+        fill_missing=-1.
+        fill_lev=200100:LANDMASK(1)
+========================================
+name=SNOW
+        interp_option=four_pt+average_4pt
+        masked=water 
+        fill_missing=0.
+========================================
+name=SKINTEMP
+        interp_option=four_pt+average_4pt
+        fill_missing=0.
+========================================
+name=PSFC
+        interp_option=sixteen_pt+four_pt+average_4pt
+========================================
+name=VEGCAT
+        interp_option=nearest_neighbor
+        fill_missing=0.
+========================================
+name=CANWAT
+        interp_option=four_pt
+        fill_missing=0.
+========================================
+name=SOIL_CAT
+        interp_option=nearest_neighbor
+        fill_missing=0.
+========================================
+name=SM000010
+        interp_option=sixteen_pt+four_pt+average_4pt+search
+        masked=water
+        interp_mask=LANDSEA(0)
+        fill_missing=1.
+        flag_in_output=FLAG_SM000010
+========================================
+name=SM010040
+        interp_option=sixteen_pt+four_pt+average_4pt+search
+        masked=water
+        interp_mask=LANDSEA(0)
+        fill_missing=1.
+        flag_in_output=FLAG_SM010040
+========================================
+name=SM040100
+        interp_option=sixteen_pt+four_pt+average_4pt+search
+        masked=water
+        interp_mask=LANDSEA(0)
+        fill_missing=1.
+        flag_in_output=FLAG_SM040100
+========================================
+name=SM100200
+        interp_option=sixteen_pt+four_pt+average_4pt+search
+        masked=water
+        interp_mask=LANDSEA(0)
+        fill_missing=1.
+        flag_in_output=FLAG_SM100200
+========================================
+name=ST000010
+        interp_option=sixteen_pt+four_pt+average_4pt+search
+        masked=water
+        interp_mask=LANDSEA(0)
+        fill_missing=285.
+        flag_in_output=FLAG_ST000010
+========================================
+name=ST010040
+        interp_option=sixteen_pt+four_pt+average_4pt+search
+        masked=water
+        interp_mask=LANDSEA(0)
+        fill_missing=285.
+        flag_in_output=FLAG_ST010040
+========================================
+name=ST040100
+        interp_option=sixteen_pt+four_pt+average_4pt+search
+        masked=water
+        interp_mask=LANDSEA(0)
+        fill_missing=285.
+        flag_in_output=FLAG_ST040100
+========================================
+name=ST100200
+        interp_option=sixteen_pt+four_pt+average_4pt+search
+        masked=water
+        interp_mask=LANDSEA(0)
+        fill_missing=285.
+        flag_in_output=FLAG_ST100200
+========================================
+name=PMSL
+        interp_option=sixteen_pt+four_pt+average_4pt
+========================================
+name=RH
+        interp_option=sixteen_pt+four_pt+average_4pt
+        fill_missing=0.
+        fill_lev=200100:const(0.)
+========================================
+name=T
+        interp_option=four_pt
+        fill_missing=0.
+========================================
+name=U
+        interp_option=sixteen_pt+four_pt+average_4pt
+        fill_missing=0.
+========================================
+name=V
+        interp_option=sixteen_pt+four_pt+average_4pt
+        fill_missing=0.
+========================================
+name=SST
+        interp_option=sixteen_pt+four_pt
+        masked=land
+        fill_missing=0. 
+========================================
+name=QVAPOR
+        interp_option=sixteen_pt+four_pt+average_4pt
+        fill_missing=0.
+        fill_lev=200100:const(0.)
+========================================
+name=VPTMP
+        interp_option=sixteen_pt+four_pt+average_4pt
+        fill_missing=0.
+        fill_lev=200100:const(0.)
+========================================
+name=PRESSURE
+        interp_option=sixteen_pt+four_pt+average_4pt
+        fill_missing=0.
+        fill_lev=200100:const(200100.)
+========================================
+name=GHT
+        interp_option=sixteen_pt+four_pt+average_4pt
+        fill_missing=0.
+        fill_lev=200100:HGT_M(1)
+========================================
+name=P
+        fill_lev=200100:PSFC(200100)
+        fill_lev=all:PRESSURE
+========================================

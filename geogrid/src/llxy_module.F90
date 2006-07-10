@@ -1,0 +1,514 @@
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! MODULE LLXY_MODULE
+!
+! This module handles transformations between model grid coordinates and 
+!   latitude-longitude coordinates. The actual transformations are done through
+!   the map_utils module. 
+! 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+module llxy_module
+
+   use gridinfo_module
+   use map_utils
+   use module_debug
+   use misc_definitions_module
+ 
+   ! Parameters
+   integer, parameter :: MAX_SOURCE_LEVELS = 20
+ 
+   ! Variables
+   integer :: current_nest_number
+   integer :: SOURCE_PROJ = 0
+   ! The following arrays hold values for all available domains 
+   ! NOTE: The entries in the arrays for "domain 0" are used for projection
+   !       information of user-specified source data
+   type (proj_info), dimension(-MAX_SOURCE_LEVELS:MAX_DOMAINS) :: proj_stack
+ 
+   ! The projection and domain that we have computed constants for
+   integer :: computed_proj = INVALID
+   integer :: computed_domain = INVALID
+ 
+   contains
+ 
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
+   ! Name: push_source_projection
+   !
+   ! Purpose: 
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
+   subroutine push_source_projection(iprojection, user_stand_lon, user_truelat1, user_truelat2, &
+                                  user_dxkm, user_dykm, user_dlat, user_dlon, user_known_x, &
+                                  user_known_y, user_known_lat, user_known_lon)
+ 
+      implicit none
+  
+      ! Arguments
+      integer, intent(in) :: iprojection
+      real, intent(in) :: user_stand_lon, user_truelat1, user_truelat2, user_dxkm, user_dykm, &
+                          user_dlat, user_dlon, &
+                          user_known_x, user_known_y, user_known_lat, user_known_lon
+  
+      SOURCE_PROJ = SOURCE_PROJ-1
+      if (SOURCE_PROJ < -MAX_SOURCE_LEVELS) then
+         call mprintf(.true.,ERROR,'In push_user_projection(), too many levels of user projections.')
+      end if
+  
+      call map_init(proj_stack(SOURCE_PROJ))
+  
+      if (iprojection == PROJ_LATLON) then
+         call map_set(iprojection, proj_stack(SOURCE_PROJ), &
+                      lat1=user_known_lat, &
+                      lon1=user_known_lon, &
+                      latinc=user_dlat, &
+                      loninc=user_dlon)
+  
+      else if (iprojection == PROJ_MERC) then
+         call map_set(iprojection, proj_stack(SOURCE_PROJ), &
+                      truelat1=user_truelat1, &
+                      lat1=user_known_lat, &
+                      lon1=user_known_lon, &
+                      knowni=user_known_x, &
+                      knownj=user_known_y, &
+                      dx=user_dxkm)
+  
+      else if (iprojection == PROJ_LC) then
+         call map_set(iprojection, proj_stack(SOURCE_PROJ), &
+                      truelat1=user_truelat1, &
+                      truelat2=user_truelat2, &
+                      stdlon=user_stand_lon, &
+                      lat1=user_known_lat, &
+                      lon1=user_known_lon, &
+                      knowni=user_known_x, &
+                      knownj=user_known_y, &
+                      dx=user_dxkm)
+  
+      else if (iprojection == PROJ_PS) then
+         call map_set(iprojection, proj_stack(SOURCE_PROJ), &
+                      truelat1=user_truelat1, &
+                      stdlon=user_stand_lon, &
+                      lat1=user_known_lat, &
+                      lon1=user_known_lon, &
+                      knowni=user_known_x, &
+                      knownj=user_known_y, &
+                      dx=user_dxkm)
+  
+      else if (iprojection == PROJ_GAUSS) then
+  ! BUG: Implement this projection.
+  
+      else if (iprojection == PROJ_ROTLL) then
+  ! BUG: Implement this projection.
+  
+      end if
+     
+   end subroutine push_source_projection
+ 
+ 
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
+   ! Name: pop_source_projection
+   !
+   ! Purpose: 
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
+   subroutine pop_source_projection()
+ 
+      implicit none
+  
+      SOURCE_PROJ = SOURCE_PROJ+1
+      
+      call mprintf((SOURCE_PROJ > 0), ERROR, &
+                   'In pop_user_projection(), projection stack has overflowed.')
+ 
+   end subroutine pop_source_projection
+ 
+ 
+#ifdef _METGRID
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
+   ! Name: set_domain_projection
+   !
+   ! Purpose: 
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
+   subroutine set_domain_projection(iprojection, user_stand_lon, user_truelat1, user_truelat2, &
+                                  user_dxkm, user_dykm, user_dlat, user_dlon, &
+                                  user_xdim, user_ydim, user_known_x, &
+                                  user_known_y, user_known_lat, user_known_lon)
+ 
+      implicit none
+  
+      ! Arguments
+      integer, intent(in) :: iprojection
+      integer, intent(in) :: user_xdim, user_ydim
+      real, intent(in) :: user_stand_lon, user_truelat1, user_truelat2, &
+                          user_dxkm, user_dykm, user_dlat, user_dlon, &
+                          user_known_x, user_known_y, user_known_lat, user_known_lon
+  
+      current_nest_number = 1
+
+      call map_init(proj_stack(current_nest_number))
+  
+      if (iprojection == PROJ_LATLON) then
+         call map_set(iprojection, proj_stack(current_nest_number), &
+                      lat1=user_known_lat, &
+                      lon1=user_known_lon, &
+                      latinc=user_dlat, &
+                      loninc=user_dlon)
+  
+      else if (iprojection == PROJ_MERC) then
+         call map_set(iprojection, proj_stack(current_nest_number), &
+                      truelat1=user_truelat1, &
+                      lat1=user_known_lat, &
+                      lon1=user_known_lon, &
+                      knowni=user_known_x, &
+                      knownj=user_known_y, &
+                      dx=user_dxkm)
+  
+      else if (iprojection == PROJ_LC) then
+         call map_set(iprojection, proj_stack(current_nest_number), &
+                      truelat1=user_truelat1, &
+                      truelat2=user_truelat2, &
+                      stdlon=user_stand_lon, &
+                      lat1=user_known_lat, &
+                      lon1=user_known_lon, &
+                      knowni=user_known_x, &
+                      knownj=user_known_y, &
+                      dx=user_dxkm)
+  
+      else if (iprojection == PROJ_PS) then
+         call map_set(iprojection, proj_stack(current_nest_number), &
+                      truelat1=user_truelat1, &
+                      stdlon=user_stand_lon, &
+                      lat1=user_known_lat, &
+                      lon1=user_known_lon, &
+                      knowni=user_known_x, &
+                      knownj=user_known_y, &
+                      dx=user_dxkm)
+  
+      else if (iprojection == PROJ_GAUSS) then
+  ! BUG: Implement this projection.
+  
+      else if (iprojection == PROJ_ROTLL) then
+         call map_set(iprojection, proj_stack(current_nest_number), &
+                      ixdim=user_xdim, &
+                      jydim=user_ydim, &
+                      phi=user_dlat, &
+                      lambda=user_dlon, &
+                      lat1=user_known_lat, &
+                      lon1=user_known_lon, &
+                      stagger=HH)
+  
+      end if
+     
+   end subroutine set_domain_projection
+#endif
+
+
+#ifdef _GEOGRID
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
+   ! Name: compute_nest_locations
+   !
+   ! Purpose: This routine computes the variables necessary in determining the 
+   !   location of all nests without reference to the parent or coarse domains.
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
+   subroutine compute_nest_locations()
+ 
+      implicit none
+  
+      ! Local variables
+      integer :: i
+      real :: temp_known_x, temp_known_y, temp_known_lat, temp_known_lon, temp_dxkm, temp_dykm
+  
+      ! Set location of coarse/mother domain
+      call map_init(proj_stack(1))
+  
+      if (iproj_type == PROJ_LATLON) then
+         call map_set(iproj_type, proj_stack(1), &
+                      lat1=known_lat, &
+                      lon1=known_lon, &
+                      latinc=dxkm, &
+                      loninc=dykm)
+   
+      else if (iproj_type == PROJ_MERC) then
+         call map_set(iproj_type, proj_stack(1), &
+                      truelat1=truelat1, &
+                      lat1=known_lat, &
+                      lon1=known_lon, &
+                      knowni=known_x, &
+                      knownj=known_y, &
+                      dx=dxkm)
+  
+      else if (iproj_type == PROJ_LC) then
+         call map_set(iproj_type, proj_stack(1), &
+                      truelat1=truelat1, &
+                      truelat2=truelat2, &
+                      stdlon=stand_lon, &
+                      lat1=known_lat, &
+                      lon1=known_lon, &
+                      knowni=known_x, &
+                      knownj=known_y, &
+                      dx=dxkm)
+  
+      else if (iproj_type == PROJ_PS) then
+         call map_set(iproj_type, proj_stack(1), &
+                      truelat1=truelat1, &
+                      stdlon=stand_lon, &
+                      lat1=known_lat, &
+                      lon1=known_lon, &
+                      knowni=known_x, &
+                      knownj=known_y, &
+                      dx=dxkm)
+  
+      else if (iproj_type == PROJ_GAUSS) then
+  ! BUG: Implement this projection.
+  
+      else if (iproj_type == PROJ_ROTLL) then
+         call map_set(iproj_type, proj_stack(1), &
+                      ixdim=ixdim(1), &
+                      jydim=jydim(1), &
+                      phi=phi, &
+                      lambda=lambda, &
+                      lat1=known_lat, &
+                      lon1=known_lon, &
+                      stagger=HH)
+   
+      end if
+  
+      ! Now we can compute lat/lon <-> x/y for coarse domain
+      call select_domain(1)
+  
+      ! Call a recursive procedure to find the lat/lon of the centerpoint for 
+      !   each domain
+      do i=2,n_domains
+  
+         temp_known_x = real(ixdim(i))/2.
+         temp_known_y = real(jydim(i))/2.
+         call find_known_latlon(i, temp_known_x, temp_known_y, &
+                                temp_known_lat, temp_known_lon, &
+                                temp_dxkm, temp_dykm)      
+   
+         if (iproj_type == PROJ_LATLON) then
+            call map_set(iproj_type, proj_stack(i), &
+                         lat1=temp_known_lat, &
+                         lon1=temp_known_lon, &
+                         latinc=temp_dxkm, &
+                         loninc=temp_dykm)
+   
+         else if (iproj_type == PROJ_MERC) then
+            call map_set(iproj_type, proj_stack(i), &
+                         truelat1=truelat1, &
+                         lat1=temp_known_lat, &
+                         lon1=temp_known_lon, &
+                         knowni=temp_known_x, &
+                         knownj=temp_known_y, &
+                         dx=temp_dxkm)
+    
+         else if (iproj_type == PROJ_LC) then
+            call map_set(iproj_type, proj_stack(i), &
+                         truelat1=truelat1, &
+                         truelat2=truelat2, &
+                         stdlon=stand_lon, &
+                         lat1=temp_known_lat, &
+                         lon1=temp_known_lon, &
+                         knowni=temp_known_x, &
+                         knownj=temp_known_y, &
+                         dx=temp_dxkm)
+   
+         else if (iproj_type == PROJ_PS) then
+            call map_set(iproj_type, proj_stack(i), &
+                         truelat1=truelat1, &
+                         stdlon=stand_lon, &
+                         lat1=temp_known_lat, &
+                         lon1=temp_known_lon, &
+                         knowni=temp_known_x, &
+                         knownj=temp_known_y, &
+                         dx=temp_dxkm)
+   
+         else if (iproj_type == PROJ_GAUSS) then
+   ! BUG: Implement this projection.
+   
+         else if (iproj_type == PROJ_ROTLL) then
+   ! BUG: Implement this projection.
+   
+         end if
+  
+      end do
+ 
+   end subroutine compute_nest_locations
+ 
+ 
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
+   ! Name: find_known_latlon
+   !
+   ! Purpose: This recursive routine computes the latitude and longitude for a 
+   !   specified x/y location in the given nest number, and also computes the
+   !   grid spacing
+   !
+   ! NOTE: This routine assumes that xytoll will work correctly for the 
+   !       coarse domain.
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
+   recursive subroutine find_known_latlon(n, rx, ry, rlat, rlon, dx, dy)
+ 
+      implicit none
+  
+      ! Arguments
+      integer, intent(in) :: n
+      real, intent(in) :: rx, ry
+      real, intent(out) :: rlat, rlon, dx, dy
+  
+      ! Local variables
+      real :: x_in_parent, y_in_parent
+  
+      if (n == 1) then   ! Stopping case for the recursion
+  
+         dx = dxkm 
+         dy = dykm 
+         call ij_to_latlon(proj_stack(current_nest_number), rx, ry, rlat, rlon)
+  
+         return
+  
+      else               ! Recursive case
+   
+         x_in_parent = (rx - ((parent_grid_ratio(n)+1.)/2.)) &
+                      / parent_grid_ratio(n) + parent_ll_x(n)
+         y_in_parent = (ry - ((parent_grid_ratio(n)+1.)/2.)) &
+                      / parent_grid_ratio(n) + parent_ll_y(n)
+   
+         call find_known_latlon(parent_id(n), x_in_parent, y_in_parent, rlat, rlon, dx, dy)
+   
+         dx = dx / parent_grid_ratio(n)
+         dy = dy / parent_grid_ratio(n)
+      end if 
+ 
+   end subroutine find_known_latlon
+
+   
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
+   ! Name: get_domain_resolution
+   !
+   ! Purpose:
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
+   subroutine get_domain_resolution(dom_dx, dom_dy)
+
+      implicit none
+
+      ! Arguments
+      real, intent(out) :: dom_dx, dom_dy
+
+      ! The proj_info structure only stores dx, so set both dom_dx and dom_dy to dx
+      dom_dx = proj_stack(current_nest_number)%dx
+      dom_dy = proj_stack(current_nest_number)%dx
+
+   end subroutine get_domain_resolution
+#endif
+
+
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
+   ! Name: select_domain
+   !
+   ! Purpose: This routine is used to select which nest x/y <-> lat/lon 
+   !   conversions will be with respect to. For example, selecting domain 2 will
+   !   cause the llxy routine to compute x/y locations with respect to domain 2
+   !   given a lat/lon.
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
+   subroutine select_domain(domain_num)
+ 
+      implicit none
+  
+      ! Arguments
+      integer, intent(in) :: domain_num
+  
+#ifdef _GEOGRID
+      if (domain_num > n_domains) then
+         call mprintf(.true.,ERROR,'In select_domain(), selected domain is greater than n_domains.')
+      end if
+#endif
+#ifdef _METGRID
+      if (domain_num > 1) then
+         call mprintf(.true.,ERROR,'In select_domain(), selected domain is greater than 1.')
+      end if
+#endif
+  
+      current_nest_number = domain_num
+ 
+   end subroutine select_domain
+ 
+ 
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
+   ! Name: iget_selected_domain
+   !
+   ! Purpose: This function returns the number of the currently selected nest. 
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
+   function iget_selected_domain()
+ 
+      implicit none
+  
+      ! Return value
+      integer :: iget_selected_domain
+      
+      iget_selected_domain = current_nest_number
+ 
+   end function iget_selected_domain 
+ 
+ 
+   subroutine lltoxy(xlat, xlon, x, y, stagger)
+ 
+      implicit none
+  
+      ! Arguments
+      integer, intent(in) :: stagger
+      real, intent(in) :: xlat, xlon
+      real, intent(out) :: x, y
+  
+      ! Account for grid staggering
+      if (stagger == HH) then
+         proj_stack(current_nest_number)%stagger = HH
+      else if (stagger == VV) then
+         proj_stack(current_nest_number)%stagger = VV
+      end if
+  
+      call latlon_to_ij(proj_stack(current_nest_number), xlat, xlon, x, y)
+  
+      ! Account for grid staggering
+      if (stagger == U) then
+         x = x + 0.5
+      else if (stagger == V) then
+         y = y + 0.5
+      end if
+ 
+   end subroutine lltoxy
+ 
+ 
+   subroutine xytoll(x, y, xlat, xlon, stagger)
+ 
+      implicit none
+  
+      ! Arguments
+      integer, intent(in) :: stagger
+      real, intent(in) :: x, y
+      real, intent(out) :: xlat, xlon
+  
+      ! Local variables
+      real :: rx, ry
+  
+      ! Account for grid staggering; we cannot modify x and y, so modify local
+      !   copies of them
+      if (stagger == U) then
+         rx = x - 0.5
+         ry = y
+      else if (stagger == V) then
+         rx = x
+         ry = y - 0.5
+      else if (stagger == HH) then
+         proj_stack(current_nest_number)%stagger = HH
+         rx = x
+         ry = y
+      else if (stagger == VV) then
+         proj_stack(current_nest_number)%stagger = VV
+         rx = x
+         ry = y
+      else
+         rx = x
+         ry = y
+      end if
+  
+      call ij_to_latlon(proj_stack(current_nest_number), rx, ry, xlat, xlon)
+ 
+   end subroutine xytoll
+
+end module llxy_module

@@ -1,0 +1,23 @@
+#!/bin/csh -f
+
+if ( ! -e configure.wps ) then
+	./configure
+endif
+
+echo " "
+echo "**** Compiling wps"
+echo " "
+
+set DEV_TOP = $PWD
+
+set names	=	( geogrid ungrib metgrid )
+set NAMES	=	( GEOGRID UNGRIB METGRID )
+
+set count = 1
+foreach f ( $names )
+	( cd $f ; make -i -r DEV_TOP="${DEV_TOP}" TARGET="${f}.exe" CPP_TARGET="$NAMES[$count]" all )
+	if ( -e ${f}/src/${f}.exe ) then
+		ln -sf ${f}/src/${f}.exe .
+	endif
+	@ count ++
+end

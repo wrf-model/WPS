@@ -1,0 +1,203 @@
+The execution of gridgen_model.exe is controlled by two user input 
+files, wrfsi.nl and input.table, both of which are described below. To 
+run gridgen_model, it is only really necessary that the user edit wrfsi.nl
+to specify the grid type, the projection and location of the domains, 
+the resolution of source data to use for each nest, and the location of
+the global static fields. The contents of the input.table file are used
+to add additional fields to the output of gridgen_model, or to modify
+the way in which any given field is processed by gridgen_model; for 
+example, the user may change the interpolation method used with a 
+particular field or resolution of source data. Editing input.table is
+not necessary if only the default output from gridgen_model is required.
+
+#######################
+# wrfsi.nl            #
+#######################
+wrfsi.nl contains the gridgen_model namelist record, which 
+contains variables describing the projection and location of domains.  
+The variables in the gridgen_model namelist record are:
+
+ gridtype = {'C', 'E'}  
+     the staggering of the model grid.
+
+ max_dom = {INTEGER}    
+     the number of domains to be processed; must be <= 20
+
+ parent_id = {INTEGER, 1 to max_dom}  
+     the id of this domain's parent; the parent_id of domain 1 is always 1
+
+ parent_grid_ratio = {INTEGER, 1 to max_dom}  
+     the ratio of this domain's grid distance to that of it's parent 
+
+ i_parent_start = {INTEGER, 1 to max_dom}  
+     the i-coordinate of this domain's left edge in it's parent domain 
+
+ j_parent_start = {INTEGER, 1 to max_dom}  
+     the j-coordinate of this domain's bottom edge in it's parent domain 
+
+ s_we = {INTEGER, 1 to max_dom}  
+     currently, should be set to 1 for every domain
+
+ e_we = {INTEGER, 1 to max_dom}  
+     the size of the west-east dimension for this grid
+
+ s_sn = {INTEGER, 1 to max_dom}  
+     currently, should be set to 1 for every domain
+
+ e_sn = {INTEGER, 1 to max_dom}  
+     the size of the south-north dimension for this grid
+
+ data_res = {'30s','2m','5m','10m', 1 to max_dom}
+     the resolution of source data that should be used when interpolating to 
+     this domain
+
+ dx = {REAL}
+     for C grid, the nominal grid distance, in meters, of domain 1 in the x 
+     direction; for E grid, the delta-longitude, in degrees
+
+ dy = {REAL}
+     for C grid, the nominal grid distance, in meters, of domain 1 in the y 
+     direction; for E grid, the delta-latitude, in degrees
+
+ map_proj = {'lambert','mercator','polar', 'rotated_ll'}
+     the projection of the domains; for E grid, map_proj must be 'rotated_ll'; 
+     for C grid, map_proj must not be 'rotated_ll'
+
+ known_x = {REAL}
+     for C grid, the i-coordinate of a point in the domain whose lat/lon is 
+     known; if not specified, (e_we/2) is assumed
+
+ known_y = {REAL}
+     for C grid, the j-coordinate of a point in the domain whose lat/lon is 
+     known; if not specified, (e_sn/2) is assumed
+
+ known_lat = {REAL}
+     for C grid, the latitude of the point (known_x, known_y); for E grid, the 
+     latitude of the point that the origin is rotated to
+
+ known_lon = {REAL}
+     for C grid, the longitude of the point (known_x, known_y); for E grid, the 
+     longitude of the point that the origin is rotated to
+
+ truelat1 = {REAL}
+     for map_proj={'lambert','mercator','polar'}, the first true latitude
+
+ truelat2 = {REAL}
+     for map_proj={'lambert'}, the second true latitude
+
+ stand_lon = {REAL}
+     for map_proj={'lambert','polar'}, the standard longitude
+
+ io_form_output = {INTEGER}
+     the form of the output files written by gridgen_model 
+
+ data_root = {'STRING'}
+     the absolute path to the static source fields (i.e., the untarred 
+     geog directory)
+
+
+#######################
+# input.table         #
+#######################
+input.table is a text file that is used to specify which fields 
+will be ingested and processed by gridgen_model; it also describes
+how each field should be processed by specifying the interpolation 
+and smoothing methods to be used for each field. The options that 
+may be given in input.table are:
+
+Mandatory options describing what the data is a source of and
+when it should be used:
+    fieldname = {STRING}  
+        name of output field calculated from this source
+    output_stagger = {U V M HH VV} 
+        the staggering of the output field
+    dest_fieldtype = {continuous categorical} 
+        type of field calculated from src
+    priority = {INTEGER}
+        priority level of this source (1 = highest priority)
+
+
+Options describing other aspects of the source:
+    path = {STRING} 
+        where to find the data
+    fill_missing = {REAL} 
+        value assigned to gridpoints that have no data
+    halt_on_missing = {yes no}
+        halt if missing values found in output field
+    z_dim_name = {STRING}
+        for 3-d output fields, name of z dimension
+    masked = {land water} 
+        this is field should be masked by land/water
+
+
+Option to indicate which field the landmask should be computed from; should be 
+specified for exactly one fieldname:
+    landmask_water = {INTEGER}
+        compute landmask based on value of water
+    landmask_land = {INTEGER} 
+        compute landmask based on value of land
+
+
+For dominant category-type fields:
+    dominant_category = {STRING}
+        name of dominant category to compute from src
+    dominant_only = {STRING}
+        only compute a dominant category from src
+
+For derivatives (only for continuous fields):
+    df_dx = {STRING}
+        calculate df_dx for this field, and name the result STRING
+    df_dy = {STRING} 
+        calculate df_dy for this field, and name the result STRING
+
+Other options:
+    scale_factor = {REAL}
+        scale final field by this scalar
+    interp_option = {sixteen_pt four_pt nearest_neighbor average}
+        interpolation type
+    smooth_option = {1-2-1 smth-desmth}
+        smoothing type, if specified
+    smooth_passes = {INTEGER} 
+        number of smoothing passes
+
+
+Mandatory options describing the projection of the source:
+These options are actually used in the `index' file for each 
+source, NOT in the input.table
+    fieldtype = {continuous categorical}
+        type of this source data
+    proj = {lambert polar mercator regular_ll}
+        projection of source
+    dx = {REAL}
+    dy = {REAL}
+    missing_value = {REAL} 
+        value of missing data
+    signed = {yes no} 
+        whether signed in 2's complement format
+    known_x = {REAL}
+    known_y = {REAL}
+    known_lat = {REAL}
+    known_lon = {REAL}
+    truelat1 = {REAL}
+    truelat2 = {REAL}
+    stdlon = {REAL}
+    units = {STRING}
+    description = {STRING}
+    wordsize = {INTEGER} 
+        how many bytes per value 
+    tile_x = {INTEGER}
+        number of points in x direction per tile
+    tile_y = {INTEGER}
+        number of points in y direction per tile
+    tile_z = {INTEGER}
+        number of points in z direction per tile
+    tile_z_start = {INTEGER}
+        alternate to tile_z; starting z index
+    tile_z_end = {INTEGER}
+        alternate to tile_z; ending z index
+    tile_bdr = {INTEGER}
+        number of halo points around each tile
+    category_min = {INTEGER}
+        for categorical data, min category in the source
+    category_max = {INTEGER}
+        for categorical data, max category in the source

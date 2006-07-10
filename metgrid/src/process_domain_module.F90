@@ -1,0 +1,2293 @@
+module process_domain_module
+
+   contains
+
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   ! Name: process_domain
+   !
+   ! Purpose:
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   subroutine process_domain(n, extra_row, extra_col)
+   
+      use date_pack
+      use gridinfo_module
+      use misc_definitions_module
+      use module_debug
+      use storage_module
+   
+      implicit none
+   
+      ! Arguments
+      integer, intent(in) :: n
+      logical, intent(in) :: extra_row, extra_col
+   
+      ! Local variables
+      integer :: t, dyn_opt, &
+                 we_dom_s, we_dom_e, sn_dom_s, sn_dom_e, &
+                 we_patch_s, we_patch_e, we_patch_stag_s, we_patch_stag_e, &
+                 sn_patch_s, sn_patch_e, sn_patch_stag_s, sn_patch_stag_e, &
+                 we_mem_s, we_mem_e, we_mem_stag_s, we_mem_stag_e, &
+                 sn_mem_s, sn_mem_e, sn_mem_stag_s, sn_mem_stag_e, &
+                 idiff, n_times, &
+                 west_east_dim, south_north_dim, bottom_top_dim, map_proj, &
+                 is_water, is_ice, grid_id, parent_id, i_parent_start, j_parent_start, &
+                 i_parent_end, j_parent_end, parent_grid_ratio
+      real :: cen_lat, moad_cen_lat, cen_lon, stand_lon, truelat1, truelat2, &
+              rx, ry, xfcst, xlvl, startlat, startlon, starti, startj, deltalat, deltalon, &
+              dom_dx, dom_dy
+      real, dimension(16) :: corner_lats, corner_lons
+      integer, pointer, dimension(:,:) :: landmask
+      real, pointer, dimension(:,:) :: xlat, xlon, xlat_u, xlon_u, xlat_v, xlon_v
+      character (len=19) :: valid_date, temp_date
+      character (len=128) :: cname, stagger, cunits, cdesc, title
+   
+      ! Compute number of times that we will process
+      call geth_idts(end_date(n), start_date(n), idiff)
+      call mprintf((idiff < 0),ERROR,'Ending date is earlier than starting date in namelist for domain %i.', i1=n)
+   
+      n_times = idiff / interval_seconds
+   
+      ! Check that the interval evenly divides the range of times to process
+      call mprintf((mod(idiff, interval_seconds) /= 0),WARN, &
+                   'In namelist, interval_seconds does not evenly divide '// &
+                   '(end_date - start_date) for domain %i. Only %i time periods '// &
+                   'will be processed.', i1=n, i2=n_times)
+   
+      ! Initialize the storage module
+      call mprintf(.true.,LOGFILE,'Initializing storage module')
+      call storage_init()
+   
+      ! 
+      ! Do time-independent processing
+      ! 
+      call get_static_fields(n, dyn_opt, west_east_dim, south_north_dim, bottom_top_dim, map_proj, &
+                    we_dom_s, we_dom_e, sn_dom_s, sn_dom_e, &
+                    we_patch_s,      we_patch_e, &
+                    we_patch_stag_s, we_patch_stag_e, &
+                    sn_patch_s,      sn_patch_e, &
+                    sn_patch_stag_s, sn_patch_stag_e, &
+                    we_mem_s, we_mem_e, we_mem_stag_s, we_mem_stag_e, &
+                    sn_mem_s, sn_mem_e, sn_mem_stag_s, sn_mem_stag_e, &
+                    is_water, is_ice, grid_id, parent_id, &
+                    i_parent_start, j_parent_start, i_parent_end, j_parent_end, &
+                    parent_grid_ratio, cen_lat, moad_cen_lat, cen_lon, stand_lon, truelat1, truelat2, &
+                    dom_dx, dom_dy, landmask, xlat, xlon, xlat_u, xlon_u, xlat_v, xlon_v, corner_lats, &
+                    corner_lons, title)
+   
+      ! This call is to process the constant met fields (SST or SEAICE, for example)
+      ! That we process constant fields is indicated by the first argument
+      call process_single_met_time(.true., temp_date, n, extra_row, extra_col, xlat, xlon, &
+                          xlat_u, xlon_u, xlat_v, xlon_v, landmask, &
+                          title, dyn_opt, &
+                          west_east_dim, south_north_dim, &
+                          we_dom_s, we_dom_e, sn_dom_s, sn_dom_e, &
+                          we_patch_s, we_patch_e, we_patch_stag_s, we_patch_stag_e, &
+                          sn_patch_s, sn_patch_e, sn_patch_stag_s, sn_patch_stag_e, &
+                          we_mem_s, we_mem_e, we_mem_stag_s, we_mem_stag_e, &
+                          sn_mem_s, sn_mem_e, sn_mem_stag_s, sn_mem_stag_e, &
+                          map_proj, is_water, is_ice, grid_id, parent_id, i_parent_start, &
+                          j_parent_start, i_parent_end, j_parent_end, dom_dx, dom_dy, &
+                          cen_lat, moad_cen_lat, cen_lon, stand_lon, truelat1, &
+                          truelat2, parent_grid_ratio, corner_lats, corner_lons)
+
+      !
+      ! Begin time-dependent processing
+      !
+   
+      ! Loop over all times to be processed for this domain
+      do t=0,n_times
+   
+         call geth_newdate(valid_date, trim(start_date(n)), t*interval_seconds)
+         temp_date = ' '
+         write(temp_date,'(a19)') valid_date(1:10)//'_'//valid_date(12:19)
+   
+         call mprintf(.true.,STDOUT, ' Processing %s', s1=trim(temp_date))
+         call mprintf(.true.,LOGFILE, 'Preparing to process output time %s', s1=temp_date)
+   
+         call process_single_met_time(.false., temp_date, n, extra_row, extra_col, xlat, xlon, &
+                             xlat_u, xlon_u, xlat_v, xlon_v, landmask, &
+                             title, dyn_opt, &
+                             west_east_dim, south_north_dim, &
+                             we_dom_s, we_dom_e, sn_dom_s, sn_dom_e, &
+                             we_patch_s, we_patch_e, we_patch_stag_s, we_patch_stag_e, &
+                             sn_patch_s, sn_patch_e, sn_patch_stag_s, sn_patch_stag_e, &
+                             we_mem_s, we_mem_e, we_mem_stag_s, we_mem_stag_e, &
+                             sn_mem_s, sn_mem_e, sn_mem_stag_s, sn_mem_stag_e, &
+                             map_proj, is_water, is_ice, grid_id, parent_id, i_parent_start, &
+                             j_parent_start, i_parent_end, j_parent_end, dom_dx, dom_dy, &
+                             cen_lat, moad_cen_lat, cen_lon, stand_lon, truelat1, &
+                             truelat2, parent_grid_ratio, corner_lats, corner_lons)
+   
+      end do  ! Loop over n_times
+   
+      call storage_delete_all()
+   
+   end subroutine process_domain
+
+
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   ! Name: get_static_fields
+   !
+   ! Purpose:
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   subroutine get_static_fields(n, dyn_opt, west_east_dim, south_north_dim, bottom_top_dim, &
+                    map_proj, &
+                    we_dom_s,   we_dom_e,   sn_dom_s,        sn_dom_e, &
+                    we_patch_s, we_patch_e, we_patch_stag_s, we_patch_stag_e, &
+                    sn_patch_s, sn_patch_e, sn_patch_stag_s, sn_patch_stag_e, &
+                    we_mem_s, we_mem_e, we_mem_stag_s, we_mem_stag_e, &
+                    sn_mem_s, sn_mem_e, sn_mem_stag_s, sn_mem_stag_e, &
+                    is_water, is_ice, grid_id, parent_id, &
+                    i_parent_start, j_parent_start, i_parent_end, j_parent_end, &
+                    parent_grid_ratio, cen_lat, moad_cen_lat, cen_lon, stand_lon, truelat1, truelat2, &
+                    dom_dx, dom_dy, landmask, xlat, xlon, xlat_u, xlon_u, xlat_v, xlon_v, corner_lats, &
+                    corner_lons, title)
+
+      use gridinfo_module
+      use input_module
+      use llxy_module
+      use parallel_module
+      use storage_module
+
+      implicit none
+
+      ! Arguments
+      integer, intent(in) :: n
+      integer, intent(inout) :: dyn_opt, west_east_dim, south_north_dim, bottom_top_dim, &
+                                map_proj, &
+                                we_dom_s, we_dom_e, sn_dom_s, sn_dom_e, &
+                                we_patch_s, we_patch_e, we_patch_stag_s, we_patch_stag_e, &
+                                sn_patch_s, sn_patch_e, sn_patch_stag_s, sn_patch_stag_e, &
+                                we_mem_s, we_mem_e, we_mem_stag_s, we_mem_stag_e, &
+                                sn_mem_s, sn_mem_e, sn_mem_stag_s, sn_mem_stag_e, &
+                                is_water, is_ice, grid_id, parent_id, &
+                                i_parent_start, j_parent_start, i_parent_end, j_parent_end, &
+                                parent_grid_ratio
+      integer, pointer, dimension(:,:) :: landmask
+      real, intent(inout) :: cen_lat, moad_cen_lat, cen_lon, stand_lon, truelat1, truelat2, &
+                             dom_dx, dom_dy
+      real, pointer, dimension(:,:) :: xlat, xlon, xlat_u, xlon_u, xlat_v, xlon_v
+      real, dimension(16) :: corner_lats, corner_lons
+      character (len=128), intent(inout) :: title
+    
+      ! Local variables
+      integer :: istatus, i, j, k, sp1, ep1, sp2, ep2, sp3, ep3, &
+                 lh_mult, rh_mult, bh_mult, th_mult
+      integer, pointer, dimension(:,:,:) :: int_array
+      real, pointer, dimension(:,:,:) :: real_array
+      character (len=3) :: memorder
+      character (len=128) :: grid_type, datestr, cname, stagger, cunits, cdesc
+      character (len=128), dimension(3) :: dimnames
+      type (fg_input) :: field
+
+      ! Initialize the input module to read static input data for this domain
+      call mprintf(.true.,LOGFILE,'Opening static input file.')
+      call input_init(n, istatus)
+      call mprintf((istatus /= 0),ERROR, 'input_init(): Error opening input for domain %i.', i1=n)
+   
+      ! Read global attributes from the static data input file 
+      call mprintf(.true.,LOGFILE,'Reading static global attributes.')
+      call read_global_attrs(title, datestr, grid_type, dyn_opt, west_east_dim, &
+                             south_north_dim, bottom_top_dim, &
+                             we_patch_s, we_patch_e, we_patch_stag_s, we_patch_stag_e, &
+                             sn_patch_s, sn_patch_e, sn_patch_stag_s, sn_patch_stag_e, &
+                             map_proj, is_water, is_ice, grid_id, parent_id, i_parent_start, &
+                             j_parent_start, i_parent_end, j_parent_end, dom_dx, dom_dy, &
+                             cen_lat, moad_cen_lat, cen_lon, stand_lon, truelat1, &
+                             truelat2, parent_grid_ratio, corner_lats, corner_lons)
+
+      we_dom_s = 1
+      sn_dom_s = 1
+      we_dom_e = west_east_dim   - 1
+      sn_dom_e = south_north_dim - 1
+     
+      ! Given the full dimensions of this domain, find out the range of indices 
+      !   that will be worked on by this processor. This information is given by 
+      !   my_minx, my_miny, my_maxx, my_maxy
+      call parallel_get_tile_dims(west_east_dim, south_north_dim)
+
+      ! Must figure out patch dimensions from info in parallel module
+      if (nprocs > 1 .and. .not. do_tiled_input) then
+
+         we_patch_s      = my_minx
+         we_patch_stag_s = my_minx
+         we_patch_e      = my_maxx - 1
+         sn_patch_s      = my_miny
+         sn_patch_stag_s = my_miny
+         sn_patch_e      = my_maxy - 1
+
+         if (gridtype == 'C') then
+            if (my_x /= nproc_x - 1) then
+               we_patch_e = we_patch_e + 1
+               we_patch_stag_e = we_patch_e
+            else
+               we_patch_stag_e = we_patch_e + 1
+            end if
+            if (my_y /= nproc_y - 1) then
+               sn_patch_e = sn_patch_e + 1
+               sn_patch_stag_e = sn_patch_e
+            else
+               sn_patch_stag_e = sn_patch_e + 1
+            end if
+         else if (gridtype == 'E') then
+            we_patch_e = we_patch_e + 1
+            sn_patch_e = sn_patch_e + 1
+            we_patch_stag_e = we_patch_e
+            sn_patch_stag_e = sn_patch_e
+         end if
+
+      end if
+
+      ! Compute multipliers for halo width; these must be 0/1
+      if (my_x /= 0) then
+        lh_mult = 1
+      else
+        lh_mult = 0
+      end if
+      if (my_x /= (nproc_x-1)) then
+        rh_mult = 1
+      else
+        rh_mult = 0
+      end if
+      if (my_y /= 0) then
+        bh_mult = 1
+      else
+        bh_mult = 0
+      end if
+      if (my_y /= (nproc_y-1)) then
+        th_mult = 1
+      else
+        th_mult = 0
+      end if
+
+      we_mem_s = we_patch_s - HALO_WIDTH*lh_mult
+      we_mem_e = we_patch_e + HALO_WIDTH*rh_mult
+      sn_mem_s = sn_patch_s - HALO_WIDTH*bh_mult
+      sn_mem_e = sn_patch_e + HALO_WIDTH*th_mult
+      we_mem_stag_s = we_patch_stag_s - HALO_WIDTH*lh_mult
+      we_mem_stag_e = we_patch_stag_e + HALO_WIDTH*rh_mult
+      sn_mem_stag_s = sn_patch_stag_s - HALO_WIDTH*bh_mult
+      sn_mem_stag_e = sn_patch_stag_e + HALO_WIDTH*th_mult
+
+      ! Initialize a proj_info type for the destination grid projection. This will
+      !   primarily be used for rotating Earth-relative winds to grid-relative winds
+      call set_domain_projection(map_proj, stand_lon, truelat1, truelat2, &
+                                 dom_dx, dom_dy, dom_dx, dom_dy, west_east_dim, &
+                                 south_north_dim, real(west_east_dim)/2., &
+                                 real(south_north_dim)/2.,cen_lat, cen_lon)
+   
+      ! Read static fields using the input module; we know that there are no more
+      !   fields to be read when read_next_field() returns a non-zero status.
+      istatus = 0
+      do while (istatus == 0)  
+        call read_next_field(sp1, ep1, sp2, ep2, sp3, ep3, cname, cunits, cdesc, &
+                             memorder, stagger, dimnames, real_array, int_array, &
+                             istatus)
+        if (istatus == 0) then
+
+          call mprintf(.true.,LOGFILE, 'Read in static field %s.',s1=cname)
+   
+          ! We will also keep copies in core of the lat/lon arrays, for use in 
+          !    interpolation of the met fields to the model grid.
+          ! For now, we assume that the lat/lon arrays will have known field names
+          if (index(cname, 'XLAT_M') /= 0) then
+             allocate(xlat(we_mem_s:we_mem_e,sn_mem_s:sn_mem_e))
+             xlat(we_patch_s:we_patch_e,sn_patch_s:sn_patch_e) = real_array(:,:,1)
+             call exchange_halo_r(xlat, & 
+                                  we_mem_s, we_mem_e, sn_mem_s, sn_mem_e, 1, 1, &
+                                  we_patch_s, we_patch_e, sn_patch_s, sn_patch_e, 1, 1)
+
+          else if (index(cname, 'XLONG_M') /= 0) then
+             allocate(xlon(we_mem_s:we_mem_e,sn_mem_s:sn_mem_e))
+             xlon(we_patch_s:we_patch_e,sn_patch_s:sn_patch_e) = real_array(:,:,1)
+             call exchange_halo_r(xlon, & 
+                                  we_mem_s, we_mem_e, sn_mem_s, sn_mem_e, 1, 1, &
+                                  we_patch_s, we_patch_e, sn_patch_s, sn_patch_e, 1, 1)
+
+          else if (index(cname, 'XLAT_U') /= 0) then
+             allocate(xlat_u(we_mem_stag_s:we_mem_stag_e,sn_mem_s:sn_mem_e))
+             xlat_u(we_patch_stag_s:we_patch_stag_e,sn_patch_s:sn_patch_e) = real_array(:,:,1)
+             call exchange_halo_r(xlat_u, & 
+                                  we_mem_stag_s, we_mem_stag_e, sn_mem_s, sn_mem_e, 1, 1, &
+                                  we_patch_stag_s, we_patch_stag_e, sn_patch_s, sn_patch_e, 1, 1)
+
+          else if (index(cname, 'XLONG_U') /= 0) then
+             allocate(xlon_u(we_mem_stag_s:we_mem_stag_e,sn_mem_s:sn_mem_e))
+             xlon_u(we_patch_stag_s:we_patch_stag_e,sn_patch_s:sn_patch_e) = real_array(:,:,1)
+             call exchange_halo_r(xlon_u, & 
+                                  we_mem_stag_s, we_mem_stag_e, sn_mem_s, sn_mem_e, 1, 1, &
+                                  we_patch_stag_s, we_patch_stag_e, sn_patch_s, sn_patch_e, 1, 1)
+
+          else if (index(cname, 'XLAT_V') /= 0) then
+             allocate(xlat_v(we_mem_s:we_mem_e,sn_mem_stag_s:sn_mem_stag_e))
+             xlat_v(we_patch_s:we_patch_e,sn_patch_stag_s:sn_patch_stag_e) = real_array(:,:,1)
+             call exchange_halo_r(xlat_v, & 
+                                  we_mem_s, we_mem_e, sn_mem_stag_s, sn_mem_stag_e, 1, 1, &
+                                  we_patch_s, we_patch_e, sn_patch_stag_s, sn_patch_stag_e, 1, 1)
+
+          else if (index(cname, 'XLONG_V') /= 0) then
+             allocate(xlon_v(we_mem_s:we_mem_e,sn_mem_stag_s:sn_mem_stag_e))
+             xlon_v(we_patch_s:we_patch_e,sn_patch_stag_s:sn_patch_stag_e) = real_array(:,:,1)
+             call exchange_halo_r(xlon_v, & 
+                                  we_mem_s, we_mem_e, sn_mem_stag_s, sn_mem_stag_e, 1, 1, &
+                                  we_patch_s, we_patch_e, sn_patch_stag_s, sn_patch_stag_e, 1, 1)
+
+          else if (index(cname, 'LANDMASK') /= 0) then
+             allocate(landmask(we_mem_s:we_mem_e,sn_mem_s:sn_mem_e))
+             landmask(we_patch_s:we_patch_e,sn_patch_s:sn_patch_e) = int_array(:,:,1)
+             call exchange_halo_i(landmask, & 
+                                  we_mem_s, we_mem_e, sn_mem_s, sn_mem_e, 1, 1, &
+                                  we_patch_s, we_patch_e, sn_patch_s, sn_patch_e, 1, 1)
+
+          end if
+    
+          ! Having read in a field, we write each level individually to the
+          !   storage module; levels will be reassembled later on when they
+          !   are written.
+          do k=sp3,ep3
+             field%header%version = 1
+             field%header%date = start_date(n) 
+             field%header%time_dependent = .false.
+             field%header%mask_field = .false.
+             field%header%forecast_hour = 0.0
+             field%header%fg_source = 'geogrid_model'
+             field%header%field = cname
+             field%header%units = cunits
+             field%header%description = cdesc
+             field%header%vertical_coord = dimnames(3) 
+             field%header%vertical_level = k
+             field%header%array_order = memorder
+             field%header%dim1(1) = sp1 - HALO_WIDTH*lh_mult
+             field%header%dim1(2) = ep1 + HALO_WIDTH*rh_mult
+             field%header%dim2(1) = sp2 - HALO_WIDTH*bh_mult
+             field%header%dim2(2) = ep2 + HALO_WIDTH*th_mult
+             field%header%winds_rotated_on_input = .false.
+             field%header%array_has_missing_values = .false.
+             if (gridtype == 'C') then
+                if (trim(stagger) == 'M') then
+                   field%map%stagger = M
+                else if (trim(stagger) == 'U') then
+                   field%map%stagger = U
+                else if (trim(stagger) == 'V') then
+                   field%map%stagger = V
+                end if
+             else if (gridtype == 'E') then
+                if (trim(stagger) == 'M') then
+                   field%map%stagger = HH
+                else if (trim(stagger) == 'V') then
+                   field%map%stagger = VV
+                end if
+             end if
+            
+             if (associated(real_array)) then
+                allocate(field%r_arr(sp1-HALO_WIDTH*lh_mult:ep1+HALO_WIDTH*rh_mult,&
+                                     sp2-HALO_WIDTH*bh_mult:ep2+HALO_WIDTH*th_mult))
+                field%r_arr(sp1:ep1,sp2:ep2) = real_array(:,:,k)
+                nullify(field%i_arr)
+             else if (associated(int_array)) then
+                allocate(field%i_arr(sp1-HALO_WIDTH*lh_mult:ep1+HALO_WIDTH*rh_mult,&
+                                     sp2-HALO_WIDTH*bh_mult:ep2+HALO_WIDTH*th_mult))
+                field%i_arr(sp1:ep1,sp2:ep2) = int_array(:,:,k)
+                nullify(field%r_arr)
+             end if
+             allocate(field%valid_mask)
+             call bitarray_create(field%valid_mask, &
+                                  (ep1+HALO_WIDTH*rh_mult)-(sp1-HALO_WIDTH*lh_mult)+1, &
+                                  (ep2+HALO_WIDTH*th_mult)-(sp2-HALO_WIDTH*bh_mult)+1)
+             do j=1,ep2-sp2+1
+                do i=1,ep1-sp1+1
+                   call bitarray_set(field%valid_mask, i, j)     
+                end do
+             end do
+             nullify(field%modified_mask)
+     
+             call storage_put_field(field)
+    
+          end do
+    
+        end if
+      end do
+    
+      ! Done reading all static fields for this domain
+      call input_close()
+
+   end subroutine get_static_fields
+
+
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   ! Name: process_single_met_time
+   !
+   ! Purpose:
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   subroutine process_single_met_time(do_const_processing, &
+                             temp_date, n, extra_row, extra_col, xlat, xlon, &
+                             xlat_u, xlon_u, xlat_v, xlon_v, landmask, &
+                             title, dyn_opt, &
+                             west_east_dim, south_north_dim, &
+                             we_domain_s, we_domain_e, sn_domain_s, sn_domain_e, &
+                             we_patch_s, we_patch_e, we_patch_stag_s, we_patch_stag_e, &
+                             sn_patch_s, sn_patch_e, sn_patch_stag_s, sn_patch_stag_e, &
+                             we_mem_s, we_mem_e, we_mem_stag_s, we_mem_stag_e, &
+                             sn_mem_s, sn_mem_e, sn_mem_stag_s, sn_mem_stag_e, &
+                             map_proj, is_water, is_ice, grid_id, parent_id, i_parent_start, &
+                             j_parent_start, i_parent_end, j_parent_end, dom_dx, dom_dy, &
+                             cen_lat, moad_cen_lat, cen_lon, stand_lon, truelat1, &
+                             truelat2, parent_grid_ratio, corner_lats, corner_lons)
+   
+      use bitarray_module
+      use gridinfo_module
+      use interp_module
+      use interp_option_module
+      use llxy_module
+      use misc_definitions_module
+      use module_debug
+      use output_module
+      use parallel_module
+      use read_met_module
+      use rotate_winds_module
+      use storage_module
+   
+      implicit none
+   
+      ! Arguments
+      logical, intent(in) :: do_const_processing
+      integer, intent(in) :: n, dyn_opt, west_east_dim, south_north_dim, map_proj, &
+                 we_domain_s, we_domain_e, sn_domain_s, sn_domain_e, &
+                 we_patch_s, we_patch_e, we_patch_stag_s, we_patch_stag_e, &
+                 sn_patch_s, sn_patch_e, sn_patch_stag_s, sn_patch_stag_e, &
+                 we_mem_s, we_mem_e, we_mem_stag_s, we_mem_stag_e, &
+                 sn_mem_s, sn_mem_e, sn_mem_stag_s, sn_mem_stag_e, &
+                 is_water, is_ice, grid_id, parent_id, i_parent_start, j_parent_start, &
+                 i_parent_end, j_parent_end, parent_grid_ratio
+      integer, pointer, dimension(:,:) :: landmask
+      real, intent(in) :: dom_dx, dom_dy, cen_lat, moad_cen_lat, cen_lon, stand_lon, truelat1, truelat2
+      real, dimension(16), intent(in) :: corner_lats, corner_lons
+      real, pointer, dimension(:,:) :: xlat, xlon, xlat_u, xlon_u, xlat_v, xlon_v
+      logical, intent(in) :: extra_row, extra_col
+      character (len=19), intent(in) :: temp_date
+   
+      ! Local variables
+      integer :: istatus, iqstatus, fg_idx, idx, i, j, bottom_top_dim, &
+                 sm1, em1, em1_stag, sm2, em2, em2_stag, sm3, em3, &
+                 sp1, ep1, ep1_stag, sp2, ep2, ep2_stag, sp3, ep3, &
+                 sd1, ed1, sd2, ed2, sd3, ed3, met_map_proj, &
+                 version, nx, ny, &
+                 u_idx
+      real :: rx, ry, xfcst, xlvl, startlat, startlon, starti, startj, deltalat, deltalon
+      real :: threshold, met_dx, met_dy
+      real :: met_cen_lon, met_truelat1, met_truelat2
+      logical :: is_rotated, do_special_interp
+      integer, pointer, dimension(:) :: u_levels, v_levels
+      integer, pointer, dimension(:,:,:) :: int_array
+      real, pointer, dimension(:,:) :: slab, data_count
+      real, pointer, dimension(:,:,:) :: real_array
+      character (len=3) :: memorder
+      character (len=9) :: short_fieldnm
+      character (len=24) :: hdate
+      character (len=25) :: units
+      character (len=32) :: map_src
+      character (len=46) :: desc
+      character (len=128) :: cname, title, input_name
+      character (len=128), dimension(3) :: dimnames
+      type (fg_input) :: field, u_field, v_field
+   
+      ! For this time, we need to process all first-guess filename roots. When we 
+      !   hit a root containing a '*', we assume we have hit the end of the list
+      fg_idx = 1
+      if (do_const_processing) then
+         input_name = constants_name(fg_idx)
+      else
+         input_name = fg_name(fg_idx)
+      end if
+      do while (input_name /= '*')
+   
+         call mprintf(.true.,STDOUT, '    %s', s1=input_name)
+         call mprintf(.true.,LOGFILE, 'Getting input fields from %s', s1=input_name)
+
+         ! Do a first pass through this fg source to get all mask fields used
+         !   during interpolation
+         call get_interp_masks(trim(input_name), do_const_processing, temp_date(1:13))
+   
+         ! Initialize the module for reading in the met fields
+         call read_met_init(trim(input_name), do_const_processing, temp_date(1:13))
+   
+         ! Process all fields and levels from the current file; read_next_met_field()
+         !   will return a non-zero status when there are no more fields to be read.
+         istatus = 0
+         do while (istatus == 0) 
+   
+            call read_next_met_field(version, short_fieldnm, hdate, xfcst, xlvl, units, desc, &
+                                met_map_proj, startlat, startlon, starti, startj, deltalat, &
+                                deltalon, met_dx, met_dy, met_cen_lon, met_truelat1, met_truelat2, nx, ny, &
+                                map_src, slab, is_rotated, istatus)
+   
+            if (istatus == 0) then
+               call mprintf(.true.,LOGFILE,'Processing %s at level %f.',s1=short_fieldnm,f1=xlvl)               
+
+               call push_source_projection(met_map_proj, met_cen_lon, met_truelat1, &
+                                 met_truelat2, met_dx, met_dy, deltalat, deltalon, starti, startj, &
+                                 startlat, startlon)
+   
+               ! Initialize fg_input structure to store the field
+               field%header%version = 1
+               field%header%date = hdate//'        '
+               if (do_const_processing) then
+                  field%header%time_dependent = .false.
+               else
+                  field%header%time_dependent = .true.
+               end if
+               field%header%mask_field = .false.
+               field%header%forecast_hour = xfcst 
+               field%header%fg_source = 'FG'
+               field%header%field = ' '
+               field%header%field(1:9) = short_fieldnm
+               field%header%units = ' '
+               field%header%units(1:25) = units
+               field%header%description = ' '
+               field%header%description(1:46) = desc
+               field%header%vertical_coord = 'p_or_gvc' 
+               field%header%vertical_level = nint(xlvl) 
+               field%header%array_order = 'XY ' 
+               field%header%winds_rotated_on_input = is_rotated 
+               field%header%array_has_missing_values = .false.
+               nullify(field%r_arr)
+               nullify(field%i_arr)
+               nullify(field%valid_mask)
+               nullify(field%modified_mask)
+   
+               ! Find index into fieldname, interp_method, masked, and fill_missing
+               !   of the current field
+               do idx=1,num_entries
+                  if ((index(fieldname(idx), trim(short_fieldnm)) /= 0) .and. &
+                      (len_trim(fieldname(idx)) == len_trim(short_fieldnm))) exit
+               end do
+               if (idx > num_entries) idx = num_entries ! The last entry is a default
+   
+               !
+               ! Before actually doing any interpolation to the model grid, we must check
+               !    whether we will be using a "special" interpolator that averages all 
+               !    source points in each model grid cell
+               !
+               do_special_interp = .false.
+               if (index(interp_method(idx),'special') /= 0) then
+   
+                  call get_special_threshold(interp_method(idx), threshold, istatus)
+                  if (istatus == 0) then
+                     if (met_dx == 0. .and. met_dy == 0. .and. &
+                         deltalat /= 0. .and. deltalon /= 0.) then
+                        met_dx = abs(deltalon)
+                        met_dy = abs(deltalat)
+                     end if
+                     if (gridtype == 'C') then
+                        if (threshold*max(met_dx,met_dy)*111. <= max(dom_dx,dom_dy)/1000.) &
+                           do_special_interp = .true. 
+                     else if (gridtype == 'E') then
+                        if (threshold*max(met_dx,met_dy) <= max(dom_dx,dom_dy)) &
+                           do_special_interp = .true. 
+                     end if
+                  end if
+               end if
+   
+               ! U field must be interpolated to U staggering for C grid, V staggering for E grid
+               if ((index(field%header%field, 'U') /= 0) .and. &
+                   (len_trim(field%header%field) == 1)) then
+
+                  call storage_query_field(field, iqstatus)
+                  if (iqstatus == 0) then
+                     call storage_get_field(field, iqstatus)
+                     call mprintf((iqstatus /= 0),ERROR,'Queried field %s at level %i and found it, but could not get data.',s1=short_fieldnm,i1=nint(xlvl))
+                     if (associated(field%modified_mask)) then
+                        call bitarray_destroy(field%modified_mask)
+                        nullify(field%modified_mask)
+                     end if
+                  else
+                     allocate(field%valid_mask)
+                     call bitarray_create(field%valid_mask, we_mem_stag_e-we_mem_stag_s+1, sn_mem_e-sn_mem_s+1)
+                  end if
+   
+                  ! Save a copy of the fg_input structure for the U field so that we can find it later
+                  call dup(field, u_field)
+
+                  allocate(field%modified_mask)
+                  call bitarray_create(field%modified_mask, we_mem_stag_e-we_mem_stag_s+1, sn_mem_e-sn_mem_s+1)
+
+                  if (gridtype == 'C') then
+                     call interp_met_field(gridtype, short_fieldnm, U, &
+                                  field, xlat_u, xlon_u, we_mem_stag_s, we_mem_stag_e, sn_mem_s, sn_mem_e, &
+                                  slab, nx, ny, do_special_interp, field%modified_mask)
+
+                  else if (gridtype == 'E') then
+                     call interp_met_field(gridtype, short_fieldnm, VV, &
+                                  field, xlat_v, xlon_v, we_mem_stag_s, we_mem_stag_e, sn_mem_s, sn_mem_e, &
+                                  slab, nx, ny, do_special_interp, field%modified_mask)
+                  end if
+
+               ! V field must be interpolated to V staggering for C grid, V staggering for E grid
+               else if ((index(field%header%field, 'V') /= 0) .and. &
+                   (len_trim(field%header%field) == 1)) then
+
+                  call storage_query_field(field, iqstatus)
+                  if (iqstatus == 0) then
+                     call storage_get_field(field, iqstatus)
+                     call mprintf((iqstatus /= 0),ERROR,'Queried field %s at level %i and found it, but could not get data.',s1=short_fieldnm,i1=nint(xlvl))
+                     if (associated(field%modified_mask)) then
+                        call bitarray_destroy(field%modified_mask)
+                        nullify(field%modified_mask)
+                     end if
+                  else
+                     allocate(field%valid_mask)
+                     call bitarray_create(field%valid_mask, we_mem_e-we_mem_s+1, sn_mem_stag_e-sn_mem_stag_s+1)
+                  end if
+   
+                  ! Save a copy of the fg_input structure for the V field so that we can find it later
+                  call dup(field, v_field)
+
+                  allocate(field%modified_mask)
+                  call bitarray_create(field%modified_mask, we_mem_e-we_mem_s+1, sn_mem_stag_e-sn_mem_stag_s+1)
+
+                  if (gridtype == 'C') then
+                     call interp_met_field(gridtype, short_fieldnm, V, &
+                                  field, xlat_v, xlon_v, we_mem_s, we_mem_e, sn_mem_stag_s, sn_mem_stag_e, &
+                                  slab, nx, ny, do_special_interp, field%modified_mask)
+
+                  else if (gridtype == 'E') then
+                     call interp_met_field(gridtype, short_fieldnm, VV, &
+                                  field, xlat_v, xlon_v, we_mem_s, we_mem_e, sn_mem_stag_s, sn_mem_stag_e, &
+                                  slab, nx, ny, do_special_interp, field%modified_mask)
+                  end if
+          
+               ! All other fields interpolated to M staggering for C grid, H staggering for E grid
+               else
+
+                  call storage_query_field(field, iqstatus)
+                  if (iqstatus == 0) then
+                     call storage_get_field(field, iqstatus)
+                     call mprintf((iqstatus /= 0),ERROR,'Queried field %s at level %i and found it, but could not get data.',s1=short_fieldnm,i1=nint(xlvl))
+                     if (associated(field%modified_mask)) then
+                        call bitarray_destroy(field%modified_mask)
+                        nullify(field%modified_mask)
+                     end if
+                  else
+                     allocate(field%valid_mask)
+                     call bitarray_create(field%valid_mask, we_mem_e-we_mem_s+1, sn_mem_e-sn_mem_s+1)
+                  end if
+
+                  allocate(field%modified_mask)
+                  call bitarray_create(field%modified_mask, we_mem_e-we_mem_s+1, sn_mem_e-sn_mem_s+1)
+
+                  if (gridtype == 'C') then
+                     call interp_met_field(gridtype, short_fieldnm, M, &
+                                  field, xlat, xlon, we_mem_s, we_mem_e, sn_mem_s, sn_mem_e, &
+                                  slab, nx, ny, do_special_interp, field%modified_mask, landmask)
+
+                  else if (gridtype == 'E') then
+                     call interp_met_field(gridtype, short_fieldnm, HH, &
+                                  field, xlat, xlon, we_mem_s, we_mem_e, sn_mem_s, sn_mem_e, &
+                                  slab, nx, ny, do_special_interp, field%modified_mask, landmask)
+                  end if
+
+               end if
+
+               call bitarray_merge(field%valid_mask, field%modified_mask)
+   
+               deallocate(slab)
+                            
+               ! Store the interpolated field
+               call storage_put_field(field)
+
+               call pop_source_projection()
+
+            end if
+         end do
+   
+         call read_met_close()
+
+         call push_source_projection(met_map_proj, met_cen_lon, met_truelat1, &
+                           met_truelat2, met_dx, met_dy, deltalat, deltalon, starti, startj, &
+                           startlat, startlon)
+   
+         !
+         ! If necessary, rotate winds to earth-relative for this fg source
+         !
+   
+         call storage_get_levels(u_field, u_levels)
+         call storage_get_levels(v_field, v_levels)
+   
+         if (associated(u_levels) .and. associated(v_levels)) then 
+            u_idx = 1
+            do u_idx = 1, size(u_levels)
+               u_field%header%vertical_level = u_levels(u_idx)
+               call storage_get_field(u_field, istatus)
+               v_field%header%vertical_level = v_levels(u_idx)
+               call storage_get_field(v_field, istatus)
+
+               if (associated(u_field%modified_mask) .and. &
+                   associated(v_field%modified_mask)) then
+  
+! BUG: Need to consider that E grid doesn't have u_s and u_e, since no U staggering.
+! BUG: Perhaps we need entirely separate map rotation routines for E staggering, where U and V are colocated.
+                  if (.not. u_field%header%winds_rotated_on_input) then
+                     if (gridtype == 'C') then
+                        call map_to_met(u_field%r_arr, u_field%modified_mask, &
+                                        v_field%r_arr, v_field%modified_mask, &
+                                        we_mem_stag_s, sn_mem_s, &
+                                        we_mem_stag_e, sn_mem_e, &
+                                        we_mem_s, sn_mem_stag_s, &
+                                        we_mem_e, sn_mem_stag_e, &
+                                        xlon_u, xlon_v)
+                     else if (gridtype == 'E') then
+                        call map_to_met_nmm(u_field%r_arr, u_field%modified_mask, &
+                                            v_field%r_arr, v_field%modified_mask, &
+                                            we_mem_s, sn_mem_s, &
+                                            we_mem_e, sn_mem_e, &
+                                            xlon_v)
+                     end if
+                  end if
+
+                  call bitarray_destroy(u_field%modified_mask)
+                  call bitarray_destroy(v_field%modified_mask)
+                  nullify(u_field%modified_mask)
+                  nullify(v_field%modified_mask)
+                  call storage_put_field(u_field)
+                  call storage_put_field(v_field)
+               end if
+
+            end do
+
+            deallocate(u_levels)
+            deallocate(v_levels)
+
+         end if
+
+         call pop_source_projection()
+   
+         fg_idx = fg_idx + 1
+         if (do_const_processing) then
+            input_name = constants_name(fg_idx)
+         else
+            input_name = fg_name(fg_idx)
+         end if
+      end do ! while (input_name /= '*')
+   
+      !
+      ! Rotate winds from earth-relative to grid-relative
+      !
+   
+      call storage_get_levels(u_field, u_levels)
+      call storage_get_levels(v_field, v_levels)
+   
+      if (associated(u_levels) .and. associated(v_levels)) then 
+         u_idx = 1
+         do u_idx = 1, size(u_levels)
+            u_field%header%vertical_level = u_levels(u_idx)
+            call storage_get_field(u_field, istatus)
+            v_field%header%vertical_level = v_levels(u_idx)
+            call storage_get_field(v_field, istatus)
+  
+! BUG: Need to consider that E grid doesn't have u_s and u_e, since no U staggering.
+! BUG: Perhaps we need entirely separate map rotation routines for E staggering, where U and V are colocated.
+            if (gridtype == 'C') then
+               call met_to_map(u_field%r_arr, u_field%valid_mask, &
+                               v_field%r_arr, v_field%valid_mask, &
+                               we_mem_stag_s, sn_mem_s, &
+                               we_mem_stag_e, sn_mem_e, &
+                               we_mem_s, sn_mem_stag_s, &
+                               we_mem_e, sn_mem_stag_e, &
+                               xlon_u, xlon_v)
+            else if (gridtype == 'E') then
+               call met_to_map_nmm(u_field%r_arr, u_field%valid_mask, &
+                                   v_field%r_arr, v_field%valid_mask, &
+                                   we_mem_s, sn_mem_s, &
+                                   we_mem_e, sn_mem_e, &
+                                   xlon_v)
+            end if
+
+         end do
+
+         deallocate(u_levels)
+         deallocate(v_levels)
+
+      end if
+
+      if (do_const_processing) return
+       
+      !
+      ! Now that we have all degribbed fields, we build a 3-d pressure field, and fill in any 
+      !   missing levels in the other 3-d fields 
+      !
+      call mprintf(.true.,LOGFILE,'Filling missing levels.')
+      call fill_missing_levels()
+
+      call mprintf(.true.,LOGFILE,'Creating a 3-d pressure field.')
+      call make_pressure_field(gridtype, hdate, xfcst, we_mem_s, we_mem_e, sn_mem_s, sn_mem_e)
+
+
+      !
+      ! All of the processing is now done for this time period for this domain;
+      !   now we simply output every field from the storage module.
+      !
+    
+      title = 'OUTPUT FROM METGRID' 
+   
+      ! Initialize the output module for this domain and time
+      call mprintf(.true.,LOGFILE,'Initializing output module.')
+      call output_init(n, title, temp_date, gridtype, dyn_opt, &
+                       corner_lats, corner_lons, &
+                       we_domain_s, we_domain_e, sn_domain_s, sn_domain_e, &
+                       we_patch_s,  we_patch_e,  sn_patch_s,  sn_patch_e, &
+                       we_mem_s,    we_mem_e,    sn_mem_s,    sn_mem_e, &
+                       extra_col, extra_row)
+   
+      call get_bottom_top_dim(bottom_top_dim)
+   
+      ! First write out global attributes
+      call mprintf(.true.,LOGFILE,'Writing global attributes to output.')
+      call write_global_attrs(title, temp_date, gridtype, dyn_opt, west_east_dim, &
+                              south_north_dim, bottom_top_dim, &
+                              we_patch_s, we_patch_e, we_patch_stag_s, we_patch_stag_e, &
+                              sn_patch_s, sn_patch_e, sn_patch_stag_s, sn_patch_stag_e, &
+                              map_proj, is_water, is_ice, grid_id, parent_id, i_parent_start, &
+                              j_parent_start, i_parent_end, j_parent_end, dom_dx, dom_dy, &
+                              cen_lat, moad_cen_lat, cen_lon, stand_lon, truelat1, &
+                              truelat2, parent_grid_ratio, corner_lats, corner_lons, flag_in_output, num_entries)
+    
+      call reset_next_field()
+
+      istatus = 0
+    
+      ! Now loop over all output fields, writing each to the output module
+      do while (istatus == 0)
+         call get_next_output_field(cname, real_array, int_array, &
+                                    sm1, em1, sm2, em2, sm3, em3, istatus)
+         if (istatus == 0) then
+
+            call mprintf(.true.,LOGFILE,'Writing field %s to output.',s1=cname)
+            if (associated(real_array)) then
+               call write_field(sm1, em1, sm2, em2, sm3, em3, &
+                                cname, temp_date, real_array=real_array)
+               deallocate(real_array)
+            else if (associated(int_array)) then
+               call write_field(sm1, em1, sm2, em2, sm3, em3, &
+                                cname, temp_date, int_array=int_array)
+               deallocate(int_array)
+            end if
+   
+         end if
+   
+      end do
+    
+      call mprintf(.true.,LOGFILE,'Closing output file.')
+      call output_close()
+   
+      ! Free up memory used by met fields for this valid time
+      call storage_delete_all_td()
+   
+   end subroutine process_single_met_time
+
+
+   subroutine get_interp_masks(fg_prefix, is_constants, fg_date)
+
+      use interp_option_module
+      use read_met_module
+      use storage_module
+
+      implicit none
+
+      ! Arguments
+      logical, intent(in) :: is_constants
+      character (len=*), intent(in) :: fg_prefix, fg_date
+
+      ! Local variables
+      integer :: i, istatus, version, nx, ny, iproj
+      real :: xfcst, xlvl, startlat, startlon, starti, startj, &
+              deltalat, deltalon, dx, dy, xlonc, truelat1, truelat2
+      real, pointer, dimension(:,:) :: slab
+      logical :: is_rotated_windfield
+      character (len=9) :: field
+      character (len=24) :: hdate
+      character (len=25) :: units
+      character (len=32) :: map_source
+      character (len=46) :: desc
+      type (fg_input) :: mask_field
+
+      call read_met_init(fg_prefix, is_constants, fg_date)
+
+      istatus = 0
+      do while (istatus == 0)
+   
+         call read_next_met_field(version, field, hdate, xfcst, xlvl, units, desc, &
+                             iproj, startlat, startlon, starti, startj, deltalat, &
+                             deltalon, dx, dy, xlonc, truelat1, truelat2, nx, ny, map_source, &
+                             slab, is_rotated_windfield, istatus)
+
+         if (istatus == 0) then
+
+            do i=1,num_entries
+               if (interp_mask(i) /= ' ' .and. (trim(interp_mask(i)) == trim(field))) then
+
+                  mask_field%header%version = 1
+                  mask_field%header%date = ' '
+                  mask_field%header%date = fg_date
+                  if (is_constants) then
+                     mask_field%header%time_dependent = .false.
+                  else
+                     mask_field%header%time_dependent = .true.
+                  end if
+                  mask_field%header%mask_field = .true.
+                  mask_field%header%forecast_hour = 0.
+                  mask_field%header%fg_source = 'degribbed met data'
+                  mask_field%header%field = trim(field)//'.mask'
+                  mask_field%header%units = '-'
+                  mask_field%header%description = '-'
+                  mask_field%header%vertical_coord = 'none'
+                  mask_field%header%vertical_level = 1
+                  mask_field%header%array_order = 'XY'
+                  mask_field%header%dim1(1) = 1
+                  mask_field%header%dim1(2) = nx
+                  mask_field%header%dim2(1) = 1
+                  mask_field%header%dim2(2) = ny
+                  mask_field%header%winds_rotated_on_input = .false.
+                  mask_field%header%array_has_missing_values = .false.
+                  mask_field%map%stagger = M
+                  allocate(mask_field%r_arr(1:nx,1:ny))
+                  mask_field%r_arr = slab
+                  nullify(mask_field%i_arr)
+                  nullify(mask_field%valid_mask)
+                  nullify(mask_field%modified_mask)
+     
+                  call storage_put_field(mask_field)
+
+                  exit
+                
+               end if 
+            end do
+
+         end if
+
+      end do
+
+      call read_met_close()
+
+   end subroutine get_interp_masks
+
+   
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   ! Name: interp_met_field
+   !
+   ! Purpose:
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   subroutine interp_met_field(gridtype, short_fieldnm, istagger, &
+                               field, xlat, xlon, sm1, em1, sm2, em2, &
+                               slab, nx, ny, do_special_interp, &
+                               new_pts, landmask)
+
+      use bitarray_module
+      use interp_module
+      use interp_option_module
+      use llxy_module
+      use storage_module
+
+      implicit none 
+
+      ! Arguments
+      integer, intent(in) :: istagger, sm1, em1, sm2, em2, nx, ny
+      integer, pointer, dimension(:,:), optional :: landmask
+      real, pointer, dimension(:,:) :: slab, xlat, xlon
+      logical, intent(in) :: do_special_interp
+      character (len=1), intent(in) :: gridtype
+      character (len=9), intent(in) :: short_fieldnm
+      type (fg_input), intent(inout) :: field
+      type (bitarray), intent(inout) :: new_pts
+
+      ! Local variables
+      integer :: i, j, idx, interp_mask_status, orig_selected_proj
+      integer, pointer, dimension(:) :: interp_array
+      real :: rx, ry, temp
+      real, pointer, dimension(:,:) :: data_count
+      type (fg_input) :: mask_field
+
+      ! Find index into fieldname, interp_method, masked, and fill_missing
+      !   of the current field
+      do idx=1,num_entries
+         if ((index(fieldname(idx), trim(short_fieldnm)) /= 0) .and. &
+             (len_trim(fieldname(idx)) == len_trim(short_fieldnm))) exit
+      end do
+      if (idx > num_entries) then
+         call mprintf(.true.,INFORM,'Entry in METGRID.TBL not found for field %s. '// &
+                      'Default options will be used for this field!', s1=short_fieldnm)
+         idx = num_entries ! The last entry is a default
+      end if
+
+      field%header%dim1(1) = sm1 
+      field%header%dim1(2) = em1
+      field%header%dim2(1) = sm2
+      field%header%dim2(2) = em2
+      field%map%stagger = istagger
+      call mprintf(associated(field%i_arr), ERROR, &
+                   'In interp_met_field(), i_arr is allocated, but the routine will only deal with r_arr')
+      if (.not. associated(field%r_arr)) then
+         allocate(field%r_arr(sm1:em1,sm2:em2))
+         nullify(field%i_arr)
+      end if
+
+      interp_mask_status = 1
+      if (interp_mask(idx) /= ' ') then
+         mask_field%header%version = 1
+         mask_field%header%forecast_hour = 0.
+         mask_field%header%field = trim(interp_mask(idx))//'.mask'
+         mask_field%header%vertical_coord = 'none'
+         mask_field%header%vertical_level = 1
+
+         call storage_get_field(mask_field, interp_mask_status)
+
+      end if 
+
+      interp_array => interp_array_from_string(interp_method(idx))
+   
+      !
+      ! Interpolate using special interpolation methods
+      !
+      if (do_special_interp) then
+         allocate(data_count(sm1:em1,sm2:em2))
+         data_count = 0.
+
+         if (interp_mask_status == 0) then
+            call accum_continuous(slab, &
+                         1, nx, 1, ny, 1, 1, &
+                         field%r_arr, data_count, &
+                         sm1, em1, sm2, em2, 1, 1, &
+                         istagger, &
+                         new_pts, NAN, interp_mask_val(idx), mask_field%r_arr)
+         else
+            call accum_continuous(slab, &
+                         1, nx, 1, ny, 1, 1, &
+                         field%r_arr, data_count, &
+                         sm1, em1, sm2, em2, 1, 1, &
+                         istagger, &
+                         new_pts, NAN, -1.) ! The -1 is the maskval, but since we
+                                            !   we do not give an optional mask, no
+                                            !   no need to worry about -1s in data
+         end if
+
+         if (present(landmask)) then
+            orig_selected_proj = iget_selected_domain()
+            call select_domain(SOURCE_PROJ)
+            do j=sm2,em2
+               do i=sm1,em1
+                  if (landmask(i,j) /= masked(idx)) then
+                     if (data_count(i,j) > 0.) then
+                        field%r_arr(i,j) = field%r_arr(i,j) / data_count(i,j)
+                     else
+                        call lltoxy(xlat(i,j), xlon(i,j), rx, ry, istagger) 
+                        if (interp_mask_status == 0) then
+                           temp = interp_sequence(rx, ry, 1, slab, 1, nx, 1, ny, 1, 1, missing_value(idx), interp_array, 1, interp_mask_val(idx), mask_field%r_arr)
+                        else
+                           temp = interp_sequence(rx, ry, 1, slab, 1, nx, 1, ny, 1, 1, missing_value(idx), interp_array, 1)
+                        end if
+
+                        if (temp == missing_value(idx)) then
+
+                           ! Try a lon in the range 0. to 360.; all lons in the xlon 
+                           !    array should be in the range -180. to 180.
+                           if (xlon(i,j) < 0.) then
+                              call lltoxy(xlat(i,j), xlon(i,j)+360., rx, ry, istagger) 
+                              if (interp_mask_status == 0) then
+                                 temp = interp_sequence(rx, ry, 1, slab, 1, nx, 1, ny, 1, 1, missing_value(idx), interp_array, 1, interp_mask_val(idx), mask_field%r_arr)
+                              else
+                                 temp = interp_sequence(rx, ry, 1, slab, 1, nx, 1, ny, 1, 1, missing_value(idx), interp_array, 1)
+                              end if
+
+                              if (temp /= missing_value(idx)) then
+                                 field%r_arr(i,j) = temp
+                                 call bitarray_set(new_pts, i-sm1+1, j-sm2+1)
+                              end if
+                           end if
+
+                        else
+                           field%r_arr(i,j) = temp
+                           call bitarray_set(new_pts, i-sm1+1, j-sm2+1)
+                        end if
+                     end if
+                  else
+                     field%r_arr(i,j) = fill_missing(idx)
+                  end if
+                  if (.not. bitarray_test(new_pts, i-sm1+1, j-sm2+1) .and. &
+                      .not. bitarray_test(field%valid_mask, i-sm1+1, j-sm2+1)) then
+                     field%r_arr(i,j) = fill_missing(idx)
+                  end if
+               end do
+            end do
+            call select_domain(orig_selected_proj) 
+         else
+            orig_selected_proj = iget_selected_domain()
+            call select_domain(SOURCE_PROJ)
+            do j=sm2,em2
+               do i=sm1,em1
+                  if (data_count(i,j) > 0.) then
+                     field%r_arr(i,j) = field%r_arr(i,j) / data_count(i,j)
+                  else
+                     call lltoxy(xlat(i,j), xlon(i,j), rx, ry, istagger) 
+                     if (interp_mask_status == 0) then
+                        temp = interp_sequence(rx, ry, 1, slab, 1, nx, 1, ny, 1, 1, missing_value(idx), interp_array, 1, interp_mask_val(idx), mask_field%r_arr)
+                     else
+                        temp = interp_sequence(rx, ry, 1, slab, 1, nx, 1, ny, 1, 1, missing_value(idx), interp_array, 1)
+                     end if
+
+                     if (temp == missing_value(idx)) then
+
+                        ! Try a lon in the range 0. to 360.; all lons in the xlon 
+                        !    array should be in the range -180. to 180.
+                        if (xlon(i,j) < 0.) then
+                           call lltoxy(xlat(i,j), xlon(i,j)+360., rx, ry, istagger) 
+                           if (interp_mask_status == 0) then
+                              temp = interp_sequence(rx, ry, 1, slab, 1, nx, 1, ny, 1, 1, missing_value(idx), interp_array, 1, interp_mask_val(idx), mask_field%r_arr)
+                           else
+                              temp = interp_sequence(rx, ry, 1, slab, 1, nx, 1, ny, 1, 1, missing_value(idx), interp_array, 1)
+                           end if
+
+                           if (temp /= missing_value(idx)) then
+                              field%r_arr(i,j) = temp
+                              call bitarray_set(new_pts, i-sm1+1, j-sm2+1)
+                           end if
+                        end if
+
+                     else
+                        field%r_arr(i,j) = temp
+                        call bitarray_set(new_pts, i-sm1+1, j-sm2+1)
+                     end if
+                  end if
+                  if (.not. bitarray_test(new_pts, i-sm1+1, j-sm2+1) .and. &
+                      .not. bitarray_test(field%valid_mask, i-sm1+1, j-sm2+1)) then
+                     field%r_arr(i,j) = fill_missing(idx)
+                  end if
+               end do
+            end do
+            call select_domain(orig_selected_proj) 
+         end if
+         deallocate(data_count)
+
+      !
+      ! No special interpolation methods
+      !
+      else
+
+         orig_selected_proj = iget_selected_domain()
+         call select_domain(SOURCE_PROJ)
+         do j=sm2,em2
+            do i=sm1,em1
+               if (present(landmask)) then
+                  if (landmask(i,j) /= masked(idx)) then
+                     call lltoxy(xlat(i,j), xlon(i,j), rx, ry, istagger) 
+                     if (interp_mask_status == 0) then
+                        temp = interp_sequence(rx, ry, 1, slab, 1, nx, 1, ny, 1, 1, missing_value(idx), interp_array, 1, interp_mask_val(idx), mask_field%r_arr)
+                     else
+                        temp = interp_sequence(rx, ry, 1, slab, 1, nx, 1, ny, 1, 1, missing_value(idx), interp_array, 1)
+                     end if
+
+                     if (temp == missing_value(idx)) then
+
+                        ! Try a lon in the range 0. to 360.; all lons in the xlon 
+                        !    array should be in the range -180. to 180.
+                        if (xlon(i,j) < 0.) then
+                           call lltoxy(xlat(i,j), xlon(i,j)+360., rx, ry, istagger) 
+                           if (interp_mask_status == 0) then
+                              temp = interp_sequence(rx, ry, 1, slab, 1, nx, 1, ny, 1, 1, missing_value(idx), interp_array, 1, interp_mask_val(idx), mask_field%r_arr)
+                           else
+                              temp = interp_sequence(rx, ry, 1, slab, 1, nx, 1, ny, 1, 1, missing_value(idx), interp_array, 1)
+                           end if
+
+                           if (temp /= missing_value(idx)) then
+                              field%r_arr(i,j) = temp
+                              call bitarray_set(new_pts, i-sm1+1, j-sm2+1)
+                           end if
+                        end if
+
+                     else
+                        field%r_arr(i,j) = temp
+                        call bitarray_set(new_pts, i-sm1+1, j-sm2+1)
+                     end if
+                  else
+                     field%r_arr(i,j) = fill_missing(idx)
+                  end if
+                  if (.not. bitarray_test(new_pts, i-sm1+1, j-sm2+1) .and. &
+                      .not. bitarray_test(field%valid_mask, i-sm1+1, j-sm2+1)) then
+                     field%r_arr(i,j) = fill_missing(idx)
+                  end if
+               else
+                  call lltoxy(xlat(i,j), xlon(i,j), rx, ry, istagger) 
+                  if (interp_mask_status == 0) then
+                     temp = interp_sequence(rx, ry, 1, slab, 1, nx, 1, ny, 1, 1, missing_value(idx), interp_array, 1, interp_mask_val(idx), mask_field%r_arr)
+                  else
+                     temp = interp_sequence(rx, ry, 1, slab, 1, nx, 1, ny, 1, 1, missing_value(idx), interp_array, 1)
+                  end if
+                  
+                  if (temp == missing_value(idx)) then
+
+                     ! Try a lon in the range 0. to 360.; all lons in the xlon 
+                     !    array should be in the range -180. to 180.
+                     if (xlon(i,j) < 0.) then
+                        call lltoxy(xlat(i,j), xlon(i,j)+360., rx, ry, istagger) 
+                        if (interp_mask_status == 0) then
+                           temp = interp_sequence(rx, ry, 1, slab, 1, nx, 1, ny, 1, 1, missing_value(idx), interp_array, 1, interp_mask_val(idx), mask_field%r_arr)
+                        else
+                           temp = interp_sequence(rx, ry, 1, slab, 1, nx, 1, ny, 1, 1, missing_value(idx), interp_array, 1)
+                        end if
+
+                        if (temp /= missing_value(idx)) then
+                           field%r_arr(i,j) = temp
+                           call bitarray_set(new_pts, i-sm1+1, j-sm2+1)
+                        end if
+                     end if
+
+                  else
+                     field%r_arr(i,j) = temp
+                     call bitarray_set(new_pts, i-sm1+1, j-sm2+1)
+                  end if
+                  if (.not. bitarray_test(new_pts, i-sm1+1, j-sm2+1) .and. &
+                      .not. bitarray_test(field%valid_mask, i-sm1+1, j-sm2+1)) then
+                     field%r_arr(i,j) = fill_missing(idx)
+                  end if
+               end if
+            end do
+         end do
+         call select_domain(orig_selected_proj) 
+      end if
+
+      deallocate(interp_array)
+
+   end subroutine interp_met_field
+
+  
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   ! Name: get_bottom_top_dim
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   subroutine get_bottom_top_dim(bottom_top_dim)
+
+      use list_module
+      use storage_module
+
+      implicit none
+
+      ! Arguments
+      integer, intent(out) :: bottom_top_dim
+
+      ! Local variables
+      integer :: i, j
+      integer, pointer, dimension(:) :: field_levels
+      type (fg_input), pointer, dimension(:) :: headers
+      type (list) :: temp_levels
+   
+      ! Initialize a list to store levels that are found for 3-d fields 
+      call list_init(temp_levels)
+   
+      ! Get a list of all time-dependent fields (given by their headers) from
+      !   the storage module
+      call storage_get_td_headers(headers)
+   
+      !
+      ! Given headers of all fields, we first build a list of all possible levels
+      !    for 3-d met fields (excluding sea-level, though).
+      !
+      do i=1,size(headers)
+   
+         ! Find out what levels the current field has
+         call storage_get_levels(headers(i), field_levels)
+         do j=1,size(field_levels)
+   
+            ! If this level has not yet been encountered, add it to our list
+            if (.not. i_list_search(temp_levels, field_levels(j), field_levels(j))) then
+               if (field_levels(j) /= 201300) then
+                  call i_list_insert(temp_levels, field_levels(j), field_levels(j))
+               end if
+            end if
+   
+         end do
+   
+         deallocate(field_levels)
+   
+      end do
+
+      bottom_top_dim = list_length(temp_levels)
+
+      call list_destroy(temp_levels)
+      deallocate(headers)
+
+   end subroutine get_bottom_top_dim
+
+   
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   ! Name: make_pressure_field
+   !
+   ! Purpose: This routine generates a 3-d pressure field having a set of levels 
+   !   equal to the union of the available levels for all other 3-d fields. The
+   !   pressure field is stored in the storage module. Finally, for all other 3-d
+   !   fields, levels in the pressure field but not in the 3-d field are generated 
+   !   (i.e., interpolated or filled with default values) for that field, and 
+   !   stored in the storage module.
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   subroutine make_pressure_field(gridtype, hdate, xfcst, we_dim_s, we_dim_e, sn_dim_s, sn_dim_e)
+   
+      use interp_option_module
+      use list_module
+      use module_debug
+      use module_mergesort
+      use storage_module
+   
+      implicit none
+   
+      ! Arguments
+      integer, intent(in) :: we_dim_s, we_dim_e, sn_dim_s, sn_dim_e
+      real, intent(in) :: xfcst
+      character (len=1), intent(in) :: gridtype
+      character (len=24), intent(in) :: hdate
+   
+      ! Local variables
+      integer :: i, ii, j, ix, jx, k, lower, upper, temp, fill_src_level, istatus
+      integer, pointer, dimension(:) :: union_levels, field_levels
+      real :: fill_const
+      character (len=128) :: clevel, fill_field, fill_src
+      type (fg_input) :: p_field, lower_field, upper_field, new_field, search_field
+      type (fg_input), pointer, dimension(:) :: headers, all_headers
+      type (list) :: temp_levels
+   
+      ! Initialize a list to store levels that are found for 3-d fields 
+      call list_init(temp_levels)
+   
+      ! Get a list of all fields (given by their headers) from the storage module
+      call storage_get_td_headers(headers)
+      call storage_get_all_headers(all_headers)
+   
+      !
+      ! Given headers of all fields, we first build a list of all possible levels
+      !    for 3-d met fields (excluding sea-level, though).
+      !
+      do i=1,size(headers)
+   
+         ! Find out what levels the current field has
+         call storage_get_levels(headers(i), field_levels)
+         do j=1,size(field_levels)
+   
+            ! If this level has not yet been encountered, add it to our list
+            if (.not. i_list_search(temp_levels, field_levels(j), field_levels(j))) then
+               if (field_levels(j) /= 201300) then
+                  call i_list_insert(temp_levels, field_levels(j), field_levels(j))
+               end if
+            end if
+   
+         end do
+   
+         deallocate(field_levels)
+   
+      end do
+
+      deallocate(headers)
+   
+      if (list_length(temp_levels) > 0) then
+   
+         ! 
+         ! With all possible levels stored in a list, get an array of levels, sorted
+         !    in decreasing order
+         !
+         i = 0
+         allocate(union_levels(list_length(temp_levels)))
+         do while (list_length(temp_levels) > 0)
+            i = i + 1
+            call i_list_get_first_item(temp_levels, union_levels(i), temp)     
+         end do
+         call mergesort(union_levels, 1, size(union_levels))
+
+         call list_destroy(temp_levels)
+   
+         ! Initialize fg_input structure to store the pressure field
+         p_field%header%version = 1
+         p_field%header%date = hdate//'        '
+         p_field%header%time_dependent = .true.
+         p_field%header%mask_field = .false.
+         p_field%header%forecast_hour = xfcst
+         p_field%header%fg_source = 'FG'
+         p_field%header%field = ' '
+         p_field%header%field(1:9) = 'P        '
+         p_field%header%units = ' '
+         p_field%header%units(1:3) = 'Pa'
+         p_field%header%description = ' '
+         p_field%header%description(1:8) = 'Pressure'
+         p_field%header%vertical_coord = 'p_or_gvc'
+         p_field%header%array_order = 'XY '
+         p_field%header%winds_rotated_on_input = .true.
+         p_field%header%array_has_missing_values = .false.
+         p_field%header%dim1(1) = we_dim_s
+         p_field%header%dim1(2) = we_dim_e
+         p_field%header%dim2(1) = sn_dim_s
+         p_field%header%dim2(2) = sn_dim_e
+         if (gridtype == 'C') then
+            p_field%map%stagger = M
+         else if (gridtype == 'E') then
+            p_field%map%stagger = HH
+         end if 
+   
+         !
+         ! Now we begin building a 3-d pressure array
+         !
+
+         !
+         ! Add a level to the pressure field for each of the levels in union_levels
+         !
+         do k = 1, size(union_levels)
+            p_field%header%vertical_level = real(union_levels(k))
+     
+            !
+            ! Find the entry for pressure (P) in METGRID.TBL
+            !
+            do ii=1,num_entries
+               if (fieldname(ii) == p_field%header%field) exit 
+            end do
+            if (ii <= num_entries) then
+               
+               fill_field = ' '
+               write(clevel,'(i)') union_levels(k)
+               call despace(clevel)
+
+               ! First check if this level was specified explicitly to be filled from another field
+               if (.not.c_list_search(fill_lev_list(ii), clevel, fill_field)) then
+                 
+                  ! Otherwise, check if we just copy the corresponding level from another field 
+                  write(clevel,'(a)') 'all'
+                  if (.not.c_list_search(fill_lev_list(ii), clevel, fill_field)) then
+                     fill_field = ' '
+                  else
+                     if (index(fill_field,'const') == 0) call get_fill_src_level(fill_field, fill_src, fill_src_level)
+                     fill_src_level = union_levels(k)
+                  end if
+               else
+                  if (index(fill_field,'const') == 0) call get_fill_src_level(fill_field, fill_src, fill_src_level)
+               end if
+
+               !
+               ! If fill_field is not empty, then we need to fill this level of the pressure array
+               !   from another field (or with a constant).
+               !
+               if (fill_field /= ' ') then
+      
+                  ! Fill with a constant
+                  if (index(fill_field,'const') /= 0) then
+                     call get_constant_fill_lev(fill_field, fill_const, istatus)
+                     allocate(p_field%r_arr(p_field%header%dim1(1):p_field%header%dim1(2), &
+                                            p_field%header%dim2(1):p_field%header%dim2(2)))
+                     nullify(p_field%i_arr)
+                     allocate(p_field%valid_mask)
+                     call bitarray_create(p_field%valid_mask, &
+                                          we_dim_e-we_dim_s+1,&
+                                          sn_dim_e-sn_dim_s+1)
+                     do j = sn_dim_s, sn_dim_e
+                        do i = we_dim_s, we_dim_e
+                           p_field%r_arr(i,j) = fill_const
+                           call bitarray_set(p_field%valid_mask, i-we_dim_s+1, j-sn_dim_s+1)
+                        end do
+                     end do
+                     nullify(p_field%modified_mask)
+
+                  ! Fill from another field
+                  else
+
+                     ! Try to find the field that we fill from a list of known fields 
+                     do ii=1,size(all_headers)
+
+                        ! We have found the entry
+                        if (index(all_headers(ii)%header%field,trim(fill_src)) /= 0 .and. &
+                            len_trim(all_headers(ii)%header%field) == len_trim(fill_src)) then
+
+                           call dup(all_headers(ii),search_field)
+                           search_field%header%vertical_level = fill_src_level
+
+                           ! Now try to read the specified level for that field
+                           call storage_get_field(search_field,istatus) 
+                           if (istatus == 0) then
+                              allocate(p_field%valid_mask)
+                              call bitarray_create(p_field%valid_mask, &
+                                                   we_dim_e-we_dim_s+1,&
+                                                   sn_dim_e-sn_dim_s+1)
+                              nullify(p_field%modified_mask)
+
+                              if (associated(search_field%r_arr)) then
+                                 allocate(p_field%r_arr(p_field%header%dim1(1):p_field%header%dim1(2), &
+                                                        p_field%header%dim2(1):p_field%header%dim2(2)))
+                                 nullify(p_field%i_arr)
+                                 do j = sn_dim_s, sn_dim_e
+                                    do i = we_dim_s, we_dim_e
+                                       if (bitarray_test(search_field%valid_mask, i-we_dim_s+1, j-sn_dim_s+1)) then
+                                          p_field%r_arr(i,j) = search_field%r_arr(i,j) 
+                                          call bitarray_set(p_field%valid_mask, i-we_dim_s+1, j-sn_dim_s+1)
+                                       end if
+                                    end do
+                                 end do
+                              else if (associated(search_field%i_arr)) then
+                                 allocate(p_field%i_arr(p_field%header%dim1(1):p_field%header%dim1(2), &
+                                                        p_field%header%dim2(1):p_field%header%dim2(2)))
+                                 nullify(p_field%r_arr)
+                                 do j = sn_dim_s, sn_dim_e
+                                    do i = we_dim_s, we_dim_e
+                                       if (bitarray_test(search_field%valid_mask, i-we_dim_s+1, j-sn_dim_s+1)) then
+                                          p_field%i_arr(i,j) =  search_field%i_arr(i,j)
+                                          call bitarray_set(p_field%valid_mask, i-we_dim_s+1, j-sn_dim_s+1)
+                                       end if
+                                    end do
+                                 end do
+                              end if
+
+                           ! The specified level does not exist for the field that we fill from
+                           else
+                              call mprintf(.true.,ERROR,'Couldn''t get level %i for field %s.', i1=fill_src_level, s1=fill_src)
+! BUG: Maybe at this point, if this level was explicitly specified, and there is another entry for "all",
+!      we could now try to get the corresponding level from that field, and if all else fails, fill in with 
+!      the value of the vertical_level
+                           end if
+
+                           exit
+
+                        end if
+                     end do
+
+                     ! If we get through all known fields and we still cannot find the field
+                     !   that we are supposed to fill from, we just fill in the level with the 
+                     !   value of the level itself
+                     if (ii == size(all_headers)+1) then
+                        call mprintf(.true.,INFORM,'Couldn''t find field %s to fill P array level %i. Will fill with constant %f', s1=trim(fill_src), i1=union_levels(k), f1=real(union_levels(k)))
+                        allocate(p_field%r_arr(we_dim_s:we_dim_e,sn_dim_s:sn_dim_e))
+                        nullify(p_field%i_arr)
+                        allocate(p_field%valid_mask)
+                        call bitarray_create(p_field%valid_mask, &
+                                             we_dim_e-we_dim_s+1,&
+                                             sn_dim_e-sn_dim_s+1)
+                        nullify(p_field%modified_mask)
+      
+                        do j = sn_dim_s, sn_dim_e
+                           do i = we_dim_s, we_dim_e
+                              p_field%r_arr(i,j) = real(union_levels(k))
+                              call bitarray_set(p_field%valid_mask, i-we_dim_s+1, j-sn_dim_s+1)
+                           end do
+                        end do
+                     end if
+                  end if
+
+               !
+               ! If fill_field was empty, we just set this level of the pressure field
+               !   equal to the value of the level 
+               !
+               else
+                  allocate(p_field%r_arr(we_dim_s:we_dim_e,sn_dim_s:sn_dim_e))
+                  nullify(p_field%i_arr)
+                  allocate(p_field%valid_mask)
+                  call bitarray_create(p_field%valid_mask, &
+                                       we_dim_e-we_dim_s+1,&
+                                       sn_dim_e-sn_dim_s+1)
+                  nullify(p_field%modified_mask)
+      
+                  do j = sn_dim_s, sn_dim_e
+                     do i = we_dim_s, we_dim_e
+                        p_field%r_arr(i,j) = real(union_levels(k))
+                        call bitarray_set(p_field%valid_mask, i-we_dim_s+1, j-sn_dim_s+1)
+                     end do
+                  end do
+               end if
+
+            !
+            ! We have no entry in METGRID.TBL for P, so just set this level
+            !   of the pressure field equal to the value of the level
+            !
+            else
+               allocate(p_field%r_arr(we_dim_s:we_dim_e,sn_dim_s:sn_dim_e))
+               nullify(p_field%i_arr)
+               allocate(p_field%valid_mask)
+               call bitarray_create(p_field%valid_mask, &
+                                    we_dim_e-we_dim_s+1,&
+                                    sn_dim_e-sn_dim_s+1)
+               nullify(p_field%modified_mask)
+   
+               do j = sn_dim_s, sn_dim_e
+                  do i = we_dim_s, we_dim_e
+                     p_field%r_arr(i,j) = real(union_levels(k))
+                     call bitarray_set(p_field%valid_mask, i-we_dim_s+1, j-sn_dim_s+1)
+                  end do
+               end do
+            end if
+   
+            call storage_put_field(p_field)
+         end do
+   
+   
+         deallocate(union_levels)
+
+      end if
+   
+      deallocate(all_headers)
+   
+   end subroutine make_pressure_field
+
+   
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   ! Name: fill_missing_levels
+   !
+   ! Purpose:
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   subroutine fill_missing_levels()
+   
+      use interp_option_module
+      use list_module
+      use module_debug
+      use module_mergesort
+      use storage_module
+   
+      implicit none
+   
+      ! Local variables
+      integer :: i, ii, j, ix, jx, k, lower, upper, temp, fill_src_level, istatus
+      integer, pointer, dimension(:) :: union_levels, field_levels
+      real :: fill_const
+      character (len=128) :: clevel, fill_field, fill_src
+      type (fg_input) :: p_field, lower_field, upper_field, new_field, search_field
+      type (fg_input), pointer, dimension(:) :: headers, all_headers
+      type (list) :: temp_levels
+   
+      ! Initialize a list to store levels that are found for 3-d fields 
+      call list_init(temp_levels)
+   
+      ! Get a list of all fields (given by their headers) from the storage module
+      call storage_get_td_headers(headers)
+      call storage_get_all_headers(all_headers)
+   
+      !
+      ! Given headers of all fields, we first build a list of all possible levels
+      !    for 3-d met fields (excluding sea-level, though).
+      !
+      do i=1,size(headers)
+   
+         ! Find out what levels the current field has
+         call storage_get_levels(headers(i), field_levels)
+         do j=1,size(field_levels)
+   
+            ! If this level has not yet been encountered, add it to our list
+            if (.not. i_list_search(temp_levels, field_levels(j), field_levels(j))) then
+               if (field_levels(j) /= 201300) then
+                  call i_list_insert(temp_levels, field_levels(j), field_levels(j))
+               end if
+            end if
+   
+         end do
+   
+         deallocate(field_levels)
+   
+      end do
+   
+      if (list_length(temp_levels) > 0) then
+   
+         ! 
+         ! With all possible levels stored in a list, get an array of levels, sorted
+         !    in decreasing order
+         !
+         i = 0
+         allocate(union_levels(list_length(temp_levels)))
+         do while (list_length(temp_levels) > 0)
+            i = i + 1
+            call i_list_get_first_item(temp_levels, union_levels(i), temp)     
+         end do
+         call mergesort(union_levels, 1, size(union_levels))
+   
+
+         !
+         ! With a sorted, complete list of levels, we need 
+         !    to go back and fill in missing levels for each 3-d field 
+         !
+         do i=1,size(headers)
+   
+            call storage_get_levels(headers(i), field_levels)
+            call mergesort(field_levels, 1, size(field_levels))
+   
+            ! If this isn't a 3-d array, nothing to do
+            if (size(field_levels) > 1) then
+               k = 1
+   
+               !
+               ! Loop over all levels in the array in order to see which ones
+               !    are missing from the current field
+               !
+               do j=1,size(union_levels)
+   
+                  ! Since union_levels is a superset of field_levels, 
+                  !   and both are sorted in decreasing order, if field_levels(k)
+                  !   is less than union_levels(j), then the current level
+                  !   is missing one or more levels 
+                  if (field_levels(k) < union_levels(j)) then
+
+                     call mprintf(.true.,STDOUT,'Adding level %i to %s.', i1=union_levels(j), s1=trim(headers(i)%header%field))
+   
+                     !
+                     ! Find entry in METGRID.TBL for this field, if one exists; if it does, then the
+                     !    entry may tell us how to get values for the current field at the missing level
+                     !
+                     do ii=1,num_entries
+                        if (fieldname(ii) == headers(i)%header%field) exit 
+                     end do
+                     if (ii <= num_entries) then
+                       
+                        fill_field = ' '
+                        write(clevel,'(i)') union_levels(j)
+                        call despace(clevel)
+
+                        ! First check whether user has explicitly named this level to be filled
+                        if (.not.c_list_search(fill_lev_list(ii), clevel, fill_field)) then
+
+                           ! Otherwise, check whether user has given a field to copy missing levels from 
+                           write(clevel,'(a)') 'all'
+                           if (.not.c_list_search(fill_lev_list(ii), clevel, fill_field)) then
+                              fill_field = ' '
+                           else
+                              if (index(fill_field,'const') == 0) call get_fill_src_level(fill_field, fill_src, fill_src_level)
+                              fill_src_level = union_levels(j)
+                           end if
+                        else
+                           if (index(fill_field,'const') == 0) call get_fill_src_level(fill_field, fill_src, fill_src_level)
+                        end if
+                       
+                        !
+                        ! If fill_field is not empty, then we have found the field to fill from (or a
+                        !   constant value to fill with.
+                        !
+                        if (fill_field /= ' ') then 
+                           call dup(headers(i),new_field)
+                           nullify(new_field%r_arr)
+                           nullify(new_field%i_arr)
+
+                           allocate(new_field%valid_mask)
+                           call bitarray_create(new_field%valid_mask, &
+                                                new_field%header%dim1(2)-new_field%header%dim1(1)+1,&
+                                                new_field%header%dim2(2)-new_field%header%dim2(1)+1)
+                           nullify(new_field%modified_mask)
+                           new_field%header%vertical_level = union_levels(j) 
+         
+                           ! Fill with a constant
+                           if (index(fill_field,'const') /= 0) then
+                              call get_constant_fill_lev(fill_field, fill_const, istatus)
+                              allocate(new_field%r_arr(new_field%header%dim1(1):new_field%header%dim1(2), &
+                                                       new_field%header%dim2(1):new_field%header%dim2(2)))
+                              do jx = new_field%header%dim2(1),new_field%header%dim2(2)
+                                 do ix = new_field%header%dim1(1),new_field%header%dim1(2)
+                                    new_field%r_arr(ix,jx) = fill_const 
+                                    call bitarray_set(new_field%valid_mask, ix-new_field%header%dim1(1)+1, jx-new_field%header%dim2(1)+1)
+                                 end do
+                              end do
+                              call storage_put_field(new_field)
+
+                           ! Or fill with the corresponding level from another field
+                           else
+
+                              !
+                              ! Look through known fields to find the field we are copying from 
+                              !
+                              do ii=1,size(all_headers)
+                                 if (index(all_headers(ii)%header%field,trim(fill_src)) /= 0 .and. &
+                                     len_trim(all_headers(ii)%header%field) == len_trim(fill_src)) then
+                                    call dup(all_headers(ii),search_field)
+                                    search_field%header%vertical_level = fill_src_level
+
+                                    call storage_get_field(search_field,istatus) 
+                                    if (istatus == 0) then
+                                       if (associated(search_field%r_arr)) then
+                                          allocate(new_field%r_arr(new_field%header%dim1(1):new_field%header%dim1(2), &
+                                                                   new_field%header%dim2(1):new_field%header%dim2(2)))
+                                          do jx = new_field%header%dim2(1),new_field%header%dim2(2)
+                                             do ix = new_field%header%dim1(1),new_field%header%dim1(2)
+                                                if (bitarray_test(search_field%valid_mask, ix-new_field%header%dim1(1)+1, jx-new_field%header%dim2(1)+1)) then
+                                                   new_field%r_arr(ix,jx) = search_field%r_arr(ix,jx) 
+                                                   call bitarray_set(new_field%valid_mask, ix-new_field%header%dim1(1)+1, jx-new_field%header%dim2(1)+1)
+                                                end if
+                                             end do
+                                          end do
+                                       else if (associated(search_field%i_arr)) then
+                                          allocate(new_field%i_arr(new_field%header%dim1(1):new_field%header%dim1(2), &
+                                                                   new_field%header%dim2(1):new_field%header%dim2(2)))
+                                          do jx = new_field%header%dim2(1),new_field%header%dim2(2)
+                                             do ix = new_field%header%dim1(1),new_field%header%dim1(2)
+                                                if (bitarray_test(search_field%valid_mask, ix-new_field%header%dim1(1)+1, jx-new_field%header%dim2(1)+1)) then
+                                                   new_field%i_arr(ix,jx) = search_field%i_arr(ix,jx) 
+                                                   call bitarray_set(new_field%valid_mask, ix-new_field%header%dim1(1)+1, jx-new_field%header%dim2(1)+1)
+                                                end if
+                                             end do
+                                          end do
+                                       end if
+                                       call storage_put_field(new_field)
+                                    else
+                                       call mprintf(.true.,ERROR,'Couldn''t get level %i for field %s.', i1=fill_src_level, s2=fill_src)
+                                    end if
+                                    exit
+                                 end if
+                              end do
+
+                              ! If we get through all known fields and we still cannot find the field
+                              !   that we are supposed to fill from, we have a problem.
+                              if (ii == size(all_headers)+1) then
+!MGD                                 call mprintf(.true.,ERROR,'Couldn''t find field %s to fill %s array level %i.', s1=trim(fill_src), s2=new_field%header%field, i1=union_levels(j))
+                                 allocate(new_field%r_arr(new_field%header%dim1(1):new_field%header%dim1(2), &
+                                                       new_field%header%dim2(1):new_field%header%dim2(2)))
+                                 call storage_put_field(new_field)
+                              end if
+                           end if
+
+                        !
+                        ! If fill_field is empty, then the entry in METGRID.TBL has not told us how to fill this missing level
+                        ! 
+                        else
+!MGD                           call mprintf(.true.,ERROR,'Level %i of field %s is missing, but there is no suitable fill_level spec in METGRID.TBL.',i1=union_levels(j), s1=headers(i)%header%field)
+                           call dup(headers(i),new_field)
+                           nullify(new_field%r_arr)
+                           nullify(new_field%i_arr)
+                           allocate(new_field%valid_mask)
+                           call bitarray_create(new_field%valid_mask, &
+                                                new_field%header%dim1(2)-new_field%header%dim1(1)+1,&
+                                                new_field%header%dim2(2)-new_field%header%dim2(1)+1)
+                           nullify(new_field%modified_mask)
+                           new_field%header%vertical_level = union_levels(j) 
+                           allocate(new_field%r_arr(new_field%header%dim1(1):new_field%header%dim1(2), &
+                                                 new_field%header%dim2(1):new_field%header%dim2(2)))
+                           call storage_put_field(new_field)
+                        end if
+
+                     !
+                     ! The current field has a missing level, but there is no entry in METGRID.TBL
+                     !   to tell what we should do.
+                     !
+                     else
+!MGD                        call mprintf(.true.,ERROR,'Level %i of field %s is missing, but there is no entry for %s in METGRID.TBL.', i1=union_levels(j), s1=headers(i)%header%field, s2=headers(i)%header%field)
+                        call dup(headers(i),new_field)
+                        nullify(new_field%r_arr)
+                        nullify(new_field%i_arr)
+                        allocate(new_field%valid_mask)
+                        call bitarray_create(new_field%valid_mask, &
+                                             new_field%header%dim1(2)-new_field%header%dim1(1)+1,&
+                                             new_field%header%dim2(2)-new_field%header%dim2(1)+1)
+                        nullify(new_field%modified_mask)
+                        new_field%header%vertical_level = union_levels(j) 
+                        allocate(new_field%r_arr(new_field%header%dim1(1):new_field%header%dim1(2), &
+                                              new_field%header%dim2(1):new_field%header%dim2(2)))
+                        call storage_put_field(new_field)
+                     end if
+                  else 
+                     k = k + 1
+                     if (k > size(field_levels)) k = k - 1  ! We need to fill in the rest of the levels for field
+                  end if
+   
+               end do
+   
+            end if
+
+            deallocate(field_levels)
+   
+         end do
+
+         deallocate(union_levels)
+         deallocate(headers)
+
+         call storage_get_td_headers(headers)
+
+         !
+         ! Now we may need to vertically interpolate to missing values in 3-d fields
+         !
+         do i=1,size(headers)
+   
+            call storage_get_levels(headers(i), field_levels)
+   
+            ! If this isn't a 3-d array, nothing to do
+            if (size(field_levels) > 1) then
+
+               do k=1,size(field_levels)
+                  call dup(headers(i),search_field)
+                  search_field%header%vertical_level = field_levels(k)
+                  call storage_get_field(search_field,istatus) 
+                  if (istatus == 0) then
+                     JLOOP: do jx=search_field%header%dim2(1),search_field%header%dim2(2)
+                        ILOOP: do ix=search_field%header%dim1(1),search_field%header%dim1(2)
+                           if (.not. bitarray_test(search_field%valid_mask, &
+                                                   ix-search_field%header%dim1(1)+1, &
+                                                   jx-search_field%header%dim2(1)+1)) then
+                              call bitarray_set(search_field%valid_mask, &
+                                                ix-search_field%header%dim1(1)+1, &
+                                                jx-search_field%header%dim2(1)+1)
+
+                              call dup(search_field, lower_field)
+                              do lower=k-1,1,-1
+                                 lower_field%header%vertical_level = field_levels(lower)
+                                 call storage_get_field(lower_field,istatus) 
+                                 if (bitarray_test(lower_field%valid_mask, &
+                                                   ix-search_field%header%dim1(1)+1, &
+                                                   jx-search_field%header%dim2(1)+1)) &
+                                     exit 
+                                
+                              end do                        
+
+                              call dup(search_field, upper_field)
+                              do upper=k+1,size(field_levels)
+                                 upper_field%header%vertical_level = field_levels(upper)
+                                 call storage_get_field(upper_field,istatus) 
+                                 if (bitarray_test(upper_field%valid_mask, &
+                                                   ix-search_field%header%dim1(1)+1, &
+                                                   jx-search_field%header%dim2(1)+1)) &
+                                     exit 
+                                
+                              end do                        
+                              if (upper <= size(field_levels) .and. lower >= 1) then
+                                 search_field%r_arr(ix,jx) = real(abs(field_levels(upper)-field_levels(k))) &
+                                                           / real(abs(field_levels(upper)-field_levels(lower))) &
+                                                           * lower_field%r_arr(ix,jx) &
+                                                           + real(abs(field_levels(k)-field_levels(lower))) &
+                                                           / real(abs(field_levels(upper)-field_levels(lower))) &
+                                                           * upper_field%r_arr(ix,jx)
+                              end if
+                           end if
+                        end do ILOOP
+                     end do JLOOP
+                  else
+                     call mprintf(.true.,ERROR, &
+                                  'This is bad, could not get %s at level %i.', &
+                                  s1=trim(search_field%header%field), i1=field_levels(k))
+                  end if
+               end do
+
+            end if
+
+            deallocate(field_levels)
+
+         end do
+
+      end if
+   
+      call list_destroy(temp_levels)
+      deallocate(all_headers)
+   
+   end subroutine fill_missing_levels
+   
+   
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
+   ! Name: accum_continuous
+   !
+   ! Purpose: Sum up all of the source data points whose nearest neighbor in the
+   !   model grid is the specified model grid point.
+   !
+   ! NOTE: When processing the source tile, those source points that are 
+   !   closest to a different model grid point will be added to the totals for 
+   !   such grid points; thus, an entire source tile will be processed at a time.
+   !   This routine really processes for all model grid points that are 
+   !   within a source tile, and not just for a single grid point.
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
+   subroutine accum_continuous(src_array, &
+                               src_min_x, src_max_x, src_min_y, src_max_y, src_min_z, src_max_z, &
+                               dst_array, n, &
+                               start_i, end_i, start_j, end_j, start_k, end_k, &
+                               istagger, &
+                               new_pts, msgval, maskval, mask_array)
+   
+      use bitarray_module
+      use misc_definitions_module
+   
+      implicit none
+   
+      ! Arguments
+      integer, intent(in) :: start_i, end_i, start_j, end_j, start_k, end_k, istagger, &
+                             src_min_x, src_max_x, src_min_y, src_max_y, src_min_z, src_max_z
+      real, intent(in) :: maskval, msgval
+      real, dimension(src_min_x:src_max_x, src_min_y:src_max_y, src_min_z:src_max_z), intent(in) :: src_array
+      real, dimension(src_min_x:src_max_x, src_min_y:src_max_y), intent(in), optional :: mask_array
+      real, dimension(start_i:end_i, start_j:end_j, start_k:end_k), intent(inout) :: dst_array, n
+      type (bitarray), intent(inout) :: new_pts
+   
+      ! Local variables
+      integer :: istatus, i, j
+      integer, pointer, dimension(:,:,:) :: where_maps_to
+   
+      allocate(where_maps_to(src_min_x:src_max_x,src_min_y:src_max_y,2))
+      do i=src_min_x,src_max_x
+         do j=src_min_y,src_max_y
+            where_maps_to(i,j,1) = NOT_PROCESSED 
+         end do
+      end do
+   
+      call process_continuous_block(src_array, where_maps_to, &
+                               src_min_x, src_min_y, src_min_z, src_max_x, src_max_y, src_max_z, &
+                               src_min_x, src_min_y, src_min_z, &
+                               src_max_x, src_max_y, src_max_z, &
+                               dst_array, n, start_i, end_i, start_j, end_j, start_k, end_k, &
+                               istagger, &
+                               new_pts, msgval, maskval, mask_array)
+   
+      deallocate(where_maps_to)
+   
+   end subroutine accum_continuous
+   
+   
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
+   ! Name: process_continuous_block 
+   !
+   ! Purpose: To recursively process a subarray of continuous data, adding the 
+   !   points in a block to the sum for their nearest grid point. The nearest 
+   !   neighbor may be estimated in some cases; for example, if the four corners 
+   !   of a subarray all have the same nearest grid point, all elements in the 
+   !   subarray are added to that grid point.
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
+   recursive subroutine process_continuous_block(tile_array, where_maps_to, &
+                                   src_min_x, src_min_y, src_min_z, src_max_x, src_max_y, src_max_z, &
+                                   min_i, min_j, min_k, max_i, max_j, max_k, &
+                                   dst_array, n, &
+                                   start_x, end_x, start_y, end_y, start_z, end_z, &
+                                   istagger, &
+                                   new_pts, msgval, maskval, mask_array)
+   
+      use bitarray_module
+      use llxy_module
+      use misc_definitions_module
+   
+      implicit none
+   
+      ! Arguments
+      integer, intent(in) :: min_i, min_j, min_k, max_i, max_j, max_k, &
+                             src_min_x, src_min_y, src_min_z, src_max_x, src_max_y, src_max_z, &
+                             start_x, end_x, start_y, end_y, start_z, end_z, istagger
+      integer, dimension(src_min_x:src_max_x,src_min_y:src_max_y,2), intent(inout) :: where_maps_to
+      real, intent(in) :: maskval, msgval
+      real, dimension(src_min_x:src_max_x,src_min_y:src_max_y,src_min_z:src_max_z), intent(in) :: tile_array
+      real, dimension(src_min_x:src_max_x,src_min_y:src_max_y), intent(in), optional :: mask_array
+      real, dimension(start_x:end_x,start_y:end_y,start_z:end_z), intent(inout) :: dst_array, n
+      type (bitarray), intent(inout) :: new_pts
+   
+      ! Local variables
+      integer :: orig_selected_domain, x_dest, y_dest, i, j, k, center_i, center_j, current_domain
+      real :: lat_corner, lon_corner, rx, ry
+   
+      ! Compute the model grid point that the corners of the rectangle to be 
+      !   processed map to
+      ! Lower-left corner
+      if (where_maps_to(min_i,min_j,1) == NOT_PROCESSED) then
+         orig_selected_domain = iget_selected_domain()
+         call select_domain(SOURCE_PROJ)
+         call xytoll(real(min_i), real(min_j), lat_corner, lon_corner, istagger)
+         call select_domain(1)
+         call lltoxy(lat_corner, lon_corner, rx, ry, istagger)
+         call select_domain(orig_selected_domain)
+         if (real(start_x) <= rx .and. rx <= real(end_x) .and. &
+             real(start_y) <= ry .and. ry <= real(end_y)) then
+            where_maps_to(min_i,min_j,1) = nint(rx)
+            where_maps_to(min_i,min_j,2) = nint(ry)
+         else
+            where_maps_to(min_i,min_j,1) = OUTSIDE_DOMAIN
+         end if
+      end if
+   
+      ! Upper-left corner
+      if (where_maps_to(min_i,max_j,1) == NOT_PROCESSED) then
+         orig_selected_domain = iget_selected_domain()
+         call select_domain(SOURCE_PROJ)
+         call xytoll(real(min_i), real(max_j), lat_corner, lon_corner, istagger)
+         call select_domain(1)
+         call lltoxy(lat_corner, lon_corner, rx, ry, istagger)
+         call select_domain(orig_selected_domain)
+         if (real(start_x) <= rx .and. rx <= real(end_x) .and. &
+             real(start_y) <= ry .and. ry <= real(end_y)) then
+            where_maps_to(min_i,max_j,1) = nint(rx)
+            where_maps_to(min_i,max_j,2) = nint(ry)
+         else
+            where_maps_to(min_i,max_j,1) = OUTSIDE_DOMAIN
+         end if
+      end if
+   
+      ! Upper-right corner
+      if (where_maps_to(max_i,max_j,1) == NOT_PROCESSED) then
+         orig_selected_domain = iget_selected_domain()
+         call select_domain(SOURCE_PROJ)
+         call xytoll(real(max_i), real(max_j), lat_corner, lon_corner, istagger)
+         call select_domain(1)
+         call lltoxy(lat_corner, lon_corner, rx, ry, istagger)
+         call select_domain(orig_selected_domain)
+         if (real(start_x) <= rx .and. rx <= real(end_x) .and. &
+             real(start_y) <= ry .and. ry <= real(end_y)) then
+            where_maps_to(max_i,max_j,1) = nint(rx)
+            where_maps_to(max_i,max_j,2) = nint(ry)
+         else
+            where_maps_to(max_i,max_j,1) = OUTSIDE_DOMAIN
+         end if
+      end if
+   
+      ! Lower-right corner
+      if (where_maps_to(max_i,min_j,1) == NOT_PROCESSED) then
+         orig_selected_domain = iget_selected_domain()
+         call select_domain(SOURCE_PROJ)
+         call xytoll(real(max_i), real(min_j), lat_corner, lon_corner, istagger)
+         call select_domain(1)
+         call lltoxy(lat_corner, lon_corner, rx, ry, istagger)
+         call select_domain(orig_selected_domain)
+         if (real(start_x) <= rx .and. rx <= real(end_x) .and. &
+             real(start_y) <= ry .and. ry <= real(end_y)) then
+            where_maps_to(max_i,min_j,1) = nint(rx)
+            where_maps_to(max_i,min_j,2) = nint(ry)
+         else
+            where_maps_to(max_i,min_j,1) = OUTSIDE_DOMAIN
+         end if
+      end if
+   
+      ! If all four corners map to same model grid point, accumulate the 
+      !   entire rectangle
+      if (where_maps_to(min_i,min_j,1) == where_maps_to(min_i,max_j,1) .and. &
+          where_maps_to(min_i,min_j,1) == where_maps_to(max_i,max_j,1) .and. &
+          where_maps_to(min_i,min_j,1) == where_maps_to(max_i,min_j,1) .and. &
+          where_maps_to(min_i,min_j,2) == where_maps_to(min_i,max_j,2) .and. &
+          where_maps_to(min_i,min_j,2) == where_maps_to(max_i,max_j,2) .and. &
+          where_maps_to(min_i,min_j,2) == where_maps_to(max_i,min_j,2) .and. &
+          where_maps_to(min_i,min_j,1) /= OUTSIDE_DOMAIN) then 
+         x_dest = where_maps_to(min_i,min_j,1)
+         y_dest = where_maps_to(min_i,min_j,2)
+         
+         ! If this grid point was already given a value from higher-priority source data, 
+         !   there is nothing to do.
+!         if (.not. bitarray_test(processed_pts, x_dest-start_x+1, y_dest-start_y+1)) then
+   
+            ! If this grid point has never been given a value by this level of source data,
+            !   initialize the point
+            if (.not. bitarray_test(new_pts, x_dest-start_x+1, y_dest-start_y+1)) then
+               do k=min_k,max_k
+                  dst_array(x_dest,y_dest,k) = 0.
+               end do
+            end if
+   
+            ! Sum all the points whose nearest neighbor is this grid point
+            if (present(mask_array)) then
+               do i=min_i,max_i
+                  do j=min_j,max_j
+                     do k=min_k,max_k
+                        ! Ignore masked/missing values in the source data
+                        if ((tile_array(i,j,k) /= msgval) .and. &
+                            (mask_array(i,j) /= maskval)) then
+                           dst_array(x_dest,y_dest,k) = dst_array(x_dest,y_dest,k) + tile_array(i,j,k) 
+                           n(x_dest,y_dest,k) = n(x_dest,y_dest,k) + 1.0
+                           call bitarray_set(new_pts, x_dest-start_x+1, y_dest-start_y+1)
+                        end if
+                     end do
+                  end do
+               end do
+            else
+               do i=min_i,max_i
+                  do j=min_j,max_j
+                     do k=min_k,max_k
+                        ! Ignore masked/missing values in the source data
+                        if ((tile_array(i,j,k) /= msgval)) then
+                           dst_array(x_dest,y_dest,k) = dst_array(x_dest,y_dest,k) + tile_array(i,j,k) 
+                           n(x_dest,y_dest,k) = n(x_dest,y_dest,k) + 1.0
+                           call bitarray_set(new_pts, x_dest-start_x+1, y_dest-start_y+1)
+                        end if
+                     end do
+                  end do
+               end do
+            end if
+   
+!         end if
+   
+      ! Rectangle is a square of four points, and we can simply deal with each of the points
+      else if (((max_i - min_i + 1) <= 2) .and. ((max_j - min_j + 1) <= 2)) then
+         do i=min_i,max_i
+            do j=min_j,max_j
+               x_dest = where_maps_to(i,j,1)
+               y_dest = where_maps_to(i,j,2)
+     
+               if (x_dest /= OUTSIDE_DOMAIN) then 
+   
+!                  if (.not. bitarray_test(processed_pts, x_dest-start_x+1, y_dest-start_y+1)) then
+                     if (.not. bitarray_test(new_pts, x_dest-start_x+1, y_dest-start_y+1)) then
+                        do k=min_k,max_k
+                           dst_array(x_dest,y_dest,k) = 0.
+                        end do
+                     end if
+                     
+                     if (present(mask_array)) then
+                        do k=min_k,max_k
+                           ! Ignore masked/missing values
+                           if ((tile_array(i,j,k) /= msgval) .and. &
+                                (mask_array(i,j) /= maskval)) then
+                              dst_array(x_dest,y_dest,k) = dst_array(x_dest,y_dest,k) + tile_array(i,j,k)
+                              n(x_dest,y_dest,k) = n(x_dest,y_dest,k) + 1.0
+                              call bitarray_set(new_pts, x_dest-start_x+1, y_dest-start_y+1)
+                           end if
+                        end do
+                     else
+                        do k=min_k,max_k
+                           ! Ignore masked/missing values
+                           if ((tile_array(i,j,k) /= msgval)) then 
+                              dst_array(x_dest,y_dest,k) = dst_array(x_dest,y_dest,k) + tile_array(i,j,k)
+                              n(x_dest,y_dest,k) = n(x_dest,y_dest,k) + 1.0
+                              call bitarray_set(new_pts, x_dest-start_x+1, y_dest-start_y+1)
+                           end if
+                        end do
+                     end if
+!                  end if
+     
+               end if
+            end do
+         end do
+   
+      ! Not all corners map to the same grid point, and the rectangle contains more than
+      !   four points
+      else
+         center_i = (max_i + min_i)/2
+         center_j = (max_j + min_j)/2
+   
+         ! Recursively process lower-left rectangle
+         call process_continuous_block(tile_array, where_maps_to, &
+                    src_min_x, src_min_y, src_min_z, &
+                    src_max_x, src_max_y, src_max_z, &
+                    min_i, min_j, min_k, &
+                    center_i, center_j, max_k, &
+                    dst_array, n, &
+                    start_x, end_x, start_y, end_y, start_z, end_z, &
+                    istagger, &
+                    new_pts, msgval, maskval, mask_array) 
+         
+         if (center_i < max_i) then
+            ! Recursively process lower-right rectangle
+            call process_continuous_block(tile_array, where_maps_to, &
+                       src_min_x, src_min_y, src_min_z, &
+                       src_max_x, src_max_y, src_max_z, &
+                       center_i+1, min_j, min_k, max_i, &
+                       center_j, max_k, &
+                       dst_array, n, &
+                       start_x, end_x, start_y, &
+                       end_y, start_z, end_z, &
+                       istagger, &
+                       new_pts, msgval, maskval, mask_array) 
+         end if
+   
+         if (center_j < max_j) then
+            ! Recursively process upper-left rectangle
+            call process_continuous_block(tile_array, where_maps_to, &
+                       src_min_x, src_min_y, src_min_z, &
+                       src_max_x, src_max_y, src_max_z, &
+                       min_i, center_j+1, min_k, center_i, &
+                       max_j, max_k, &
+                       dst_array, n, &
+                       start_x, end_x, start_y, &
+                       end_y, start_z, end_z, &
+                       istagger, &
+                       new_pts, msgval, maskval, mask_array) 
+         end if
+   
+         if (center_i < max_i .and. center_j < max_j) then
+            ! Recursively process upper-right rectangle
+            call process_continuous_block(tile_array, where_maps_to, &
+                       src_min_x, src_min_y, src_min_z, &
+                       src_max_x, src_max_y, src_max_z, &
+                       center_i+1, center_j+1, min_k, max_i, &
+                       max_j, max_k, &
+                       dst_array, n, &
+                       start_x, end_x, start_y, &
+                       end_y, start_z, end_z, &
+                       istagger, &
+                       new_pts, msgval, maskval, mask_array) 
+         end if
+      end if
+   
+   end subroutine process_continuous_block
+
+end module process_domain_module

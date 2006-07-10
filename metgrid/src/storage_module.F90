@@ -1,0 +1,980 @@
+module storage_module
+
+   use datatype_module
+   use minheap_module
+   use misc_definitions_module
+   use module_debug
+   use parallel_module
+
+   ! Maximum umber of words to keep in memory at a time
+   ! THIS MUST BE AT LEAST AS LARGE AS THE SIZE OF THE LARGEST ARRAY TO BE STORED
+   integer, parameter :: MEMSIZE_MAX = 1E9
+
+   ! Name (when formatted as i9.9) of next file to be used as array storage
+   integer :: next_filenumber = 1
+
+   ! Time counter used by policy for evicting arrays to Fortran units
+   integer :: global_time = 0
+
+   ! Current memory usage of module
+   integer :: memsize = 0
+
+   ! Primary head and tail pointers
+   type (head_node), pointer :: head => null()
+   type (head_node), pointer :: tail => null()
+
+   ! Pointer for get_next_output_fieldname
+   type (head_node), pointer :: next_output_field  => null()
+
+   contains
+
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   ! Name: storage_init
+   !
+   ! Purpose: Initialize the storage module.
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   subroutine storage_init()
+
+      implicit none
+
+      call init_heap()
+
+   end subroutine storage_init
+
+
+   subroutine reset_next_field()
+
+      implicit none
+
+      next_output_field => head
+
+   end subroutine reset_next_field
+
+
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   ! Name: storage_put_field
+   !
+   ! Purpose: Stores an fg_input type. Upon return, IT MUST NOT BE ASSUMED that 
+   !      store_me contains valid data, since all such data may have been written 
+   !      to a Fortran unit
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   subroutine storage_put_field(store_me)
+
+      implicit none
+
+      ! Arguments
+      type (fg_input) :: store_me
+
+      ! Local variables
+      integer :: funit
+      logical :: is_used
+      character (len=64) :: fname
+      type (head_node), pointer :: name_cursor
+      type (data_node), pointer :: data_cursor
+      type (data_node), pointer :: newnode
+      type (data_node), pointer :: evictnode
+
+      ! We'll first see if there is already a list for this fieldname
+      name_cursor => head
+      do while (associated(name_cursor))
+         if (primary_cmp(name_cursor%fg_data, store_me) == EQUAL) exit 
+         name_cursor => name_cursor%next
+      end do
+
+      ! If not, create a new node in the primary list
+      if (.not. associated(name_cursor)) then
+         allocate(name_cursor)
+         call dup(store_me, name_cursor%fg_data)
+         nullify(name_cursor%fg_data%r_arr)
+         nullify(name_cursor%fg_data%i_arr)
+         nullify(name_cursor%fg_data%valid_mask)
+         nullify(name_cursor%fg_data%modified_mask)
+         nullify(name_cursor%fieldlist_head)
+         nullify(name_cursor%fieldlist_tail)
+         nullify(name_cursor%prev)
+         name_cursor%next => head
+         if (.not. associated(head)) tail => name_cursor
+         head => name_cursor
+      end if
+
+      ! At this point, name_cursor points to a valid head node for fieldname
+      data_cursor => name_cursor%fieldlist_head
+      do while ( associated(data_cursor) )
+         if ((secondary_cmp(store_me, data_cursor%fg_data) == LESS) .or. &
+             (secondary_cmp(store_me, data_cursor%fg_data) == EQUAL)) exit 
+         data_cursor => data_cursor%next
+      end do
+
+      if (associated(data_cursor)) then
+         if (secondary_cmp(store_me, data_cursor%fg_data) == EQUAL) then 
+            if (data_cursor%filenumber > 0) then
+! BUG: Might need to deal with freeing up a file
+call mprintf(.true.,DEBUG,'WE NEED TO FREE THE FILE ASSOCIATED WITH DATA_CURSOR')
+            end if
+            data_cursor%fg_data%r_arr => store_me%r_arr 
+            data_cursor%fg_data%i_arr => store_me%i_arr 
+            data_cursor%fg_data%valid_mask => store_me%valid_mask 
+            data_cursor%fg_data%modified_mask => store_me%modified_mask 
+            return
+         end if
+      end if
+
+      allocate(newnode)
+      call dup(store_me, newnode%fg_data)
+
+      if (associated(store_me%r_arr)) then
+         newnode%field_shape = shape(newnode%fg_data%r_arr)
+         memsize = memsize + size(newnode%fg_data%r_arr)
+         newnode%is_real_array = .true.
+         newnode%is_integer_array = .false.
+      else if (associated(store_me%i_arr)) then
+         newnode%field_shape = shape(newnode%fg_data%i_arr)
+         memsize = memsize + size(newnode%fg_data%i_arr)
+         newnode%is_integer_array = .true.
+         newnode%is_real_array = .false.
+      end if
+      newnode%last_used = global_time
+      global_time = global_time + 1
+      newnode%filenumber = 0
+      call add_to_heap(newnode)
+
+      do while (memsize > MEMSIZE_MAX)
+         call get_min(evictnode)
+         evictnode%filenumber = next_filenumber
+         next_filenumber = next_filenumber + 1
+         do funit=10,100
+            inquire(unit=funit, opened=is_used)
+            if (.not. is_used) exit
+         end do
+         if (evictnode%is_real_array) then
+            memsize = memsize - size(evictnode%fg_data%r_arr)
+            write(fname,'(i9.9,a2,i3.3)') evictnode%filenumber,'.p',my_proc_id
+            open(funit,file=trim(fname),form='unformatted',status='unknown')
+            write(funit) evictnode%fg_data%r_arr  
+            close(funit)
+            deallocate(evictnode%fg_data%r_arr)
+         else if (evictnode%is_integer_array) then
+            memsize = memsize - size(evictnode%fg_data%i_arr)
+            write(fname,'(i9.9,a2,i3.3)') evictnode%filenumber,'.p',my_proc_id
+            open(funit,file=trim(fname),form='unformatted',status='unknown')
+            write(funit) evictnode%fg_data%i_arr  
+            close(funit)
+            deallocate(evictnode%fg_data%i_arr)
+         end if
+      end do
+
+      ! Inserting node at the tail of list
+      if (.not. associated(data_cursor)) then
+         newnode%prev => name_cursor%fieldlist_tail
+         nullify(newnode%next)
+
+         ! List is actually empty
+         if (.not. associated(name_cursor%fieldlist_head)) then
+            name_cursor%fieldlist_head => newnode
+            name_cursor%fieldlist_tail => newnode
+         else
+            name_cursor%fieldlist_tail%next => newnode
+            name_cursor%fieldlist_tail => newnode
+         end if
+
+      ! Inserting node at the head of list
+      else if ((secondary_cmp(name_cursor%fieldlist_head%fg_data, newnode%fg_data) == GREATER) .or. &
+               (secondary_cmp(name_cursor%fieldlist_head%fg_data, newnode%fg_data) == EQUAL)) then
+         nullify(newnode%prev)
+         newnode%next => name_cursor%fieldlist_head
+         name_cursor%fieldlist_head%prev => newnode
+         name_cursor%fieldlist_head => newnode
+
+      ! Inserting somewhere in the middle of the list
+      else 
+         newnode%prev => data_cursor%prev 
+         newnode%next => data_cursor    
+         data_cursor%prev%next => newnode
+         data_cursor%prev => newnode
+      end if
+
+   end subroutine storage_put_field
+
+
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   ! Name: storage_get_field
+   !
+   ! Purpose: Retrieves an fg_input type from storage; if the fg_input type whose
+   !    header matches the header of get_me does not exist, istatus = 1 upon 
+   !    return; if the requested fg_input type is found, istatus = 0
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   subroutine storage_get_field(get_me, istatus)
+
+      implicit none
+
+      ! Arguments
+      type (fg_input), intent(inout) :: get_me
+      integer, intent(out) :: istatus
+
+      ! Local variables
+      integer :: funit
+      logical :: is_used
+      character (len=64) :: fname
+      type (head_node), pointer :: name_cursor
+      type (data_node), pointer :: data_cursor
+      type (data_node), pointer :: evictnode
+
+      global_time = global_time + 1
+
+      istatus = 1
+
+      ! We'll first see if there is already a list for this fieldname
+      name_cursor => head
+      do while (associated(name_cursor))
+         if (primary_cmp(name_cursor%fg_data, get_me) == EQUAL) exit 
+         name_cursor => name_cursor%next
+      end do
+
+      if (.not. associated(name_cursor)) return 
+
+      ! At this point, name_cursor points to a valid head node for fieldname
+      data_cursor => name_cursor%fieldlist_head
+      do while ( associated(data_cursor) )
+         if (secondary_cmp(get_me, data_cursor%fg_data) == EQUAL) then
+            call dup(data_cursor%fg_data, get_me)
+
+            ! Before deciding whether we need to write an array to disk, first consider 
+            !   that reading the requested array will use memory
+            if (data_cursor%filenumber > 0) then
+               memsize = memsize + data_cursor%field_shape(1)*data_cursor%field_shape(2) 
+            end if
+
+            ! If we exceed our memory limit, we need to evict
+            do while (memsize > MEMSIZE_MAX)
+               call get_min(evictnode)
+               evictnode%filenumber = next_filenumber
+               next_filenumber = next_filenumber + 1
+               do funit=10,100
+                  inquire(unit=funit, opened=is_used)
+                  if (.not. is_used) exit
+               end do
+               if (evictnode%is_real_array) then
+                  memsize = memsize - size(evictnode%fg_data%r_arr)
+                  write(fname,'(i9.9,a2,i3.3)') evictnode%filenumber,'.p',my_proc_id
+                  open(funit,file=trim(fname),form='unformatted',status='unknown')
+                  write(funit) evictnode%fg_data%r_arr  
+                  close(funit)
+                  deallocate(evictnode%fg_data%r_arr)
+               else if (evictnode%is_integer_array) then
+                  memsize = memsize - size(evictnode%fg_data%i_arr)
+                  write(fname,'(i9.9,a2,i3.3)') evictnode%filenumber,'.p',my_proc_id
+                  open(funit,file=trim(fname),form='unformatted',status='unknown')
+                  write(funit) evictnode%fg_data%i_arr  
+                  close(funit)
+                  deallocate(evictnode%fg_data%i_arr)
+               end if
+            end do
+
+            ! Get requested array
+            if (data_cursor%filenumber > 0) then
+               data_cursor%last_used = global_time 
+               global_time = global_time + 1
+               call add_to_heap(data_cursor)
+               write(fname,'(i9.9,a2,i3.3)') data_cursor%filenumber,'.p',my_proc_id
+               do funit=10,100
+                  inquire(unit=funit, opened=is_used)
+                  if (.not. is_used) exit
+               end do
+               open(funit,file=trim(fname),form='unformatted',status='old')
+               if (data_cursor%is_real_array) then
+                  allocate(data_cursor%fg_data%r_arr(data_cursor%field_shape(1),data_cursor%field_shape(2)))
+                  read(funit) data_cursor%fg_data%r_arr 
+                  get_me%r_arr => data_cursor%fg_data%r_arr
+                  close(funit,status='delete')
+               else if (data_cursor%is_integer_array) then
+                  allocate(data_cursor%fg_data%i_arr(data_cursor%field_shape(1),data_cursor%field_shape(2)))
+                  read(funit) data_cursor%fg_data%i_arr 
+                  get_me%i_arr => data_cursor%fg_data%i_arr
+                  close(funit,status='delete')
+               end if
+               data_cursor%filenumber = 0
+            else
+               get_me%r_arr => data_cursor%fg_data%r_arr
+               get_me%i_arr => data_cursor%fg_data%i_arr
+
+               call remove_index(data_cursor%heap_index)
+               data_cursor%last_used = global_time 
+               global_time = global_time + 1
+               call add_to_heap(data_cursor)
+            end if
+
+            istatus = 0
+            return 
+         end if
+         data_cursor => data_cursor%next
+      end do
+
+   end subroutine storage_get_field 
+
+
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   ! Name: storage_query_field
+   !
+   ! Purpose: 
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   subroutine storage_query_field(get_me, istatus)
+
+      implicit none
+
+      ! Arguments
+      type (fg_input), intent(inout) :: get_me
+      integer, intent(out) :: istatus
+
+      ! Local variables
+      type (head_node), pointer :: name_cursor
+      type (data_node), pointer :: data_cursor
+
+      istatus = 1
+
+      ! We'll first see if there is already a list for this fieldname
+      name_cursor => head
+      do while (associated(name_cursor))
+         if (primary_cmp(name_cursor%fg_data, get_me) == EQUAL) exit 
+         name_cursor => name_cursor%next
+      end do
+
+      if (.not. associated(name_cursor)) return 
+
+      ! At this point, name_cursor points to a valid head node for fieldname
+      data_cursor => name_cursor%fieldlist_head
+      do while ( associated(data_cursor) )
+         if (secondary_cmp(get_me, data_cursor%fg_data) == EQUAL) then
+            get_me%r_arr => data_cursor%fg_data%r_arr
+            get_me%i_arr => data_cursor%fg_data%i_arr
+            get_me%valid_mask => data_cursor%fg_data%valid_mask
+            get_me%modified_mask => data_cursor%fg_data%modified_mask
+            istatus = 0
+            return
+         end if
+         data_cursor => data_cursor%next
+      end do
+
+   end subroutine storage_query_field 
+
+
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   ! Name: get_next_output_fieldname
+   !
+   ! Purpose: 
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   subroutine get_next_output_fieldname(field_name, field_type, ndims, &
+                                        min_level, max_level, &
+                                        istagger, mem_order, dim_names, units, description, &
+                                        istatus)
+
+      implicit none
+
+      ! Arguments
+      integer, intent(out) :: field_type, ndims, min_level, max_level, istagger, istatus
+      character (len=128), intent(out) :: field_name, mem_order, units, description
+      character (len=128), dimension(3), intent(out) :: dim_names
+
+#include "wrf_io_flags.h"
+#include "wrf_status_codes.h"
+
+      ! Local variables
+      character (len=64) :: fname
+      type (data_node), pointer :: data_cursor
+
+      istatus = 1
+ 
+      if (.not. associated(next_output_field)) return
+
+      min_level = 1
+      max_level = 0
+      ndims = 2
+
+      do while (max_level == 0 .and. associated(next_output_field))
+
+         data_cursor => next_output_field%fieldlist_head
+         if (associated(data_cursor)) then
+            if (.not. is_mask_field(data_cursor%fg_data)) then
+               do while ( associated(data_cursor) )
+                  istatus = 0
+                  max_level = max_level + 1
+                  data_cursor => data_cursor%next
+               end do
+            end if
+         end if
+
+         if (max_level == 0) next_output_field => next_output_field%next
+      end do
+
+      if (max_level > 0 .and. associated(next_output_field)) then
+
+         if (max_level > 1) ndims = 3
+         if (ndims == 2) then
+            mem_order = 'XY ' 
+            dim_names(3) = ' '
+         else
+            mem_order = 'XYZ' 
+!!!!! BUG: how do we get the third dimension name? !!!!!
+            if (is_time_dependent(next_output_field%fg_data)) then
+               write(dim_names(3), '(a15)') 'num_vert_levels'
+            else
+               write(dim_names(3),'(a11,i4.4)') 'z-dimension', max_level
+            end if
+         end if
+         if (next_output_field%fieldlist_head%is_real_array) then
+            field_type = WRF_REAL 
+         else if (next_output_field%fieldlist_head%is_integer_array) then
+            field_type = WRF_INTEGER 
+         end if
+         field_name = get_fieldname(next_output_field%fg_data)
+         istagger = get_staggering(next_output_field%fg_data)
+         if (istagger == M .or. istagger == HH .or. istagger == VV) then
+            dim_names(1) = 'west_east'
+            dim_names(2) = 'south_north'
+         else if (istagger == U) then
+            dim_names(1) = 'west_east_stag'
+            dim_names(2) = 'south_north'
+         else if (istagger == V) then
+            dim_names(1) = 'west_east'
+            dim_names(2) = 'south_north_stag'
+         else
+            dim_names(1) = 'i-dimension'
+            dim_names(2) = 'j-dimension'
+         end if
+         units = get_units(next_output_field%fg_data)
+         description = get_description(next_output_field%fg_data) 
+
+         next_output_field => next_output_field%next
+      end if
+
+   end subroutine get_next_output_fieldname 
+
+
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   ! Name: get_next_output_field
+   !
+   ! Purpose: 
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   subroutine get_next_output_field(field_name, r_array, i_array, &
+                                    start_i, end_i, start_j, end_j, min_level, max_level, istatus)
+
+      implicit none
+
+      ! Arguments
+      integer, intent(out) :: start_i, end_i, start_j, end_j, min_level, max_level, istatus
+      integer, pointer, dimension(:,:,:) :: i_array
+      real, pointer, dimension(:,:,:) :: r_array
+      character (len=128), intent(out) :: field_name
+
+#include "wrf_io_flags.h"
+#include "wrf_status_codes.h"
+
+      ! Local variables
+      integer :: i, j, k
+      character (len=64) :: fname
+      type (data_node), pointer :: data_cursor
+      type (fg_input) :: temp_field
+
+      istatus = 1
+ 
+      if (.not. associated(next_output_field)) return
+
+      min_level = 1
+      max_level = 0
+
+      do while (max_level == 0 .and. associated(next_output_field))
+
+         data_cursor => next_output_field%fieldlist_head
+         if (associated(data_cursor)) then
+            if (.not. is_mask_field(data_cursor%fg_data)) then
+               do while ( associated(data_cursor) )
+                  istatus = 0
+                  max_level = max_level + 1
+                  data_cursor => data_cursor%next
+               end do
+            end if
+         end if
+
+         if (max_level == 0) next_output_field => next_output_field%next
+      end do
+
+      if (max_level > 0 .and. associated(next_output_field)) then
+
+         start_i = 1
+         end_i = next_output_field%fieldlist_head%field_shape(1)
+         start_j = 1
+         end_j = next_output_field%fieldlist_head%field_shape(2)
+
+         if (next_output_field%fieldlist_head%is_real_array) then
+            allocate(r_array(next_output_field%fieldlist_head%field_shape(1), &
+                             next_output_field%fieldlist_head%field_shape(2), &
+                             max_level) )
+            nullify(i_array)
+         else if (next_output_field%fieldlist_head%is_integer_array) then
+            allocate(i_array(next_output_field%fieldlist_head%field_shape(1), &
+                             next_output_field%fieldlist_head%field_shape(2), &
+                             max_level) )
+            nullify(r_array)
+         end if
+
+         k = 1
+         data_cursor => next_output_field%fieldlist_head
+         do while ( associated(data_cursor) )
+            call dup(data_cursor%fg_data, temp_field)
+            call storage_get_field(temp_field, istatus)
+            if (associated(r_array)) then
+               r_array(:,:,k) = temp_field%r_arr
+            else if (associated(i_array)) then
+               i_array(:,:,k) = temp_field%i_arr
+            end if
+            k = k + 1 
+            data_cursor => data_cursor%next
+         end do
+
+         field_name = get_fieldname(next_output_field%fg_data)
+
+         next_output_field => next_output_field%next
+      end if
+
+   end subroutine get_next_output_field
+
+
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   ! Name: storage_delete_field
+   !
+   ! Purpose: Deletes the stored fg_input type whose header matches delete_me
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   subroutine storage_delete_field(delete_me)
+
+      implicit none
+
+      ! Arguments
+      type (fg_input), intent(in) :: delete_me
+
+      ! Local variables
+      integer :: funit
+      logical :: is_used
+      character (len=64) :: fname
+      type (head_node), pointer :: name_cursor
+      type (data_node), pointer :: data_cursor
+
+      ! We'll first see if there is a list for this fieldname
+      name_cursor => head
+      do while (associated(name_cursor))
+         if (primary_cmp(name_cursor%fg_data, delete_me) == EQUAL) exit 
+         name_cursor => name_cursor%next
+      end do
+
+      if (.not. associated(name_cursor)) return
+
+      ! At this point, name_cursor points to a valid head node for fieldname
+      data_cursor => name_cursor%fieldlist_head
+      do while ( associated(data_cursor) )
+         if (secondary_cmp(delete_me, data_cursor%fg_data) == EQUAL) then
+
+            if (data_cursor%filenumber > 0) then
+               do funit=10,100
+                  inquire(unit=funit, opened=is_used)
+                  if (.not. is_used) exit
+               end do
+               write(fname,'(i9.9,a2,i3.3)') data_cursor%filenumber,'.p',my_proc_id
+               open(funit,file=trim(fname),form='unformatted',status='old')
+               close(funit,status='delete')
+            else
+               call remove_index(data_cursor%heap_index)
+               if (data_cursor%is_real_array) then
+                  memsize = memsize - size(data_cursor%fg_data%r_arr)
+                  deallocate(data_cursor%fg_data%r_arr)
+               else if (data_cursor%is_integer_array) then
+                  memsize = memsize - size(data_cursor%fg_data%i_arr)
+                  deallocate(data_cursor%fg_data%i_arr)
+               end if
+            end if
+            if (associated(data_cursor%fg_data%valid_mask)) call bitarray_destroy(data_cursor%fg_data%valid_mask)
+            nullify(data_cursor%fg_data%valid_mask)
+            if (associated(data_cursor%fg_data%modified_mask)) call bitarray_destroy(data_cursor%fg_data%modified_mask)
+            nullify(data_cursor%fg_data%modified_mask)
+
+            ! Only item in the list
+            if (.not. associated(data_cursor%next) .and. &
+                .not. associated(data_cursor%prev)) then
+               nullify(name_cursor%fieldlist_head)          
+               nullify(name_cursor%fieldlist_tail)          
+               deallocate(data_cursor)
+! DO WE REMOVE THIS HEADER NODE AT THIS POINT?
+               return
+
+            ! Head of the list
+            else if (.not. associated(data_cursor%prev)) then
+               name_cursor%fieldlist_head => data_cursor%next
+               nullify(data_cursor%next%prev)
+               deallocate(data_cursor)
+               return
+
+            ! Tail of the list
+            else if (.not. associated(data_cursor%next)) then
+               name_cursor%fieldlist_tail => data_cursor%prev
+               nullify(data_cursor%prev%next)
+               deallocate(data_cursor)
+               return
+
+            ! Middle of the list
+            else
+               data_cursor%prev%next => data_cursor%next
+               data_cursor%next%prev => data_cursor%prev
+               deallocate(data_cursor)
+               return
+
+            end if 
+           
+         end if
+         data_cursor => data_cursor%next
+      end do
+
+   end subroutine storage_delete_field
+
+
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   ! Name: storage_delete_all_td
+   !
+   ! Purpose: Deletes the stored time-dependent data
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   subroutine storage_delete_all_td()
+
+      implicit none
+
+      ! Local variables
+      integer :: funit
+      logical :: is_used
+      character (len=64) :: fname
+      type (head_node), pointer :: name_cursor
+      type (data_node), pointer :: data_cursor, next_cursor
+
+      ! We'll first see if there is a list for this fieldname
+      name_cursor => head
+      do while (associated(name_cursor))
+
+         data_cursor => name_cursor%fieldlist_head
+         do while ( associated(data_cursor) )
+            if ( is_time_dependent(data_cursor%fg_data) ) then
+   
+               if (data_cursor%filenumber > 0) then
+                  do funit=10,100
+                     inquire(unit=funit, opened=is_used)
+                     if (.not. is_used) exit
+                  end do
+                  write(fname,'(i9.9,a2,i3.3)') data_cursor%filenumber,'.p',my_proc_id
+                  open(funit,file=trim(fname),form='unformatted',status='old')
+                  close(funit,status='delete')
+               else
+                  call remove_index(data_cursor%heap_index)
+                  if (data_cursor%is_real_array) then
+                     memsize = memsize - size(data_cursor%fg_data%r_arr)
+                     deallocate(data_cursor%fg_data%r_arr)
+                  else if (data_cursor%is_integer_array) then
+                     memsize = memsize - size(data_cursor%fg_data%i_arr)
+                     deallocate(data_cursor%fg_data%i_arr)
+                  end if
+               end if
+               if (associated(data_cursor%fg_data%valid_mask)) call bitarray_destroy(data_cursor%fg_data%valid_mask)
+               nullify(data_cursor%fg_data%valid_mask)
+               if (associated(data_cursor%fg_data%modified_mask)) call bitarray_destroy(data_cursor%fg_data%modified_mask)
+               nullify(data_cursor%fg_data%modified_mask)
+
+               ! We should handle individual cases, that way we can deal with a list 
+               !   that has both time independent and time dependent nodes in it. 
+   
+               ! Only item in the list
+               if (.not. associated(data_cursor%next) .and. &
+                   .not. associated(data_cursor%prev)) then
+                  next_cursor => null()
+                  nullify(name_cursor%fieldlist_head)          
+                  nullify(name_cursor%fieldlist_tail)          
+                  deallocate(data_cursor)
+! DO WE REMOVE THIS HEADER NODE AT THIS POINT?
+   
+               ! Head of the list
+               else if (.not. associated(data_cursor%prev)) then
+                  name_cursor%fieldlist_head => data_cursor%next
+                  next_cursor => data_cursor%next
+                  nullify(data_cursor%next%prev)
+                  deallocate(data_cursor)
+   
+               ! Tail of the list
+               else if (.not. associated(data_cursor%next)) then
+! THIS CASE SHOULD PROBABLY NOT OCCUR
+                  name_cursor%fieldlist_tail => data_cursor%prev
+                  next_cursor => null()
+                  nullify(data_cursor%prev%next)
+                  deallocate(data_cursor)
+   
+               ! Middle of the list
+               else
+! THIS CASE SHOULD PROBABLY NOT OCCUR
+                  next_cursor => data_cursor%next
+                  data_cursor%prev%next => data_cursor%next
+                  data_cursor%next%prev => data_cursor%prev
+                  deallocate(data_cursor)
+   
+               end if 
+              
+            end if
+            data_cursor => next_cursor
+         end do
+
+         name_cursor => name_cursor%next
+      end do
+
+   end subroutine storage_delete_all_td
+
+
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   ! Name: storage_get_levels
+   !
+   ! Purpose: Returns a list of all levels for the field indicated in the_header. 
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   subroutine storage_get_levels(the_header, list)
+      
+      implicit none
+
+      ! Arguments
+      integer, pointer, dimension(:) :: list
+      type (fg_input), intent(in) :: the_header
+
+      ! Local variables
+      integer :: n
+      type (head_node), pointer :: name_cursor
+      type (data_node), pointer :: data_cursor
+
+      if (associated(list)) deallocate(list)
+      nullify(list)
+
+      ! We'll first see if there is a list for this header 
+      name_cursor => head
+      do while (associated(name_cursor))
+         if (primary_cmp(name_cursor%fg_data, the_header) == EQUAL) exit 
+         name_cursor => name_cursor%next
+      end do
+
+      if (.not. associated(name_cursor)) return 
+
+      n = 0
+      ! At this point, name_cursor points to a valid head node for fieldname
+      data_cursor => name_cursor%fieldlist_head
+      do while ( associated(data_cursor) )
+         n = n + 1
+         if (.not. associated(data_cursor%next)) exit
+         data_cursor => data_cursor%next
+      end do
+
+      if (n > 0) allocate(list(n)) 
+
+      n = 1
+      do while ( associated(data_cursor) )
+         list(n) = get_level(data_cursor%fg_data)
+         n = n + 1
+         data_cursor => data_cursor%prev
+      end do
+
+   end subroutine storage_get_levels
+
+
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   ! Name: storage_delete_all
+   !
+   ! Purpose: Deletes all data, both time-independent and time-dependent. 
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   subroutine storage_delete_all()
+
+      implicit none
+
+      ! Local variables
+      integer :: funit
+      logical :: is_used
+      character (len=64) :: fname
+      type (head_node), pointer :: name_cursor
+      type (data_node), pointer :: data_cursor
+
+      ! We'll first see if there is already a list for this fieldname
+      name_cursor => head
+      do while (associated(name_cursor))
+
+         if (associated(name_cursor%fieldlist_head)) then
+            data_cursor => name_cursor%fieldlist_head
+            do while ( associated(data_cursor) )
+               name_cursor%fieldlist_head => data_cursor%next
+
+               if (data_cursor%filenumber > 0) then
+                  do funit=10,100
+                     inquire(unit=funit, opened=is_used)
+                     if (.not. is_used) exit
+                  end do
+                  write(fname,'(i9.9,a2,i3.3)') data_cursor%filenumber,'.p',my_proc_id
+                  open(funit,file=trim(fname),form='unformatted',status='old')
+                  close(funit,status='delete')
+               else
+                  call remove_index(data_cursor%heap_index)
+                  if (data_cursor%is_real_array) then
+                     memsize = memsize - size(data_cursor%fg_data%r_arr)
+                     deallocate(data_cursor%fg_data%r_arr)
+                  else if (data_cursor%is_integer_array) then
+                     memsize = memsize - size(data_cursor%fg_data%i_arr)
+                     deallocate(data_cursor%fg_data%i_arr)
+                  end if
+               end if
+               if (associated(data_cursor%fg_data%valid_mask)) call bitarray_destroy(data_cursor%fg_data%valid_mask)
+               nullify(data_cursor%fg_data%valid_mask)
+               if (associated(data_cursor%fg_data%modified_mask)) call bitarray_destroy(data_cursor%fg_data%modified_mask)
+               nullify(data_cursor%fg_data%modified_mask)
+
+               deallocate(data_cursor)
+               data_cursor => name_cursor%fieldlist_head
+            end do
+         end if
+
+         head => name_cursor%next
+         deallocate(name_cursor)
+         name_cursor => head
+      end do
+
+      nullify(head)
+      nullify(tail)
+
+      call heap_destroy()
+
+   end subroutine storage_delete_all
+
+
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   ! Name: storage_get_all_headers
+   !
+   ! Purpose: 
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   subroutine storage_get_all_headers(header_list)
+
+      implicit none
+
+      ! Arguments
+      type (fg_input), pointer, dimension(:) :: header_list
+
+      ! Local variables
+      integer :: nheaders
+      type (head_node), pointer :: name_cursor
+      type (data_node), pointer :: data_cursor
+
+      nullify(header_list)
+
+      ! First find out how many time-dependent headers there are
+      name_cursor => head
+      nheaders = 0
+      do while (associated(name_cursor))
+         if (associated(name_cursor%fieldlist_head)) then
+            if (.not. is_mask_field(name_cursor%fieldlist_head%fg_data)) then
+               nheaders = nheaders + 1 
+            end if
+         end if
+         name_cursor => name_cursor%next
+      end do
+
+      allocate(header_list(nheaders))
+
+      name_cursor => head
+      nheaders = 0
+      do while (associated(name_cursor))
+         if (associated(name_cursor%fieldlist_head)) then
+            if (.not. is_mask_field(name_cursor%fieldlist_head%fg_data)) then
+               nheaders = nheaders + 1
+               call dup(name_cursor%fieldlist_head%fg_data, header_list(nheaders))
+            end if
+         end if
+         name_cursor => name_cursor%next
+      end do
+
+   end subroutine storage_get_all_headers
+
+
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   ! Name: storage_get_all_td_headers
+   !
+   ! Purpose: 
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   subroutine storage_get_td_headers(header_list)
+
+      implicit none
+
+      ! Arguments
+      type (fg_input), pointer, dimension(:) :: header_list
+
+      ! Local variables
+      integer :: nheaders
+      type (head_node), pointer :: name_cursor
+      type (data_node), pointer :: data_cursor
+
+      nullify(header_list)
+
+      ! First find out how many time-dependent headers there are
+      name_cursor => head
+      nheaders = 0
+      do while (associated(name_cursor))
+         if (associated(name_cursor%fieldlist_head)) then
+            if (is_time_dependent(name_cursor%fieldlist_head%fg_data) .and. &
+                .not. is_mask_field(name_cursor%fieldlist_head%fg_data)) then
+               nheaders = nheaders + 1 
+            end if
+         end if
+         name_cursor => name_cursor%next
+      end do
+
+      allocate(header_list(nheaders))
+
+      name_cursor => head
+      nheaders = 0
+      do while (associated(name_cursor))
+         if (associated(name_cursor%fieldlist_head)) then
+            if (is_time_dependent(name_cursor%fieldlist_head%fg_data) .and. &
+                .not. is_mask_field(name_cursor%fieldlist_head%fg_data)) then
+               nheaders = nheaders + 1
+               call dup(name_cursor%fieldlist_head%fg_data, header_list(nheaders))
+            end if
+         end if
+         name_cursor => name_cursor%next
+      end do
+
+   end subroutine storage_get_td_headers
+
+
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   ! Name: storage_print_headers
+   !
+   ! Purpose: 
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   subroutine storage_print_headers()
+
+      implicit none
+
+      ! Local variables
+      type (head_node), pointer :: name_cursor
+      type (data_node), pointer :: data_cursor
+
+      call mprintf(.true.,DEBUG,'>>>> STORED FIELDS <<<<')
+      call mprintf(.true.,DEBUG,'=======================')
+
+      ! We'll first see if there is already a list for this fieldname
+      name_cursor => head
+      do while (associated(name_cursor))
+         call print_header(name_cursor%fg_data)
+
+         if (associated(name_cursor%fieldlist_head)) then
+            data_cursor => name_cursor%fieldlist_head
+            do while ( associated(data_cursor) )
+               call mprintf(.true.,DEBUG,'  - %i', i1=get_level(data_cursor%fg_data))
+               call mprintf(.true.,DEBUG,' ')
+               data_cursor => data_cursor%next
+            end do
+         end if
+
+         name_cursor => name_cursor%next
+      end do
+
+   end subroutine storage_print_headers
+
+end module storage_module
