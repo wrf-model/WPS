@@ -8,9 +8,11 @@ module interp_option_module
    integer, parameter :: BUFSIZE=128
 
    integer :: num_entries
-   integer, pointer, dimension(:) :: masked
+   integer, pointer, dimension(:) :: masked, output_stagger
    real, pointer, dimension(:) :: fill_missing, missing_value, interp_mask_val
-   character (len=128), pointer, dimension(:) :: fieldname, interp_method, interp_mask, flag_in_output
+   logical, pointer, dimension(:) :: output_this_field, is_u_field, is_v_field, is_derived_field
+   character (len=128), pointer, dimension(:) :: fieldname, interp_method, v_interp_method, &
+                  interp_mask, flag_in_output, from_input, z_dim_name
    type (list), pointer, dimension(:) :: fill_lev_list
    type (list) :: flag_in_output_list
 
@@ -74,6 +76,7 @@ module interp_option_module
    
       allocate(fieldname(num_entries))
       allocate(interp_method(num_entries))
+      allocate(v_interp_method(num_entries))
       allocate(masked(num_entries))
       allocate(fill_missing(num_entries))
       allocate(missing_value(num_entries))
@@ -81,6 +84,13 @@ module interp_option_module
       allocate(interp_mask(num_entries))
       allocate(interp_mask_val(num_entries))
       allocate(flag_in_output(num_entries))
+      allocate(from_input(num_entries))
+      allocate(z_dim_name(num_entries))
+      allocate(output_stagger(num_entries))
+      allocate(output_this_field(num_entries))
+      allocate(is_u_field(num_entries))
+      allocate(is_v_field(num_entries))
+      allocate(is_derived_field(num_entries))
    
       !
       ! Set default values
@@ -88,13 +98,22 @@ module interp_option_module
       do i=1,num_entries
          fieldname(i) = ' '
          flag_in_output(i) = ' '
+         from_input(i) = '*'
+         z_dim_name(i) = 'num_vert_levels'
          interp_method(i) = 'nearest_neighbor'
+         v_interp_method(i) = 'linear_log_p'
          masked(i) = -1
          fill_missing(i) = NAN
          missing_value(i) = NAN
          call list_init(fill_lev_list(i))
          interp_mask(i) = ' '
          interp_mask_val(i) = NAN
+! BUG: Maybe default output stagger should depend on grid_type
+         output_stagger(i) = M
+         output_this_field(i) = .true.
+         is_u_field(i) = .false.
+         is_v_field(i) = .false.
+         is_derived_field(i) = .false.
       end do
       call list_init(flag_in_output_list)
    
@@ -152,6 +171,63 @@ module interp_option_module
                         end do
                         fieldname(i) = ' '
                         fieldname(i)(1:ispace-idx) = buffer(idx+1:ispace-1)
+
+                     else if (index('from_input',trim(buffer(1:idx-1))) /= 0) then
+                        ispace = idx+1
+                        do while ((ispace < eos) .and. (buffer(ispace:ispace) /= ' '))
+                           ispace = ispace + 1
+                        end do
+                        from_input(i) = ' '
+                        from_input(i)(1:ispace-idx) = buffer(idx+1:ispace-1)
+
+                     else if (index('z_dim_name',trim(buffer(1:idx-1))) /= 0) then
+                        ispace = idx+1
+                        do while ((ispace < eos) .and. (buffer(ispace:ispace) /= ' '))
+                           ispace = ispace + 1
+                        end do
+                        z_dim_name(i) = ' '
+                        z_dim_name(i)(1:ispace-idx) = buffer(idx+1:ispace-1)
+
+                     else if (index('output_stagger',trim(buffer(1:idx-1))) /= 0) then
+                        if (index('M',trim(buffer(idx+1:eos-1))) /= 0) then
+                           output_stagger(i) = M
+                        else if (index('U',trim(buffer(idx+1:eos-1))) /= 0) then
+                           output_stagger(i) = U
+                        else if (index('V',trim(buffer(idx+1:eos-1))) /= 0) then
+                           output_stagger(i) = V
+                        else if (index('HH',trim(buffer(idx+1:eos-1))) /= 0) then
+                           output_stagger(i) = HH
+                        else if (index('VV',trim(buffer(idx+1:eos-1))) /= 0) then
+                           output_stagger(i) = VV
+                        end if
+
+                     else if (index('output',trim(buffer(1:idx-1))) /= 0) then
+                        if (index('yes',trim(buffer(idx+1:eos-1))) /= 0) then
+                           output_this_field(i) = .true.
+                        else if (index('no',trim(buffer(idx+1:eos-1))) /= 0) then
+                           output_this_field(i) = .false.
+                        end if
+
+                     else if (index('is_u_field',trim(buffer(1:idx-1))) /= 0) then
+                        if (index('yes',trim(buffer(idx+1:eos-1))) /= 0) then
+                           is_u_field(i) = .true.
+                        else if (index('no',trim(buffer(idx+1:eos-1))) /= 0) then
+                           is_u_field(i) = .false.
+                        end if
+
+                     else if (index('is_v_field',trim(buffer(1:idx-1))) /= 0) then
+                        if (index('yes',trim(buffer(idx+1:eos-1))) /= 0) then
+                           is_v_field(i) = .true.
+                        else if (index('no',trim(buffer(idx+1:eos-1))) /= 0) then
+                           is_v_field(i) = .false.
+                        end if
+       
+                     else if (index('derived',trim(buffer(1:idx-1))) /= 0) then
+                        if (index('yes',trim(buffer(idx+1:eos-1))) /= 0) then
+                           is_derived_field(i) = .true.
+                        else if (index('no',trim(buffer(idx+1:eos-1))) /= 0) then
+                           is_derived_field(i) = .false.
+                        end if
        
                      else if (index('interp_option',trim(buffer(1:idx-1))) /= 0) then
                         ispace = idx+1
@@ -160,6 +236,14 @@ module interp_option_module
                         end do
                         interp_method(i) = ' '
                         interp_method(i)(1:ispace-idx) = buffer(idx+1:ispace-1)
+
+                     else if (index('vertical_interp_option',trim(buffer(1:idx-1))) /= 0) then
+                        ispace = idx+1
+                        do while ((ispace < eos) .and. (buffer(ispace:ispace) /= ' '))
+                           ispace = ispace + 1
+                        end do
+                        v_interp_method(i) = ' '
+                        v_interp_method(i)(1:ispace-idx) = buffer(idx+1:ispace-1)
 
                      else if (index('interp_mask',trim(buffer(1:idx-1))) /= 0) then
                         ispace = idx+1
@@ -396,7 +480,10 @@ module interp_option_module
       integer :: i
 
       deallocate(fieldname)
+      deallocate(from_input)
+      deallocate(z_dim_name)
       deallocate(interp_method)
+      deallocate(v_interp_method)
       deallocate(masked)
       deallocate(fill_missing)
       deallocate(missing_value)
@@ -407,6 +494,11 @@ module interp_option_module
       deallocate(interp_mask)
       deallocate(interp_mask_val)
       deallocate(flag_in_output)
+      deallocate(output_stagger)
+      deallocate(output_this_field)
+      deallocate(is_u_field)
+      deallocate(is_v_field)
+      deallocate(is_derived_field)
       call list_destroy(flag_in_output_list)
 
    end subroutine interp_option_destroy

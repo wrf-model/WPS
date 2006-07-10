@@ -110,6 +110,7 @@ module storage_module
             if (data_cursor%filenumber > 0) then
 ! BUG: Might need to deal with freeing up a file
 call mprintf(.true.,DEBUG,'WE NEED TO FREE THE FILE ASSOCIATED WITH DATA_CURSOR')
+call mprintf(.true.,DEBUG,'PLEASE REPORT THIS BUG TO THE DEVELOPER!')
             end if
             data_cursor%fg_data%r_arr => store_me%r_arr 
             data_cursor%fg_data%i_arr => store_me%i_arr 
@@ -415,7 +416,9 @@ call mprintf(.true.,DEBUG,'WE NEED TO FREE THE FILE ASSOCIATED WITH DATA_CURSOR'
             mem_order = 'XYZ' 
 !!!!! BUG: how do we get the third dimension name? !!!!!
             if (is_time_dependent(next_output_field%fg_data)) then
-               write(dim_names(3), '(a15)') 'num_vert_levels'
+!               write(dim_names(3), '(a15)') 'num_vert_levels'
+               dim_names(3) = ' '
+               dim_names(3)(1:32) = next_output_field%fg_data%header%vertical_coord
             else
                write(dim_names(3),'(a11,i4.4)') 'z-dimension', max_level
             end if
