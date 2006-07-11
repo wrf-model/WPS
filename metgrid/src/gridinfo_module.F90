@@ -18,7 +18,7 @@ module gridinfo_module
                           opt_output_from_metgrid_path, opt_metgrid_tbl_path 
    character (len=128), dimension(MAX_DOMAINS) :: start_date, end_date, fg_name, &
                           constants_name
-   logical :: do_tiled_input, do_tiled_output, opt_ignore_dom_center
+   logical :: do_tiled_input, do_tiled_output, opt_ignore_dom_center, debug_print
    character (len=1) :: gridtype
  
    contains
@@ -43,7 +43,7 @@ module gridinfo_module
                         start_year, end_year, start_month, end_month, &
                         start_day, end_day, start_hour, end_hour, &
                         interval_seconds, &
-                        io_form_geogrid, opt_output_from_geogrid_path
+                        io_form_geogrid, opt_output_from_geogrid_path, debug_print
       namelist /metgrid/ io_form_metgrid, fg_name, constants_name, opt_output_from_metgrid_path, &
                          opt_metgrid_tbl_path, opt_ignore_dom_center 
         

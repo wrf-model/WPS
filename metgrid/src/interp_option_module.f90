@@ -320,6 +320,8 @@ module interp_option_module
                      end if
           
                   end if   !} index(buffer(1:eos-1),'=') /= 0
+
+! BUG: If buffer has non-whitespace characters but no =, then maybe a wrong specification?
           
                   buffer = buffer(eos+1:BUFSIZE)
                end do   ! while eos /= 0 }

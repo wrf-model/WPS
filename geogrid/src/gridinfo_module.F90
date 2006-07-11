@@ -22,7 +22,7 @@ module gridinfo_module
 
    character (len=128), dimension(MAX_DOMAINS) :: geog_data_res 
    character (len=1) :: gridtype
-   logical :: do_tiled_output
+   logical :: do_tiled_output, debug_print
  
    contains
  
@@ -54,7 +54,7 @@ module gridinfo_module
                         start_year, end_year, start_month, end_month, &
                         start_day, end_day, start_hour, end_hour, &
                         interval_seconds, &
-                        io_form_geogrid, opt_output_from_geogrid_path
+                        io_form_geogrid, opt_output_from_geogrid_path, debug_print
       namelist /geogrid/ parent_id, parent_grid_ratio, &
                          i_parent_start, j_parent_start, s_we, e_we, s_sn, e_sn, &
                          map_proj, known_x, known_y, known_lat, known_lon, &

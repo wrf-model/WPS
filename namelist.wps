@@ -5,7 +5,8 @@
  end_date   = '2006-06-20_12:00:00','2006-06-20_12:00:00',
  interval_seconds = 21600,
  io_form_geogrid = 2,
- opt_output_from_geogrid_path = './'
+ opt_output_from_geogrid_path = './',
+ debug_print = .false.
 /
 
 &geogrid
@@ -29,7 +30,6 @@
  geog_data_root = '/standalone/users/gill/DATA/WPS_GEOG'
  opt_geogrid_tbl_path = 'geogrid/'
 /
- geog_data_root = '/mmm/users/gill/GEOG_WPS/geog'
 
 &ungrib
  out_format = 'MM5'
@@ -42,4 +42,3 @@
  opt_metgrid_tbl_path         = 'metgrid/',
  opt_ignore_dom_center        = .false.
 /
- fg_name = '/mmmtmp/duda/FILE',
