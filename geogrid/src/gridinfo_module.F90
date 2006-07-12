@@ -41,10 +41,10 @@ module gridinfo_module
       integer :: i, j, max_dom, funit, io_form_geogrid
       real :: dx, dy
       integer, dimension(MAX_DOMAINS) :: i_parent_start, j_parent_start, &
-                           s_we, e_we, s_sn, e_sn
-      integer :: start_year, start_month, start_day, start_hour, &
-                 end_year,   end_month,   end_day,   end_hour, &
-                 interval_seconds
+                           s_we, e_we, s_sn, e_sn, &
+                           start_year, start_month, start_day, start_hour, &
+                           end_year,   end_month,   end_day,   end_hour
+      integer :: interval_seconds
       character (len=128) :: map_proj
       character (len=128), dimension(MAX_DOMAINS) :: start_date, end_date
       character (len=3) :: wrf_core
@@ -62,18 +62,43 @@ module gridinfo_module
                          geog_data_res, geog_data_path, opt_geogrid_tbl_path
   
       ! Set defaults for namelist variables
-      io_form_geogrid = -1
-      wrf_core = '   '
+      debug_print = .false.
+      io_form_geogrid = 2
+      wrf_core = 'ARW'
+      max_dom = 1
       geog_data_path = 'NOT_SPECIFIED'
       ref_x = NAN
       ref_y = NAN
       ref_lat = NAN
       ref_lon = NAN
+      dx = 10000.
+      dy = 10000.
+      map_proj = 'Lambert'
+      truelat1 = NAN
+      truelat2 = NAN
+      stand_lon = NAN
       do i=1,MAX_DOMAINS
          geog_data_res(i) = 'default'
+         parent_id(i) = 1
+         parent_grid_ratio(i) = INVALID
+         s_we(i) = 1
+         e_we(i) = INVALID
+         s_sn(i) = 1
+         e_sn(i) = INVALID
+         start_year(i) = 0
+         start_month(i) = 0
+         start_day(i) = 0
+         start_hour(i) = 0
+         end_year(i) = 0
+         end_month(i) = 0
+         end_day(i) = 0
+         end_hour(i) = 0
+         start_date(i) = '0000-00-00_00:00:00'
+         end_date(i) = '0000-00-00_00:00:00'
       end do
       opt_output_from_geogrid_path = './'
       opt_geogrid_tbl_path = 'geogrid/'
+      interval_seconds = INVALID
       
       ! Read parameters from Fortran namelist
       do funit=10,100

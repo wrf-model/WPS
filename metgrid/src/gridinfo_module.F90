@@ -48,13 +48,22 @@ module gridinfo_module
                          opt_metgrid_tbl_path, opt_ignore_dom_center 
         
       ! Set defaults
-      io_form_geogrid = -1
-      io_form_metgrid = -1
-      max_dom = -1
-      wrf_core = '   '
+      io_form_geogrid = 2
+      io_form_metgrid = 2
+      max_dom = 1
+      wrf_core = 'ARW'
+      debug_print = .false.
       do i=1,MAX_DOMAINS
          fg_name(i) = '*'
          constants_name(i) = '*'
+         start_year(i) = 0
+         start_month(i) = 0
+         start_day(i) = 0
+         start_hour(i) = 0
+         end_year(i) = 0
+         end_month(i) = 0
+         end_day(i) = 0
+         end_hour(i) = 0
          start_date(i) = '0000-00-00_00:00:00'
          end_date(i) = '0000-00-00_00:00:00'
       end do
@@ -62,15 +71,7 @@ module gridinfo_module
       opt_output_from_metgrid_path = './'
       opt_metgrid_tbl_path = 'metgrid/'
       opt_ignore_dom_center = .false.
-      start_year = 0
-      start_month = 0
-      start_day = 0
-      start_hour = 0
-      end_year = 0
-      end_month = 0
-      end_day = 0
-      end_hour = 0
-      interval_seconds = 86400
+      interval_seconds = INVALID
   
       ! Read parameters from Fortran namelist
       do funit=10,100
