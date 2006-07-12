@@ -16,9 +16,9 @@ module gridinfo_module
    integer :: iproj_type, n_domains, io_form_output, dyn_opt
    integer, dimension(MAX_DOMAINS) :: parent_grid_ratio, parent_id, ixdim, jydim
    real :: known_lat, known_lon, stand_lon, truelat1, truelat2, known_x, known_y, &
-           dxkm, dykm, phi, lambda 
+           dxkm, dykm, phi, lambda, ref_lat, ref_lon, ref_x, ref_y
    real, dimension(MAX_DOMAINS) :: parent_ll_x, parent_ll_y, parent_ur_x, parent_ur_y
-   character (len=128) :: geog_data_root, opt_output_from_geogrid_path, opt_geogrid_tbl_path
+   character (len=128) :: geog_data_path, opt_output_from_geogrid_path, opt_geogrid_tbl_path
 
    character (len=128), dimension(MAX_DOMAINS) :: geog_data_res 
    character (len=1) :: gridtype
@@ -57,16 +57,18 @@ module gridinfo_module
                         io_form_geogrid, opt_output_from_geogrid_path, debug_print
       namelist /geogrid/ parent_id, parent_grid_ratio, &
                          i_parent_start, j_parent_start, s_we, e_we, s_sn, e_sn, &
-                         map_proj, known_x, known_y, known_lat, known_lon, &
+                         map_proj, ref_x, ref_y, ref_lat, ref_lon, &
                          truelat1, truelat2, stand_lon, dx, dy, &
-                         geog_data_res, geog_data_root, opt_geogrid_tbl_path
+                         geog_data_res, geog_data_path, opt_geogrid_tbl_path
   
       ! Set defaults for namelist variables
       io_form_geogrid = -1
       wrf_core = '   '
-      geog_data_root = 'NOT_SPECIFIED'
-      known_x = NAN
-      known_y = NAN
+      geog_data_path = 'NOT_SPECIFIED'
+      ref_x = NAN
+      ref_y = NAN
+      ref_lat = NAN
+      ref_lon = NAN
       do i=1,MAX_DOMAINS
          geog_data_res(i) = 'default'
       end do
@@ -85,6 +87,11 @@ module gridinfo_module
 
       dxkm = dx
       dykm = dy
+
+      known_lat = ref_lat
+      known_lon = ref_lon
+      known_x = ref_x
+      known_y = ref_y
 
       ! Convert wrf_core to uppercase letters
       do i=1,3
@@ -117,23 +124,23 @@ module gridinfo_module
                       'the range 1 to %i.', i1=i, i2=i-1)
       end do
   
-      ! Check for valid geog_data_root
+      ! Check for valid geog_data_path
       j=1
-      do i=1,len(geog_data_root)
-         geog_data_root(j:j) = geog_data_root(i:i)
-         if (geog_data_root(i:i) /= ' ') j = j + 1
+      do i=1,len(geog_data_path)
+         geog_data_path(j:j) = geog_data_path(i:i)
+         if (geog_data_path(i:i) /= ' ') j = j + 1
       end do
-      if (geog_data_root(1:1) == ' ') then
-         call mprintf(.true.,ERROR,'In namelist, geog_data_root must be specified.')
+      if (geog_data_path(1:1) == ' ') then
+         call mprintf(.true.,ERROR,'In namelist, geog_data_path must be specified.')
       end if
-      j = len_trim(geog_data_root)
+      j = len_trim(geog_data_path)
       if (j >= 128) then
          call mprintf(.true.,ERROR, &
-                      'In namelist, geog_data_root must be strictly less '// &
+                      'In namelist, geog_data_path must be strictly less '// &
                       'than 128 characters in length.')
       else
-         if (geog_data_root(j:j) /= '/') then
-            geog_data_root(j+1:j+1) = '/'
+         if (geog_data_path(j:j) /= '/') then
+            geog_data_path(j+1:j+1) = '/'
          end if
       end if
 

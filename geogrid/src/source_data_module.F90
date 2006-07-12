@@ -351,7 +351,7 @@ module source_data_module
                   else
                      res_string = 'default'
                   end if
-                  write(path_string,'(a)') trim(geog_data_root)//trim(path_string(ispace+1:128))
+                  write(path_string,'(a)') trim(geog_data_path)//trim(path_string(ispace+1:128))
                   if (c_list_search(source_res_path(i), res_string, path_string)) then
                      call mprintf(.true., WARN, &
                                   'In GEOGRID.TBL entry %i, multiple paths are given for '// &

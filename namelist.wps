@@ -22,12 +22,14 @@
  dx = 30000,
  dy = 30000,
  map_proj = 'lambert',
- known_lat = 40,
- known_lon = -105,
- truelat1 =  30.0,
- truelat2 =  60.0,
+ ref_lat   = 40,
+ ref_lon   = -105,
+ ref_x     = 50.,
+ ref_y     = 40.,
+ truelat1  =  30.0,
+ truelat2  =  60.0,
  stand_lon = -105.
- geog_data_root = '/standalone/users/gill/DATA/WPS_GEOG'
+ geog_data_path = '/bouleau2/duda/geog'
  opt_geogrid_tbl_path = 'geogrid/'
 /
 
@@ -36,7 +38,7 @@
 /
 
 &metgrid
- fg_name = '/standalone/users/gill/WPS_devel/ungrib/FILE'
+ fg_name = './FILE'
  io_form_metgrid = 2, 
  opt_output_from_metgrid_path = './',
  opt_metgrid_tbl_path         = 'metgrid/',
