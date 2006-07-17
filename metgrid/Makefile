@@ -5,7 +5,8 @@ include ../configure.wps
 bad_idea:
 	clear ;
 	@echo " "
-	@echo "go up a directory and type compile to build WPS"
+	@echo " "
+	@echo "go up a directory and type 'compile' to build WPS"
 	@echo " "
 	@echo " "
 

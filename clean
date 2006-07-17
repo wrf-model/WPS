@@ -1,5 +1,7 @@
 #!/bin/csh -f
 
+set DEV_TOP = `pwd`
+
 set TOUCH = ORIG
 if ( ! -e configure.wps ) then
 	touch configure.wps
@@ -9,10 +11,13 @@ endif
 set nonomatch
 
 set DIRS = ( geogrid ungrib metgrid )
-set DIRS = ( geogrid        metgrid )
+
 foreach dir ( $DIRS )
 	if ( -d $dir ) then 
-		( cd $dir ; make -i TARGET="${dir}.exe" clean )
+		( cd $dir ; make -i DEV_TOP="${DEV_TOP}" TARGET="${dir}.exe" clean )
+	endif
+	if ( -e ${dir}.exe ) then
+		/bin/rm -f ${dir}.exe
 	endif
 end
 
@@ -20,13 +25,18 @@ if ( -e GRIBFILE.AAA ) then
 	/bin/rm -f GRIBFILE.[A-Z][A-Z][A-Z]
 endif
 
+/bin/rm -f FILE:[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]_[0-9][0-9] >& /dev/null
+
 if ( -e Vtable ) then
 	/bin/rm -f Vtable
 endif
 
-if ( -e geo_{em,nmm}.d[0-9][0-9].{nc,bin,grib} ) then
-	/bin/rm -f geo_{em,nmm}.d[0-9][0-9].{nc,bin,grib}
-endif
+foreach core ( em nmm ) 
+	foreach io_form ( nc bin grib )
+		/bin/rm -f geo_${core}.d[0-9][0-9].${io_form} >& /dev/null
+		/bin/rm -f met_${core}.d[0-9][0-9].*.${io_form} >& /dev/null
+	end
+end
 
 if ( -e geogrid.log ) then
 	/bin/rm -f geogrid.log
@@ -40,10 +50,13 @@ if ( "$1" == '-a' ) then
 	/bin/rm -rf ./netcdf_links
 	foreach dir ( $DIRS )
 		if ( -d $dir ) then 
-			( cd $dir ; make -i TARGET="${dir}.exe" superclean )
+			( cd $dir ; make -i DEV_TOP="${DEV_TOP}" TARGET="${dir}.exe" superclean >& /dev/null )
+		endif
+		if ( -l ${dir}.exe ) then
+			/bin/rm -f ${dir}.exe
 		endif
 	end
-	if ( -f configure.wps ) then
+	if ( -e configure.wps ) then
 		/bin/cp configure.wps configure.wps.backup
 		/bin/rm -f configure.wps
 	endif

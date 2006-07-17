@@ -15,9 +15,16 @@ set NAMES	=	( GEOGRID UNGRIB METGRID )
 
 set count = 1
 foreach f ( $names )
-	( cd $f ; make -i -r DEV_TOP="${DEV_TOP}" TARGET="${f}.exe" CPP_TARGET="$NAMES[$count]" all )
-	if ( -e ${f}/src/${f}.exe ) then
-		ln -sf ${f}/src/${f}.exe .
+	if ( $f == ungrib ) then
+		( cd ungrib ; make -i -r DEV_TOP="${DEV_TOP}" all )
+		if ( -e ${f}/grib.misc/${f}.exe ) then
+			ln -sf ${f}/grib.misc/${f}.exe .
+		endif
+	else
+		( cd $f ; make -i -r DEV_TOP="${DEV_TOP}" TARGET="${f}.exe" CPP_TARGET="$NAMES[$count]" all )
+		if ( -e ${f}/src/${f}.exe ) then
+			ln -sf ${f}/src/${f}.exe .
+		endif
 	endif
 	@ count ++
 end
