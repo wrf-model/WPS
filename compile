@@ -17,8 +17,8 @@ set count = 1
 foreach f ( $names )
 	if ( $f == ungrib ) then
 		( cd ungrib ; make -i -r DEV_TOP="${DEV_TOP}" all )
-		if ( -e ${f}/grib.misc/${f}.exe ) then
-			ln -sf ${f}/grib.misc/${f}.exe .
+		if ( -e ${f}/src/grib.misc/${f}.exe ) then
+			ln -sf ${f}/src/grib.misc/${f}.exe .
 		endif
 	else
 		( cd $f ; make -i -r DEV_TOP="${DEV_TOP}" TARGET="${f}.exe" CPP_TARGET="$NAMES[$count]" all )

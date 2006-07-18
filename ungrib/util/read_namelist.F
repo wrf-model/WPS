@@ -1,6 +1,7 @@
 subroutine read_namelist(hstart, hend, delta_time, ntimes,&
      ordered_by_date, print_flag, iprint, out_format)
   implicit none
+  integer , parameter :: maxim_doms = 10
   character(len=200) :: extdataroot, file_name_namelist
   character(len=19) :: hstart, hend
   integer :: delta_time
@@ -15,21 +16,22 @@ subroutine read_namelist(hstart, hend, delta_time, ntimes,&
 
 ! Declare the namelist variables:
 
-  integer :: start_year = 0
-  integer :: start_month = 0
-  integer :: start_day = 0
-  integer :: start_hour = 0
-  integer :: start_minute = 0
-  integer :: start_second = 0
+  integer , dimension(maxim_doms) :: start_year
+  integer , dimension(maxim_doms) :: start_month
+  integer , dimension(maxim_doms) :: start_day
+  integer , dimension(maxim_doms) :: start_hour
+  integer , dimension(maxim_doms) :: start_minute
+  integer , dimension(maxim_doms) :: start_second
 
-  integer :: end_year = 0
-  integer :: end_month = 0
-  integer :: end_day = 0
-  integer :: end_hour = 0
-  integer :: end_minute = 0
-  integer :: end_second = 0
+  integer , dimension(maxim_doms) :: end_year
+  integer , dimension(maxim_doms) :: end_month
+  integer , dimension(maxim_doms) :: end_day
+  integer , dimension(maxim_doms) :: end_hour
+  integer , dimension(maxim_doms) :: end_minute
+  integer , dimension(maxim_doms) :: end_second
 
-  character (len=128) :: start_date, end_date, opt_output_from_geogrid_path
+  character (len=128) , dimension(maxim_doms) :: start_date, end_date
+  character (len=128) :: opt_output_from_geogrid_path
   integer :: interval_seconds = 0
   character (len=3) :: wrf_core = 'ARW'
   integer :: max_dom, io_form_geogrid
@@ -48,6 +50,20 @@ subroutine read_namelist(hstart, hend, delta_time, ntimes,&
 
   namelist /ungrib/ out_format, &
        ordered_by_date
+
+  start_year = 0
+  start_month = 0
+  start_day = 0
+  start_hour = 0
+  start_minute = 0
+  start_second = 0
+
+  end_year = 0
+  end_month = 0
+  end_day = 0
+  end_hour = 0
+  end_minute = 0
+  end_second = 0
 
 ! Start routine:
 
@@ -69,25 +85,25 @@ subroutine read_namelist(hstart, hend, delta_time, ntimes,&
 
   ! set default:
   ordered_by_date = .TRUE.
-  start_date(1:4) = '0000'
-  end_date(1:4)   = '0000'
+  start_date(1)(1:4) = '0000'
+  end_date(1)(1:4)   = '0000'
 
   read(10,NML=share)
 
 ! Build the Starting date HSTART and the ending date HEND from the namelist
 ! date/time information. start_date takes priority over the multi-variable method.
 
-  if ( start_date(1:4) .eq. '0000' ) then
-    call build_hdate(hstart, start_year, start_month, start_day, start_hour, &
-       start_minute, start_second)
+  if ( start_date(1)(1:4) .eq. '0000' ) then
+    call build_hdate(hstart, start_year(1), start_month(1), start_day(1), start_hour(1), &
+       start_minute(1), start_second(1))
   else
-    hstart = start_date(1:19)
+    hstart = start_date(1)(1:19)
   endif
-  if ( end_date(1:4) .eq. '0000' ) then
-    call build_hdate(hend, end_year, end_month, end_day, end_hour, &
-       end_minute, end_second)
+  if ( end_date(1)(1:4) .eq. '0000' ) then
+    call build_hdate(hend, end_year(1), end_month(1), end_day(1), end_hour(1), &
+       end_minute(1), end_second(1))
   else
-    hend = end_date(1:19)
+    hend = end_date(1)(1:19)
   endif
 
 ! Compute the time difference between start date and end date:
@@ -149,19 +165,19 @@ subroutine read_namelist(hstart, hend, delta_time, ntimes,&
   if (debug_print) then
      iprint=1
      write(*,'(//)')
-     write(*,'("Namelist information: ")')
-     write(*,'(5x,"start_year = ", I8)') start_year
-     write(*,'(5x,"start_month = ", I8)') start_month
-     write(*,'(5x,"start_day = ", I8)') start_day
-     write(*,'(5x,"start_hour = ", I8)') start_hour
-     write(*,'(5x,"start_minute = ", I8)') start_minute
-     write(*,'(5x,"start_second = ", I8)') start_second
-     write(*,'(5x,"end_year = ", I8)') end_year
-     write(*,'(5x,"end_month = ", I8)') end_month
-     write(*,'(5x,"end_day = ", I8)') end_day
-     write(*,'(5x,"end_hour = ", I8)') end_hour
-     write(*,'(5x,"end_minute = ", I8)') end_minute
-     write(*,'(5x,"end_second = ", I8)') end_second
+     write(*,'("Namelist information (coarse domain): ")')
+     write(*,'(5x,"start_year = ", I8)') start_year(1)
+     write(*,'(5x,"start_month = ", I8)') start_month(1)
+     write(*,'(5x,"start_day = ", I8)') start_day(1)
+     write(*,'(5x,"start_hour = ", I8)') start_hour(1)
+     write(*,'(5x,"start_minute = ", I8)') start_minute(1)
+     write(*,'(5x,"start_second = ", I8)') start_second(1)
+     write(*,'(5x,"end_year = ", I8)') end_year(1)
+     write(*,'(5x,"end_month = ", I8)') end_month(1)
+     write(*,'(5x,"end_day = ", I8)') end_day(1)
+     write(*,'(5x,"end_hour = ", I8)') end_hour(1)
+     write(*,'(5x,"end_minute = ", I8)') end_minute(1)
+     write(*,'(5x,"end_second = ", I8)') end_second(1)
      write(*,'(5x,"interval_seconds = ", I10)') interval_seconds
      write(*,'(5x,"ordered_by_date = ", L4)') ordered_by_date
      write(*,'(5x,"debug_print = ", L4)') debug_print

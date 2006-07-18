@@ -7,21 +7,21 @@ EXE	=	ungrib.exe
 
 all:		$(EXE)
 
-$(EXE):		$(OBJS) ../util/libpgu.a
+$(EXE):		$(OBJS) ../../src/util/libpgu.a
 	$(RM) $@
 	$(FC) -o $@ $(LDFLAGS) $(OBJS) \
-		-L ../util -lpgu \
-		-L ../ngl -lw3 -lg2_4 \
+		-L ../../src/util -lpgu \
+		-L ../../src/ngl -lw3 -lg2_4 \
 		$(COMPRESSION_LIBS) 
 
 .F.o:
 	$(CPP) $(CPPFLAGS) $*.F >! $*.f
-	$(FC) -c $(FFLAGS) $*.f -I. -I../util
+	$(FC) -c $(FFLAGS) $*.f -I. -I../../src/util
 	$(RM) $*.f
 
 rd_grib2.o:
 	$(CPP) $(CPPFLAGS) $*.F >! $*.f
-	$(FC) -c $(F77FLAGS) $*.f -I../util -I../ngl/g2
+	$(FC) -c $(F77FLAGS) $*.f -I../../src/util -I../../src/ngl/g2
 	$(RM) $*.f
 
 clean:

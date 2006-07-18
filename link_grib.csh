@@ -5,20 +5,47 @@ set i1 = 1
 set i2 = 1
 set i3 = 1
 
-foreach f ( ${1}* )
-
-   ln -sf ${f} GRIBFILE.$alpha[$i3]$alpha[$i2]$alpha[$i1]
-   @ i1 ++
-
-   if ( $i1 > 26 ) then
-      set i1 = 1
-      @ i2 ++
-     if ( $i2 > 26 ) then
-        set i2 = 1
-        @ i3 ++
-        if ( $i3 > 26 ) echo "RAN OUT OF GRIB FILE SUFFIXES!'
-     endif
-   endif
-
-end
+if ( ${#argv} == 1 ) then
+   foreach f ( ${1}* )
+   
+      ln -sf ${f} GRIBFILE.$alpha[$i3]$alpha[$i2]$alpha[$i1]
+      @ i1 ++
+   
+      if ( $i1 > 26 ) then
+         set i1 = 1
+         @ i2 ++
+        if ( $i2 > 26 ) then
+           set i2 = 1
+           @ i3 ++
+           if ( $i3 > 26 ) echo "RAN OUT OF GRIB FILE SUFFIXES!'
+        endif
+      endif
+   
+   end
+else if ( ${#argv} > 1 ) then
+   foreach f ( $* )
+   
+      ln -sf ${f} GRIBFILE.$alpha[$i3]$alpha[$i2]$alpha[$i1]
+      @ i1 ++
+   
+      if ( $i1 > 26 ) then
+         set i1 = 1
+         @ i2 ++
+        if ( $i2 > 26 ) then
+           set i2 = 1
+           @ i3 ++
+           if ( $i3 > 26 ) echo "RAN OUT OF GRIB FILE SUFFIXES!'
+        endif
+      endif
+   
+   end
+else if ( ${#argv} == 0 ) then
+   clear
+   echo " " 
+   echo " " 
+   echo " " 
+   echo "Please provide some GRIB data to link"
+   echo " " 
+   echo " " 
+endif
 

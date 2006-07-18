@@ -11,13 +11,13 @@ bad_idea:
 	@echo ' *************** '
 
 all:
-	( cd ngl ; $(MAKE) DEV_TOP="$(DEV_TOP)" CC="$(SCC)" FC="$(SFC)" all )
-	( cd util ; $(MAKE) DEV_TOP="$(DEV_TOP)" CC="$(SCC)" FC="$(SFC)" all )
-	( cd grib.misc ; $(MAKE) DEV_TOP="$(DEV_TOP)" CC="$(SCC)" FC="$(SFC)" all )
+	( cd src/ngl ; $(MAKE) DEV_TOP="$(DEV_TOP)" CC="$(SCC)" FC="$(SFC)" all )
+	( cd src/util ; $(MAKE) DEV_TOP="$(DEV_TOP)" CC="$(SCC)" FC="$(SFC)" all )
+	( cd src/grib.misc ; $(MAKE) DEV_TOP="$(DEV_TOP)" CC="$(SCC)" FC="$(SFC)" all )
 
 clean:
-	( cd ngl ; $(MAKE) DEV_TOP="$(DEV_TOP)" clean )
-	( cd util ; $(MAKE) DEV_TOP="$(DEV_TOP)" clean )
-	( cd grib.misc ; $(MAKE) DEV_TOP="$(DEV_TOP)" clean )
+	( cd src/ngl ; $(MAKE) DEV_TOP="$(DEV_TOP)" clean )
+	( cd src/util ; $(MAKE) DEV_TOP="$(DEV_TOP)" clean )
+	( cd src/grib.misc ; $(MAKE) DEV_TOP="$(DEV_TOP)" clean )
 
 superclean: clean

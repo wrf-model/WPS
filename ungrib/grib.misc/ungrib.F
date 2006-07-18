@@ -342,9 +342,10 @@ program grib_prep
 
 ! And Now we are done:
 
-  write(*,'(/,10("*"), /, &
-       &"Normal termination of program grib_prep.",/, &
-       &10("*")/)')
+   print*,'!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
+   print*,'!  Successful completion of ungrib.   !'
+   print*,'!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
+
 
 contains
   subroutine sort_filedates
