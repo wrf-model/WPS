@@ -6,26 +6,6 @@ LIB	= libw3.a
 # variable to indicate which system you are on.
 # -DLINUX, -DSGI, -DHP, -DCRAY90, -DIBM4, -DIBM8, -DLINUXF90 
 
-# OPTIONS FOR IBM-SP 
-#F77	= xlf
-#FFLAGS	= -O3 -qnosave -qarch=auto
-#CFLAGS	= -DIBM4 -q64
-#ARFLAGS	= -X64
-#CC	= cc
-
-# OPTIONS FOR LINUX pgi
-#F77	= pgf90
-#FFLAGS	= 
-#CFLAGS	= -O -DLINUX
-#ARFLAGS	= 
-#CC	= cc
-
-# OPTIONS FOR VPP5000
-#F77     = frt
-#FFLAGS  = -X9 -Ad -Sw -Am -Of -Wv,-Of
-#CFLAGS  = -O -K4 -DVPP5000
-#CC      = vcc
-
 OBJ_MOD	=	bacio_module.o
 
 OBJS	=	getgb.o     getgbmh.o   putgbex.o   w3fi73.o \
