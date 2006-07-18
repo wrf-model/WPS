@@ -27,17 +27,6 @@ LIB	=	libg2_4.a
 #FFLAGS=-O3 -g -qnosave -qarch=auto
 #CFLAGS=-O3 -q64 -g -qcpluscmt -qarch=auto $(DEFS) $(INCDIR)
 #ARFLAGS=-X64
-#--------------------------------------
-# The following was used for PGF90 on LINUX
-#
-#DEFS=-DLINUX
-#FC=pgf90
-#CC=cc
-#CPP=cpp -P -C
-#FFLAGS=-O3
-#CFLAGS=-O3 $(DEFS) $(INCDIR)
-#ARFLAGS=
-#--------------------------------------
 
 OBJS	=	gridtemplates.o pdstemplates.o drstemplates.o gribmod.o realloc.o addfield.o  \
 		addgrid.o addlocal.o getfield.o gb_info.o gf_getfld.o gf_free.o gf_unpack1.o  \
