@@ -17,7 +17,7 @@ if ( ${#argv} == 1 ) then
         if ( $i2 > 26 ) then
            set i2 = 1
            @ i3 ++
-           if ( $i3 > 26 ) echo "RAN OUT OF GRIB FILE SUFFIXES!'
+           if ( $i3 > 26 ) echo "RAN OUT OF GRIB FILE SUFFIXES!"
         endif
       endif
    
@@ -34,7 +34,7 @@ else if ( ${#argv} > 1 ) then
         if ( $i2 > 26 ) then
            set i2 = 1
            @ i3 ++
-           if ( $i3 > 26 ) echo "RAN OUT OF GRIB FILE SUFFIXES!'
+           if ( $i3 > 26 ) echo "RAN OUT OF GRIB FILE SUFFIXES!"
         endif
       endif
    
