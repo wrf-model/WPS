@@ -9,6 +9,13 @@ echo "**** Compiling wps"
 echo " "
 
 set DEV_TOP = $PWD
+set first_char = `grep ^WRF_DIR configure.wps | awk '{print $3}' | cut -c -1`
+
+if ( "$first_char" == "/" ) then
+	set WRF_DIR_PRE	=
+else
+	set WRF_DIR_PRE	=	${DEV_TOP}/
+endif
 
 set names	=	( geogrid ungrib metgrid )
 set NAMES	=	( GEOGRID UNGRIB METGRID )
@@ -21,7 +28,7 @@ foreach f ( $names )
 			ln -sf ${f}/src/grib.misc/${f}.exe .
 		endif
 	else
-		( cd $f ; make -i -r DEV_TOP="${DEV_TOP}" TARGET="${f}.exe" CPP_TARGET="$NAMES[$count]" all )
+		( cd $f ; make -i -r WRF_DIR_PRE="${WRF_DIR_PRE}" DEV_TOP="${DEV_TOP}" TARGET="${f}.exe" CPP_TARGET="$NAMES[$count]" all )
 		if ( -e ${f}/src/${f}.exe ) then
 			ln -sf ${f}/src/${f}.exe .
 		endif

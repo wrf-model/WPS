@@ -13,7 +13,7 @@ bad_idea:
 all:
 	( cd src ; \
 	$(MAKE) $(TARGET) \
-		WRF_DIR="$(DEV_TOP)/$(WRF_DIR)" \
+		WRF_DIR="$(WRF_DIR_PRE)$(WRF_DIR)" \
 		FC="$(FC)" \
 		CC="$(CC)" \
 		CPP="$(CPP)" \
