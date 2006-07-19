@@ -1,7 +1,7 @@
 subroutine read_namelist(hstart, hend, delta_time, ntimes,&
      ordered_by_date, print_flag, iprint, out_format)
   implicit none
-  integer , parameter :: maxim_doms = 10
+  integer , parameter :: maxim_doms = 21
   character(len=200) :: extdataroot, file_name_namelist
   character(len=19) :: hstart, hend
   integer :: delta_time
