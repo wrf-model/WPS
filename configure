@@ -141,5 +141,4 @@ if [ $? -eq 0 ] ; then
 fi
 
 # Found perl, so proceed with configuration
-echo hi
 perl arch/Config.pl -perl=$PERL -netcdf=$NETCDF -os=$os -mach=$mach 
