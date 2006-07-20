@@ -32,13 +32,12 @@ all:
 	fi
 
 clean:
-	( cd src ; $(MAKE) clean )
-
-superclean:
 	if [ -e $(TARGET) ] ; then \
 		$(RM) $(TARGET) ; \
 	fi
 	if [ -e ../$(TARGET) ] ; then \
 		$(RM) ../$(TARGET) ; \
 	fi
-	( cd src ; $(MAKE) superclean )
+	( cd src ; $(MAKE) clean )
+
+superclean: clean

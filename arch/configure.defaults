@@ -69,6 +69,8 @@ SCC		=	cc
 CFLAGS		=	-O
 CPP		=	/lib/cpp -C -P -traditional
 CPPFLAGS	=	-D_UNDERSCORE -DBYTESWAP -DLINUX -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -DBIT32
+NCARG_LIBS2	=	-L${PGI}/linux86/6.1/lib -lpgftnrtl -lpgc \
+			-L/usr/lib/gcc-lib/i386-redhat-linux/3.2.3 -lg2c
 
 ###########################################################
 #ARCH	PC Linux i486 i586 i686, PGI compiler	DM parallel
@@ -83,6 +85,8 @@ SCC		=	cc
 CFLAGS		=	-O
 CPP		=	/lib/cpp -C -P -traditional
 CPPFLAGS	=	-D_UNDERSCORE -DBYTESWAP -DLINUX -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -D_MPI -DBIT32
+NCARG_LIBS2	=	-L${PGI}/linux86/6.1/lib -lpgftnrtl -lpgc \
+			-L/usr/lib/gcc-lib/i386-redhat-linux/3.2.3 -lg2c
 
 ###########################################################
 #ARCH	PC Linux i486 i586 i686, Intel compiler	serial

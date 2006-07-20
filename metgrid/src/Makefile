@@ -73,7 +73,7 @@ storage_module.o: datatype_module.o minheap_module.o misc_definitions_module.o m
 wrf_debug.o:
 
 clean:
-	rm -f $(OBJS) *.mod
+	$(RM) $(OBJS) *.mod
+	$(RM) metgrid.exe
 
-superclean:
-	make clean; rm -f metgrid.exe
+superclean:	clean

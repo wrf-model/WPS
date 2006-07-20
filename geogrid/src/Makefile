@@ -9,7 +9,7 @@ all:
 	@echo " "
 	@echo " "
 
-geogrid.exe: $(OBJS)
+geogrid.exe: $(OBJS) plotgrids.exe
 	$(FC) $(LDFLAGS) -o $@ $(OBJS) \
 		$(WRF_DIR)/frame/pack_utils.o $(WRF_DIR)/frame/module_machine.o \
 		$(WRF_DIR)/frame/module_internal_header_util.o \
@@ -21,6 +21,9 @@ geogrid.exe: $(OBJS)
 		-L$(WRF_DIR)/external/io_grib_share -lio_grib_share \
 		-L$(WRF_DIR)/external/io_int -lwrfio_int \
 		-L$(NETCDF)/lib -lnetcdf
+
+plotgrids.exe: plotgrids.o
+	$(FC) -o $(@) $(LDFLAGS) plotgrids.o $(NCARG_LIBS) $(NCARG_LIBS2)
 
 bitarray_module.o: module_debug.o
 
@@ -65,7 +68,8 @@ source_data_module.o: despace.o gridinfo_module.o hash_module.o list_module.o ll
 wrf_debug.o:
 
 clean:
-	rm -f $(OBJS) *.mod
+	$(RM) $(OBJS) plotgrids.o *.mod
+	$(RM) geogrid.exe 
+	$(RM) plotgrids.exe 
 
-superclean:
-	make clean; rm -f geogrid.exe
+superclean:	clean

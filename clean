@@ -21,6 +21,11 @@ foreach dir ( $DIRS )
 	endif
 end
 
+foreach execs ( plotfmt.exe plotgrids.exe gribprint.exe )
+	/bin/rm -f $execs
+end
+rm gmeta
+
 if ( -e GRIBFILE.AAA ) then
 	/bin/rm -f GRIBFILE.[A-Z][A-Z][A-Z]
 endif
