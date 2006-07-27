@@ -2,12 +2,25 @@ module module_debug
 
    use parallel_module
 
-   integer, parameter :: LOGFILE=-2, STDOUT=-1, DEBUG=0, INFORM=1, WARN=2, ERROR=3
+   integer, parameter :: QUIET=-100, LOGFILE=-2, DEBUG=0, INFORM=1, WARN=2, ERROR=3, STDOUT=100
 
+   integer :: debug_level = DEBUG
    integer :: log_unit = 55
    logical :: log_is_opened = .false.
 
    contains
+
+   subroutine set_debug_level(ilev)
+
+      implicit none
+     
+      ! Arguments
+      integer, intent(in) :: ilev
+
+      debug_level = ilev
+
+   end subroutine set_debug_level
+
 
    subroutine mprintf(assertion, level, fmtstring, i1, i2, i3, f1, f2, f3, s1, s2, s3)
 
@@ -59,35 +72,41 @@ module module_debug
          end if
 
          if (level == LOGFILE) then
-            write_unit = log_unit
+            write_unit = QUIET
          else
             write_unit = 6
          end if
 
          if (level == DEBUG) then
-            write(unit=write_unit,fmt='(a)',advance='no') 'DEBUG: '
+            if (level >= debug_level) &
+               write(unit=write_unit,fmt='(a)',advance='no') 'DEBUG: '
             write(unit=log_unit,fmt='(a)',advance='no') 'DEBUG: '
          else if (level == INFORM) then
-            write(unit=write_unit,fmt='(a)',advance='no') 'INFORM: '
+            if (level >= debug_level) &
+               write(unit=write_unit,fmt='(a)',advance='no') 'INFORM: '
             write(unit=log_unit,fmt='(a)',advance='no') 'INFORM: '
          else if (level == WARN) then
-            write(unit=write_unit,fmt='(a)',advance='no') 'WARNING: '
+            if (level >= debug_level) &
+               write(unit=write_unit,fmt='(a)',advance='no') 'WARNING: '
             write(unit=log_unit,fmt='(a)',advance='no') 'WARNING: '
          else if (level == ERROR) then
-            write(unit=write_unit,fmt='(a)',advance='no') 'ERROR: '
+            if (level >= debug_level) &
+               write(unit=write_unit,fmt='(a)',advance='no') 'ERROR: '
             write(unit=log_unit,fmt='(a)',advance='no') 'ERROR: '
          end if
       
          i = index(fmtstring(istart:iend),'%')
          do while (i > 0 .and. i < iend)
             i = i + istart - 1
-            write(unit=write_unit,fmt='(a)',advance='no') fmtstring(istart:i-1)
-            if (write_unit /= log_unit .and. level /= STDOUT) &
+            if (level >= debug_level) &
+               write(unit=write_unit,fmt='(a)',advance='no') fmtstring(istart:i-1)
+            if (level /= STDOUT) &
                write(unit=log_unit,fmt='(a)',advance='no') fmtstring(istart:i-1)
    
             if (fmtstring(i+1:i+1) == '%') then
-               write(unit=write_unit,fmt='(a1)',advance='no') '%'
-               if (write_unit /= log_unit .and. level /= STDOUT) &
+               if (level >= debug_level) &
+                  write(unit=write_unit,fmt='(a1)',advance='no') '%'
+               if (level /= STDOUT) &
                   write(unit=log_unit,fmt='(a1)',advance='no') '%'
                             
             else if (fmtstring(i+1:i+1) == 'i') then
@@ -100,72 +119,89 @@ module module_debug
                end if
    
                if (ia <= -10000000) then
-                  write(unit=write_unit,fmt='(i9)',advance='no') ia
-                  if (write_unit /= log_unit .and. level /= STDOUT) &
+                  if (level >= debug_level) &
+                     write(unit=write_unit,fmt='(i9)',advance='no') ia
+                  if (level /= STDOUT) &
                      write(unit=log_unit,fmt='(i9)',advance='no') ia
                else if (ia <= -1000000) then
-                  write(unit=write_unit,fmt='(i8)',advance='no') ia
-                  if (write_unit /= log_unit .and. level /= STDOUT) &
+                  if (level >= debug_level) &
+                     write(unit=write_unit,fmt='(i8)',advance='no') ia
+                  if (level /= STDOUT) &
                      write(unit=log_unit,fmt='(i8)',advance='no') ia
                else if (ia <= -100000) then
-                  write(unit=write_unit,fmt='(i7)',advance='no') ia
-                  if (write_unit /= log_unit .and. level /= STDOUT) &
+                  if (level >= debug_level) &
+                     write(unit=write_unit,fmt='(i7)',advance='no') ia
+                  if (level /= STDOUT) &
                      write(unit=log_unit,fmt='(i7)',advance='no') ia
                else if (ia <= -10000) then
-                  write(unit=write_unit,fmt='(i6)',advance='no') ia
-                  if (write_unit /= log_unit .and. level /= STDOUT) &
+                  if (level >= debug_level) &
+                     write(unit=write_unit,fmt='(i6)',advance='no') ia
+                  if (level /= STDOUT) &
                      write(unit=log_unit,fmt='(i6)',advance='no') ia
                else if (ia <= -1000) then
-                  write(unit=write_unit,fmt='(i5)',advance='no') ia
-                  if (write_unit /= log_unit .and. level /= STDOUT) &
+                  if (level >= debug_level) &
+                     write(unit=write_unit,fmt='(i5)',advance='no') ia
+                  if (level /= STDOUT) &
                      write(unit=log_unit,fmt='(i5)',advance='no') ia
                else if (ia <= -100) then
-                  write(unit=write_unit,fmt='(i4)',advance='no') ia
-                  if (write_unit /= log_unit .and. level /= STDOUT) &
+                  if (level >= debug_level) &
+                     write(unit=write_unit,fmt='(i4)',advance='no') ia
+                  if (level /= STDOUT) &
                      write(unit=log_unit,fmt='(i4)',advance='no') ia
                else if (ia <= -10) then
-                  write(unit=write_unit,fmt='(i3)',advance='no') ia
-                  if (write_unit /= log_unit .and. level /= STDOUT) &
+                  if (level >= debug_level) &
+                     write(unit=write_unit,fmt='(i3)',advance='no') ia
+                  if (level /= STDOUT) &
                      write(unit=log_unit,fmt='(i3)',advance='no') ia
                else if (ia < 0) then
-                  write(unit=write_unit,fmt='(i2)',advance='no') ia
-                  if (write_unit /= log_unit .and. level /= STDOUT) &
+                  if (level >= debug_level) &
+                     write(unit=write_unit,fmt='(i2)',advance='no') ia
+                  if (level /= STDOUT) &
                      write(unit=log_unit,fmt='(i2)',advance='no') ia
                else if (ia < 10) then
-                  write(unit=write_unit,fmt='(i1)',advance='no') ia
-                  if (write_unit /= log_unit .and. level /= STDOUT) &
+                  if (level >= debug_level) &
+                     write(unit=write_unit,fmt='(i1)',advance='no') ia
+                  if (level /= STDOUT) &
                      write(unit=log_unit,fmt='(i1)',advance='no') ia
                else if (ia < 100) then
-                  write(unit=write_unit,fmt='(i2)',advance='no') ia
-                  if (write_unit /= log_unit .and. level /= STDOUT) &
+                  if (level >= debug_level) &
+                     write(unit=write_unit,fmt='(i2)',advance='no') ia
+                  if (level /= STDOUT) &
                      write(unit=log_unit,fmt='(i2)',advance='no') ia
                else if (ia < 1000) then
-                  write(unit=write_unit,fmt='(i3)',advance='no') ia
-                  if (write_unit /= log_unit .and. level /= STDOUT) &
+                  if (level >= debug_level) &
+                     write(unit=write_unit,fmt='(i3)',advance='no') ia
+                  if (level /= STDOUT) &
                      write(unit=log_unit,fmt='(i3)',advance='no') ia
                else if (ia < 10000) then
-                  write(unit=write_unit,fmt='(i4)',advance='no') ia
-                  if (write_unit /= log_unit .and. level /= STDOUT) &
+                  if (level >= debug_level) &
+                     write(unit=write_unit,fmt='(i4)',advance='no') ia
+                  if (level /= STDOUT) &
                      write(unit=log_unit,fmt='(i4)',advance='no') ia
                else if (ia < 100000) then
-                  write(unit=write_unit,fmt='(i5)',advance='no') ia
-                  if (write_unit /= log_unit .and. level /= STDOUT) &
+                  if (level >= debug_level) &
+                     write(unit=write_unit,fmt='(i5)',advance='no') ia
+                  if (level /= STDOUT) &
                      write(unit=log_unit,fmt='(i5)',advance='no') ia
                else if (ia < 1000000) then
-                  write(unit=write_unit,fmt='(i6)',advance='no') ia
-                  if (write_unit /= log_unit .and. level /= STDOUT) &
+                  if (level >= debug_level) &
+                     write(unit=write_unit,fmt='(i6)',advance='no') ia
+                  if (level /= STDOUT) &
                      write(unit=log_unit,fmt='(i6)',advance='no') ia
                else if (ia < 10000000) then
-                  write(unit=write_unit,fmt='(i7)',advance='no') ia
-                  if (write_unit /= log_unit .and. level /= STDOUT) &
+                  if (level >= debug_level) &
+                     write(unit=write_unit,fmt='(i7)',advance='no') ia
+                  if (level /= STDOUT) &
                      write(unit=log_unit,fmt='(i7)',advance='no') ia
                else if (ia < 100000000) then
-                  write(unit=write_unit,fmt='(i8)',advance='no') ia
-                  if (write_unit /= log_unit .and. level /= STDOUT) &
+                  if (level >= debug_level) &
+                     write(unit=write_unit,fmt='(i8)',advance='no') ia
+                  if (level /= STDOUT) &
                      write(unit=log_unit,fmt='(i8)',advance='no') ia
                else
-                  write(unit=write_unit,fmt='(i9)',advance='no') ia
-                  if (write_unit /= log_unit .and. level /= STDOUT) &
+                  if (level >= debug_level) &
+                     write(unit=write_unit,fmt='(i9)',advance='no') ia
+                  if (level /= STDOUT) &
                      write(unit=log_unit,fmt='(i9)',advance='no') ia
                end if
                idxi = idxi + 1
@@ -180,80 +216,99 @@ module module_debug
                end if
    
                if (fa <= -100000000.) then
-                  write(unit=write_unit,fmt='(f15.4)',advance='no') fa
-                  if (write_unit /= log_unit .and. level /= STDOUT) &
+                  if (level >= debug_level) &
+                     write(unit=write_unit,fmt='(f15.4)',advance='no') fa
+                  if (level /= STDOUT) &
                      write(unit=log_unit,fmt='(f15.4)',advance='no') fa
                else if (fa <= -10000000.) then
-                  write(unit=write_unit,fmt='(f14.4)',advance='no') fa
-                  if (write_unit /= log_unit .and. level /= STDOUT) &
+                  if (level >= debug_level) &
+                     write(unit=write_unit,fmt='(f14.4)',advance='no') fa
+                  if (level /= STDOUT) &
                      write(unit=log_unit,fmt='(f14.4)',advance='no') fa
                else if (fa <= -1000000.) then
-                  write(unit=write_unit,fmt='(f13.4)',advance='no') fa
-                  if (write_unit /= log_unit .and. level /= STDOUT) &
+                  if (level >= debug_level) &
+                     write(unit=write_unit,fmt='(f13.4)',advance='no') fa
+                  if (level /= STDOUT) &
                      write(unit=log_unit,fmt='(f13.4)',advance='no') fa
                else if (fa <= -100000.) then
-                  write(unit=write_unit,fmt='(f12.4)',advance='no') fa
-                  if (write_unit /= log_unit .and. level /= STDOUT) &
+                  if (level >= debug_level) &
+                     write(unit=write_unit,fmt='(f12.4)',advance='no') fa
+                  if (level /= STDOUT) &
                      write(unit=log_unit,fmt='(f12.4)',advance='no') fa
                else if (fa <= -10000.) then
-                  write(unit=write_unit,fmt='(f11.4)',advance='no') fa
-                  if (write_unit /= log_unit .and. level /= STDOUT) &
+                  if (level >= debug_level) &
+                     write(unit=write_unit,fmt='(f11.4)',advance='no') fa
+                  if (level /= STDOUT) &
                      write(unit=log_unit,fmt='(f11.4)',advance='no') fa
                else if (fa <= -1000.) then
-                  write(unit=write_unit,fmt='(f10.4)',advance='no') fa
-                  if (write_unit /= log_unit .and. level /= STDOUT) &
+                  if (level >= debug_level) &
+                     write(unit=write_unit,fmt='(f10.4)',advance='no') fa
+                  if (level /= STDOUT) &
                      write(unit=log_unit,fmt='(f10.4)',advance='no') fa
                else if (fa <= -100.) then
-                  write(unit=write_unit,fmt='(f9.4)',advance='no') fa
-                  if (write_unit /= log_unit .and. level /= STDOUT) &
+                  if (level >= debug_level) &
+                     write(unit=write_unit,fmt='(f9.4)',advance='no') fa
+                  if (level /= STDOUT) &
                      write(unit=log_unit,fmt='(f9.4)',advance='no') fa
                else if (fa <= -10.) then
-                  write(unit=write_unit,fmt='(f8.4)',advance='no') fa
-                  if (write_unit /= log_unit .and. level /= STDOUT) &
+                  if (level >= debug_level) &
+                     write(unit=write_unit,fmt='(f8.4)',advance='no') fa
+                  if (level /= STDOUT) &
                      write(unit=log_unit,fmt='(f8.4)',advance='no') fa
                else if (fa < 0.) then
-                  write(unit=write_unit,fmt='(f7.4)',advance='no') fa
-                  if (write_unit /= log_unit .and. level /= STDOUT) &
+                  if (level >= debug_level) &
+                     write(unit=write_unit,fmt='(f7.4)',advance='no') fa
+                  if (level /= STDOUT) &
                      write(unit=log_unit,fmt='(f7.4)',advance='no') fa
                else if (fa < 10.) then
-                  write(unit=write_unit,fmt='(f6.4)',advance='no') fa
-                  if (write_unit /= log_unit .and. level /= STDOUT) &
+                  if (level >= debug_level) &
+                     write(unit=write_unit,fmt='(f6.4)',advance='no') fa
+                  if (level /= STDOUT) &
                      write(unit=log_unit,fmt='(f6.4)',advance='no') fa
                else if (fa < 100.) then
-                  write(unit=write_unit,fmt='(f7.4)',advance='no') fa
-                  if (write_unit /= log_unit .and. level /= STDOUT) &
+                  if (level >= debug_level) &
+                     write(unit=write_unit,fmt='(f7.4)',advance='no') fa
+                  if (level /= STDOUT) &
                      write(unit=log_unit,fmt='(f7.4)',advance='no') fa
                else if (fa < 1000.) then
-                  write(unit=write_unit,fmt='(f8.4)',advance='no') fa
-                  if (write_unit /= log_unit .and. level /= STDOUT) &
+                  if (level >= debug_level) &
+                     write(unit=write_unit,fmt='(f8.4)',advance='no') fa
+                  if (level /= STDOUT) &
                      write(unit=log_unit,fmt='(f8.4)',advance='no') fa
                else if (fa < 10000.) then
-                  write(unit=write_unit,fmt='(f9.4)',advance='no') fa
-                  if (write_unit /= log_unit .and. level /= STDOUT) &
+                  if (level >= debug_level) &
+                     write(unit=write_unit,fmt='(f9.4)',advance='no') fa
+                  if (level /= STDOUT) &
                      write(unit=log_unit,fmt='(f9.4)',advance='no') fa
                else if (fa < 100000.) then
-                  write(unit=write_unit,fmt='(f10.4)',advance='no') fa
-                  if (write_unit /= log_unit .and. level /= STDOUT) &
+                  if (level >= debug_level) &
+                     write(unit=write_unit,fmt='(f10.4)',advance='no') fa
+                  if (level /= STDOUT) &
                      write(unit=log_unit,fmt='(f10.4)',advance='no') fa
                else if (fa < 1000000.) then
-                  write(unit=write_unit,fmt='(f11.4)',advance='no') fa
-                  if (write_unit /= log_unit .and. level /= STDOUT) &
+                  if (level >= debug_level) &
+                     write(unit=write_unit,fmt='(f11.4)',advance='no') fa
+                  if (level /= STDOUT) &
                      write(unit=log_unit,fmt='(f11.4)',advance='no') fa
                else if (fa < 10000000.) then
-                  write(unit=write_unit,fmt='(f12.4)',advance='no') fa
-                  if (write_unit /= log_unit .and. level /= STDOUT) &
+                  if (level >= debug_level) &
+                     write(unit=write_unit,fmt='(f12.4)',advance='no') fa
+                  if (level /= STDOUT) &
                      write(unit=log_unit,fmt='(f12.4)',advance='no') fa
                else if (fa < 100000000.) then
-                  write(unit=write_unit,fmt='(f13.4)',advance='no') fa
-                  if (write_unit /= log_unit .and. level /= STDOUT) &
+                  if (level >= debug_level) &
+                     write(unit=write_unit,fmt='(f13.4)',advance='no') fa
+                  if (level /= STDOUT) &
                      write(unit=log_unit,fmt='(f13.4)',advance='no') fa
                else if (fa < 1000000000.) then
-                  write(unit=write_unit,fmt='(f14.4)',advance='no') fa
-                  if (write_unit /= log_unit .and. level /= STDOUT) &
+                  if (level >= debug_level) &
+                     write(unit=write_unit,fmt='(f14.4)',advance='no') fa
+                  if (level /= STDOUT) &
                      write(unit=log_unit,fmt='(f14.4)',advance='no') fa
                else
-                  write(unit=write_unit,fmt='(f15.4)',advance='no') fa
-                  if (write_unit /= log_unit .and. level /= STDOUT) &
+                  if (level >= debug_level) &
+                     write(unit=write_unit,fmt='(f15.4)',advance='no') fa
+                  if (level /= STDOUT) &
                      write(unit=log_unit,fmt='(f15.4)',advance='no') fa
                end if
                idxf = idxf + 1
@@ -267,8 +322,9 @@ module module_debug
                   sa = s3
                end if
    
-               write(unit=write_unit,fmt='(a)',advance='no') trim(sa)
-               if (write_unit /= log_unit .and. level /= STDOUT) &
+               if (level >= debug_level) &
+                  write(unit=write_unit,fmt='(a)',advance='no') trim(sa)
+               if (level /= STDOUT) &
                   write(unit=log_unit,fmt='(a)',advance='no') trim(sa)
                idxs = idxs + 1
    
@@ -278,8 +334,9 @@ module module_debug
             i = index(fmtstring(istart:iend),'%')
          end do
    
-         write(unit=write_unit,fmt='(a)') fmtstring(istart:iend)
-         if (write_unit /= log_unit .and. level /= STDOUT) &
+         if (level >= debug_level) &
+            write(unit=write_unit,fmt='(a)') fmtstring(istart:iend)
+         if (level /= STDOUT) &
             write(unit=log_unit,fmt='(a)') fmtstring(istart:iend)
 
          if (level == ERROR) stop

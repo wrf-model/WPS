@@ -83,6 +83,12 @@ module gridinfo_module
       read(funit,metgrid)
       close(funit)
 
+      if (debug_print) then
+         call set_debug_level(DEBUG)
+      else
+         call set_debug_level(WARN)
+      end if
+
       ! Convert wrf_core to uppercase letters
       do i=1,3
          if (ichar(wrf_core(i:i)) >= 97) wrf_core(i:i) = char(ichar(wrf_core(i:i))-32)

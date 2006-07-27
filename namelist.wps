@@ -3,7 +3,7 @@
  max_dom = 2,
  start_date = '2000-01-24_12:00:00','2000-01-24_12:00:00',
  end_date   = '2000-01-25_12:00:00','2000-01-24_12:00:00',
- interval_seconds = 10800
+ interval_seconds = 21600
  io_form_geogrid = 2,
  debug_print = .false.
 /
@@ -17,7 +17,7 @@
  s_we           = 1, 1,
  e_we           = 74,112,
  s_sn           = 1, 1,
- e_sn           = 61,184,
+ e_sn           = 61,196,
  geog_data_res  = '10m','2m',
  dx = 30000,
  dy = 30000,

@@ -109,6 +109,12 @@ module gridinfo_module
       read(funit,geogrid)
       close(funit)
 
+      if (debug_print) then
+         call set_debug_level(DEBUG)
+      else
+         call set_debug_level(WARN)
+      end if
+
       dxkm = dx
       dykm = dy
 
