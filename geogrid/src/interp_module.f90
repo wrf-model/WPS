@@ -65,7 +65,7 @@ module interp_module
             interp_array_from_string(j) = SEARCH
             j = j + 1
          else
-            if (index(interp_string(p1:p2-1),'special') == 0) &
+            if (index(interp_string(p1:p2-1),'average_gcell') == 0) &
                call mprintf(.true.,WARN,'Unrecognized interpolation method %s.',s1=interp_string(p1:p2-1))
          end if
          p1 = p2 + 1
@@ -93,7 +93,7 @@ module interp_module
             interp_array_from_string(j) = SEARCH
             j = j + 1
          else
-            if (index(interp_string(p1:p2-1),'special') == 0) &
+            if (index(interp_string(p1:p2-1),'average_gcell') == 0) &
                call mprintf(.true.,WARN,'Unrecognized interpolation method %s.',s1=interp_string(p1:p2-1))
          end if
       end if

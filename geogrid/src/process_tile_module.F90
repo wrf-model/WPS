@@ -890,9 +890,9 @@ module process_tile_module
       call get_interp_option(fieldname, ilevel, interp_string, istatus)
       interp_type => interp_array_from_string(interp_string)
 
-      ! Also, check whether we will be using the special interpolator for continuous fields
-      if (index(interp_string,'special') /= 0 .and. itype == CONTINUOUS) then
-         call get_special_threshold(interp_string, threshold, istatus)
+      ! Also, check whether we will be using the cell averaging interpolator for continuous fields
+      if (index(interp_string,'average_gcell') /= 0 .and. itype == CONTINUOUS) then
+         call get_gcell_threshold(interp_string, threshold, istatus)
          if (istatus == 0) then
             call get_source_resolution(fieldname, ilevel, src_dx, src_dy, istatus)
             if (istatus == 0) then

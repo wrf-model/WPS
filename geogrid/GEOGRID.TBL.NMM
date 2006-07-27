@@ -4,7 +4,7 @@
 name = HGT_M
         priority = 1
         dest_type = continuous
-        interp_option =     30s:special(4.0)+four_pt
+        interp_option =     30s:average_gcell(4.0)+four_pt
         interp_option =      2m:four_pt
         interp_option =      5m:four_pt
         interp_option =     10m:four_pt
@@ -20,7 +20,7 @@ name = HGT_V
         output_stagger = VV
         priority = 1
         dest_type = continuous
-        interp_option =     30s:special(4.0)+four_pt
+        interp_option =     30s:average_gcell(4.0)+four_pt
         interp_option =      2m:four_pt
         interp_option =      5m:four_pt
         interp_option =     10m:four_pt

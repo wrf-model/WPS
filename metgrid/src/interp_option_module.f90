@@ -344,11 +344,11 @@ module interp_option_module
 
 
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-   ! Name: get_special_threshold
+   ! Name: get_gcell_threshold
    !
    ! Pupose:
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-   subroutine get_special_threshold(interp_opt, threshold, istatus)
+   subroutine get_gcell_threshold(interp_opt, threshold, istatus)
 
       implicit none
 
@@ -363,7 +363,7 @@ module interp_option_module
       istatus = 1
       threshold = 1.0
 
-      i = index(interp_opt,'special')
+      i = index(interp_opt,'average_gcell')
       if (i /= 0) then
 
          ! Check for a threshold
@@ -372,7 +372,7 @@ module interp_option_module
          if (p1 /= 0 .and. p2 /= 0) then
             read(interp_opt(p1+1:p2-1),*,err=1000) threshold
          else
-            call mprintf(.true.,WARN, 'Problem in specifying threshold for special interp option. Setting threshold to 1.0')
+            call mprintf(.true.,WARN, 'Problem in specifying threshold for average_gcell interp option. Setting threshold to 1.0')
             threshold = 1.0
          end if
       end if
@@ -381,10 +381,10 @@ module interp_option_module
       return
 
 1000  call mprintf(.true.,ERROR, &
-                   'Threshold option to special interpolator must be a real number, '// &
-                   'enclosed in parentheses immediately after keyword "special"')
+                   'Threshold option to average_gcell interpolator must be a real number, '// &
+                   'enclosed in parentheses immediately after keyword "average_gcell"')
 
-   end subroutine get_special_threshold
+   end subroutine get_gcell_threshold
 
 
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

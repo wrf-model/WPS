@@ -476,7 +476,7 @@ module process_domain_module
       real :: rx, ry, xfcst, xlvl, startlat, startlon, starti, startj, deltalat, deltalon
       real :: threshold, met_dx, met_dy
       real :: met_cen_lon, met_truelat1, met_truelat2
-      logical :: is_rotated, do_special_interp
+      logical :: is_rotated, do_gcell_interp
       integer, pointer, dimension(:) :: u_levels, v_levels
       integer, pointer, dimension(:,:,:) :: int_array
       real, pointer, dimension(:,:) :: slab, data_count
@@ -565,13 +565,13 @@ module process_domain_module
    
                !
                ! Before actually doing any interpolation to the model grid, we must check
-               !    whether we will be using a "special" interpolator that averages all 
+               !    whether we will be using the average_gcell interpolator that averages all 
                !    source points in each model grid cell
                !
-               do_special_interp = .false.
-               if (index(interp_method(idx),'special') /= 0) then
+               do_gcell_interp = .false.
+               if (index(interp_method(idx),'average_gcell') /= 0) then
    
-                  call get_special_threshold(interp_method(idx), threshold, istatus)
+                  call get_gcell_threshold(interp_method(idx), threshold, istatus)
                   if (istatus == 0) then
                      if (met_dx == 0. .and. met_dy == 0. .and. &
                          deltalat /= 0. .and. deltalon /= 0.) then
@@ -580,10 +580,10 @@ module process_domain_module
                      end if
                      if (gridtype == 'C') then
                         if (threshold*max(met_dx,met_dy)*111. <= max(dom_dx,dom_dy)/1000.) &
-                           do_special_interp = .true. 
+                           do_gcell_interp = .true. 
                      else if (gridtype == 'E') then
                         if (threshold*max(met_dx,met_dy) <= max(dom_dx,dom_dy)) &
-                           do_special_interp = .true. 
+                           do_gcell_interp = .true. 
                      end if
                   end if
                end if
@@ -614,12 +614,12 @@ module process_domain_module
                   if (gridtype == 'C') then
                      call interp_met_field(gridtype, short_fieldnm, U, &
                                   field, xlat_u, xlon_u, we_mem_stag_s, we_mem_stag_e, sn_mem_s, sn_mem_e, &
-                                  slab, nx, ny, do_special_interp, field%modified_mask)
+                                  slab, nx, ny, do_gcell_interp, field%modified_mask)
 
                   else if (gridtype == 'E') then
                      call interp_met_field(gridtype, short_fieldnm, VV, &
                                   field, xlat_v, xlon_v, we_mem_stag_s, we_mem_stag_e, sn_mem_s, sn_mem_e, &
-                                  slab, nx, ny, do_special_interp, field%modified_mask)
+                                  slab, nx, ny, do_gcell_interp, field%modified_mask)
                   end if
 
                ! V field must be interpolated to V staggering for C grid, V staggering for E grid
@@ -648,12 +648,12 @@ module process_domain_module
                   if (gridtype == 'C') then
                      call interp_met_field(gridtype, short_fieldnm, V, &
                                   field, xlat_v, xlon_v, we_mem_s, we_mem_e, sn_mem_stag_s, sn_mem_stag_e, &
-                                  slab, nx, ny, do_special_interp, field%modified_mask)
+                                  slab, nx, ny, do_gcell_interp, field%modified_mask)
 
                   else if (gridtype == 'E') then
                      call interp_met_field(gridtype, short_fieldnm, VV, &
                                   field, xlat_v, xlon_v, we_mem_s, we_mem_e, sn_mem_stag_s, sn_mem_stag_e, &
-                                  slab, nx, ny, do_special_interp, field%modified_mask)
+                                  slab, nx, ny, do_gcell_interp, field%modified_mask)
                   end if
           
                ! All other fields interpolated to M staggering for C grid, H staggering for E grid
@@ -678,12 +678,12 @@ module process_domain_module
                   if (gridtype == 'C') then
                      call interp_met_field(gridtype, short_fieldnm, M, &
                                   field, xlat, xlon, we_mem_s, we_mem_e, sn_mem_s, sn_mem_e, &
-                                  slab, nx, ny, do_special_interp, field%modified_mask, landmask)
+                                  slab, nx, ny, do_gcell_interp, field%modified_mask, landmask)
 
                   else if (gridtype == 'E') then
                      call interp_met_field(gridtype, short_fieldnm, HH, &
                                   field, xlat, xlon, we_mem_s, we_mem_e, sn_mem_s, sn_mem_e, &
-                                  slab, nx, ny, do_special_interp, field%modified_mask, landmask)
+                                  slab, nx, ny, do_gcell_interp, field%modified_mask, landmask)
                   end if
 
                end if
@@ -978,7 +978,7 @@ module process_domain_module
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
    subroutine interp_met_field(gridtype, short_fieldnm, istagger, &
                                field, xlat, xlon, sm1, em1, sm2, em2, &
-                               slab, nx, ny, do_special_interp, &
+                               slab, nx, ny, do_gcell_interp, &
                                new_pts, landmask)
 
       use bitarray_module
@@ -993,7 +993,7 @@ module process_domain_module
       integer, intent(in) :: istagger, sm1, em1, sm2, em2, nx, ny
       integer, pointer, dimension(:,:), optional :: landmask
       real, pointer, dimension(:,:) :: slab, xlat, xlon
-      logical, intent(in) :: do_special_interp
+      logical, intent(in) :: do_gcell_interp
       character (len=1), intent(in) :: gridtype
       character (len=9), intent(in) :: short_fieldnm
       type (fg_input), intent(inout) :: field
@@ -1045,9 +1045,9 @@ module process_domain_module
       interp_array => interp_array_from_string(interp_method(idx))
    
       !
-      ! Interpolate using special interpolation methods
+      ! Interpolate using average_gcell interpolation method
       !
-      if (do_special_interp) then
+      if (do_gcell_interp) then
          allocate(data_count(sm1:em1,sm2:em2))
          data_count = 0.
 
@@ -1167,7 +1167,7 @@ module process_domain_module
          deallocate(data_count)
 
       !
-      ! No special interpolation methods
+      ! No average_gcell interpolation method
       !
       else
 
