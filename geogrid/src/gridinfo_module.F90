@@ -38,13 +38,12 @@ module gridinfo_module
       implicit none
   
       ! Local variables
-      integer :: i, j, max_dom, funit, io_form_geogrid
-      real :: dx, dy
+      integer :: i, j, max_dom, funit, io_form_geogrid, interval_seconds
+      real :: dx, dy, rparent_gridpts
       integer, dimension(MAX_DOMAINS) :: i_parent_start, j_parent_start, &
                            s_we, e_we, s_sn, e_sn, &
                            start_year, start_month, start_day, start_hour, &
                            end_year,   end_month,   end_day,   end_hour
-      integer :: interval_seconds
       character (len=128) :: map_proj
       character (len=128), dimension(MAX_DOMAINS) :: start_date, end_date
       character (len=3) :: wrf_core
@@ -293,6 +292,18 @@ module gridinfo_module
                       'Rotated lat/lon projection is not supported for the ARW core. '// &
                       'Valid projecitons are "lambert", "mercator", and "polar".')
       end if
+
+      ! Check that nests have an acceptable number of grid points in each dimension
+      do i=2,n_domains
+         rparent_gridpts = real(ixdim(i)-1)/real(parent_grid_ratio(i))
+         if (floor(rparent_gridpts) /= ceiling(rparent_gridpts)) then
+            call mprintf(.true.,ERROR,'For nest %i, (e_we-s_we+1) must be one greater than an interger multiple of the parent_grid_ratio of %i.',i1=i,i2=parent_grid_ratio(i))
+         end if
+         rparent_gridpts = real(jydim(i)-1)/real(parent_grid_ratio(i))
+         if (floor(rparent_gridpts) /= ceiling(rparent_gridpts)) then
+            call mprintf(.true.,ERROR,'For nest %i, (e_sn-s_sn+1) must be one greater than an interger multiple of the parent_grid_ratio of %i.',i1=i,i2=parent_grid_ratio(i))
+         end if
+      end do
   
       do i=1,n_domains
          parent_ll_x(i) = real(i_parent_start(i))
