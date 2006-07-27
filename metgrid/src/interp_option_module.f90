@@ -344,6 +344,33 @@ module interp_option_module
 
 
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   ! Name: get_z_dim_name
+   !
+   ! Pupose:
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   subroutine get_z_dim_name(fldname, zdim_name)
+  
+      implicit none
+ 
+      ! Arguments
+      character (len=9), intent(in) :: fldname
+      character (len=32), intent(out) :: zdim_name
+
+      ! Local variables
+      integer :: i
+
+      zdim_name = ' '
+      do i=1,num_entries
+         if (trim(fldname) == trim(fieldname(i))) then
+            zdim_name = z_dim_name(i)(1:32)
+            exit
+         end if
+      end do
+
+   end subroutine get_z_dim_name
+
+
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
    ! Name: get_gcell_threshold
    !
    ! Pupose:

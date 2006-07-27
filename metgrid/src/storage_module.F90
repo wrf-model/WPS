@@ -109,8 +109,8 @@ module storage_module
          if (secondary_cmp(store_me, data_cursor%fg_data) == EQUAL) then 
             if (data_cursor%filenumber > 0) then
 ! BUG: Might need to deal with freeing up a file
-call mprintf(.true.,DEBUG,'WE NEED TO FREE THE FILE ASSOCIATED WITH DATA_CURSOR')
-call mprintf(.true.,DEBUG,'PLEASE REPORT THIS BUG TO THE DEVELOPER!')
+call mprintf(.true.,WARN,'WE NEED TO FREE THE FILE ASSOCIATED WITH DATA_CURSOR')
+call mprintf(.true.,WARN,'PLEASE REPORT THIS BUG TO THE DEVELOPER!')
             end if
             data_cursor%fg_data%r_arr => store_me%r_arr 
             data_cursor%fg_data%i_arr => store_me%i_arr 

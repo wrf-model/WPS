@@ -545,7 +545,7 @@ module process_domain_module
                field%header%units(1:25) = units
                field%header%description = ' '
                field%header%description(1:46) = desc
-               field%header%vertical_coord = 'num_vert_levels' 
+               call get_z_dim_name(short_fieldnm,field%header%vertical_coord)
                field%header%vertical_level = nint(xlvl) 
                field%header%array_order = 'XY ' 
                field%header%winds_rotated_on_input = is_rotated 
