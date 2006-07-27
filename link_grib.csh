@@ -6,6 +6,9 @@ set i2 = 1
 set i3 = 1
 
 if ( ${#argv} == 1 ) then
+
+   rm -f GRIBFILE.???
+
    foreach f ( ${1}* )
    
       ln -sf ${f} GRIBFILE.$alpha[$i3]$alpha[$i2]$alpha[$i1]
@@ -17,12 +20,17 @@ if ( ${#argv} == 1 ) then
         if ( $i2 > 26 ) then
            set i2 = 1
            @ i3 ++
-           if ( $i3 > 26 ) echo "RAN OUT OF GRIB FILE SUFFIXES!"
+           if ( $i3 > 26 ) then
+              echo "RAN OUT OF GRIB FILE SUFFIXES!"
+           endif
         endif
       endif
    
    end
 else if ( ${#argv} > 1 ) then
+
+   rm -f GRIBFILE.???
+
    foreach f ( $* )
    
       ln -sf ${f} GRIBFILE.$alpha[$i3]$alpha[$i2]$alpha[$i1]
@@ -34,17 +42,17 @@ else if ( ${#argv} > 1 ) then
         if ( $i2 > 26 ) then
            set i2 = 1
            @ i3 ++
-           if ( $i3 > 26 ) echo "RAN OUT OF GRIB FILE SUFFIXES!"
+           if ( $i3 > 26 ) then
+              echo "RAN OUT OF GRIB FILE SUFFIXES!"
+           endif
         endif
       endif
    
    end
 else if ( ${#argv} == 0 ) then
-   clear
    echo " " 
    echo " " 
-   echo " " 
-   echo "Please provide some GRIB data to link"
+   echo "   Please provide some GRIB data to link"
    echo " " 
    echo " " 
 endif
