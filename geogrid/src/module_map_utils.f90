@@ -249,6 +249,10 @@ MODULE map_utils
       REAL, INTENT(IN), OPTIONAL        :: phi
       REAL, INTENT(IN), OPTIONAL        :: lambda
       TYPE(proj_info), INTENT(OUT)      :: proj
+
+      INTEGER :: iter
+      REAL :: dummy_lon1
+      REAL :: dummy_stdlon
   
       ! First, verify that mandatory parameters are present for the specified proj_code
       IF ( proj_code == PROJ_LC ) THEN
@@ -333,10 +337,19 @@ MODULE map_utils
       ENDIF
   
       IF ( PRESENT(lon1) ) THEN
-         IF ( ABS(lon1) .GT. 180.) THEN
-            PRINT '(A)', 'Longitude of origin required as follows:'
-            PRINT '(A)', '   -180E <= lon1 <= 180W'
-            STOP 'MAP_INIT'
+         dummy_lon1 = lon1
+         IF ( ABS(dummy_lon1) .GT. 180.) THEN
+            iter = 0 
+            DO WHILE (ABS(dummy_lon1) > 180. .AND. iter < 10)
+               IF (dummy_lon1 < -180.) dummy_lon1 = dummy_lon1 + 180.
+               IF (dummy_lon1 > 180.) dummy_lon1 = dummy_lon1 - 180.
+               iter = iter + 1
+            END DO
+            IF (abs(dummy_lon1) > 180.) THEN
+               PRINT '(A)', 'Longitude of origin required as follows:'
+               PRINT '(A)', '   -180E <= lon1 <= 180W'
+               STOP 'MAP_INIT'
+            ENDIF
          ENDIF
       ENDIF
   
@@ -348,10 +361,19 @@ MODULE map_utils
       ENDIF
   
       IF ( PRESENT(stdlon) ) THEN
-         IF ((ABS(stdlon) .GT. 180.).AND.(proj_code .NE. PROJ_MERC)) THEN
-            PRINT '(A)', 'Need orientation longitude (stdlon) as: '
-            PRINT '(A)', '   -180E <= lon1 <= 180W' 
-            STOP 'MAP_INIT'
+         dummy_stdlon = stdlon
+         IF ((ABS(dummy_stdlon) > 180.).AND.(proj_code /= PROJ_MERC)) THEN
+            iter = 0 
+            DO WHILE (ABS(dummy_stdlon) > 180. .AND. iter < 10)
+               IF (dummy_stdlon < -180.) dummy_stdlon = dummy_stdlon + 180.
+               IF (dummy_stdlon > 180.) dummy_stdlon = dummy_stdlon - 180.
+               iter = iter + 1
+            END DO
+            IF (abs(dummy_stdlon) > 180.) THEN
+               PRINT '(A)', 'Need orientation longitude (stdlon) as: '
+               PRINT '(A)', '   -180E <= stdlon <= 180W' 
+               STOP 'MAP_INIT'
+            ENDIF
          ENDIF
       ENDIF
   
@@ -365,13 +387,13 @@ MODULE map_utils
       CALL map_init(proj) 
       proj%code  = proj_code
       IF ( PRESENT(lat1) )     proj%lat1     = lat1
-      IF ( PRESENT(lon1) )     proj%lon1     = lon1
+      IF ( PRESENT(lon1) )     proj%lon1     = dummy_lon1
       IF ( PRESENT(latinc) )   proj%latinc   = latinc
       IF ( PRESENT(loninc) )   proj%loninc   = loninc
       IF ( PRESENT(knowni) )   proj%knowni   = knowni
       IF ( PRESENT(knownj) )   proj%knownj   = knownj
       IF ( PRESENT(dx) )       proj%dx       = dx
-      IF ( PRESENT(stdlon) )   proj%stdlon   = stdlon
+      IF ( PRESENT(stdlon) )   proj%stdlon   = dummy_stdlon
       IF ( PRESENT(truelat1) ) proj%truelat1 = truelat1
       IF ( PRESENT(truelat2) ) proj%truelat2 = truelat2
       IF ( PRESENT(nlat) )     proj%nlat     = nlat
