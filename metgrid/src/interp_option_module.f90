@@ -164,7 +164,8 @@ module interp_option_module
                   if (idx /= 0) then   !{
                      nparams = nparams + 1
            
-                     if (index('name',trim(buffer(1:idx-1))) /= 0) then
+                     if (index('name',trim(buffer(1:idx-1))) /= 0 .and. &
+                         len_trim('name') == len_trim(buffer(1:idx-1))) then
                         ispace = idx+1
                         do while ((ispace < eos) .and. (buffer(ispace:ispace) /= ' '))
                            ispace = ispace + 1
@@ -172,7 +173,8 @@ module interp_option_module
                         fieldname(i) = ' '
                         fieldname(i)(1:ispace-idx) = buffer(idx+1:ispace-1)
 
-                     else if (index('from_input',trim(buffer(1:idx-1))) /= 0) then
+                     else if (index('from_input',trim(buffer(1:idx-1))) /= 0 .and. &
+                         len_trim('from_input') == len_trim(buffer(1:idx-1))) then
                         ispace = idx+1
                         do while ((ispace < eos) .and. (buffer(ispace:ispace) /= ' '))
                            ispace = ispace + 1
@@ -180,7 +182,8 @@ module interp_option_module
                         from_input(i) = ' '
                         from_input(i)(1:ispace-idx) = buffer(idx+1:ispace-1)
 
-                     else if (index('z_dim_name',trim(buffer(1:idx-1))) /= 0) then
+                     else if (index('z_dim_name',trim(buffer(1:idx-1))) /= 0 .and. &
+                         len_trim('z_dim_name') == len_trim(buffer(1:idx-1))) then
                         ispace = idx+1
                         do while ((ispace < eos) .and. (buffer(ispace:ispace) /= ' '))
                            ispace = ispace + 1
@@ -188,7 +191,8 @@ module interp_option_module
                         z_dim_name(i) = ' '
                         z_dim_name(i)(1:ispace-idx) = buffer(idx+1:ispace-1)
 
-                     else if (index('output_stagger',trim(buffer(1:idx-1))) /= 0) then
+                     else if (index('output_stagger',trim(buffer(1:idx-1))) /= 0 .and. &
+                         len_trim('output_stagger') == len_trim(buffer(1:idx-1))) then
                         if (index('M',trim(buffer(idx+1:eos-1))) /= 0) then
                            output_stagger(i) = M
                         else if (index('U',trim(buffer(idx+1:eos-1))) /= 0) then
@@ -201,35 +205,40 @@ module interp_option_module
                            output_stagger(i) = VV
                         end if
 
-                     else if (index('output',trim(buffer(1:idx-1))) /= 0) then
+                     else if (index('output',trim(buffer(1:idx-1))) /= 0 .and. &
+                         len_trim('output') == len_trim(buffer(1:idx-1))) then
                         if (index('yes',trim(buffer(idx+1:eos-1))) /= 0) then
                            output_this_field(i) = .true.
                         else if (index('no',trim(buffer(idx+1:eos-1))) /= 0) then
                            output_this_field(i) = .false.
                         end if
 
-                     else if (index('is_u_field',trim(buffer(1:idx-1))) /= 0) then
+                     else if (index('is_u_field',trim(buffer(1:idx-1))) /= 0 .and. &
+                         len_trim('is_u_field') == len_trim(buffer(1:idx-1))) then
                         if (index('yes',trim(buffer(idx+1:eos-1))) /= 0) then
                            is_u_field(i) = .true.
                         else if (index('no',trim(buffer(idx+1:eos-1))) /= 0) then
                            is_u_field(i) = .false.
                         end if
 
-                     else if (index('is_v_field',trim(buffer(1:idx-1))) /= 0) then
+                     else if (index('is_v_field',trim(buffer(1:idx-1))) /= 0 .and. &
+                         len_trim('is_v_field') == len_trim(buffer(1:idx-1))) then
                         if (index('yes',trim(buffer(idx+1:eos-1))) /= 0) then
                            is_v_field(i) = .true.
                         else if (index('no',trim(buffer(idx+1:eos-1))) /= 0) then
                            is_v_field(i) = .false.
                         end if
        
-                     else if (index('derived',trim(buffer(1:idx-1))) /= 0) then
+                     else if (index('derived',trim(buffer(1:idx-1))) /= 0 .and. &
+                         len_trim('derived') == len_trim(buffer(1:idx-1))) then
                         if (index('yes',trim(buffer(idx+1:eos-1))) /= 0) then
                            is_derived_field(i) = .true.
                         else if (index('no',trim(buffer(idx+1:eos-1))) /= 0) then
                            is_derived_field(i) = .false.
                         end if
        
-                     else if (index('interp_option',trim(buffer(1:idx-1))) /= 0) then
+                     else if (index('interp_option',trim(buffer(1:idx-1))) /= 0 .and. &
+                         len_trim('interp_option') == len_trim(buffer(1:idx-1))) then
                         ispace = idx+1
                         do while ((ispace < eos) .and. (buffer(ispace:ispace) /= ' '))
                            ispace = ispace + 1
@@ -237,7 +246,8 @@ module interp_option_module
                         interp_method(i) = ' '
                         interp_method(i)(1:ispace-idx) = buffer(idx+1:ispace-1)
 
-                     else if (index('vertical_interp_option',trim(buffer(1:idx-1))) /= 0) then
+                     else if (index('vertical_interp_option',trim(buffer(1:idx-1))) /= 0 .and. &
+                         len_trim('vertical_interp_option') == len_trim(buffer(1:idx-1))) then
                         ispace = idx+1
                         do while ((ispace < eos) .and. (buffer(ispace:ispace) /= ' '))
                            ispace = ispace + 1
@@ -245,7 +255,8 @@ module interp_option_module
                         v_interp_method(i) = ' '
                         v_interp_method(i)(1:ispace-idx) = buffer(idx+1:ispace-1)
 
-                     else if (index('interp_mask',trim(buffer(1:idx-1))) /= 0) then
+                     else if (index('interp_mask',trim(buffer(1:idx-1))) /= 0 .and. &
+                         len_trim('interp_mask') == len_trim(buffer(1:idx-1))) then
                         ispace = idx+1
                         do while ((ispace < eos) .and. (buffer(ispace:ispace) /= ' '))
                            ispace = ispace + 1
@@ -264,16 +275,16 @@ module interp_option_module
                            read(buffer(idx+p1+1:idx+p2-1),*,err=1000) interp_mask_val(i)
                         end if
       
-                     else if ((index('masked',trim(buffer(1:idx-1))) /= 0) .and. &
-                              (len_trim(buffer(1:idx-1)) == 6)) then
+                     else if (index('masked',trim(buffer(1:idx-1))) /= 0 .and. &
+                         len_trim('masked') == len_trim(buffer(1:idx-1))) then
                         if (index('water',trim(buffer(idx+1:eos-1))) /= 0) then
                            masked(i) = 0
                         else if (index('land',trim(buffer(idx+1:eos-1))) /= 0) then
                            masked(i) = 1
                         end if
            
-                     else if ((index('flag_in_output',trim(buffer(1:idx-1))) /= 0) .and. &
-                              (len_trim(buffer(1:idx-1)) == 14)) then
+                     else if (index('flag_in_output',trim(buffer(1:idx-1))) /= 0 .and. &
+                         len_trim('flag_in_output') == len_trim(buffer(1:idx-1))) then
                         flag_string = ' '
                         flag_string(1:eos-idx-1) = buffer(idx+1:eos-1)
                         if (c_list_search(flag_in_output_list, flag_string, flag_val)) then
@@ -285,13 +296,16 @@ module interp_option_module
                            call c_list_insert(flag_in_output_list, flag_string, flag_val)
                         end if
            
-                     else if (index('fill_missing',trim(buffer(1:idx-1))) /= 0) then
+                     else if (index('fill_missing',trim(buffer(1:idx-1))) /= 0 .and. &
+                         len_trim('fill_missing') == len_trim(buffer(1:idx-1))) then
                         read(buffer(idx+1:eos-1),*) fill_missing(i)
    
-                     else if (index('missing_value',trim(buffer(1:idx-1))) /= 0) then
+                     else if (index('missing_value',trim(buffer(1:idx-1))) /= 0 .and. &
+                         len_trim('missing_value') == len_trim(buffer(1:idx-1))) then
                         read(buffer(idx+1:eos-1),*) missing_value(i)
    
-                     else if (index('fill_lev',trim(buffer(1:idx-1))) /= 0) then
+                     else if (index('fill_lev',trim(buffer(1:idx-1))) /= 0 .and. &
+                         len_trim('fill_lev') == len_trim(buffer(1:idx-1))) then
                         ispace = idx+1
                         do while ((ispace < eos) .and. (buffer(ispace:ispace) /= ' '))
                            ispace = ispace + 1

@@ -536,7 +536,6 @@ module process_domain_module
                else
                   field%header%time_dependent = .true.
                end if
-               field%header%mask_field = .false.
                field%header%forecast_hour = xfcst 
                field%header%fg_source = 'FG'
                field%header%field = ' '
@@ -562,6 +561,13 @@ module process_domain_module
                       (len_trim(fieldname(idx)) == len_trim(short_fieldnm))) exit
                end do
                if (idx > num_entries) idx = num_entries ! The last entry is a default
+
+               ! If we should not output this field, just list it as a mask field
+               if (output_this_field(idx)) then
+                  field%header%mask_field = .false.
+               else
+                  field%header%mask_field = .true.
+               end if
    
                !
                ! Before actually doing any interpolation to the model grid, we must check
