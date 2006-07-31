@@ -46,22 +46,36 @@ module interp_module
       p2 = index(interp_string(1:iend),'+')
       j = 1
       do while(p2 >= p1)
-         if (index(interp_string(p1:p2-1),'nearest_neighbor') /= 0) then
+         if (index(interp_string(p1:p2-1),'nearest_neighbor') /= 0 .and. &
+             len_trim(interp_string(p1:p2-1)) == len_trim('nearest_neighbor')) then
             interp_array_from_string(j) = N_NEIGHBOR
             j = j + 1
-         else if (index(interp_string(p1:p2-1),'average_4pt') /= 0) then
+         else if (index(interp_string(p1:p2-1),'average_4pt') /= 0 .and. &
+             len_trim(interp_string(p1:p2-1)) == len_trim('average_4pt')) then
             interp_array_from_string(j) = AVERAGE4
             j = j + 1
-         else if (index(interp_string(p1:p2-1),'average_16pt') /= 0) then
+         else if (index(interp_string(p1:p2-1),'average_16pt') /= 0 .and. &
+             len_trim(interp_string(p1:p2-1)) == len_trim('average_16pt')) then
             interp_array_from_string(j) = AVERAGE16
             j = j + 1
-         else if (index(interp_string(p1:p2-1),'four_pt') /= 0) then
+         else if (index(interp_string(p1:p2-1),'wt_average_4pt') /= 0 .and. &
+             len_trim(interp_string(p1:p2-1)) == len_trim('wt_average_4pt')) then
+            interp_array_from_string(j) = W_AVERAGE4
+            j = j + 1
+         else if (index(interp_string(p1:p2-1),'wt_average_16pt') /= 0 .and. &
+             len_trim(interp_string(p1:p2-1)) == len_trim('wt_average_16pt')) then
+            interp_array_from_string(j) = W_AVERAGE16
+            j = j + 1
+         else if (index(interp_string(p1:p2-1),'four_pt') /= 0 .and. &
+             len_trim(interp_string(p1:p2-1)) == len_trim('four_pt')) then
             interp_array_from_string(j) = FOUR_POINT
             j = j + 1
-         else if (index(interp_string(p1:p2-1),'sixteen_pt') /= 0) then
+         else if (index(interp_string(p1:p2-1),'sixteen_pt') /= 0 .and. &
+             len_trim(interp_string(p1:p2-1)) == len_trim('sixteen_pt')) then
             interp_array_from_string(j) = SIXTEEN_POINT
             j = j + 1
-         else if (index(interp_string(p1:p2-1),'search') /= 0) then
+         else if (index(interp_string(p1:p2-1),'search') /= 0 .and. &
+             len_trim(interp_string(p1:p2-1)) == len_trim('search')) then
             interp_array_from_string(j) = SEARCH
             j = j + 1
          else
@@ -74,22 +88,36 @@ module interp_module
 
       p2 = iend+1
       if (p1 < iend) then
-         if (index(interp_string(p1:p2-1),'nearest_neighbor') /= 0) then
+         if (index(interp_string(p1:p2-1),'nearest_neighbor') /= 0 .and. &
+             len_trim(interp_string(p1:p2-1)) == len_trim('nearest_neighbor')) then
             interp_array_from_string(j) = N_NEIGHBOR
             j = j + 1
-         else if (index(interp_string(p1:p2-1),'average_4pt') /= 0) then
+         else if (index(interp_string(p1:p2-1),'average_4pt') /= 0 .and. &
+             len_trim(interp_string(p1:p2-1)) == len_trim('average_4pt')) then
             interp_array_from_string(j) = AVERAGE4
             j = j + 1
-         else if (index(interp_string(p1:p2-1),'average_16pt') /= 0) then
+         else if (index(interp_string(p1:p2-1),'average_16pt') /= 0 .and. &
+             len_trim(interp_string(p1:p2-1)) == len_trim('average_16pt')) then
             interp_array_from_string(j) = AVERAGE16
             j = j + 1
-         else if (index(interp_string(p1:p2-1),'four_pt') /= 0) then
+         else if (index(interp_string(p1:p2-1),'wt_average_4pt') /= 0 .and. &
+             len_trim(interp_string(p1:p2-1)) == len_trim('wt_average_4pt')) then
+            interp_array_from_string(j) = W_AVERAGE4
+            j = j + 1
+         else if (index(interp_string(p1:p2-1),'wt_average_16pt') /= 0 .and. &
+             len_trim(interp_string(p1:p2-1)) == len_trim('wt_average_16pt')) then
+            interp_array_from_string(j) = W_AVERAGE16
+            j = j + 1
+         else if (index(interp_string(p1:p2-1),'four_pt') /= 0 .and. &
+             len_trim(interp_string(p1:p2-1)) == len_trim('four_pt')) then
             interp_array_from_string(j) = FOUR_POINT
             j = j + 1
-         else if (index(interp_string(p1:p2-1),'sixteen_pt') /= 0) then
+         else if (index(interp_string(p1:p2-1),'sixteen_pt') /= 0 .and. &
+             len_trim(interp_string(p1:p2-1)) == len_trim('sixteen_pt')) then
             interp_array_from_string(j) = SIXTEEN_POINT
             j = j + 1
-         else if (index(interp_string(p1:p2-1),'search') /= 0) then
+         else if (index(interp_string(p1:p2-1),'search') /= 0 .and. &
+             len_trim(interp_string(p1:p2-1)) == len_trim('search')) then
             interp_array_from_string(j) = SEARCH
             j = j + 1
          else
@@ -146,6 +174,11 @@ module interp_module
                                            start_y, end_y, start_z, end_z, &
                                            msgval, interp_list, idx+1, maskval, mask_array)
 
+      else if (interp_list(idx) == W_AVERAGE4) then
+         interp_sequence = wt_four_pt_average(xx, yy, izz, array, start_x, end_x, &
+                                              start_y, end_y, start_z, end_z, &
+                                              msgval, interp_list, idx+1, maskval, mask_array)
+
       else if (interp_list(idx) == N_NEIGHBOR) then
          interp_sequence = nearest_neighbor(xx, yy, izz, array, start_x, end_x, &
                                             start_y, end_y, start_z, end_z, &
@@ -165,6 +198,11 @@ module interp_module
          interp_sequence = sixteen_pt_average(xx, yy, izz, array, start_x, end_x, &
                                               start_y, end_y, start_z, end_z, &
                                               msgval, interp_list, idx+1, maskval, mask_array)
+
+      else if (interp_list(idx) == W_AVERAGE16) then
+         interp_sequence = wt_sixteen_pt_average(xx, yy, izz, array, start_x, end_x, &
+                                                 start_y, end_y, start_z, end_z, &
+                                                 msgval, interp_list, idx+1, maskval, mask_array)
       end if
  
    end function interp_sequence
@@ -457,6 +495,103 @@ module interp_module
       end if
  
    end function four_pt_average
+
+
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   ! Name: wt_four_pt_average
+   !
+   ! Purpose: Weighted average of four surrounding grid point values
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   recursive function wt_four_pt_average(xx, yy, izz, array, start_x, end_x, &
+              start_y, end_y, start_z, end_z, msgval, interp_list, idx, maskval, mask_array)
+ 
+      implicit none
+  
+      ! Arguments
+      integer, intent(in) :: start_x, start_y, start_z
+      integer, intent(in) :: end_x, end_y, end_z
+      integer, intent(in) :: izz                ! The z-index of the 2d-array to 
+                                                !   interpolate within
+      real, intent(in) :: xx, yy                ! The location to interpolate to
+      real, intent(in) :: msgval
+      real, intent(in), optional :: maskval
+      real, dimension(start_x:end_x, start_y:end_y, start_z:end_z), &
+          intent(in) :: array 
+      integer, dimension(:), intent(in) :: interp_list
+      integer, intent(in) :: idx
+      real, dimension(start_x:end_x, start_y:end_y), &
+          intent(in), optional :: mask_array 
+  
+      ! Return value
+      real :: wt_four_pt_average
+  
+      ! Local variables
+      integer :: ifx, ify, icx, icy
+      real :: fxfy, fxcy, cxfy, cxcy
+
+      ifx = floor(xx)
+      icx = ceiling(xx)
+      ify = floor(yy)
+      icy = ceiling(yy)
+
+      fxfy = max(0., 1.0 - sqrt((xx-real(ifx))**2+(yy-real(ify))**2))
+      fxcy = max(0., 1.0 - sqrt((xx-real(ifx))**2+(yy-real(icy))**2))
+      cxfy = max(0., 1.0 - sqrt((xx-real(icx))**2+(yy-real(ify))**2))
+      cxcy = max(0., 1.0 - sqrt((xx-real(icx))**2+(yy-real(icy))**2))
+
+      ! First, make sure that the point is contained in the source array
+      if (ifx < start_x .or. icx > end_x .or. &
+          ify < start_y .or. icy > end_y) then
+
+         ! But if the point is at most half a grid point out, we can
+         !   still proceed with modified ifx, icx, ify, and icy.
+         if (xx > real(start_x)-0.5 .and. ifx < start_x) then
+            ifx = start_x
+            icx = start_x
+         else if (xx < real(end_x)+0.5 .and. icx > end_x) then
+            ifx = end_x
+            icx = end_x
+         end if
+
+         if (yy > real(start_y)-0.5 .and. ifx < start_y) then
+            ify = start_y
+            icy = start_y
+         else if (yy < real(end_y)+0.5 .and. icy > end_y) then
+            ify = end_y
+            icy = end_y
+         end if
+
+         if (ifx < start_x .or. icx > end_x .or. &
+             ify < start_y .or. icy > end_y) then
+            wt_four_pt_average = msgval
+            return
+         end if
+      end if
+  
+      if (present(mask_array)) then
+         if (array(ifx, ify, izz) == msgval .or. mask_array(ifx,ify) == maskval) fxfy = 0.0 
+         if (array(ifx, icy, izz) == msgval .or. mask_array(ifx,icy) == maskval) fxcy = 0.0 
+         if (array(icx, ify, izz) == msgval .or. mask_array(icx,ify) == maskval) cxfy = 0.0 
+         if (array(icx, icy, izz) == msgval .or. mask_array(icx,icy) == maskval) cxcy = 0.0 
+      else
+         if (array(ifx, ify, izz) == msgval) fxfy = 0.0 
+         if (array(ifx, icy, izz) == msgval) fxcy = 0.0 
+         if (array(icx, ify, izz) == msgval) cxfy = 0.0 
+         if (array(icx, icy, izz) == msgval) cxcy = 0.0 
+      end if
+
+      ! If all four points are missing, try the next interpolation method in the sequence
+      if (fxfy == 0.0 .and. fxcy == 0.0 .and. cxfy == 0.0 .and. cxcy == 0.0) then
+         wt_four_pt_average = interp_sequence(xx, yy, izz, array, start_x, end_x, start_y, end_y, &
+                              start_z, end_z, msgval, interp_list, idx, maskval, mask_array)
+      else
+         wt_four_pt_average = (fxfy * array(ifx, ify, izz) + &
+                               fxcy * array(ifx, icy, izz) + &
+                               cxfy * array(icx, ify, izz) + &
+                               cxcy * array(icx, icy, izz) ) / (fxfy + fxcy + cxfy + cxcy)
+      end if
+ 
+   end function wt_four_pt_average
  
    
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -542,6 +677,91 @@ module interp_module
       end if
  
    end function sixteen_pt_average
+ 
+   
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   ! Name: wt_sixteen_pt_average
+   !
+   ! Purpose: Weighted average of sixteen surrounding grid point values
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   recursive function wt_sixteen_pt_average(xx, yy, izz, array, start_x, end_x, &
+              start_y, end_y, start_z, end_z, msgval, interp_list, idx, maskval, mask_array)
+ 
+      implicit none
+  
+      ! Arguments
+      integer, intent(in) :: start_x, start_y, start_z
+      integer, intent(in) :: end_x, end_y, end_z
+      integer, intent(in) :: izz                ! The z-index of the 2d-array to
+                                                !   interpolate within
+      real, intent(in) :: xx , yy               ! The location to interpolate to
+      real, intent(in) :: msgval
+      real, intent(in), optional :: maskval
+      real, dimension(start_x:end_x, start_y:end_y, start_z:end_z), &
+          intent(in) :: array
+      integer, dimension(:), intent(in) :: interp_list
+      integer, intent(in) :: idx
+      real, dimension(start_x:end_x, start_y:end_y), &
+          intent(in), optional :: mask_array 
+  
+      ! Return value
+      real :: wt_sixteen_pt_average
+  
+      ! Local variables
+      integer :: i, j, ifx, ify
+      real :: sum, sum_weight
+      real, dimension(4,4) :: weights
+
+      ifx = floor(xx)
+      ify = floor(yy)
+  
+      ! First see whether the point is far enough within the array to 
+      !   allow for a sixteen point average.
+      if (ifx < start_x+1 .or. ifx > end_x-2 .or. &
+          ify < start_y+1 .or. ify > end_y-2) then
+         wt_sixteen_pt_average = msgval
+         return
+      end if
+  
+      sum_weight = 0.0
+      do i=1,4
+         do j=1,4
+   
+            if (present(mask_array)) then
+               if (array(ifx+3-i, ify+3-j, izz) == msgval .or. mask_array(ifx+3-i, ify+3-j) == maskval) then
+                  weights(i,j) = 0.0
+               else
+                  weights(i,j) = max(0., 2.0 - sqrt((xx-real(ifx+3-i))**2+(yy-real(ify+3-j))**2))
+               end if
+            else
+               if (array(ifx+3-i, ify+3-j, izz) == msgval) then
+                  weights(i,j) = 0.0
+               else
+                  weights(i,j) = max(0., 2.0 - sqrt((xx-real(ifx+3-i))**2+(yy-real(ify+3-j))**2))
+               end if
+            end if
+    
+            sum_weight = sum_weight + weights(i,j)
+   
+         end do
+      end do
+  
+      ! If all points are missing, try the next interpolation method in the sequence
+      if (sum_weight == 0.0) then
+         wt_sixteen_pt_average = interp_sequence(xx, yy, izz, array, start_x, end_x, start_y, end_y, &
+                             start_z, end_z, msgval, interp_list, idx, maskval, mask_array)
+  
+      else
+         sum = 0.0
+         do i=1,4
+            do j=1,4
+               sum = sum + weights(i,j) * array(ifx+3-i, ify+3-j, izz)
+            end do
+         end do
+         wt_sixteen_pt_average = sum / sum_weight
+      end if
+ 
+   end function wt_sixteen_pt_average
  
  
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
