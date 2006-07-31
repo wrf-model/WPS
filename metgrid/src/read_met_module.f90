@@ -174,6 +174,59 @@ module read_met_module
          read(unit=input_unit,err=1001,end=1001) slab
       
          istatus = 0
+
+      ! WPS
+      else if (version == 5) then
+  
+         read(unit=input_unit) hdate, xfcst, map_source, field, units, desc, xlvl, nx, ny, iproj
+  
+         if (field == 'HGT      ') field = 'GHT      '
+         if (field == 'SOILCAT  ') field = 'SOIL_CAT '
+  
+         ! Cylindrical equidistant
+         if (iproj == 0) then
+            iproj = PROJ_LATLON
+            read(unit=input_unit,err=1001,end=1001) startloc, startlat, startlon, deltalat, deltalon
+
+         ! Lambert conformal
+         else if (iproj == 3) then
+            iproj = PROJ_LC
+            read(unit=input_unit,err=1001,end=1001) startloc, startlat, startlon, dx, dy, xlonc, truelat1, truelat2
+
+         ! Polar stereographic
+         else if (iproj == 5) then
+            iproj = PROJ_PS
+            read(unit=input_unit,err=1001,end=1001) startloc, startlat, startlon, dx, dy, xlonc, truelat1
+     
+         ! ?????????
+         else
+     
+         end if
+  
+         if (startloc == 'CENTER  ') then
+            starti = real(nx)/2.
+            startj = real(ny)/2.
+         else if (startloc == 'SWCORNER') then
+            starti = 1.0
+            startj = 1.0
+         end if
+
+         dx = dx * 1000.
+         dy = dy * 1000.
+
+         if (xlonc > 180.) xlonc = xlonc - 360.
+         if (startlon > 180.) startlon = startlon - 360.
+         
+         is_rotated_windfield = .false.
+  
+         if (startlat < -90.) startlat = -90.
+         if (startlat > 90.) startlat = 90.
+      
+         allocate(slab(nx, ny))
+         read(unit=input_unit,err=1001,end=1001) slab
+      
+         istatus = 0
+
       else
          call mprintf(.true.,ERROR,'Didn''t recognize format of data in %s.', s1=filename)
       end if
