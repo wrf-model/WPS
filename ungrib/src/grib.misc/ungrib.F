@@ -60,13 +60,11 @@ program grib_prep
   use gridinfo
   use storage_module
   use filelist
+  use datarray
   implicit none
 
   integer :: nunit1 = 12
   character(LEN=20) :: gribflnm = 'GRIBFILE.AAA        '    ! won't work with len=12
-
-  integer, parameter :: alength = 1200000
-  real, dimension (alength) :: array
 
   integer :: iprint
 
@@ -193,12 +191,12 @@ program grib_prep
 		 write(6,*) 'flnm = ',gribflnm
                  ! Read one record at a time from GRIB1 (and older Editions) 
                  call rd_grib(nunit1, gribflnm, level, field, &
-                      hdate, array, alength, ierr, iuarr, iprint)
+                      hdate, ierr, iuarr, iprint)
               else 
 
                  ! Read one file of records from GRIB2.
 		 write(6,*) 'calling rd_grib2'
-                 call rd_grib2(nunit1, gribflnm, hdate, alength, &
+                 call rd_grib2(nunit1, gribflnm, hdate, &
                       grib_version, ierr)
                  FIELD='NULL'
 
@@ -267,9 +265,15 @@ program grib_prep
            if (((field == "SST").or.(field == "SKINTEMP")) .and. &
                 (level /= 200100.)) level = 200100.
            iplvl = int(level)
+           if (.not.allocated(rdatarray)) then
+              write(6,*) 'ERROR: GRIB data slab not allocated in ungrib.F before'
+              write(6,*) '       call to put_storage.'
+              stop
+           end if
            call put_storage(iplvl,field, &
-                reshape(array(1:map%nx*map%ny),(/map%nx, map%ny/)),&
+                reshape(rdatarray(1:map%nx*map%ny),(/map%nx, map%ny/)),&
                 map%nx,map%ny)
+           deallocate(rdatarray)
 
            ! Since we processed the record we just read, we set
            ! READIT to .TRUE. so that LOOP0 will read the next record.

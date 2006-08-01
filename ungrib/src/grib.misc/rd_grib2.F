@@ -24,7 +24,6 @@
 !    Output:                                                                  !
 !                                                                             !
 !       HDATE    : The 19-character date of the field to process.             !
-!       DataArray: The 2d slab of data to process.                            !
 !       IERR     : Error flag: 0 - no error on read from GRIB2 file.          !
 !                              1 - Hit the end of the GRIB2 file.             !
 !                              2 - The file GRIBFLNM we tried to open does    !
@@ -37,7 +36,7 @@
 ! Code is based on code developed by Steve Gilbert NCEP & Kevin Manning NCAR  !
 !*****************************************************************************!
       
-      SUBROUTINE rd_grib2(junit, gribflnm, hdate, alength,
+      SUBROUTINE rd_grib2(junit, gribflnm, hdate, 
      &  grib_edition, ireaderr)
 
       use grib_mod
@@ -46,9 +45,7 @@
       use gridinfo       ! Included to define map%
       use storage_module ! Included sub put_storage
 
-      integer :: alength
-      real, dimension(alength) :: DataArray
-      real, dimension(alength) :: hold_array
+      real, allocatable, dimension(:) :: hold_array
       parameter(msk1=32000,msk2=4000)
       character(len=1),allocatable,dimension(:) :: cgrib
       integer :: listsec0(3)
@@ -93,7 +90,6 @@ C  SET ARGUMENTS
       lgrib=0
       currlen=0
       ith=1
-      hold_array = -1.E30
       scale_factor = 1e6
 
 !/* IOS Return Codes from BACIO:  */
@@ -324,20 +320,6 @@ C  SET ARGUMENTS
               print*, 'see Code Table 3.1: Grid Definition Template No'
            endif
          
-
-
-           ! Check that the parameter ALENGTH is large enough to hold the data.
-           print *,'Nx*Ny,Alength',map%nx*map%ny,alength
-           if ((map%nx*map%ny).gt.alength) then
-              write(*,'(" ***** ERROR in Subroutine RD_GRIB2.",//)')
-              write(*,'(10x,"Grid dims larger than parameterizd size")')
-              write(*,'(10x,"Grid size = ", I10, 5x,
-     &          "Parameterized dimension = ", I10)') map%nx*map%ny, alength
-              write(*,'(10x,"Increase ALENGTH in main program",//)')
-              write(*,'(" ***** STOP in Subroutine RD_GRIB2.",//)')
-              stop
-           endif
-
          endif
 
          ! ----
@@ -466,9 +448,9 @@ C  SET ARGUMENTS
               iplvl = int(level)
 
               ! Store the unpacked 2D slab from the GRIB2 record
-              ! in array DataArray
+              allocate(hold_array(gfld%ngrdpts))
               do j=1,gfld%ngrdpts
-               hold_array(j)=gfld%fld(j)
+                 hold_array(j)=gfld%fld(j)
               enddo
 
               ! When we have reached this point, we have a data array ARRAY 
@@ -481,6 +463,7 @@ C  SET ARGUMENTS
               call put_storage(iplvl,my_field,
      &           reshape(hold_array(1:map%nx*map%ny),
      &           (/map%nx, map%ny/)), map%nx,map%ny)
+              deallocate(hold_array)
 
               ! If Specific Humidity is present on hybrid levels AND 
               ! upper-air RH is missing, see if we can compute RH from 

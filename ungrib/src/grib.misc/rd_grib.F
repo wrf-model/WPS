@@ -17,8 +17,6 @@
 !                 array (IUARR) where the UNIX File Descriptor values are     !
 !                 stored.                                                     !
 !       GRIBFLNM: File name to open, if it is not already open.               !
-!       ALENGTH : Length of an array to hold the 2d slab read from the GRIB   !
-!                 record.  This is a parameter grib_prep.                     !
 !       IUARR   : Array to hold UNIX File descriptors retured from a C open   !
 !                 statement.  If the value of IUARR(IUNIT) is zero, then the  !
 !                 file GRIBFLNM must be opened, and the value of IUARR(IUNIT) !
@@ -30,7 +28,6 @@
 !       FIELD    : The field name of the field to process.  NULL is returned  !
 !                  if we do not want to process the field we read.            !
 !       HDATE    : The 19-character date of the field to process.             !
-!       DataArray: The 2d slab of data to process.                            !
 !       IERR     : Error flag: 0 - no error on read from GRIB file.           !
 !                              1 - Hit the end of the GRIB file.              !
 !                              2 - The file GRIBFLNM we tried to open does    !
@@ -63,15 +60,15 @@
 !                                                                             !
 !*****************************************************************************!
 SUBROUTINE rd_grib(IUNIT, gribflnm, level, field, hdate,  &
-     DataArray, alength, ierr, iuarr, iprint)
+     ierr, iuarr, iprint)
   use table
   use gridinfo
+  use datarray
+
   implicit none
 
   integer :: iprint
   integer :: iunit ! Array number in IUARR assigned to the C read pointer.
-  integer :: alength
-  real, dimension(alength) :: DataArray
   integer, dimension(100) :: KSEC1
   integer, dimension(10) :: KSEC2 
   integer, dimension(40) :: infogrid
@@ -361,20 +358,11 @@ SUBROUTINE rd_grib(IUNIT, gribflnm, level, field, hdate,  &
      endif
   endif
 
-! Check that the parameter ALENGTH is large enough to hold the data.
+  if (allocated(rdatarray)) deallocate(rdatarray)
+  allocate(rdatarray(map%nx * map%ny))
 
-  if ((map%nx*map%ny).gt.alength) then
-     write(*,'(" ***** ERROR in Subroutine RD_GRIB.",//)')
-     write(*,'(10x,"Grid dimensions are larger than parameterized size.")')
-     write(*,'(10x,"Grid size = ", I10, 5x,&
-          &"Parameterized dimension = ", I10)') map%nx*map%ny, alength
-     write(*,'(10x,"Increase dimension ALENGTH in program grib_prep",//)')
-     write(*,'(" ***** STOP in Subroutine RD_GRIB.",//)')
-     stop
-  endif
-
-! Unpack the 2D slab from the GRIB record, and put it in array DataArray
-  call gribdata(DataArray,map%nx*map%ny)
+! Unpack the 2D slab from the GRIB record, and put it in array rdatarray
+  call gribdata(rdatarray,map%nx*map%ny)
 ! Deallocate a couple of arrays that may have been allocated by the 
 ! GRIB decoding routines.
 
