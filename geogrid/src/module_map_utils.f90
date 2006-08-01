@@ -341,8 +341,8 @@ MODULE map_utils
          IF ( ABS(dummy_lon1) .GT. 180.) THEN
             iter = 0 
             DO WHILE (ABS(dummy_lon1) > 180. .AND. iter < 10)
-               IF (dummy_lon1 < -180.) dummy_lon1 = dummy_lon1 + 180.
-               IF (dummy_lon1 > 180.) dummy_lon1 = dummy_lon1 - 180.
+               IF (dummy_lon1 < -180.) dummy_lon1 = dummy_lon1 + 360.
+               IF (dummy_lon1 > 180.) dummy_lon1 = dummy_lon1 - 360.
                iter = iter + 1
             END DO
             IF (abs(dummy_lon1) > 180.) THEN
@@ -365,8 +365,8 @@ MODULE map_utils
          IF ((ABS(dummy_stdlon) > 180.).AND.(proj_code /= PROJ_MERC)) THEN
             iter = 0 
             DO WHILE (ABS(dummy_stdlon) > 180. .AND. iter < 10)
-               IF (dummy_stdlon < -180.) dummy_stdlon = dummy_stdlon + 180.
-               IF (dummy_stdlon > 180.) dummy_stdlon = dummy_stdlon - 180.
+               IF (dummy_stdlon < -180.) dummy_stdlon = dummy_stdlon + 360.
+               IF (dummy_stdlon > 180.) dummy_stdlon = dummy_stdlon - 360.
                iter = iter + 1
             END DO
             IF (abs(dummy_stdlon) > 180.) THEN
@@ -986,10 +986,10 @@ MODULE map_utils
       deltalon = lon - proj%lon1      
       
       ! Compute i/j
-      i = deltalon/proj%loninc + 1.
-!      i = AMOD(i + 360./proj%loninc, 360./proj%loninc)
+      i = deltalon/proj%loninc - 0.5
+      i = AMOD(i + 360./proj%loninc, 360./proj%loninc) + 1.
+      i = AMOD(i + 360./proj%loninc, 360./proj%loninc) + 0.5
       j = deltalat/proj%latinc + 1.
-  
   
       RETURN
 

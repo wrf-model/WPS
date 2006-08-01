@@ -1333,7 +1333,8 @@ module process_tile_module
     
          do i=start_mem_i, end_mem_i
             do j=start_mem_j, end_mem_j
-               mapfac_arr(i,j) = (1.0 + sin(rad_per_deg*abs(truelat1)))/(1.0 + sin(rad_per_deg*abs(xlat_arr(i,j))))
+!               mapfac_arr(i,j) = (1.0 + sin(rad_per_deg*abs(truelat1)))/(1.0 + sin(rad_per_deg*abs(xlat_arr(i,j))))
+               mapfac_arr(i,j) = (1.0 + sin(rad_per_deg*abs(truelat1)))/(1.0 + sin(rad_per_deg*xlat_arr(i,j)))
             end do
          end do
     
