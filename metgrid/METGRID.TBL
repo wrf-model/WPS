@@ -1,13 +1,20 @@
 ========================================
-name=SEAICE 
-        interp_option=four_pt+average_4pt
-        interp_mask=LANDSEA(0) 
-        fill_missing=0.
-========================================
 name=LANDSEA 
         interp_option=nearest_neighbor
         fill_missing=-1.
         fill_lev=200100:LANDMASK(1)
+========================================
+name=SEAICE 
+        interp_option=four_pt+average_4pt
+        interp_mask=LANDSEA(1) 
+        masked=land
+        fill_missing=0.
+========================================
+name=H0ML 
+        interp_option=four_pt+average_4pt
+        interp_mask=LANDSEA(1) 
+        masked=land
+        fill_missing=0.
 ========================================
 name=SNOW
         interp_option=four_pt+average_4pt

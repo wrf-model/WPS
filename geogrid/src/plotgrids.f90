@@ -1786,24 +1786,23 @@ program plotgrids
                     'Valid projecitons are "lambert", "mercator", and "polar".'
          stop
       end if
+
+      ! Check that nests have an acceptable number of grid points in each dimension
+      do i=2,n_domains
+         rparent_gridpts = real(ixdim(i)-1)/real(parent_grid_ratio(i))
+         if (floor(rparent_gridpts) /= ceiling(rparent_gridpts)) then
+            write(6,*) 'For nest ',i,' (e_we-s_we+1) must be one greater than an '// &
+                       'interger multiple of the parent_grid_ratio.'
+            stop
+         end if
+         rparent_gridpts = real(jydim(i)-1)/real(parent_grid_ratio(i))
+         if (floor(rparent_gridpts) /= ceiling(rparent_gridpts)) then
+            write(6,*) 'For nest ',i,' (e_sn-s_sn+1) must be one greater than an '// &
+                       'interger multiple of the parent_grid_ratio.'
+            stop
+         end if
+      end do
    end if
-
-   ! Check that nests have an acceptable number of grid points in each dimension
-   do i=2,n_domains
-      rparent_gridpts = real(ixdim(i)-1)/real(parent_grid_ratio(i))
-      if (floor(rparent_gridpts) /= ceiling(rparent_gridpts)) then
-         write(6,*) 'For nest ',i,' (e_we-s_we+1) must be one greater than an '// &
-                    'interger multiple of the parent_grid_ratio.'
-         stop
-      end if
-      rparent_gridpts = real(jydim(i)-1)/real(parent_grid_ratio(i))
-      if (floor(rparent_gridpts) /= ceiling(rparent_gridpts)) then
-         write(6,*) 'For nest ',i,' (e_sn-s_sn+1) must be one greater than an '// &
-                    'interger multiple of the parent_grid_ratio.'
-         stop
-      end if
-   end do
-
 
    do i=1,n_domains
       parent_ll_x(i) = real(i_parent_start(i))
