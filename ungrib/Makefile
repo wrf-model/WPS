@@ -13,11 +13,11 @@ bad_idea:
 all:
 	( cd src/ngl ; $(MAKE) DEV_TOP="$(DEV_TOP)" CC="$(SCC)" FC="$(SFC)" all )
 	( cd src/util ; $(MAKE) DEV_TOP="$(DEV_TOP)" CC="$(SCC)" FC="$(SFC)" all )
-	( cd src/grib.misc ; $(MAKE) DEV_TOP="$(DEV_TOP)" CC="$(SCC)" FC="$(SFC)" all )
+	( cd src/main ; $(MAKE) DEV_TOP="$(DEV_TOP)" CC="$(SCC)" FC="$(SFC)" all )
 
 clean:
 	( cd src/ngl ; $(MAKE) DEV_TOP="$(DEV_TOP)" clean )
 	( cd src/util ; $(MAKE) DEV_TOP="$(DEV_TOP)" clean )
-	( cd src/grib.misc ; $(MAKE) DEV_TOP="$(DEV_TOP)" clean )
+	( cd src/main ; $(MAKE) DEV_TOP="$(DEV_TOP)" clean )
 
 superclean: clean
