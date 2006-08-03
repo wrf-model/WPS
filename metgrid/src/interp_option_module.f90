@@ -108,8 +108,11 @@ module interp_option_module
          call list_init(fill_lev_list(i))
          interp_mask(i) = ' '
          interp_mask_val(i) = NAN
-! BUG: Maybe default output stagger should depend on grid_type
-         output_stagger(i) = M
+         if (gridtype == 'C') then
+            output_stagger(i) = M
+         else if (gridtype == 'E') then
+            output_stagger(i) = HH
+         end if
          output_this_field(i) = .true.
          is_u_field(i) = .false.
          is_v_field(i) = .false.
