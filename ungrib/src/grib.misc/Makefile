@@ -15,12 +15,12 @@ $(EXE):		$(OBJS) ../../src/util/libpgu.a
 		$(COMPRESSION_LIBS) 
 
 .F.o:
-	$(CPP) $(CPPFLAGS) $*.F >! $*.f
+	$(CPP) $(CPPFLAGS) $*.F > $*.f
 	$(FC) -c $(FFLAGS) $*.f -I. -I../../src/util
 	$(RM) $*.f
 
 rd_grib2.o:
-	$(CPP) $(CPPFLAGS) $*.F >! $*.f
+	$(CPP) $(CPPFLAGS) $*.F > $*.f
 	$(FC) -c $(F77FLAGS) $*.f -I../../src/util -I../../src/ngl/g2
 	$(RM) $*.f
 
