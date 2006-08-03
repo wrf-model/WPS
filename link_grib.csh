@@ -7,7 +7,7 @@ set i3 = 1
 
 if ( ${#argv} == 1 ) then
 
-   rm -f GRIBFILE.???
+   rm -f GRIBFILE.??? >& /dev/null
 
    foreach f ( ${1}* )
    
@@ -29,7 +29,7 @@ if ( ${#argv} == 1 ) then
    end
 else if ( ${#argv} > 1 ) then
 
-   rm -f GRIBFILE.???
+   rm -f GRIBFILE.??? >& /dev/null
 
    foreach f ( $* )
    
