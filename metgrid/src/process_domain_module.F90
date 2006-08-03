@@ -467,7 +467,7 @@ module process_domain_module
       character (len=19), intent(in) :: temp_date
    
       ! Local variables
-      integer :: istatus, iqstatus, fg_idx, idx, i, j, bottom_top_dim, &
+      integer :: istatus, iqstatus, fg_idx, idx, idxt, i, j, bottom_top_dim, &
                  sm1, em1, em1_stag, sm2, em2, em2_stag, sm3, em3, &
                  sp1, ep1, ep1_stag, sp2, ep2, ep2_stag, sp3, ep3, &
                  sd1, ed1, sd2, ed2, sd3, ed3, met_map_proj, &
@@ -508,264 +508,276 @@ module process_domain_module
          !   during interpolation
          call get_interp_masks(trim(input_name), do_const_processing, temp_date(1:13))
    
-         ! Initialize the module for reading in the met fields
-         call read_met_init(trim(input_name), do_const_processing, temp_date(1:13))
-   
-         ! Process all fields and levels from the current file; read_next_met_field()
-         !   will return a non-zero status when there are no more fields to be read.
          istatus = 0
-         do while (istatus == 0) 
-   
-            call read_next_met_field(version, short_fieldnm, hdate, xfcst, xlvl, units, desc, &
-                                met_map_proj, startlat, startlon, starti, startj, deltalat, &
-                                deltalon, met_dx, met_dy, met_cen_lon, met_truelat1, met_truelat2, nx, ny, &
-                                map_src, slab, is_rotated, istatus)
-   
-            if (istatus == 0) then
-               call mprintf(.true.,LOGFILE,'Processing %s at level %f.',s1=short_fieldnm,f1=xlvl)               
 
-               call push_source_projection(met_map_proj, met_cen_lon, met_truelat1, &
-                                 met_truelat2, met_dx, met_dy, deltalat, deltalon, starti, startj, &
-                                 startlat, startlon)
-   
-               ! Initialize fg_input structure to store the field
-               field%header%version = 1
-               field%header%date = hdate//'        '
-               if (do_const_processing) then
-                  field%header%time_dependent = .false.
-               else
-                  field%header%time_dependent = .true.
-               end if
-               field%header%forecast_hour = xfcst 
-               field%header%fg_source = 'FG'
-               field%header%field = ' '
-               field%header%field(1:9) = short_fieldnm
-               field%header%units = ' '
-               field%header%units(1:25) = units
-               field%header%description = ' '
-               field%header%description(1:46) = desc
-               call get_z_dim_name(short_fieldnm,field%header%vertical_coord)
-               field%header%vertical_level = nint(xlvl) 
-               field%header%array_order = 'XY ' 
-               field%header%winds_rotated_on_input = is_rotated 
-               field%header%array_has_missing_values = .false.
-               nullify(field%r_arr)
-               nullify(field%i_arr)
-               nullify(field%valid_mask)
-               nullify(field%modified_mask)
-   
-               ! Find index into fieldname, interp_method, masked, and fill_missing
-               !   of the current field
-               do idx=1,num_entries
-                  if ((index(fieldname(idx), trim(short_fieldnm)) /= 0) .and. &
-                      (len_trim(fieldname(idx)) == len_trim(short_fieldnm))) exit
-               end do
-               if (idx > num_entries) idx = num_entries ! The last entry is a default
+         ! Initialize the module for reading in the met fields
+         call read_met_init(trim(input_name), do_const_processing, temp_date(1:13), istatus)
 
-               ! If we should not output this field, just list it as a mask field
-               if (output_this_field(idx)) then
-                  field%header%mask_field = .false.
-               else
-                  field%header%mask_field = .true.
-               end if
+         if (istatus == 0) then
    
-               !
-               ! Before actually doing any interpolation to the model grid, we must check
-               !    whether we will be using the average_gcell interpolator that averages all 
-               !    source points in each model grid cell
-               !
-               do_gcell_interp = .false.
-               if (index(interp_method(idx),'average_gcell') /= 0) then
+            ! Process all fields and levels from the current file; read_next_met_field()
+            !   will return a non-zero status when there are no more fields to be read.
+            do while (istatus == 0) 
+      
+               call read_next_met_field(version, short_fieldnm, hdate, xfcst, xlvl, units, desc, &
+                                   met_map_proj, startlat, startlon, starti, startj, deltalat, &
+                                   deltalon, met_dx, met_dy, met_cen_lon, met_truelat1, met_truelat2, nx, ny, &
+                                   map_src, slab, is_rotated, istatus)
+      
+               if (istatus == 0) then
+                  call mprintf(.true.,LOGFILE,'Processing %s at level %f.',s1=short_fieldnm,f1=xlvl)               
    
-                  call get_gcell_threshold(interp_method(idx), threshold, istatus)
-                  if (istatus == 0) then
-                     if (met_dx == 0. .and. met_dy == 0. .and. &
-                         deltalat /= 0. .and. deltalon /= 0.) then
-                        met_dx = abs(deltalon)
-                        met_dy = abs(deltalat)
+                  call push_source_projection(met_map_proj, met_cen_lon, met_truelat1, &
+                                    met_truelat2, met_dx, met_dy, deltalat, deltalon, starti, startj, &
+                                    startlat, startlon)
+      
+                  ! Initialize fg_input structure to store the field
+                  field%header%version = 1
+                  field%header%date = hdate//'        '
+                  if (do_const_processing) then
+                     field%header%time_dependent = .false.
+                  else
+                     field%header%time_dependent = .true.
+                  end if
+                  field%header%forecast_hour = xfcst 
+                  field%header%fg_source = 'FG'
+                  field%header%field = ' '
+                  field%header%field(1:9) = short_fieldnm
+                  field%header%units = ' '
+                  field%header%units(1:25) = units
+                  field%header%description = ' '
+                  field%header%description(1:46) = desc
+                  call get_z_dim_name(short_fieldnm,field%header%vertical_coord)
+                  field%header%vertical_level = nint(xlvl) 
+                  field%header%array_order = 'XY ' 
+                  field%header%winds_rotated_on_input = is_rotated 
+                  field%header%array_has_missing_values = .false.
+                  nullify(field%r_arr)
+                  nullify(field%i_arr)
+                  nullify(field%valid_mask)
+                  nullify(field%modified_mask)
+      
+                  ! Find index into fieldname, interp_method, masked, and fill_missing
+                  !   of the current field
+                  idxt = num_entries + 1
+                  do idx=1,num_entries
+                     if ((index(fieldname(idx), trim(short_fieldnm)) /= 0) .and. &
+                         (len_trim(fieldname(idx)) == len_trim(short_fieldnm))) then
+                        if (index(input_name,trim(from_input(idx))) /= 0 .or. &
+                           (from_input(idx) == '*' .and. idxt == num_entries + 1)) then
+                           idxt = idx
+                        end if
                      end if
+                  end do
+                  idx = idxt
+                  if (idx > num_entries) idx = num_entries ! The last entry is a default
+
+                  ! If we should not output this field, just list it as a mask field
+                  if (output_this_field(idx)) then
+                     field%header%mask_field = .false.
+                  else
+                     field%header%mask_field = .true.
+                  end if
+      
+                  !
+                  ! Before actually doing any interpolation to the model grid, we must check
+                  !    whether we will be using the average_gcell interpolator that averages all 
+                  !    source points in each model grid cell
+                  !
+                  do_gcell_interp = .false.
+                  if (index(interp_method(idx),'average_gcell') /= 0) then
+      
+                     call get_gcell_threshold(interp_method(idx), threshold, istatus)
+                     if (istatus == 0) then
+                        if (met_dx == 0. .and. met_dy == 0. .and. &
+                            deltalat /= 0. .and. deltalon /= 0.) then
+                           met_dx = abs(deltalon)
+                           met_dy = abs(deltalat)
+                        end if
+                        if (gridtype == 'C') then
+                           if (threshold*max(met_dx,met_dy)*111. <= max(dom_dx,dom_dy)/1000.) &
+                              do_gcell_interp = .true. 
+                        else if (gridtype == 'E') then
+                           if (threshold*max(met_dx,met_dy) <= max(dom_dx,dom_dy)) &
+                              do_gcell_interp = .true. 
+                        end if
+                     end if
+                  end if
+      
+                  ! U field must be interpolated to U staggering for C grid, V staggering for E grid
+                  if ((index(field%header%field, 'U') /= 0) .and. &
+                      (len_trim(field%header%field) == 1)) then
+   
+                     call storage_query_field(field, iqstatus)
+                     if (iqstatus == 0) then
+                        call storage_get_field(field, iqstatus)
+                        call mprintf((iqstatus /= 0),ERROR,'Queried field %s at level %i and found it, but could not get data.',s1=short_fieldnm,i1=nint(xlvl))
+                        if (associated(field%modified_mask)) then
+                           call bitarray_destroy(field%modified_mask)
+                           nullify(field%modified_mask)
+                        end if
+                     else
+                        allocate(field%valid_mask)
+                        call bitarray_create(field%valid_mask, we_mem_stag_e-we_mem_stag_s+1, sn_mem_e-sn_mem_s+1)
+                     end if
+      
+                     ! Save a copy of the fg_input structure for the U field so that we can find it later
+                     call dup(field, u_field)
+   
+                     allocate(field%modified_mask)
+                     call bitarray_create(field%modified_mask, we_mem_stag_e-we_mem_stag_s+1, sn_mem_e-sn_mem_s+1)
+   
                      if (gridtype == 'C') then
-                        if (threshold*max(met_dx,met_dy)*111. <= max(dom_dx,dom_dy)/1000.) &
-                           do_gcell_interp = .true. 
+                        call interp_met_field(gridtype, input_name, short_fieldnm, U, &
+                                     field, xlat_u, xlon_u, we_mem_stag_s, we_mem_stag_e, sn_mem_s, sn_mem_e, &
+                                     slab, nx, ny, do_gcell_interp, field%modified_mask)
+   
                      else if (gridtype == 'E') then
-                        if (threshold*max(met_dx,met_dy) <= max(dom_dx,dom_dy)) &
-                           do_gcell_interp = .true. 
+                        call interp_met_field(gridtype, input_name, short_fieldnm, VV, &
+                                     field, xlat_v, xlon_v, we_mem_stag_s, we_mem_stag_e, sn_mem_s, sn_mem_e, &
+                                     slab, nx, ny, do_gcell_interp, field%modified_mask)
                      end if
-                  end if
-               end if
    
-               ! U field must be interpolated to U staggering for C grid, V staggering for E grid
-               if ((index(field%header%field, 'U') /= 0) .and. &
-                   (len_trim(field%header%field) == 1)) then
-
-                  call storage_query_field(field, iqstatus)
-                  if (iqstatus == 0) then
-                     call storage_get_field(field, iqstatus)
-                     call mprintf((iqstatus /= 0),ERROR,'Queried field %s at level %i and found it, but could not get data.',s1=short_fieldnm,i1=nint(xlvl))
-                     if (associated(field%modified_mask)) then
-                        call bitarray_destroy(field%modified_mask)
-                        nullify(field%modified_mask)
+                  ! V field must be interpolated to V staggering for C grid, V staggering for E grid
+                  else if ((index(field%header%field, 'V') /= 0) .and. &
+                      (len_trim(field%header%field) == 1)) then
+   
+                     call storage_query_field(field, iqstatus)
+                     if (iqstatus == 0) then
+                        call storage_get_field(field, iqstatus)
+                        call mprintf((iqstatus /= 0),ERROR,'Queried field %s at level %i and found it, but could not get data.',s1=short_fieldnm,i1=nint(xlvl))
+                        if (associated(field%modified_mask)) then
+                           call bitarray_destroy(field%modified_mask)
+                           nullify(field%modified_mask)
+                        end if
+                     else
+                        allocate(field%valid_mask)
+                        call bitarray_create(field%valid_mask, we_mem_e-we_mem_s+1, sn_mem_stag_e-sn_mem_stag_s+1)
                      end if
-                  else
-                     allocate(field%valid_mask)
-                     call bitarray_create(field%valid_mask, we_mem_stag_e-we_mem_stag_s+1, sn_mem_e-sn_mem_s+1)
-                  end if
+      
+                     ! Save a copy of the fg_input structure for the V field so that we can find it later
+                     call dup(field, v_field)
    
-                  ! Save a copy of the fg_input structure for the U field so that we can find it later
-                  call dup(field, u_field)
-
-                  allocate(field%modified_mask)
-                  call bitarray_create(field%modified_mask, we_mem_stag_e-we_mem_stag_s+1, sn_mem_e-sn_mem_s+1)
-
-                  if (gridtype == 'C') then
-                     call interp_met_field(gridtype, short_fieldnm, U, &
-                                  field, xlat_u, xlon_u, we_mem_stag_s, we_mem_stag_e, sn_mem_s, sn_mem_e, &
-                                  slab, nx, ny, do_gcell_interp, field%modified_mask)
-
-                  else if (gridtype == 'E') then
-                     call interp_met_field(gridtype, short_fieldnm, VV, &
-                                  field, xlat_v, xlon_v, we_mem_stag_s, we_mem_stag_e, sn_mem_s, sn_mem_e, &
-                                  slab, nx, ny, do_gcell_interp, field%modified_mask)
-                  end if
-
-               ! V field must be interpolated to V staggering for C grid, V staggering for E grid
-               else if ((index(field%header%field, 'V') /= 0) .and. &
-                   (len_trim(field%header%field) == 1)) then
-
-                  call storage_query_field(field, iqstatus)
-                  if (iqstatus == 0) then
-                     call storage_get_field(field, iqstatus)
-                     call mprintf((iqstatus /= 0),ERROR,'Queried field %s at level %i and found it, but could not get data.',s1=short_fieldnm,i1=nint(xlvl))
-                     if (associated(field%modified_mask)) then
-                        call bitarray_destroy(field%modified_mask)
-                        nullify(field%modified_mask)
-                     end if
-                  else
-                     allocate(field%valid_mask)
-                     call bitarray_create(field%valid_mask, we_mem_e-we_mem_s+1, sn_mem_stag_e-sn_mem_stag_s+1)
-                  end if
+                     allocate(field%modified_mask)
+                     call bitarray_create(field%modified_mask, we_mem_e-we_mem_s+1, sn_mem_stag_e-sn_mem_stag_s+1)
    
-                  ! Save a copy of the fg_input structure for the V field so that we can find it later
-                  call dup(field, v_field)
-
-                  allocate(field%modified_mask)
-                  call bitarray_create(field%modified_mask, we_mem_e-we_mem_s+1, sn_mem_stag_e-sn_mem_stag_s+1)
-
-                  if (gridtype == 'C') then
-                     call interp_met_field(gridtype, short_fieldnm, V, &
-                                  field, xlat_v, xlon_v, we_mem_s, we_mem_e, sn_mem_stag_s, sn_mem_stag_e, &
-                                  slab, nx, ny, do_gcell_interp, field%modified_mask)
-
-                  else if (gridtype == 'E') then
-                     call interp_met_field(gridtype, short_fieldnm, VV, &
-                                  field, xlat_v, xlon_v, we_mem_s, we_mem_e, sn_mem_stag_s, sn_mem_stag_e, &
-                                  slab, nx, ny, do_gcell_interp, field%modified_mask)
-                  end if
-          
-               ! All other fields interpolated to M staggering for C grid, H staggering for E grid
-               else
-
-                  call storage_query_field(field, iqstatus)
-                  if (iqstatus == 0) then
-                     call storage_get_field(field, iqstatus)
-                     call mprintf((iqstatus /= 0),ERROR,'Queried field %s at level %i and found it, but could not get data.',s1=short_fieldnm,i1=nint(xlvl))
-                     if (associated(field%modified_mask)) then
-                        call bitarray_destroy(field%modified_mask)
-                        nullify(field%modified_mask)
-                     end if
-                  else
-                     allocate(field%valid_mask)
-                     call bitarray_create(field%valid_mask, we_mem_e-we_mem_s+1, sn_mem_e-sn_mem_s+1)
-                  end if
-
-                  allocate(field%modified_mask)
-                  call bitarray_create(field%modified_mask, we_mem_e-we_mem_s+1, sn_mem_e-sn_mem_s+1)
-
-                  if (gridtype == 'C') then
-                     call interp_met_field(gridtype, short_fieldnm, M, &
-                                  field, xlat, xlon, we_mem_s, we_mem_e, sn_mem_s, sn_mem_e, &
-                                  slab, nx, ny, do_gcell_interp, field%modified_mask, landmask)
-
-                  else if (gridtype == 'E') then
-                     call interp_met_field(gridtype, short_fieldnm, HH, &
-                                  field, xlat, xlon, we_mem_s, we_mem_e, sn_mem_s, sn_mem_e, &
-                                  slab, nx, ny, do_gcell_interp, field%modified_mask, landmask)
-                  end if
-
-               end if
-
-               call bitarray_merge(field%valid_mask, field%modified_mask)
-   
-               deallocate(slab)
-                            
-               ! Store the interpolated field
-               call storage_put_field(field)
-
-               call pop_source_projection()
-
-            end if
-         end do
-   
-         call read_met_close()
-
-         call push_source_projection(met_map_proj, met_cen_lon, met_truelat1, &
-                           met_truelat2, met_dx, met_dy, deltalat, deltalon, starti, startj, &
-                           startlat, startlon)
-   
-         !
-         ! If necessary, rotate winds to earth-relative for this fg source
-         !
-   
-         call storage_get_levels(u_field, u_levels)
-         call storage_get_levels(v_field, v_levels)
-   
-         if (associated(u_levels) .and. associated(v_levels)) then 
-            u_idx = 1
-            do u_idx = 1, size(u_levels)
-               u_field%header%vertical_level = u_levels(u_idx)
-               call storage_get_field(u_field, istatus)
-               v_field%header%vertical_level = v_levels(u_idx)
-               call storage_get_field(v_field, istatus)
-
-               if (associated(u_field%modified_mask) .and. &
-                   associated(v_field%modified_mask)) then
-  
-! BUG: Need to consider that E grid doesn't have u_s and u_e, since no U staggering.
-! BUG: Perhaps we need entirely separate map rotation routines for E staggering, where U and V are colocated.
-                  if (.not. u_field%header%winds_rotated_on_input) then
                      if (gridtype == 'C') then
-                        call map_to_met(u_field%r_arr, u_field%modified_mask, &
-                                        v_field%r_arr, v_field%modified_mask, &
-                                        we_mem_stag_s, sn_mem_s, &
-                                        we_mem_stag_e, sn_mem_e, &
-                                        we_mem_s, sn_mem_stag_s, &
-                                        we_mem_e, sn_mem_stag_e, &
-                                        xlon_u, xlon_v)
+                        call interp_met_field(gridtype, input_name, short_fieldnm, V, &
+                                     field, xlat_v, xlon_v, we_mem_s, we_mem_e, sn_mem_stag_s, sn_mem_stag_e, &
+                                     slab, nx, ny, do_gcell_interp, field%modified_mask)
+   
                      else if (gridtype == 'E') then
-                        call map_to_met_nmm(u_field%r_arr, u_field%modified_mask, &
-                                            v_field%r_arr, v_field%modified_mask, &
-                                            we_mem_s, sn_mem_s, &
-                                            we_mem_e, sn_mem_e, &
-                                            xlon_v)
+                        call interp_met_field(gridtype, input_name, short_fieldnm, VV, &
+                                     field, xlat_v, xlon_v, we_mem_s, we_mem_e, sn_mem_stag_s, sn_mem_stag_e, &
+                                     slab, nx, ny, do_gcell_interp, field%modified_mask)
                      end if
+             
+                  ! All other fields interpolated to M staggering for C grid, H staggering for E grid
+                  else
+   
+                     call storage_query_field(field, iqstatus)
+                     if (iqstatus == 0) then
+                        call storage_get_field(field, iqstatus)
+                        call mprintf((iqstatus /= 0),ERROR,'Queried field %s at level %i and found it, but could not get data.',s1=short_fieldnm,i1=nint(xlvl))
+                        if (associated(field%modified_mask)) then
+                           call bitarray_destroy(field%modified_mask)
+                           nullify(field%modified_mask)
+                        end if
+                     else
+                        allocate(field%valid_mask)
+                        call bitarray_create(field%valid_mask, we_mem_e-we_mem_s+1, sn_mem_e-sn_mem_s+1)
+                     end if
+   
+                     allocate(field%modified_mask)
+                     call bitarray_create(field%modified_mask, we_mem_e-we_mem_s+1, sn_mem_e-sn_mem_s+1)
+   
+                     if (gridtype == 'C') then
+                        call interp_met_field(gridtype, input_name, short_fieldnm, M, &
+                                     field, xlat, xlon, we_mem_s, we_mem_e, sn_mem_s, sn_mem_e, &
+                                     slab, nx, ny, do_gcell_interp, field%modified_mask, landmask)
+   
+                     else if (gridtype == 'E') then
+                        call interp_met_field(gridtype, input_name, short_fieldnm, HH, &
+                                     field, xlat, xlon, we_mem_s, we_mem_e, sn_mem_s, sn_mem_e, &
+                                     slab, nx, ny, do_gcell_interp, field%modified_mask, landmask)
+                     end if
+   
                   end if
-
-                  call bitarray_destroy(u_field%modified_mask)
-                  call bitarray_destroy(v_field%modified_mask)
-                  nullify(u_field%modified_mask)
-                  nullify(v_field%modified_mask)
-                  call storage_put_field(u_field)
-                  call storage_put_field(v_field)
+   
+                  call bitarray_merge(field%valid_mask, field%modified_mask)
+      
+                  deallocate(slab)
+                               
+                  ! Store the interpolated field
+                  call storage_put_field(field)
+   
+                  call pop_source_projection()
+   
                end if
-
             end do
-
-            deallocate(u_levels)
-            deallocate(v_levels)
-
+      
+            call read_met_close()
+   
+            call push_source_projection(met_map_proj, met_cen_lon, met_truelat1, &
+                              met_truelat2, met_dx, met_dy, deltalat, deltalon, starti, startj, &
+                              startlat, startlon)
+      
+            !
+            ! If necessary, rotate winds to earth-relative for this fg source
+            !
+      
+            call storage_get_levels(u_field, u_levels)
+            call storage_get_levels(v_field, v_levels)
+      
+            if (associated(u_levels) .and. associated(v_levels)) then 
+               u_idx = 1
+               do u_idx = 1, size(u_levels)
+                  u_field%header%vertical_level = u_levels(u_idx)
+                  call storage_get_field(u_field, istatus)
+                  v_field%header%vertical_level = v_levels(u_idx)
+                  call storage_get_field(v_field, istatus)
+   
+                  if (associated(u_field%modified_mask) .and. &
+                      associated(v_field%modified_mask)) then
+     
+   ! BUG: Need to consider that E grid doesn't have u_s and u_e, since no U staggering.
+   ! BUG: Perhaps we need entirely separate map rotation routines for E staggering, where U and V are colocated.
+                     if (.not. u_field%header%winds_rotated_on_input) then
+                        if (gridtype == 'C') then
+                           call map_to_met(u_field%r_arr, u_field%modified_mask, &
+                                           v_field%r_arr, v_field%modified_mask, &
+                                           we_mem_stag_s, sn_mem_s, &
+                                           we_mem_stag_e, sn_mem_e, &
+                                           we_mem_s, sn_mem_stag_s, &
+                                           we_mem_e, sn_mem_stag_e, &
+                                           xlon_u, xlon_v)
+                        else if (gridtype == 'E') then
+                           call map_to_met_nmm(u_field%r_arr, u_field%modified_mask, &
+                                               v_field%r_arr, v_field%modified_mask, &
+                                               we_mem_s, sn_mem_s, &
+                                               we_mem_e, sn_mem_e, &
+                                               xlon_v)
+                        end if
+                     end if
+   
+                     call bitarray_destroy(u_field%modified_mask)
+                     call bitarray_destroy(v_field%modified_mask)
+                     nullify(u_field%modified_mask)
+                     nullify(v_field%modified_mask)
+                     call storage_put_field(u_field)
+                     call storage_put_field(v_field)
+                  end if
+   
+               end do
+   
+               deallocate(u_levels)
+               deallocate(v_levels)
+   
+            end if
+   
+            call pop_source_projection()
+         
          end if
-
-         call pop_source_projection()
    
          fg_idx = fg_idx + 1
          if (do_const_processing) then
@@ -916,9 +928,10 @@ module process_domain_module
       character (len=46) :: desc
       type (fg_input) :: mask_field
 
-      call read_met_init(fg_prefix, is_constants, fg_date)
-
       istatus = 0
+
+      call read_met_init(fg_prefix, is_constants, fg_date, istatus)
+
       do while (istatus == 0)
    
          call read_next_met_field(version, field, hdate, xfcst, xlvl, units, desc, &
@@ -982,7 +995,7 @@ module process_domain_module
    !
    ! Purpose:
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-   subroutine interp_met_field(gridtype, short_fieldnm, istagger, &
+   subroutine interp_met_field(gridtype, input_name, short_fieldnm, istagger, &
                                field, xlat, xlon, sm1, em1, sm2, em2, &
                                slab, nx, ny, do_gcell_interp, &
                                new_pts, landmask)
@@ -1002,11 +1015,12 @@ module process_domain_module
       logical, intent(in) :: do_gcell_interp
       character (len=1), intent(in) :: gridtype
       character (len=9), intent(in) :: short_fieldnm
+      character (len=128), intent(in) :: input_name
       type (fg_input), intent(inout) :: field
       type (bitarray), intent(inout) :: new_pts
 
       ! Local variables
-      integer :: i, j, idx, interp_mask_status, orig_selected_proj
+      integer :: i, j, idx, idxt, interp_mask_status, orig_selected_proj
       integer, pointer, dimension(:) :: interp_array
       real :: rx, ry, temp
       real, pointer, dimension(:,:) :: data_count
@@ -1014,10 +1028,17 @@ module process_domain_module
 
       ! Find index into fieldname, interp_method, masked, and fill_missing
       !   of the current field
+      idxt = num_entries + 1
       do idx=1,num_entries
          if ((index(fieldname(idx), trim(short_fieldnm)) /= 0) .and. &
-             (len_trim(fieldname(idx)) == len_trim(short_fieldnm))) exit
+             (len_trim(fieldname(idx)) == len_trim(short_fieldnm))) then 
+            if (index(input_name,trim(from_input(idx))) /= 0 .or. &
+               (from_input(idx) == '*' .and. idxt == num_entries + 1)) then
+               idxt = idx
+            end if
+         end if
       end do
+      idx = idxt
       if (idx > num_entries) then
          call mprintf(.true.,INFORM,'Entry in METGRID.TBL not found for field %s. '// &
                       'Default options will be used for this field!', s1=short_fieldnm)

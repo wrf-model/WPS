@@ -9,11 +9,12 @@ module read_met_module
  
    contains
  
-   subroutine read_met_init(fg_source, source_is_constant, datestr)
+   subroutine read_met_init(fg_source, source_is_constant, datestr, istatus)
  
       implicit none
   
       ! Arguments
+      integer, intent(out) :: istatus
       logical, intent(in) :: source_is_constant
       character (len=*) :: fg_source
       character (len=*) :: datestr
@@ -21,6 +22,8 @@ module read_met_module
       ! Local variables
       integer :: io_status
       logical :: is_used
+
+      istatus = 0
     
       !  1) BUILD FILENAME BASED ON TIME 
       filename = ' '
@@ -38,7 +41,7 @@ module read_met_module
       call mprintf((input_unit > 100),ERROR,'In read_met_init(), couldn''t find an available Fortran unit.')
       open(unit=input_unit, file=trim(filename), status='old', form='unformatted', iostat=io_status)
 
-      call mprintf((io_status > 0), ERROR, ' In read_met_init(), failed to open file %s', s1=trim(filename))
+      if (io_status > 0) istatus = 1
 
       return
   
