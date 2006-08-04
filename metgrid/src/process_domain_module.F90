@@ -489,7 +489,13 @@ module process_domain_module
       character (len=46) :: desc
       character (len=128) :: cname, title, input_name
       character (len=128), dimension(3) :: dimnames
+      character (len=128), pointer, dimension(:) :: output_flags
       type (fg_input) :: field, u_field, v_field
+
+      allocate(output_flags(num_entries))
+      do i=1,num_entries
+         output_flags(i) = ' '
+      end do
    
       ! For this time, we need to process all first-guess filename roots. When we 
       !   hit a root containing a '*', we assume we have hit the end of the list
@@ -571,6 +577,10 @@ module process_domain_module
                   end do
                   idx = idxt
                   if (idx > num_entries) idx = num_entries ! The last entry is a default
+
+                  if (output_this_field(idx) .and. flag_in_output(idx) /= ' ') then
+                     output_flags(idx) = flag_in_output(idx)
+                  end if
 
                   ! If we should not output this field, just list it as a mask field
                   if (output_this_field(idx)) then
@@ -740,8 +750,8 @@ module process_domain_module
                   if (associated(u_field%modified_mask) .and. &
                       associated(v_field%modified_mask)) then
      
-   ! BUG: Need to consider that E grid doesn't have u_s and u_e, since no U staggering.
-   ! BUG: Perhaps we need entirely separate map rotation routines for E staggering, where U and V are colocated.
+! BUG: Need to consider that E grid doesn't have u_s and u_e, since no U staggering.
+! BUG: Perhaps we need entirely separate map rotation routines for E staggering, where U and V are colocated.
                      if (.not. u_field%header%winds_rotated_on_input) then
                         if (gridtype == 'C') then
                            call map_to_met(u_field%r_arr, u_field%modified_mask, &
@@ -777,6 +787,12 @@ module process_domain_module
    
             call pop_source_projection()
          
+         else
+            if (do_const_processing) then
+               call mprintf(.true.,WARN,'Couldn''t open file %s for input.',s1=input_name)
+            else
+               call mprintf(.true.,WARN,'Couldn''t open file %s for input.',s1=trim(input_name)//':'//temp_date(1:13))
+            end if
          end if
    
          fg_idx = fg_idx + 1
@@ -867,7 +883,7 @@ module process_domain_module
                               map_proj, is_water, is_ice, grid_id, parent_id, i_parent_start, &
                               j_parent_start, i_parent_end, j_parent_end, dom_dx, dom_dy, &
                               cen_lat, moad_cen_lat, cen_lon, stand_lon, truelat1, &
-                              truelat2, parent_grid_ratio, corner_lats, corner_lons, flag_in_output, num_entries)
+                              truelat2, parent_grid_ratio, corner_lats, corner_lons, output_flags, num_entries)
     
       call reset_next_field()
 
@@ -896,6 +912,8 @@ module process_domain_module
     
       call mprintf(.true.,LOGFILE,'Closing output file.')
       call output_close()
+
+      deallocate(output_flags)
    
       ! Free up memory used by met fields for this valid time
       call storage_delete_all_td()
