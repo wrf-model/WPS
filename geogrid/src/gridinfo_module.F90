@@ -115,6 +115,53 @@ module gridinfo_module
          call set_debug_level(WARN)
       end if
 
+      call mprintf(.true.,DEBUG,'Using the following namelist variables:')
+      call mprintf(.true.,DEBUG,'&SHARE')
+      call mprintf(.true.,DEBUG,'  WRF_CORE         = %s',s1=wrf_core)
+      call mprintf(.true.,DEBUG,'  MAX_DOM          = %i',i1=max_dom)
+      call mprintf(.true.,DEBUG,'  START_YEAR       = %i',i1=start_year(1))
+      call mprintf(.true.,DEBUG,'  START_MONTH      = %i',i1=start_month(1))
+      call mprintf(.true.,DEBUG,'  START_DAY        = %i',i1=start_day(1))
+      call mprintf(.true.,DEBUG,'  START_HOUR       = %i',i1=start_hour(1))
+      call mprintf(.true.,DEBUG,'  END_YEAR         = %i',i1=start_year(1))
+      call mprintf(.true.,DEBUG,'  END_MONTH        = %i',i1=start_month(1))
+      call mprintf(.true.,DEBUG,'  END_DAY          = %i',i1=start_day(1))
+      call mprintf(.true.,DEBUG,'  END_HOUR         = %i',i1=start_hour(1))
+      call mprintf(.true.,DEBUG,'  START_DATE       = %s',s1=start_date(1))
+      call mprintf(.true.,DEBUG,'  END_DATE         = %s',s1=end_date(1))
+      call mprintf(.true.,DEBUG,'  INTERVAL_SECONDS = %i',i1=interval_seconds)
+      call mprintf(.true.,DEBUG,'  IO_FORM_GEOGRID  = %i',i1=io_form_geogrid)
+      call mprintf(.true.,DEBUG,'  OPT_OUTPUT_FROM_GEOGRID_PATH = %s',s1=opt_output_from_geogrid_path)
+      if (debug_print) then
+         call mprintf(.true.,DEBUG,'  DEBUG_PRINT = .TRUE.')
+      else
+         call mprintf(.true.,DEBUG,'  DEBUG_PRINT = .FALSE.')
+      end if
+      call mprintf(.true.,DEBUG,'/')
+      call mprintf(.true.,DEBUG,'&GEOGRID')
+      call mprintf(.true.,DEBUG,'  PARENT_ID         = %i',i1=parent_id(1))
+      call mprintf(.true.,DEBUG,'  PARENT_GRID_RATIO = %i',i1=parent_grid_ratio(1))
+      call mprintf(.true.,DEBUG,'  I_PARENT_START    = %i',i1=i_parent_start(1))
+      call mprintf(.true.,DEBUG,'  J_PARENT_START    = %i',i1=j_parent_start(1))
+      call mprintf(.true.,DEBUG,'  S_WE              = %i',i1=s_we(1))
+      call mprintf(.true.,DEBUG,'  E_WE              = %i',i1=e_we(1))
+      call mprintf(.true.,DEBUG,'  S_SN              = %i',i1=s_sn(1))
+      call mprintf(.true.,DEBUG,'  E_SN              = %i',i1=e_sn(1))
+      call mprintf(.true.,DEBUG,'  GEOG_DATA_RES     = %s',s1=geog_data_res(1))
+      call mprintf(.true.,DEBUG,'  DX                = %f',f1=dx)
+      call mprintf(.true.,DEBUG,'  DY                = %f',f1=dy)
+      call mprintf(.true.,DEBUG,'  MAP_PROJ          = %s',s1=map_proj)
+      call mprintf(.true.,DEBUG,'  REF_LAT           = %f',f1=ref_lat)
+      call mprintf(.true.,DEBUG,'  REF_LON           = %f',f1=ref_lon)
+      call mprintf(.true.,DEBUG,'  REF_X             = %f',f1=ref_x)
+      call mprintf(.true.,DEBUG,'  REF_Y             = %f',f1=ref_y)
+      call mprintf(.true.,DEBUG,'  TRUELAT1          = %f',f1=truelat1)
+      call mprintf(.true.,DEBUG,'  TRUELAT2          = %f',f1=truelat2)
+      call mprintf(.true.,DEBUG,'  STAND_LON         = %f',f1=stand_lon)
+      call mprintf(.true.,DEBUG,'  GEOG_DATA_PATH    = %s',s1=geog_data_path)
+      call mprintf(.true.,DEBUG,'  OPT_GEOGRID_TBL_PATH = %s',s1=opt_geogrid_tbl_path)
+      call mprintf(.true.,DEBUG,'/')
+
       dxkm = dx
       dykm = dy
 

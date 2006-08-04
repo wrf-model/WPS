@@ -1438,7 +1438,7 @@ module process_domain_module
          p_field%header%units(1:3) = 'Pa'
          p_field%header%description = ' '
          p_field%header%description(1:8) = 'Pressure'
-         p_field%header%vertical_coord = 'num_vert_levels'
+         p_field%header%vertical_coord = 'num_metgrid_levels'
          p_field%header%array_order = 'XY '
          p_field%header%winds_rotated_on_input = .true.
          p_field%header%array_has_missing_values = .false.

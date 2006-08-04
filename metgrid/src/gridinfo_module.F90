@@ -89,6 +89,43 @@ module gridinfo_module
          call set_debug_level(WARN)
       end if
 
+      call mprintf(.true.,DEBUG,'Using the following namelist variables:')
+      call mprintf(.true.,DEBUG,'&SHARE')
+      call mprintf(.true.,DEBUG,'  WRF_CORE         = %s',s1=wrf_core)
+      call mprintf(.true.,DEBUG,'  MAX_DOM          = %i',i1=max_dom)
+      call mprintf(.true.,DEBUG,'  START_YEAR       = %i',i1=start_year(1))
+      call mprintf(.true.,DEBUG,'  START_MONTH      = %i',i1=start_month(1))
+      call mprintf(.true.,DEBUG,'  START_DAY        = %i',i1=start_day(1))
+      call mprintf(.true.,DEBUG,'  START_HOUR       = %i',i1=start_hour(1))
+      call mprintf(.true.,DEBUG,'  END_YEAR         = %i',i1=start_year(1))
+      call mprintf(.true.,DEBUG,'  END_MONTH        = %i',i1=start_month(1))
+      call mprintf(.true.,DEBUG,'  END_DAY          = %i',i1=start_day(1))
+      call mprintf(.true.,DEBUG,'  END_HOUR         = %i',i1=start_hour(1))
+      call mprintf(.true.,DEBUG,'  START_DATE       = %s',s1=start_date(1))
+      call mprintf(.true.,DEBUG,'  END_DATE         = %s',s1=end_date(1))
+      call mprintf(.true.,DEBUG,'  INTERVAL_SECONDS = %i',i1=interval_seconds)
+      call mprintf(.true.,DEBUG,'  IO_FORM_GEOGRID  = %i',i1=io_form_geogrid)
+      call mprintf(.true.,DEBUG,'  OPT_OUTPUT_FROM_GEOGRID_PATH = %s',s1=opt_output_from_geogrid_path)
+      if (debug_print) then
+         call mprintf(.true.,DEBUG,'  DEBUG_PRINT = .TRUE.')
+      else
+         call mprintf(.true.,DEBUG,'  DEBUG_PRINT = .FALSE.')
+      end if
+      call mprintf(.true.,DEBUG,'/')
+      call mprintf(.true.,DEBUG,'&METGRID')
+      call mprintf(.true.,DEBUG,'  FG_NAME               = %s',s1=fg_name(1))
+      call mprintf(.true.,DEBUG,'  CONSTANTS_NAME        = %s',s1=constants_name(1))
+      call mprintf(.true.,DEBUG,'  IO_FORM_METGRID       = %i',i1=io_form_metgrid)
+      call mprintf(.true.,DEBUG,'  OPT_OUTPUT_FROM_METGRID_PATH = %s',s1=opt_output_from_metgrid_path)
+      call mprintf(.true.,DEBUG,'  OPT_METGRID_TBL_PATH  = %s',s1=opt_metgrid_tbl_path)
+      if (opt_ignore_dom_center) then
+         call mprintf(.true.,DEBUG,'  OPT_IGNORE_DOM_CENTER = .TRUE.')
+      else
+         call mprintf(.true.,DEBUG,'  OPT_IGNORE_DOM_CENTER = .FALSE.')
+      end if
+      call mprintf(.true.,DEBUG,'/')
+
+
       ! Convert wrf_core to uppercase letters
       do i=1,3
          if (ichar(wrf_core(i:i)) >= 97) wrf_core(i:i) = char(ichar(wrf_core(i:i))-32)

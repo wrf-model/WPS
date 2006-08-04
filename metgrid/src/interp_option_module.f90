@@ -99,7 +99,7 @@ module interp_option_module
          fieldname(i) = ' '
          flag_in_output(i) = ' '
          from_input(i) = '*'
-         z_dim_name(i) = 'num_vert_levels'
+         z_dim_name(i) = 'num_metgrid_levels'
          interp_method(i) = 'nearest_neighbor'
          v_interp_method(i) = 'linear_log_p'
          masked(i) = -1

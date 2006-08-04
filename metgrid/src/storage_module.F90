@@ -414,9 +414,7 @@ call mprintf(.true.,WARN,'PLEASE REPORT THIS BUG TO THE DEVELOPER!')
             dim_names(3) = ' '
          else
             mem_order = 'XYZ' 
-!!!!! BUG: how do we get the third dimension name? !!!!!
             if (is_time_dependent(next_output_field%fg_data)) then
-!               write(dim_names(3), '(a15)') 'num_vert_levels'
                dim_names(3) = ' '
                dim_names(3)(1:32) = next_output_field%fg_data%header%vertical_coord
             else
