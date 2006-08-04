@@ -614,9 +614,8 @@ module process_domain_module
                      end if
                   end if
       
-                  ! U field must be interpolated to U staggering for C grid, V staggering for E grid
-                  if ((index(field%header%field, 'U') /= 0) .and. &
-                      (len_trim(field%header%field) == 1)) then
+                  ! Interpolate to U staggering
+                  if (output_stagger(idx) == U) then
    
                      call storage_query_field(field, iqstatus)
                      if (iqstatus == 0) then
@@ -632,25 +631,17 @@ module process_domain_module
                      end if
       
                      ! Save a copy of the fg_input structure for the U field so that we can find it later
-                     call dup(field, u_field)
+                     if (is_u_field(idx)) call dup(field, u_field)
    
                      allocate(field%modified_mask)
                      call bitarray_create(field%modified_mask, we_mem_stag_e-we_mem_stag_s+1, sn_mem_e-sn_mem_s+1)
    
-                     if (gridtype == 'C') then
-                        call interp_met_field(gridtype, input_name, short_fieldnm, U, &
-                                     field, xlat_u, xlon_u, we_mem_stag_s, we_mem_stag_e, sn_mem_s, sn_mem_e, &
-                                     slab, nx, ny, do_gcell_interp, field%modified_mask)
+                     call interp_met_field(gridtype, input_name, short_fieldnm, U, &
+                                  field, xlat_u, xlon_u, we_mem_stag_s, we_mem_stag_e, sn_mem_s, sn_mem_e, &
+                                  slab, nx, ny, do_gcell_interp, field%modified_mask)
    
-                     else if (gridtype == 'E') then
-                        call interp_met_field(gridtype, input_name, short_fieldnm, VV, &
-                                     field, xlat_v, xlon_v, we_mem_stag_s, we_mem_stag_e, sn_mem_s, sn_mem_e, &
-                                     slab, nx, ny, do_gcell_interp, field%modified_mask)
-                     end if
-   
-                  ! V field must be interpolated to V staggering for C grid, V staggering for E grid
-                  else if ((index(field%header%field, 'V') /= 0) .and. &
-                      (len_trim(field%header%field) == 1)) then
+                  ! Interpolate to V staggering
+                  else if (output_stagger(idx) == V) then
    
                      call storage_query_field(field, iqstatus)
                      if (iqstatus == 0) then
@@ -666,22 +657,44 @@ module process_domain_module
                      end if
       
                      ! Save a copy of the fg_input structure for the V field so that we can find it later
-                     call dup(field, v_field)
+                     if (is_v_field(idx)) call dup(field, v_field)
    
                      allocate(field%modified_mask)
                      call bitarray_create(field%modified_mask, we_mem_e-we_mem_s+1, sn_mem_stag_e-sn_mem_stag_s+1)
    
-                     if (gridtype == 'C') then
-                        call interp_met_field(gridtype, input_name, short_fieldnm, V, &
-                                     field, xlat_v, xlon_v, we_mem_s, we_mem_e, sn_mem_stag_s, sn_mem_stag_e, &
-                                     slab, nx, ny, do_gcell_interp, field%modified_mask)
-   
-                     else if (gridtype == 'E') then
-                        call interp_met_field(gridtype, input_name, short_fieldnm, VV, &
-                                     field, xlat_v, xlon_v, we_mem_s, we_mem_e, sn_mem_stag_s, sn_mem_stag_e, &
-                                     slab, nx, ny, do_gcell_interp, field%modified_mask)
-                     end if
+                     call interp_met_field(gridtype, input_name, short_fieldnm, V, &
+                                  field, xlat_v, xlon_v, we_mem_s, we_mem_e, sn_mem_stag_s, sn_mem_stag_e, &
+                                  slab, nx, ny, do_gcell_interp, field%modified_mask)
              
+                  ! Interpolate to VV staggering
+                  else if (output_stagger(idx) == VV) then
+   
+                     call storage_query_field(field, iqstatus)
+                     if (iqstatus == 0) then
+                        call storage_get_field(field, iqstatus)
+                        call mprintf((iqstatus /= 0),ERROR,'Queried field %s at level %i and found it, but could not get data.',s1=short_fieldnm,i1=nint(xlvl))
+                        if (associated(field%modified_mask)) then
+                           call bitarray_destroy(field%modified_mask)
+                           nullify(field%modified_mask)
+                        end if
+                     else
+                        allocate(field%valid_mask)
+                        call bitarray_create(field%valid_mask, we_mem_e-we_mem_s+1, sn_mem_e-sn_mem_s+1)
+                     end if
+      
+                     ! Save a copy of the fg_input structure for the U field so that we can find it later
+                     if (is_u_field(idx)) call dup(field, u_field)
+
+                     ! Save a copy of the fg_input structure for the V field so that we can find it later
+                     if (is_v_field(idx)) call dup(field, v_field)
+   
+                     allocate(field%modified_mask)
+                     call bitarray_create(field%modified_mask, we_mem_e-we_mem_s+1, sn_mem_e-sn_mem_s+1)
+   
+                     call interp_met_field(gridtype, input_name, short_fieldnm, VV, &
+                                  field, xlat_v, xlon_v, we_mem_s, we_mem_e, sn_mem_s, sn_mem_e, &
+                                  slab, nx, ny, do_gcell_interp, field%modified_mask)
+   
                   ! All other fields interpolated to M staggering for C grid, H staggering for E grid
                   else
    

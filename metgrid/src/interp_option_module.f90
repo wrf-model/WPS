@@ -347,6 +347,8 @@ module interp_option_module
    
          end if
       end do
+
+      call check_table_specs()
    
       close(funit)
    
@@ -358,6 +360,57 @@ module interp_option_module
    1001 call mprintf(.true.,ERROR,'Could not open file METGRID.TBL')
 
    end subroutine read_interp_table
+
+
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   ! Name: check_table_specs
+   !
+   ! Pupose: Perform basic consistency and sanity checks on the METGRID.TBL
+   !         entries supplied by the user.
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   subroutine check_table_specs()
+
+      implicit none
+
+      ! Local variables
+      integer :: i
+
+      do i=1,num_entries
+         
+         ! For C grid, U field must be on U staggering, and V field must be on 
+         !   V staggering; for E grid, U and V must be on VV staggering.
+         if (gridtype == 'C') then
+            if (is_u_field(i) .and. output_stagger(i) /= U) then
+               call mprintf(.true.,ERROR,'In entry %i of METGRID.TBL, the wind U-component field must be interpolated to the U staggered grid points.',i1=i)
+            else if (is_v_field(i) .and. output_stagger(i) /= V) then 
+               call mprintf(.true.,ERROR,'In entry %i of METGRID.TBL, the wind V-component field must be interpolated to the V staggered grid points.',i1=i)
+            end if
+
+            if (output_stagger(i) == VV) then
+               call mprintf(.true.,ERROR,'In entry %i of METGRID.TBL, VV is not a valid output staggering for ARW.',i1=i)
+            else if (output_stagger(i) == HH) then
+               call mprintf(.true.,ERROR,'In entry %i of METGRID.TBL, HH is not a valid output staggering for ARW.',i1=i)
+            end if
+
+         else if (gridtype == 'E') then
+            if (is_u_field(i) .and. output_stagger(i) /= VV) then
+               call mprintf(.true.,ERROR,'In entry %i of METGRID.TBL, the wind U-component field must be interpolated to the V staggered grid points.',i1=i)
+            else if (is_v_field(i) .and. output_stagger(i) /= VV) then 
+               call mprintf(.true.,ERROR,'In entry %i of METGRID.TBL, the wind V-component field must be interpolated to the V staggered grid points.',i1=i)
+            end if
+
+            if (output_stagger(i) == M) then
+               call mprintf(.true.,ERROR,'In entry %i of METGRID.TBL, M is not a valid output staggering for NMM.',i1=i)
+            else if (output_stagger(i) == U) then
+               call mprintf(.true.,ERROR,'In entry %i of METGRID.TBL, U is not a valid output staggering for NMM.',i1=i)
+            else if (output_stagger(i) == V) then
+               call mprintf(.true.,ERROR,'In entry %i of METGRID.TBL, V is not a valid output staggering for NMM.',i1=i)
+            end if
+         end if
+
+      end do
+
+   end subroutine check_table_specs
 
 
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
