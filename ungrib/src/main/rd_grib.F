@@ -83,7 +83,7 @@ SUBROUTINE rd_grib(IUNIT, gribflnm, level, field, hdate,  &
   integer :: fcst
   real :: level
   character(LEN=*) :: field
-  character(LEN=20) :: gribflnm
+  character(LEN=132) :: gribflnm
   integer, dimension(255) :: iuarr
   integer :: ierr, iostat, nunit
   integer :: i, lvl2, lvl1

@@ -64,7 +64,7 @@ program grib_prep
   implicit none
 
   integer :: nunit1 = 12
-  character(LEN=20) :: gribflnm = 'GRIBFILE.AAA        '    ! won't work with len=12
+  character(LEN=132) :: gribflnm = 'GRIBFILE.AAA        '    ! won't work with len=12
 
   integer :: iprint
 

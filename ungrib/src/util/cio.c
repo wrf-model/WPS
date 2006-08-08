@@ -16,8 +16,8 @@
 
 #endif
 
-/* length of the char string from the fortran file is 20, plus one for null terminator */
-#define FORT_FILE_LEN 21
+/* length of the char string from the fortran file is 132, plus one for null terminator */
+#define FORT_FILE_LEN 133
 
 #if defined (SGI) || defined (SOLARIS) || defined (SUN) || defined (DEC) || defined (ALPHA) || defined (_UNDERSCORE) || defined (LINUX)
 
