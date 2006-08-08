@@ -336,8 +336,8 @@ module output_module
             ep2_stag = ep2
          end if
       else if (grid_type == 'E') then
-         ep1 = ep1 + 1
-         ep2 = ep2 + 1
+         ep1 = ep1
+         ep2 = ep2
          ep1_stag = ep1
          ep2_stag = ep2
       end if
