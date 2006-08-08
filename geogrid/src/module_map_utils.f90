@@ -280,6 +280,18 @@ MODULE map_utils
             PRINT '(A)', ' truelat1, lat1, lon1, knonwi, knownj, stdlon, dx'
             STOP 'MAP_INIT'
          END IF
+      ELSE IF ( proj_code == PROJ_PS_WGS84 ) THEN
+         IF ( .NOT.PRESENT(truelat1) .OR. &
+              .NOT.PRESENT(lat1) .OR. &
+              .NOT.PRESENT(lon1) .OR. &
+              .NOT.PRESENT(knowni) .OR. &
+              .NOT.PRESENT(knownj) .OR. &
+              .NOT.PRESENT(stdlon) .OR. &
+              .NOT.PRESENT(dx) ) THEN
+            PRINT '(A,I2)', 'The following are mandatory parameters for projection code : ', proj_code
+            PRINT '(A)', ' truelat1, lat1, lon1, knonwi, knownj, stdlon, dx'
+            STOP 'MAP_INIT'
+         END IF
       ELSE IF ( proj_code == PROJ_MERC ) THEN
          IF ( .NOT.PRESENT(truelat1) .OR. &
               .NOT.PRESENT(lat1) .OR. &
@@ -405,7 +417,7 @@ MODULE map_utils
   
       IF ( PRESENT(dx) ) THEN 
          IF ( (proj_code == PROJ_LC) .OR. (proj_code == PROJ_PS) .OR. &
-              (proj_code == PROJ_MERC) ) THEN
+              (proj_code == PROJ_PS_WGS84) .OR. (proj_code == PROJ_MERC) ) THEN
             proj%dx = dx
             IF (truelat1 .LT. 0.) THEN
                proj%hemi = -1.0 
@@ -420,6 +432,9 @@ MODULE map_utils
   
          CASE(PROJ_PS)
             CALL set_ps(proj)
+
+         CASE(PROJ_PS_WGS84)
+            CALL set_ps_wgs84(proj)
    
          CASE(PROJ_LC)
             IF (ABS(proj%truelat2) .GT. 90.) THEN
@@ -473,6 +488,9 @@ MODULE map_utils
    
          CASE(PROJ_PS)
             CALL llij_ps(lat,lon,proj,i,j)
+
+         CASE(PROJ_PS_WGS84)
+            CALL llij_ps_wgs84(lat,lon,proj,i,j)
          
          CASE(PROJ_LC)
             CALL llij_lc(lat,lon,proj,i,j)
@@ -519,6 +537,10 @@ MODULE map_utils
    
          CASE (PROJ_PS)
             CALL ijll_ps(i, j, proj, lat, lon)
+
+         CASE (PROJ_PS_WGS84)
+            write(6,*) 'ijll_ps_wgs84: Not yet implemented!'
+            stop
    
          CASE (PROJ_LC)
             CALL ijll_lc(i, j, proj, lat, lon)
@@ -676,6 +698,79 @@ MODULE map_utils
       RETURN
    
    END SUBROUTINE ijll_ps
+
+
+   SUBROUTINE set_ps_wgs84(proj)
+      ! Initializes a polar-stereographic map projection (WGS84 ellipsoid) 
+      ! from the partially filled proj structure. This routine computes the 
+      ! radius to the southwest corner and computes the i/j location of the 
+      ! pole for use in llij_ps and ijll_ps.
+
+      IMPLICIT NONE
+   
+      ! Arguments
+      TYPE(proj_info), INTENT(INOUT)    :: proj
+  
+      ! Local variables
+      real :: h, mc, tc, t, rho
+
+      h = proj%hemi
+
+      mc = cos(h*proj%truelat1*rad_per_deg)/sqrt(1.0-(E_WGS84*sin(h*proj%truelat1*rad_per_deg))**2.0)
+      tc = sqrt(((1.0-sin(h*proj%truelat1*rad_per_deg))/(1.0+sin(h*proj%truelat1*rad_per_deg)))* &
+                (((1.0+E_WGS84*sin(h*proj%truelat1*rad_per_deg))/(1.0-E_WGS84*sin(h*proj%truelat1*rad_per_deg)))**E_WGS84 ))
+
+      ! Find the i/j location of reference lat/lon with respect to the pole of the projection
+      t = sqrt(((1.0-sin(h*proj%lat1*rad_per_deg))/(1.0+sin(h*proj%lat1*rad_per_deg)))* &
+               (((1.0+E_WGS84*sin(h*proj%lat1*rad_per_deg))/(1.0-E_WGS84*sin(h*proj%lat1*rad_per_deg)) )**E_WGS84 ) )
+      rho = h * (A_WGS84 / proj%dx) * mc * t / tc
+      proj%polei = rho * sin((h*proj%lon1 - h*proj%stdlon)*rad_per_deg)
+      proj%polej = -rho * cos((h*proj%lon1 - h*proj%stdlon)*rad_per_deg)
+
+      RETURN
+
+   END SUBROUTINE set_ps_wgs84
+
+
+   SUBROUTINE llij_ps_wgs84(lat,lon,proj,i,j)
+      ! Given latitude (-90 to 90), longitude (-180 to 180), and the
+      ! standard polar-stereographic projection information via the 
+      ! public proj structure, this routine returns the i/j indices which
+      ! if within the domain range from 1->nx and 1->ny, respectively.
+  
+      IMPLICIT NONE
+  
+      ! Arguments
+      REAL, INTENT(IN)               :: lat
+      REAL, INTENT(IN)               :: lon
+      REAL, INTENT(OUT)              :: i !(x-index)
+      REAL, INTENT(OUT)              :: j !(y-index)
+      TYPE(proj_info),INTENT(IN)     :: proj
+  
+      ! Local variables
+      real :: h, mc, tc, t, rho
+
+      h = proj%hemi
+
+      mc = cos(h*proj%truelat1*rad_per_deg)/sqrt(1.0-(E_WGS84*sin(h*proj%truelat1*rad_per_deg))**2.0)
+      tc = sqrt(((1.0-sin(h*proj%truelat1*rad_per_deg))/(1.0+sin(h*proj%truelat1*rad_per_deg)))* &
+                (((1.0+E_WGS84*sin(h*proj%truelat1*rad_per_deg))/(1.0-E_WGS84*sin(h*proj%truelat1*rad_per_deg)))**E_WGS84 ))
+
+      t = sqrt(((1.0-sin(h*lat*rad_per_deg))/(1.0+sin(h*lat*rad_per_deg)))* &
+               (((1.0+E_WGS84*sin(h*lat*rad_per_deg))/(1.0-E_WGS84*sin(h*lat*rad_per_deg)))**E_WGS84))
+
+      ! Find the x/y location of the requested lat/lon with respect to the pole of the projection
+      rho = h * (A_WGS84 / proj%dx) * mc * t / tc
+      i = rho * sin((h*lon - h*proj%stdlon)*rad_per_deg)
+      j = -rho * cos((h*lon - h*proj%stdlon)*rad_per_deg)
+
+      ! Get i/j relative to reference i/j
+      i = proj%knowni + (i - proj%polei)
+      j = proj%knownj + (j - proj%polej)
+  
+      RETURN
+
+   END SUBROUTINE llij_ps_wgs84
 
 
    SUBROUTINE set_lc(proj)

@@ -634,7 +634,12 @@ module source_data_module
                      if (index('lambert',trim(buffer(i+1:eos-1))) /= 0) then
                         is_proj(idx) = .true.
                         source_proj(idx) = PROJ_LC
-                     else if (index('polar',trim(buffer(i+1:eos-1))) /= 0) then
+                     else if (index('polar_wgs84',trim(buffer(i+1:eos-1))) /= 0 .and. &
+                              len_trim('polar_wgs84') == len_trim(buffer(i+1:eos-1))) then
+                        is_proj(idx) = .true.
+                        source_proj(idx) = PROJ_PS_WGS84
+                     else if (index('polar',trim(buffer(i+1:eos-1))) /= 0 .and. &
+                              len_trim('polar') == len_trim(buffer(i+1:eos-1))) then
                         is_proj(idx) = .true.
                         source_proj(idx) = PROJ_PS
                      else if (index('mercator',trim(buffer(i+1:eos-1))) /= 0) then
