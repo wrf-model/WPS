@@ -1071,7 +1071,7 @@ module process_domain_module
       end do
       idx = idxt
       if (idx > num_entries) then
-         call mprintf(.true.,INFORM,'Entry in METGRID.TBL not found for field %s. '// &
+         call mprintf(.true.,WARN,'Entry in METGRID.TBL not found for field %s. '// &
                       'Default options will be used for this field!', s1=short_fieldnm)
          idx = num_entries ! The last entry is a default
       end if
