@@ -243,10 +243,14 @@ name=T
 ========================================
 name=U
         interp_option=sixteen_pt+four_pt+average_4pt
+        is_u_field=yes
+        output_stagger=U
         fill_missing=0.
 ========================================
 name=V
         interp_option=sixteen_pt+four_pt+average_4pt
+        is_v_field=yes
+        output_stagger=V
         fill_missing=0.
 ========================================
 name=SST
