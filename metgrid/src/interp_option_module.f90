@@ -392,6 +392,10 @@ module interp_option_module
                call mprintf(.true.,ERROR,'In entry %i of METGRID.TBL, HH is not a valid output staggering for ARW.',i1=i)
             end if
 
+            if (masked(i) /= -1 .and. output_stagger(i) /= M) then
+               call mprintf(.true.,ERROR,'In entry %i of METGRID.TBL, staggered output field cannot use the ''masked'' option.',i1=i)
+            end if
+
          else if (gridtype == 'E') then
             if (is_u_field(i) .and. output_stagger(i) /= VV) then
                call mprintf(.true.,ERROR,'In entry %i of METGRID.TBL, the wind U-component field must be interpolated to the V staggered grid points.',i1=i)
@@ -405,6 +409,10 @@ module interp_option_module
                call mprintf(.true.,ERROR,'In entry %i of METGRID.TBL, U is not a valid output staggering for NMM.',i1=i)
             else if (output_stagger(i) == V) then
                call mprintf(.true.,ERROR,'In entry %i of METGRID.TBL, V is not a valid output staggering for NMM.',i1=i)
+            end if
+
+            if (masked(i) /= -1 .and. output_stagger(i) /= HH) then
+               call mprintf(.true.,ERROR,'In entry %i of METGRID.TBL, staggered output field cannot use the ''masked'' option.',i1=i)
             end if
          end if
 
