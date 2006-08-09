@@ -9,7 +9,7 @@ LDFLAGS		=
 CC		=	cc
 SCC		=	cc
 CFLAGS		=	
-CPP		=	/usr/bin/cpp -C -P -traditional
+CPP		=	/usr/local/bin/cpp -C -P -traditional
 CPPFLAGS	=	-DAIX -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -DBIT32
 ARFLAGS		=	-X64
 
@@ -24,7 +24,7 @@ LDFLAGS		=
 CC		=	mpcc_r
 SCC		=	cc
 CFLAGS		=	
-CPP		=	/usr/bin/cpp -C -P -traditional
+CPP		=	/usr/local/bin/cpp -C -P -traditional
 CPPFLAGS	=	-DAIX -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -D_MPI -DBIT32
 ARFLAGS		=	-X64
 
