@@ -1,0 +1,36 @@
+GRIB1| Level| From |  To  | UNGRIB   |  UNGRIB  | UNGRIB                                  |GRIB2|GRIB2|GRIB2|GRIB2|
+Param| Type |Level1|Level2| Name     |  Units   | Description                             |Discp|Catgy|Param|Level|
+-----+------+------+------+----------+----------+-----------------------------------------+-----------------------+
+   1 | 109  |   *  |      | PRESSURE | Pa       | Pressure                                |
+     | 109  |   *  |      | T        | K        | Temperature                             |
+ 189 | 109  |   *  |      | VPTMP    | K        |                                         |
+  33 | 109  |   *  |      | U        | m s{-1}  | U                                       |
+  34 | 109  |   *  |      | V        | m s{-1}  | V                                       |
+     | 109  |   *  |      | RH       | %        | Relative Humidity                       |
+  53 | 109  |   *  |      | SPECHUMD | kg kg{-1}|                                         |
+  7  | 109  |   *  |      | HGT      | m        | Height                                  |
+ 129 | 102  |   0  |      | PMSL     | Pa       | Sea-level Pressure                      |
+  65 |  1   |   0  |      | WEASD    | kg m{-2} | Water Equivalent Snow Depth             |
+  66 |  1   |   0  |      | SNOW     | kg m{-2} | Snow Depth                              |
+  11 |  1   |   0  |      | SKINTEMP | K        | Skin Temperature                        |
+  11 | 105  |   2  |      | T        | K        | Temperature                             |
+     | 105  |   2  |      | RH       | %        | Relative Humidity                       |
+  53 | 105  |   2  |      | SPECHUMD | kg kg{-1}|                                         |
+  33 | 105  |  10  |      | U        | m s{-1}  | U                                       |
+  34 | 105  |  10  |      | V        | m s{-1}  | V                                       |
+ 144 |   1  |   0  |      | SOILM000 | kg m-3   | Soil Moist   0 cm below ground          |  2  |  0  | 192 | 106 |
+ 144 | 111  |   5  |      | SOILM005 | kg m-3   | Soil Moist   5 cm below ground          |  2  |  0  | 192 | 106 |
+ 144 | 111  |  20  |      | SOILM020 | kg m-3   | Soil Moist  20 cm below ground          |  2  |  0  | 192 | 106 |
+ 144 | 111  |  40  |      | SOILM040 | kg m-3   | Soil Moist  40 cm below ground          |  2  |  0  | 192 | 106 |
+ 144 | 111  | 160  |      | SOILM160 | kg m-3   | Soil Moist 160 cm below ground          |  2  |  0  | 192 | 106 |
+ 144 | 111  | 300  |      | SOILM300 | kg m-3   | Soil Moist 300 cm below ground          |  2  |  0  | 192 | 106 |
+  85 |   1  |   0  |      | SOILT000 | K        | Soil Temp    0 cm below ground          |  2  |  0  |  2  | 106 |
+  85 | 111  |   5  |      | SOILT005 | K        | Soil Temp    5 cm below ground          |  2  |  0  |  2  | 106 |
+  85 | 111  |  20  |      | SOILT020 | K        | Soil Temp   20 cm below ground          |  2  |  0  |  2  | 106 |
+  85 | 111  |  40  |      | SOILT040 | K        | Soil Temp   40 cm below ground          |  2  |  0  |  2  | 106 |
+  85 | 111  | 160  |      | SOILT160 | K        | Soil Temp  160 cm below ground          |  2  |  0  |  2  | 106 |
+  85 | 111  | 300  |      | SOILT300 | K        | Soil Temp  300 cm below ground          |  2  |  0  |  2  | 106 |
+ 223 |   1  |   0  |      | CANWAT   | kg m-2   | Plant Canopy Surface Water              |  2  |  0  | 196 |   1 |
+ 224 |   1  |   0  |      | SOILCAT  | Tab4.213 | Dominant soil type category             |  2  |  2  |  0  |   1 |
+ 225 |   1  |   0  |      | VEGCAT   | Tab4.212 | Dominant land use category              |  2  |  0  |  8  |   1 |
+-----+------+------+------+----------+----------+-----------------------------------------+-----------------------+
