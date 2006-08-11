@@ -117,6 +117,38 @@ CPP		=	/lib/cpp -C -P -traditional
 CPPFLAGS	=	-D_UNDERSCORE -DBYTESWAP -DLINUX -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -D_MPI -DBIT32
 
 ###########################################################
+#ARCH    PC Linux x86_64 (IA64 and Opteron), PGI compiler 5.2 or higher, serial
+#
+FC		=	pgf90
+SFC		=	pgf90
+FFLAGS		=	-Mfree -byteswapio -O
+F77FLAGS	=	-byteswapio -O
+LDFLAGS		=	
+CC		=	pgcc
+SCC		=	pgcc
+CFLAGS		=	-O
+CPP		=	/lib/cpp -C -P -traditional
+CPPFLAGS	=	-D_UNDERSCORE -DBYTESWAP -DLINUX -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -DBIT64
+NCARG_LIBS2	=	-L${PGI}/linux86-64/5.2/lib -lpgftnrtl -lpgc \
+			-L/usr/lib64 -lg2c
+
+###########################################################
+#ARCH    PC Linux x86_64 (IA64 and Opteron), PGI compiler 5.2 or higher, DM parallel
+#
+FC		=	mpif90 -f90=pgf90
+SFC		=	pgf90
+FFLAGS		=	-Mfree -byteswapio -O
+F77FLAGS	=	-byteswapio -O
+LDFLAGS		=	
+CC		=	mpicc -cc=pgcc
+SCC		=	pgcc
+CFLAGS		=	-O
+CPP		=	/lib/cpp -C -P -traditional
+CPPFLAGS	=	-D_UNDERSCORE -DBYTESWAP -DLINUX -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -D_MPI -DBIT64
+NCARG_LIBS2	=	-L${PGI}/linux86-64/5.2/lib -lpgftnrtl -lpgc \
+			-L/usr/lib64 -lg2c
+
+###########################################################
 #ARCH	SGI 64 bit IRIX64	serial
 #
 FC		=	f90
