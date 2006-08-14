@@ -95,6 +95,11 @@ module storage_module
          name_cursor%next => head
          if (.not. associated(head)) tail => name_cursor
          head => name_cursor
+      else
+         if ((name_cursor%fg_data%header%time_dependent .and. .not. store_me%header%time_dependent) .or. &
+             (.not. name_cursor%fg_data%header%time_dependent .and. store_me%header%time_dependent)) then
+            call mprintf(.true.,ERROR,'Cannot combine time-independent data with time-dependent data for field %s',s1=store_me%header%field)
+         end if
       end if
 
       ! At this point, name_cursor points to a valid head node for fieldname

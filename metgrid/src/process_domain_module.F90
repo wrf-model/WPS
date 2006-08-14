@@ -11,6 +11,7 @@ module process_domain_module
    
       use date_pack
       use gridinfo_module
+      use interp_option_module
       use misc_definitions_module
       use module_debug
       use storage_module
@@ -22,7 +23,7 @@ module process_domain_module
       logical, intent(in) :: extra_row, extra_col
    
       ! Local variables
-      integer :: t, dyn_opt, &
+      integer :: i, t, dyn_opt, &
                  we_dom_s, we_dom_e, sn_dom_s, sn_dom_e, &
                  we_patch_s, we_patch_e, we_patch_stag_s, we_patch_stag_e, &
                  sn_patch_s, sn_patch_e, sn_patch_stag_s, sn_patch_stag_e, &
@@ -40,7 +41,8 @@ module process_domain_module
       real, pointer, dimension(:,:) :: xlat, xlon, xlat_u, xlon_u, xlat_v, xlon_v
       character (len=19) :: valid_date, temp_date
       character (len=128) :: cname, stagger, cunits, cdesc, title
-   
+      character (len=128), pointer, dimension(:) :: output_flags, td_output_flags
+
       ! Compute number of times that we will process
       call geth_idts(end_date(n), start_date(n), idiff)
       call mprintf((idiff < 0),ERROR,'Ending date is earlier than starting date in namelist for domain %i.', i1=n)
@@ -73,6 +75,11 @@ module process_domain_module
                     parent_grid_ratio, cen_lat, moad_cen_lat, cen_lon, stand_lon, truelat1, truelat2, &
                     dom_dx, dom_dy, landmask, xlat, xlon, xlat_u, xlon_u, xlat_v, xlon_v, corner_lats, &
                     corner_lons, title)
+
+      allocate(output_flags(num_entries))
+      do i=1,num_entries
+         output_flags(i) = ' '
+      end do
    
       ! This call is to process the constant met fields (SST or SEAICE, for example)
       ! That we process constant fields is indicated by the first argument
@@ -88,7 +95,7 @@ module process_domain_module
                           map_proj, is_water, is_ice, grid_id, parent_id, i_parent_start, &
                           j_parent_start, i_parent_end, j_parent_end, dom_dx, dom_dy, &
                           cen_lat, moad_cen_lat, cen_lon, stand_lon, truelat1, &
-                          truelat2, parent_grid_ratio, corner_lats, corner_lons)
+                          truelat2, parent_grid_ratio, corner_lats, corner_lons, output_flags)
 
       !
       ! Begin time-dependent processing
@@ -104,6 +111,11 @@ module process_domain_module
          call mprintf(.true.,STDOUT, ' Processing %s', s1=trim(temp_date))
          call mprintf(.true.,LOGFILE, 'Preparing to process output time %s', s1=temp_date)
    
+         allocate(td_output_flags(num_entries))
+         do i=1,num_entries
+            td_output_flags(i) = output_flags(i)
+         end do
+   
          call process_single_met_time(.false., temp_date, n, extra_row, extra_col, xlat, xlon, &
                              xlat_u, xlon_u, xlat_v, xlon_v, landmask, &
                              title, dyn_opt, &
@@ -116,9 +128,13 @@ module process_domain_module
                              map_proj, is_water, is_ice, grid_id, parent_id, i_parent_start, &
                              j_parent_start, i_parent_end, j_parent_end, dom_dx, dom_dy, &
                              cen_lat, moad_cen_lat, cen_lon, stand_lon, truelat1, &
-                             truelat2, parent_grid_ratio, corner_lats, corner_lons)
+                             truelat2, parent_grid_ratio, corner_lats, corner_lons, td_output_flags)
+
+         deallocate(td_output_flags)
    
       end do  ! Loop over n_times
+
+      deallocate(output_flags)
    
       call storage_delete_all()
    
@@ -432,7 +448,7 @@ module process_domain_module
                              map_proj, is_water, is_ice, grid_id, parent_id, i_parent_start, &
                              j_parent_start, i_parent_end, j_parent_end, dom_dx, dom_dy, &
                              cen_lat, moad_cen_lat, cen_lon, stand_lon, truelat1, &
-                             truelat2, parent_grid_ratio, corner_lats, corner_lons)
+                             truelat2, parent_grid_ratio, corner_lats, corner_lons, output_flags)
    
       use bitarray_module
       use gridinfo_module
@@ -465,6 +481,7 @@ module process_domain_module
       real, pointer, dimension(:,:) :: xlat, xlon, xlat_u, xlon_u, xlat_v, xlon_v
       logical, intent(in) :: extra_row, extra_col
       character (len=19), intent(in) :: temp_date
+      character (len=128), pointer, dimension(:) :: output_flags
    
       ! Local variables
       integer :: istatus, iqstatus, fg_idx, idx, idxt, i, j, bottom_top_dim, &
@@ -489,14 +506,8 @@ module process_domain_module
       character (len=46) :: desc
       character (len=128) :: cname, title, input_name
       character (len=128), dimension(3) :: dimnames
-      character (len=128), pointer, dimension(:) :: output_flags
       type (fg_input) :: field, u_field, v_field
 
-      allocate(output_flags(num_entries))
-      do i=1,num_entries
-         output_flags(i) = ' '
-      end do
-   
       ! For this time, we need to process all first-guess filename roots. When we 
       !   hit a root containing a '*', we assume we have hit the end of the list
       fg_idx = 1
@@ -926,8 +937,6 @@ module process_domain_module
       call mprintf(.true.,LOGFILE,'Closing output file.')
       call output_close()
 
-      deallocate(output_flags)
-   
       ! Free up memory used by met fields for this valid time
       call storage_delete_all_td()
    
