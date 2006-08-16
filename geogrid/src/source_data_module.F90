@@ -2122,8 +2122,8 @@ module source_data_module
             read(interp_opt(p1+1:p2-1),*,err=1000) threshold
          else
             call mprintf(.true., WARN, 'Problem with specified threshold '// &
-                         'for average_gcell interp option. Setting threshold to 1.0.')
-            threshold = 1.0
+                         'for average_gcell interp option. Setting threshold to 0.0.')
+            threshold = 0.0
          end if
       end if
       istatus = 0
