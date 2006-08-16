@@ -329,7 +329,7 @@ module process_tile_module
       !
       call get_landmask_field(landmask_name, is_water_mask, landmask_value, istatus)
       if (istatus /= 0) then
-         call mprintf(.true.,WARN,' No field specified for landmask calculation. Will set landmask=1 at every grid point.')
+         call mprintf(.true.,WARN,'No field specified for landmask calculation. Will set landmask=1 at every grid point.')
      
          allocate(landmask(start_mem_i:end_mem_i, start_mem_j:end_mem_j))
          landmask = 1
@@ -1171,13 +1171,13 @@ module process_tile_module
                         if (data_count(i,j,k) > 0.) then
                            field(i,j,k) = field(i,j,k) / data_count(i,j,k)
                         else
-                           if (bitarray_test(level_domain, i, j)) then
+                           if (.not.bitarray_test(processed_domain, i-start_i+1, j-start_j+1)) then
                               field(i,j,k) = msg_fill_val
                            end if
                         end if
                      end do
                   else
-                     if (bitarray_test(level_domain, i, j)) then
+                     if (.not.bitarray_test(processed_domain, i-start_i+1, j-start_j+1)) then
                         do k=start_k,end_k
                            field(i,j,k) = msg_fill_val
                         end do
@@ -1192,7 +1192,7 @@ module process_tile_module
                      if (data_count(i,j,k) > 0.) then
                         field(i,j,k) = field(i,j,k) / data_count(i,j,k)
                      else
-                        if (bitarray_test(level_domain, i, j)) then
+                        if (.not.bitarray_test(processed_domain, i-start_i+1, j-start_j+1)) then
                            field(i,j,k) = msg_fill_val
                         end if
                      end if
