@@ -67,7 +67,7 @@ int SUB_NAME(char *data,g2int *width,g2int *height,g2int *nbits,char *pngbuf)
     g2int j,bytes,pnglen,bit_depth;
     png_structp png_ptr;
     png_infop info_ptr;
-//    png_bytep *row_pointers[*height];
+/*    png_bytep *row_pointers[*height]; */
     png_bytep **row_pointers;
     png_stream write_io_ptr;
 
