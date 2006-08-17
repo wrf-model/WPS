@@ -40,7 +40,7 @@ subroutine file_delete(hdates, ndates, root, interval)
   end if
 
   write(*, '(/,10("*"), /, &
-       &    "Deleting temporary files created by grib_prep...",/, &
+       &    "Deleting temporary files created by ungrib...",/, &
        &    10("*")/)')
 
   do idate = 1, ndates

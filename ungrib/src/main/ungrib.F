@@ -54,7 +54,7 @@
 ! the date and hour, i.e., "FILE:YYYY-MM-DD_HH"                               !
 !                                                                             !
 !*****************************************************************************!
-program grib_prep
+program ungrib
 
   use table
   use gridinfo
@@ -374,4 +374,4 @@ contains
     endif
   end subroutine sort_filedates
 
-end program grib_prep
+end program ungrib

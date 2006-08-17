@@ -144,6 +144,8 @@ SUBROUTINE rd_grib(IUNIT, gribflnm, level, field, hdate,  &
       map%source = 'NCEP Eta Model'
     elseif (iprocess.eq.96) then
       map%source = 'NCEP Avn Model'
+    elseif (iprocess.eq.140) then
+      map%source = 'NARR'
     else
       map%source = 'unknown model from NCEP'
     end if
@@ -300,8 +302,8 @@ SUBROUTINE rd_grib(IUNIT, gribflnm, level, field, hdate,  &
      map%lat1 = ginfo(3)
      map%lon1 = ginfo(4)
 
-     print *, "CE map stuff", map%igrid, map%nx, map%ny, map%dx, &
-     map%dy, map%lat1, map%lon1
+!    print *, "CE map stuff", map%igrid, map%nx, map%ny, map%dx, &
+!    map%dy, map%lat1, map%lon1
 
   elseif (ksec2(4).eq.3) then ! Lambert Conformal Grid
      map%igrid = 3
