@@ -13,7 +13,7 @@ OBJS	=	getgb.o     getgbmh.o   putgbex.o   w3fi73.o \
 		getgb1re.o  getgbp.o    r63w72.o    w3fi75.o \
 		getgb1s.o   getgi.o     sbyte.o     w3fi76.o \
 		getgbe.o    getgir.o    sbytes.o    w3fi82.o \
-		getgbeh.o   idsdef.o    skgb.o      w3fi83.o \
+		getgbeh.o   idsdef.o                w3fi83.o \
 		getgbem.o   iw3jdn.o    w3difdat.o  w3fs26.o \
 		getgbemh.o  ixgb.o      w3doxdat.o  w3log.o \
 		getgbemp.o  lengds.o    w3fi01.o    w3movdat.o \
