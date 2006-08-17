@@ -353,7 +353,9 @@ module input_module
                                       sm1, em1, sm2, em2, sm3, em3, &
                                       sp1, ep1, sp2, ep2, sp3, ep3, &
                                       real_domain, &
-                                      domain_start(1), domain_end(1), domain_start(2), domain_end(2), domain_start(3), domain_end(3))
+                                      domain_start(1), domain_end(1), &
+                                      domain_start(2), domain_end(2), &
+                                      domain_start(3), domain_end(3))
             deallocate(real_domain)
    
          else if (wrftype == WRF_INTEGER) then
@@ -373,7 +375,9 @@ module input_module
                                       sm1, em1, sm2, em2, sm3, em3, &
                                       sp1, ep1, sp2, ep2, sp3, ep3, &
                                       int_domain, &
-                                      domain_start(1), domain_end(1), domain_start(2), domain_end(2), domain_start(3), domain_end(3))
+                                      domain_start(1), domain_end(1), &
+                                      domain_start(2), domain_end(2), &
+                                      domain_start(3), domain_end(3))
             deallocate(int_domain)
   
         end if    

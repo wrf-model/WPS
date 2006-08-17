@@ -759,8 +759,10 @@ module output_module
   
       ! Arguments
       integer, intent(in) :: start_mem_i, end_mem_i, start_mem_j, end_mem_j, start_mem_k, end_mem_k
-      real, target, dimension(start_mem_i:end_mem_i, start_mem_j:end_mem_j, start_mem_k:end_mem_k), intent(in), optional :: real_array
-      integer, target, dimension(start_mem_i:end_mem_i, start_mem_j:end_mem_j, start_mem_k:end_mem_k), intent(in), optional :: int_array
+      real, target, dimension(start_mem_i:end_mem_i, start_mem_j:end_mem_j, start_mem_k:end_mem_k), &
+                              intent(in), optional :: real_array
+      integer, target, dimension(start_mem_i:end_mem_i, start_mem_j:end_mem_j, start_mem_k:end_mem_k), &
+                              intent(in), optional :: int_array
       logical, intent(in), optional :: is_training
       character (len=19), intent(in) :: datestr
       character (len=*), intent(in) :: cname
@@ -918,7 +920,8 @@ module output_module
                   end if
 #endif
                else
-                  call mprintf(.true.,ERROR,'Datatype of field in write_field() does not match specified type for %s', s1=trim(fields(i)%fieldname))
+                  call mprintf(.true.,ERROR,'Datatype of field in write_field() does not match '// &
+                               'specified type for %s', s1=trim(fields(i)%fieldname))
                end if
                call mprintf((istatus /= 0),ERROR,'Error in ext_pkg_write_field')
 

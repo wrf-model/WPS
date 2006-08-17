@@ -631,7 +631,8 @@ module process_domain_module
                      call storage_query_field(field, iqstatus)
                      if (iqstatus == 0) then
                         call storage_get_field(field, iqstatus)
-                        call mprintf((iqstatus /= 0),ERROR,'Queried field %s at level %i and found it, but could not get data.',s1=short_fieldnm,i1=nint(xlvl))
+                        call mprintf((iqstatus /= 0),ERROR,'Queried field %s at level %i and found it,'// &
+                                     ' but could not get data.',s1=short_fieldnm,i1=nint(xlvl))
                         if (associated(field%modified_mask)) then
                            call bitarray_destroy(field%modified_mask)
                            nullify(field%modified_mask)
@@ -647,7 +648,7 @@ module process_domain_module
                      allocate(field%modified_mask)
                      call bitarray_create(field%modified_mask, we_mem_stag_e-we_mem_stag_s+1, sn_mem_e-sn_mem_s+1)
    
-                     call interp_met_field(gridtype, input_name, short_fieldnm, U, &
+                     call interp_met_field(input_name, short_fieldnm, U, &
                                   field, xlat_u, xlon_u, we_mem_stag_s, we_mem_stag_e, sn_mem_s, sn_mem_e, &
                                   slab, nx, ny, do_gcell_interp, field%modified_mask)
    
@@ -657,7 +658,8 @@ module process_domain_module
                      call storage_query_field(field, iqstatus)
                      if (iqstatus == 0) then
                         call storage_get_field(field, iqstatus)
-                        call mprintf((iqstatus /= 0),ERROR,'Queried field %s at level %i and found it, but could not get data.',s1=short_fieldnm,i1=nint(xlvl))
+                        call mprintf((iqstatus /= 0),ERROR,'Queried field %s at level %i and found it,'// &
+                                     ' but could not get data.',s1=short_fieldnm,i1=nint(xlvl))
                         if (associated(field%modified_mask)) then
                            call bitarray_destroy(field%modified_mask)
                            nullify(field%modified_mask)
@@ -673,7 +675,7 @@ module process_domain_module
                      allocate(field%modified_mask)
                      call bitarray_create(field%modified_mask, we_mem_e-we_mem_s+1, sn_mem_stag_e-sn_mem_stag_s+1)
    
-                     call interp_met_field(gridtype, input_name, short_fieldnm, V, &
+                     call interp_met_field(input_name, short_fieldnm, V, &
                                   field, xlat_v, xlon_v, we_mem_s, we_mem_e, sn_mem_stag_s, sn_mem_stag_e, &
                                   slab, nx, ny, do_gcell_interp, field%modified_mask)
              
@@ -683,7 +685,8 @@ module process_domain_module
                      call storage_query_field(field, iqstatus)
                      if (iqstatus == 0) then
                         call storage_get_field(field, iqstatus)
-                        call mprintf((iqstatus /= 0),ERROR,'Queried field %s at level %i and found it, but could not get data.',s1=short_fieldnm,i1=nint(xlvl))
+                        call mprintf((iqstatus /= 0),ERROR,'Queried field %s at level %i and found it,'// &
+                                     ' but could not get data.',s1=short_fieldnm,i1=nint(xlvl))
                         if (associated(field%modified_mask)) then
                            call bitarray_destroy(field%modified_mask)
                            nullify(field%modified_mask)
@@ -702,7 +705,7 @@ module process_domain_module
                      allocate(field%modified_mask)
                      call bitarray_create(field%modified_mask, we_mem_e-we_mem_s+1, sn_mem_e-sn_mem_s+1)
    
-                     call interp_met_field(gridtype, input_name, short_fieldnm, VV, &
+                     call interp_met_field(input_name, short_fieldnm, VV, &
                                   field, xlat_v, xlon_v, we_mem_s, we_mem_e, sn_mem_s, sn_mem_e, &
                                   slab, nx, ny, do_gcell_interp, field%modified_mask)
    
@@ -712,7 +715,8 @@ module process_domain_module
                      call storage_query_field(field, iqstatus)
                      if (iqstatus == 0) then
                         call storage_get_field(field, iqstatus)
-                        call mprintf((iqstatus /= 0),ERROR,'Queried field %s at level %i and found it, but could not get data.',s1=short_fieldnm,i1=nint(xlvl))
+                        call mprintf((iqstatus /= 0),ERROR,'Queried field %s at level %i and found it,'// &
+                                     ' but could not get data.',s1=short_fieldnm,i1=nint(xlvl))
                         if (associated(field%modified_mask)) then
                            call bitarray_destroy(field%modified_mask)
                            nullify(field%modified_mask)
@@ -726,12 +730,12 @@ module process_domain_module
                      call bitarray_create(field%modified_mask, we_mem_e-we_mem_s+1, sn_mem_e-sn_mem_s+1)
    
                      if (gridtype == 'C') then
-                        call interp_met_field(gridtype, input_name, short_fieldnm, M, &
+                        call interp_met_field(input_name, short_fieldnm, M, &
                                      field, xlat, xlon, we_mem_s, we_mem_e, sn_mem_s, sn_mem_e, &
                                      slab, nx, ny, do_gcell_interp, field%modified_mask, landmask)
    
                      else if (gridtype == 'E') then
-                        call interp_met_field(gridtype, input_name, short_fieldnm, HH, &
+                        call interp_met_field(input_name, short_fieldnm, HH, &
                                      field, xlat, xlon, we_mem_s, we_mem_e, sn_mem_s, sn_mem_e, &
                                      slab, nx, ny, do_gcell_interp, field%modified_mask, landmask)
                      end if
@@ -879,6 +883,10 @@ module process_domain_module
       call mprintf(.true.,LOGFILE,'Creating a 3-d pressure field.')
       call make_pressure_field(gridtype, hdate, xfcst, we_mem_s, we_mem_e, sn_mem_s, sn_mem_e)
 
+      call mprintf(.true.,LOGFILE,'Creating derived fields.')
+      call create_derived_fields(gridtype, hdate, xfcst, &
+                                 we_mem_s, we_mem_e, sn_mem_s, sn_mem_e, &
+                                 we_mem_stag_s, we_mem_stag_e, sn_mem_stag_s, sn_mem_stag_e)
 
       !
       ! All of the processing is now done for this time period for this domain;
@@ -1035,7 +1043,7 @@ module process_domain_module
    !
    ! Purpose:
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-   subroutine interp_met_field(gridtype, input_name, short_fieldnm, istagger, &
+   subroutine interp_met_field(input_name, short_fieldnm, istagger, &
                                field, xlat, xlon, sm1, em1, sm2, em2, &
                                slab, nx, ny, do_gcell_interp, &
                                new_pts, landmask)
@@ -1053,7 +1061,6 @@ module process_domain_module
       integer, pointer, dimension(:,:), optional :: landmask
       real, pointer, dimension(:,:) :: slab, xlat, xlon
       logical, intent(in) :: do_gcell_interp
-      character (len=1), intent(in) :: gridtype
       character (len=9), intent(in) :: short_fieldnm
       character (len=128), intent(in) :: input_name
       type (fg_input), intent(inout) :: field
@@ -1147,9 +1154,11 @@ module process_domain_module
                      else
                         call lltoxy(xlat(i,j), xlon(i,j), rx, ry, istagger) 
                         if (interp_mask_status == 0) then
-                           temp = interp_sequence(rx, ry, 1, slab, 1, nx, 1, ny, 1, 1, missing_value(idx), interp_array, 1, interp_mask_val(idx), mask_field%r_arr)
+                           temp = interp_sequence(rx, ry, 1, slab, 1, nx, 1, ny, 1, 1, missing_value(idx), &
+                                                  interp_array, 1, interp_mask_val(idx), mask_field%r_arr)
                         else
-                           temp = interp_sequence(rx, ry, 1, slab, 1, nx, 1, ny, 1, 1, missing_value(idx), interp_array, 1)
+                           temp = interp_sequence(rx, ry, 1, slab, 1, nx, 1, ny, 1, 1, missing_value(idx), &
+                                                  interp_array, 1)
                         end if
 
                         if (temp == missing_value(idx)) then
@@ -1159,9 +1168,11 @@ module process_domain_module
                            if (xlon(i,j) < 0.) then
                               call lltoxy(xlat(i,j), xlon(i,j)+360., rx, ry, istagger) 
                               if (interp_mask_status == 0) then
-                                 temp = interp_sequence(rx, ry, 1, slab, 1, nx, 1, ny, 1, 1, missing_value(idx), interp_array, 1, interp_mask_val(idx), mask_field%r_arr)
+                                 temp = interp_sequence(rx, ry, 1, slab, 1, nx, 1, ny, 1, 1, missing_value(idx), &
+                                                        interp_array, 1, interp_mask_val(idx), mask_field%r_arr)
                               else
-                                 temp = interp_sequence(rx, ry, 1, slab, 1, nx, 1, ny, 1, 1, missing_value(idx), interp_array, 1)
+                                 temp = interp_sequence(rx, ry, 1, slab, 1, nx, 1, ny, 1, 1, missing_value(idx), &
+                                                        interp_array, 1)
                               end if
 
                               if (temp /= missing_value(idx)) then
@@ -1195,9 +1206,11 @@ module process_domain_module
                   else
                      call lltoxy(xlat(i,j), xlon(i,j), rx, ry, istagger) 
                      if (interp_mask_status == 0) then
-                        temp = interp_sequence(rx, ry, 1, slab, 1, nx, 1, ny, 1, 1, missing_value(idx), interp_array, 1, interp_mask_val(idx), mask_field%r_arr)
+                        temp = interp_sequence(rx, ry, 1, slab, 1, nx, 1, ny, 1, 1, missing_value(idx), &
+                                               interp_array, 1, interp_mask_val(idx), mask_field%r_arr)
                      else
-                        temp = interp_sequence(rx, ry, 1, slab, 1, nx, 1, ny, 1, 1, missing_value(idx), interp_array, 1)
+                        temp = interp_sequence(rx, ry, 1, slab, 1, nx, 1, ny, 1, 1, missing_value(idx), &
+                                               interp_array, 1)
                      end if
 
                      if (temp == missing_value(idx)) then
@@ -1207,9 +1220,11 @@ module process_domain_module
                         if (xlon(i,j) < 0.) then
                            call lltoxy(xlat(i,j), xlon(i,j)+360., rx, ry, istagger) 
                            if (interp_mask_status == 0) then
-                              temp = interp_sequence(rx, ry, 1, slab, 1, nx, 1, ny, 1, 1, missing_value(idx), interp_array, 1, interp_mask_val(idx), mask_field%r_arr)
+                              temp = interp_sequence(rx, ry, 1, slab, 1, nx, 1, ny, 1, 1, missing_value(idx), &
+                                                     interp_array, 1, interp_mask_val(idx), mask_field%r_arr)
                            else
-                              temp = interp_sequence(rx, ry, 1, slab, 1, nx, 1, ny, 1, 1, missing_value(idx), interp_array, 1)
+                              temp = interp_sequence(rx, ry, 1, slab, 1, nx, 1, ny, 1, 1, missing_value(idx), &
+                                                     interp_array, 1)
                            end if
 
                            if (temp /= missing_value(idx)) then
@@ -1246,9 +1261,11 @@ module process_domain_module
                   if (landmask(i,j) /= masked(idx)) then
                      call lltoxy(xlat(i,j), xlon(i,j), rx, ry, istagger) 
                      if (interp_mask_status == 0) then
-                        temp = interp_sequence(rx, ry, 1, slab, 1, nx, 1, ny, 1, 1, missing_value(idx), interp_array, 1, interp_mask_val(idx), mask_field%r_arr)
+                        temp = interp_sequence(rx, ry, 1, slab, 1, nx, 1, ny, 1, 1, missing_value(idx), &
+                                               interp_array, 1, interp_mask_val(idx), mask_field%r_arr)
                      else
-                        temp = interp_sequence(rx, ry, 1, slab, 1, nx, 1, ny, 1, 1, missing_value(idx), interp_array, 1)
+                        temp = interp_sequence(rx, ry, 1, slab, 1, nx, 1, ny, 1, 1, missing_value(idx), &
+                                               interp_array, 1)
                      end if
 
                      if (temp == missing_value(idx)) then
@@ -1258,9 +1275,11 @@ module process_domain_module
                         if (xlon(i,j) < 0.) then
                            call lltoxy(xlat(i,j), xlon(i,j)+360., rx, ry, istagger) 
                            if (interp_mask_status == 0) then
-                              temp = interp_sequence(rx, ry, 1, slab, 1, nx, 1, ny, 1, 1, missing_value(idx), interp_array, 1, interp_mask_val(idx), mask_field%r_arr)
+                              temp = interp_sequence(rx, ry, 1, slab, 1, nx, 1, ny, 1, 1, missing_value(idx), &
+                                                     interp_array, 1, interp_mask_val(idx), mask_field%r_arr)
                            else
-                              temp = interp_sequence(rx, ry, 1, slab, 1, nx, 1, ny, 1, 1, missing_value(idx), interp_array, 1)
+                              temp = interp_sequence(rx, ry, 1, slab, 1, nx, 1, ny, 1, 1, missing_value(idx), &
+                                                     interp_array, 1)
                            end if
 
                            if (temp /= missing_value(idx)) then
@@ -1283,9 +1302,11 @@ module process_domain_module
                else
                   call lltoxy(xlat(i,j), xlon(i,j), rx, ry, istagger) 
                   if (interp_mask_status == 0) then
-                     temp = interp_sequence(rx, ry, 1, slab, 1, nx, 1, ny, 1, 1, missing_value(idx), interp_array, 1, interp_mask_val(idx), mask_field%r_arr)
+                     temp = interp_sequence(rx, ry, 1, slab, 1, nx, 1, ny, 1, 1, missing_value(idx), &
+                                            interp_array, 1, interp_mask_val(idx), mask_field%r_arr)
                   else
-                     temp = interp_sequence(rx, ry, 1, slab, 1, nx, 1, ny, 1, 1, missing_value(idx), interp_array, 1)
+                     temp = interp_sequence(rx, ry, 1, slab, 1, nx, 1, ny, 1, 1, missing_value(idx), &
+                                            interp_array, 1)
                   end if
                   
                   if (temp == missing_value(idx)) then
@@ -1295,9 +1316,11 @@ module process_domain_module
                      if (xlon(i,j) < 0.) then
                         call lltoxy(xlat(i,j), xlon(i,j)+360., rx, ry, istagger) 
                         if (interp_mask_status == 0) then
-                           temp = interp_sequence(rx, ry, 1, slab, 1, nx, 1, ny, 1, 1, missing_value(idx), interp_array, 1, interp_mask_val(idx), mask_field%r_arr)
+                           temp = interp_sequence(rx, ry, 1, slab, 1, nx, 1, ny, 1, 1, missing_value(idx), &
+                                                  interp_array, 1, interp_mask_val(idx), mask_field%r_arr)
                         else
-                           temp = interp_sequence(rx, ry, 1, slab, 1, nx, 1, ny, 1, 1, missing_value(idx), interp_array, 1)
+                           temp = interp_sequence(rx, ry, 1, slab, 1, nx, 1, ny, 1, 1, missing_value(idx), &
+                                                  interp_array, 1)
                         end if
 
                         if (temp /= missing_value(idx)) then
@@ -1392,7 +1415,7 @@ module process_domain_module
    !   (i.e., interpolated or filled with default values) for that field, and 
    !   stored in the storage module.
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-   subroutine make_pressure_field(gridtype, hdate, xfcst, we_dim_s, we_dim_e, sn_dim_s, sn_dim_e)
+   subroutine make_pressure_field(arg_gridtype, hdate, xfcst, we_dim_s, we_dim_e, sn_dim_s, sn_dim_e)
    
       use interp_option_module
       use list_module
@@ -1405,7 +1428,7 @@ module process_domain_module
       ! Arguments
       integer, intent(in) :: we_dim_s, we_dim_e, sn_dim_s, sn_dim_e
       real, intent(in) :: xfcst
-      character (len=1), intent(in) :: gridtype
+      character (len=1), intent(in) :: arg_gridtype
       character (len=24), intent(in) :: hdate
    
       ! Local variables
@@ -1486,9 +1509,9 @@ module process_domain_module
          p_field%header%dim1(2) = we_dim_e
          p_field%header%dim2(1) = sn_dim_s
          p_field%header%dim2(2) = sn_dim_e
-         if (gridtype == 'C') then
+         if (arg_gridtype == 'C') then
             p_field%map%stagger = M
-         else if (gridtype == 'E') then
+         else if (arg_gridtype == 'E') then
             p_field%map%stagger = HH
          end if 
    
@@ -1603,7 +1626,8 @@ module process_domain_module
 
                            ! The specified level does not exist for the field that we fill from
                            else
-                              call mprintf(.true.,ERROR,'Couldn''t get level %i for field %s.', i1=fill_src_level, s1=fill_src)
+                              call mprintf(.true.,ERROR,'Couldn''t get level %i for field %s.', &
+                                           i1=fill_src_level, s1=fill_src)
 ! BUG: Maybe at this point, if this level was explicitly specified, and there is another entry for "all",
 !      we could now try to get the corresponding level from that field, and if all else fails, fill in with 
 !      the value of the vertical_level
@@ -1618,7 +1642,9 @@ module process_domain_module
                      !   that we are supposed to fill from, we just fill in the level with the 
                      !   value of the level itself
                      if (ii == size(all_headers)+1) then
-                        call mprintf(.true.,INFORM,'Couldn''t find field %s to fill P array level %i. Will fill with constant %f', s1=trim(fill_src), i1=union_levels(k), f1=real(union_levels(k)))
+                        call mprintf(.true.,INFORM,'Couldn''t find field %s to fill P array level %i. '// &
+                                     'Will fill with constant %f', &
+                                     s1=trim(fill_src), i1=union_levels(k), f1=real(union_levels(k)))
                         allocate(p_field%r_arr(we_dim_s:we_dim_e,sn_dim_s:sn_dim_e))
                         nullify(p_field%i_arr)
                         allocate(p_field%valid_mask)
@@ -1839,7 +1865,8 @@ module process_domain_module
                               do jx = new_field%header%dim2(1),new_field%header%dim2(2)
                                  do ix = new_field%header%dim1(1),new_field%header%dim1(2)
                                     new_field%r_arr(ix,jx) = fill_const 
-                                    call bitarray_set(new_field%valid_mask, ix-new_field%header%dim1(1)+1, jx-new_field%header%dim2(1)+1)
+                                    call bitarray_set(new_field%valid_mask, &
+                                                      ix-new_field%header%dim1(1)+1, jx-new_field%header%dim2(1)+1)
                                  end do
                               end do
                               call storage_put_field(new_field)
@@ -1863,9 +1890,13 @@ module process_domain_module
                                                                    new_field%header%dim2(1):new_field%header%dim2(2)))
                                           do jx = new_field%header%dim2(1),new_field%header%dim2(2)
                                              do ix = new_field%header%dim1(1),new_field%header%dim1(2)
-                                                if (bitarray_test(search_field%valid_mask, ix-new_field%header%dim1(1)+1, jx-new_field%header%dim2(1)+1)) then
+                                                if (bitarray_test(search_field%valid_mask, &
+                                                                  ix-new_field%header%dim1(1)+1, &
+                                                                  jx-new_field%header%dim2(1)+1)) then
                                                    new_field%r_arr(ix,jx) = search_field%r_arr(ix,jx) 
-                                                   call bitarray_set(new_field%valid_mask, ix-new_field%header%dim1(1)+1, jx-new_field%header%dim2(1)+1)
+                                                   call bitarray_set(new_field%valid_mask, &
+                                                                     ix-new_field%header%dim1(1)+1, &
+                                                                     jx-new_field%header%dim2(1)+1)
                                                 end if
                                              end do
                                           end do
@@ -1874,16 +1905,21 @@ module process_domain_module
                                                                    new_field%header%dim2(1):new_field%header%dim2(2)))
                                           do jx = new_field%header%dim2(1),new_field%header%dim2(2)
                                              do ix = new_field%header%dim1(1),new_field%header%dim1(2)
-                                                if (bitarray_test(search_field%valid_mask, ix-new_field%header%dim1(1)+1, jx-new_field%header%dim2(1)+1)) then
+                                                if (bitarray_test(search_field%valid_mask, &
+                                                                  ix-new_field%header%dim1(1)+1, &
+                                                                  jx-new_field%header%dim2(1)+1)) then
                                                    new_field%i_arr(ix,jx) = search_field%i_arr(ix,jx) 
-                                                   call bitarray_set(new_field%valid_mask, ix-new_field%header%dim1(1)+1, jx-new_field%header%dim2(1)+1)
+                                                   call bitarray_set(new_field%valid_mask, &
+                                                                     ix-new_field%header%dim1(1)+1, &
+                                                                     jx-new_field%header%dim2(1)+1)
                                                 end if
                                              end do
                                           end do
                                        end if
                                        call storage_put_field(new_field)
                                     else
-                                       call mprintf(.true.,ERROR,'Couldn''t get level %i for field %s.', i1=fill_src_level, s2=fill_src)
+                                       call mprintf(.true.,ERROR,'Couldn''t get level %i for field %s.', &
+                                                    i1=fill_src_level, s2=fill_src)
                                     end if
                                     exit
                                  end if
@@ -2030,6 +2066,90 @@ module process_domain_module
       deallocate(all_headers)
    
    end subroutine fill_missing_levels
+
+
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
+   ! Name: create_derived_fields
+   !
+   ! Purpose:
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
+   subroutine create_derived_fields(arg_gridtype, hdate, xfcst, &
+                                 we_mem_s, we_mem_e, sn_mem_s, sn_mem_e, &
+                                 we_mem_stag_s, we_mem_stag_e, sn_mem_stag_s, sn_mem_stag_e)
+
+      use interp_option_module
+      use list_module
+      use module_mergesort
+      use storage_module
+
+      implicit none
+
+      ! Arguments
+      integer, intent(in) :: we_mem_s, we_mem_e, sn_mem_s, sn_mem_e, &
+                             we_mem_stag_s, we_mem_stag_e, sn_mem_stag_s, sn_mem_stag_e
+      real, intent(in) :: xfcst 
+      character (len=1), intent(in) :: arg_gridtype 
+      character (len=24), intent(in) :: hdate 
+
+      ! Local variables
+      integer :: idx
+      type (fg_input) :: field
+
+      do idx=1,num_entries
+         if (is_derived_field(idx)) then
+call mprintf(.true.,DEBUG,'Going to create the field %s',s1=fieldname(idx))
+
+                  ! Initialize fg_input structure to store the field
+                  field%header%version = 1
+                  field%header%date = hdate//'        '
+                  field%header%time_dependent = .true.
+                  field%header%mask_field = .false.
+                  field%header%forecast_hour = xfcst 
+                  field%header%fg_source = 'Derived from FG'
+                  field%header%field = ' '
+                  field%header%field(1:9) = fieldname(idx)(1:9)
+                  field%header%units = ' '
+                  field%header%description = ' '
+                  call get_z_dim_name(fieldname(idx)(1:9),field%header%vertical_coord)
+                  field%header%vertical_level = 0
+                  field%header%array_order = 'XY ' 
+                  field%header%winds_rotated_on_input = .true.
+                  field%header%array_has_missing_values = .false.
+                  field%map%stagger = output_stagger(idx)
+                  if (arg_gridtype == 'E') then
+                     field%header%dim1(1) = we_mem_s
+                     field%header%dim1(2) = we_mem_e
+                     field%header%dim2(1) = sn_mem_s
+                     field%header%dim2(2) = sn_mem_e
+                  else if (arg_gridtype == 'C') then
+                     if (output_stagger(idx) == M) then
+                        field%header%dim1(1) = we_mem_s
+                        field%header%dim1(2) = we_mem_e
+                        field%header%dim2(1) = sn_mem_s
+                        field%header%dim2(2) = sn_mem_e
+                     else if (output_stagger(idx) == U) then
+                        field%header%dim1(1) = we_mem_stag_s
+                        field%header%dim1(2) = we_mem_stag_e
+                        field%header%dim2(1) = sn_mem_s
+                        field%header%dim2(2) = sn_mem_e
+                     else if (output_stagger(idx) == V) then
+                        field%header%dim1(1) = we_mem_s
+                        field%header%dim1(2) = we_mem_e
+                        field%header%dim2(1) = sn_mem_stag_s
+                        field%header%dim2(2) = sn_mem_stag_e
+                     end if
+                  end if
+
+                  nullify(field%r_arr)
+                  nullify(field%i_arr)
+                  nullify(field%valid_mask)
+                  nullify(field%modified_mask)
+
+         end if
+      end do
+
+
+   end subroutine create_derived_fields
    
    
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 

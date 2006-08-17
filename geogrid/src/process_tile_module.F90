@@ -361,10 +361,12 @@ module process_tile_module
 
          if (.not. only_save_dominant) then
             field_count = field_count + 1
-            call mprintf(.true.,LOGFILE,'Processing field %i of %i (%s)',i1=field_count,i2=NUM_FIELDS-NUM_AUTOMATIC_FIELDS,s1=landmask_name)
+            call mprintf(.true.,LOGFILE,'Processing field %i of %i (%s)', &
+                         i1=field_count,i2=NUM_FIELDS-NUM_AUTOMATIC_FIELDS,s1=landmask_name)
          else
             field_count = field_count + 1
-            call mprintf(.true.,LOGFILE,'Processing field %i of %i (%s)',i1=field_count,i2=NUM_FIELDS-NUM_AUTOMATIC_FIELDS,s1=domname)
+            call mprintf(.true.,LOGFILE,'Processing field %i of %i (%s)', &
+                         i1=field_count,i2=NUM_FIELDS-NUM_AUTOMATIC_FIELDS,s1=domname)
          end if
 
          if (grid_type == 'C') then
@@ -471,7 +473,8 @@ module process_tile_module
      
             if (.not. only_save_dominant) then
                field_count = field_count + 1
-               call mprintf(.true.,LOGFILE,'Processing field %i of %i (%s)',i1=field_count,i2=NUM_FIELDS-NUM_AUTOMATIC_FIELDS,s1=domname)
+               call mprintf(.true.,LOGFILE,'Processing field %i of %i (%s)', &
+                            i1=field_count,i2=NUM_FIELDS-NUM_AUTOMATIC_FIELDS,s1=domname)
             end if
 
             do i=start_mem_i, end_mem_i
@@ -576,7 +579,8 @@ module process_tile_module
                   allocate(field(sm1:em1, sm2:em2, min_level:max_level))
 
                   field_count = field_count + 1
-                  call mprintf(.true.,LOGFILE,'Processing field %i of %i (%s)',i1=field_count,i2=NUM_FIELDS-NUM_AUTOMATIC_FIELDS,s1=fieldname)
+                  call mprintf(.true.,LOGFILE,'Processing field %i of %i (%s)', &
+                               i1=field_count,i2=NUM_FIELDS-NUM_AUTOMATIC_FIELDS,s1=fieldname)
 
                   call calc_field(fieldname, field, xlat_ptr, xlon_ptr, istagger, &
                              sm1, em1, sm2, em2, min_level, max_level, &
@@ -630,7 +634,8 @@ module process_tile_module
                      allocate(slp_field(sm1:em1,sm2:em2,min_level:max_level))
 
                      field_count = field_count + 1
-                     call mprintf(.true.,LOGFILE,'Processing field %i of %i (%s)',i1=field_count,i2=NUM_FIELDS-NUM_AUTOMATIC_FIELDS,s1=gradname)
+                     call mprintf(.true.,LOGFILE,'Processing field %i of %i (%s)', &
+                                  i1=field_count,i2=NUM_FIELDS-NUM_AUTOMATIC_FIELDS,s1=gradname)
 
                      if (grid_type == 'C') then
                         call calc_dfdx(field, slp_field, sm1, sm2, min_level, em1, em2, max_level, mapfac_ptr)
@@ -646,7 +651,8 @@ module process_tile_module
                      allocate(slp_field(sm1:em1,sm2:em2,min_level:max_level))
 
                      field_count = field_count + 1
-                     call mprintf(.true.,LOGFILE,'Processing field %i of %i (%s)',i1=field_count,i2=NUM_FIELDS-NUM_AUTOMATIC_FIELDS,s1=gradname)
+                     call mprintf(.true.,LOGFILE,'Processing field %i of %i (%s)', &
+                                  i1=field_count,i2=NUM_FIELDS-NUM_AUTOMATIC_FIELDS,s1=gradname)
 
                      if (grid_type == 'C') then
                         call calc_dfdy(field, slp_field, sm1, sm2, min_level, em1, em2, max_level, mapfac_ptr)
@@ -670,10 +676,12 @@ module process_tile_module
         
                   if (.not. only_save_dominant) then
                      field_count = field_count + 1
-                     call mprintf(.true.,LOGFILE,'Processing field %i of %i (%s)',i1=field_count,i2=NUM_FIELDS-NUM_AUTOMATIC_FIELDS,s1=fieldname)
+                     call mprintf(.true.,LOGFILE,'Processing field %i of %i (%s)', &
+                                  i1=field_count,i2=NUM_FIELDS-NUM_AUTOMATIC_FIELDS,s1=fieldname)
                   else
                      field_count = field_count + 1
-                     call mprintf(.true.,LOGFILE,'Processing field %i of %i (%s)',i1=field_count,i2=NUM_FIELDS-NUM_AUTOMATIC_FIELDS,s1=domname)
+                     call mprintf(.true.,LOGFILE,'Processing field %i of %i (%s)', &
+                                  i1=field_count,i2=NUM_FIELDS-NUM_AUTOMATIC_FIELDS,s1=domname)
                   end if
 
                   call calc_field(fieldname, field, xlat_ptr, xlon_ptr, istagger, &
@@ -737,7 +745,8 @@ module process_tile_module
  
                      if (.not. only_save_dominant) then
                         field_count = field_count + 1
-                        call mprintf(.true.,LOGFILE,'Processing field %i of %i (%s)',i1=field_count,i2=NUM_FIELDS-NUM_AUTOMATIC_FIELDS,s1=domname)
+                        call mprintf(.true.,LOGFILE,'Processing field %i of %i (%s)', &
+                                     i1=field_count,i2=NUM_FIELDS-NUM_AUTOMATIC_FIELDS,s1=domname)
                      end if
 
                      do i=sm1, em1
@@ -1070,7 +1079,8 @@ module process_tile_module
                               if (int(temp) >= start_k .and. int(temp) <= end_k) then
                                  field(ix, iy, int(temp)) = field(ix, iy, int(temp)) + 1.
                               else
-                                 call mprintf(.true.,WARN,' Attempted to assign an invalid category %i to grid point (%i, %i)', i1=int(temp), i2=ix, i3=iy)
+                                 call mprintf(.true.,WARN,' Attempted to assign an invalid category '// &
+                                              '%i to grid point (%i, %i)', i1=int(temp), i2=ix, i3=iy)
                               end if
                               call bitarray_set(level_domain, ix-start_i+1, iy-start_j+1)
                            end if
@@ -1092,7 +1102,8 @@ module process_tile_module
                            if (int(temp) >= start_k .and. int(temp) <= end_k) then
                               field(ix, iy, int(temp)) = field(ix, iy, int(temp)) + 1.
                            else
-                              call mprintf(.true.,WARN,' Attempted to assign an invalid category %i to grid point (%i, %i)', i1=int(temp), i2=ix, i3=iy)
+                              call mprintf(.true.,WARN,' Attempted to assign an invalid category '// &
+                                           '%i to grid point (%i, %i)', i1=int(temp), i2=ix, i3=iy)
                            end if
                            call bitarray_set(level_domain, ix-start_i+1, iy-start_j+1)
                         end if
