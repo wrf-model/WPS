@@ -1,5 +1,5 @@
 !*****************************************************************************!
-! Subroutine RD_GRIB                                                          !
+! Subroutine RD_GRIB1                                                         !
 !                                                                             !
 ! Purpose:                                                                    !
 !    Read one record from the input GRIB file.  Based on the information in   !
@@ -59,7 +59,7 @@
 ! SDG                                                                         !
 !                                                                             !
 !*****************************************************************************!
-SUBROUTINE rd_grib(IUNIT, gribflnm, level, field, hdate,  &
+SUBROUTINE rd_grib1(IUNIT, gribflnm, level, field, hdate,  &
      ierr, iuarr, iprint)
   use table
   use gridinfo
@@ -370,4 +370,4 @@ SUBROUTINE rd_grib(IUNIT, gribflnm, level, field, hdate,  &
 
   call deallogrib
 
-END subroutine rd_grib
+END subroutine rd_grib1

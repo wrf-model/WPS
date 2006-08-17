@@ -187,10 +187,10 @@ program ungrib
            if (READIT) then
 
               if (grib_version.ne.2) then 
-		 write(6,*) 'calling rd_grib with iunit ', nunit1
+		 write(6,*) 'calling rd_grib1 with iunit ', nunit1
 		 write(6,*) 'flnm = ',gribflnm
                  ! Read one record at a time from GRIB1 (and older Editions) 
-                 call rd_grib(nunit1, gribflnm, level, field, &
+                 call rd_grib1(nunit1, gribflnm, level, field, &
                       hdate, ierr, iuarr, iprint)
               else 
 

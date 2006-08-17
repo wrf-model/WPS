@@ -1,7 +1,7 @@
 include $(DEV_TOP)/configure.wps
 
 OBJS	=	module_datarray.o gridinfo.o new_storage.o filelist.o ungrib.o output.o rrpr.o \
-		rd_grib.o file_delete.o datint.o rd_grib2.o
+		rd_grib1.o file_delete.o datint.o rd_grib2.o
 
 EXE	=	ungrib.exe
 
