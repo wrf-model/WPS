@@ -10,8 +10,8 @@ all:		$(EXE)
 $(EXE):		$(OBJS) ../../src/util/libpgu.a
 	$(RM) $@
 	$(FC) -o $@ $(LDFLAGS) $(OBJS) \
-		$(COMPRESSION_LIBS) \
 		-L ../../src/ngl -lw3 -lg2_4 \
+		$(COMPRESSION_LIBS) \
 		-L ../../src/util -lpgu
 
 .F.o:
