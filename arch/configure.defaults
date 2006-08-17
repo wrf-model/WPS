@@ -145,6 +145,20 @@ CPP		=	/lib/cpp -C -P -traditional
 CPPFLAGS	=	-D_UNDERSCORE -DBYTESWAP -DLINUX -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -D_MPI -DBIT32
 
 ###########################################################
+#ARCH	PC Linux i486 i586 i686, g95 compiler	serial
+#
+FC              =       g95
+SFC             =       g95
+FFLAGS          =       -ffree-form -g
+F77FLAGS        =       -ffree-form -g
+LDFLAGS         =       -g
+CC              =       gcc
+SCC             =       gcc
+CFLAGS          =       -g
+CPP             =       /usr/bin/cpp -C -P -traditional
+CPPFLAGS        =       -D_DOUBLEUNDERSCORE -DBYTESWAP -DLINUX -DIO_NETCDF -DBIT32
+
+###########################################################
 #ARCH    PC Linux x86_64 (IA64 and Opteron), PGI compiler 5.2 or higher, serial
 #
 FC		=	pgf90

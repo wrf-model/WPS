@@ -3,6 +3,9 @@
 #ifdef _UNDERSCORE
 #define read_binary_field read_binary_field_
 #endif
+#ifdef _DOUBLEUNDERSCORE
+#define read_binary_field read_binary_field__
+#endif
 
 void read_binary_field(float * data, int * in_size, int * nitems, char * fname, int * len, int * is_signed, int * status)
 {
