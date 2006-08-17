@@ -98,7 +98,8 @@ module storage_module
       else
          if ((name_cursor%fg_data%header%time_dependent .and. .not. store_me%header%time_dependent) .or. &
              (.not. name_cursor%fg_data%header%time_dependent .and. store_me%header%time_dependent)) then
-            call mprintf(.true.,ERROR,'Cannot combine time-independent data with time-dependent data for field %s',s1=store_me%header%field)
+            call mprintf(.true.,ERROR,'Cannot combine time-independent data with '// &
+                         'time-dependent data for field %s',s1=store_me%header%field)
          end if
       end if
 

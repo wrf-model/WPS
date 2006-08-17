@@ -1017,7 +1017,7 @@ module interp_module
                oned = c+(1.0-x)*(0.5*(b-d)+(1.0-x)*(0.5*(b+d)-c)) 
             end if
          else
-            oned = (1.0-x)*(b+x*(0.5*(c-a)+x*(0.5*(c+a)-b)))+x*(c+(1.0-x)*(0.5*(b-d)+(1.0-x)*(0.5*(b+d)-c)))                                   
+            oned = (1.0-x)*(b+x*(0.5*(c-a)+x*(0.5*(c+a)-b)))+x*(c+(1.0-x)*(0.5*(b-d)+(1.0-x)*(0.5*(b+d)-c)))
          end if
       end if
     
