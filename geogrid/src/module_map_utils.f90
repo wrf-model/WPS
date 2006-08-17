@@ -539,8 +539,7 @@ MODULE map_utils
             CALL ijll_ps(i, j, proj, lat, lon)
 
          CASE (PROJ_PS_WGS84)
-            write(6,*) 'ijll_ps_wgs84: Not yet implemented!'
-            stop
+            CALL ijll_ps_wgs84(i, j, proj, lat, lon)
    
          CASE (PROJ_LC)
             CALL ijll_lc(i, j, proj, lat, lon)
@@ -771,6 +770,54 @@ MODULE map_utils
       RETURN
 
    END SUBROUTINE llij_ps_wgs84
+
+
+   SUBROUTINE ijll_ps_wgs84(i, j, proj, lat, lon)
+ 
+      ! This is the inverse subroutine of llij_ps.  It returns the 
+      ! latitude and longitude of an i/j point given the projection info 
+      ! structure.  
+  
+      implicit none
+  
+      ! Arguments
+      REAL, INTENT(IN)                    :: i    ! Column
+      REAL, INTENT(IN)                    :: j    ! Row
+      REAL, INTENT(OUT)                   :: lat     ! -90 -> 90 north
+      REAL, INTENT(OUT)                   :: lon     ! -180 -> 180 East
+      TYPE (proj_info), INTENT(IN)        :: proj
+
+      ! Local variables
+      integer :: iter
+      real :: h, mc, tc, t, rho, lat_old, x, y
+
+      h = proj%hemi
+      x = (i - proj%knowni + proj%polei)
+      y = (j - proj%knownj + proj%polej)
+
+      mc = cos(h*proj%truelat1*rad_per_deg)/sqrt(1.0-(E_WGS84*sin(h*proj%truelat1*rad_per_deg))**2.0)
+      tc = sqrt(((1.0-sin(h*proj%truelat1*rad_per_deg))/(1.0+sin(h*proj%truelat1*rad_per_deg)))* &
+                (((1.0+E_WGS84*sin(h*proj%truelat1*rad_per_deg))/(1.0-E_WGS84*sin(h*proj%truelat1*rad_per_deg)))**E_WGS84 ))
+
+      rho = sqrt(x*x + y*y)*proj%dx
+      t = rho * tc / (A_WGS84 * mc) 
+
+      lon = h*proj%stdlon + h*atan2(h*x,h*(-y))
+      iter = 1
+      lat = h*(PI/2.0 - 2.0 * atan(t))
+      lat_old = lat + 1.0
+      do while (iter < 20 .and. abs(lat_old - lat) < 0.0001)
+         lat_old = lat
+         lat = PI/2.0 - 2.0 * atan(t * ((1.0-E_WGS84*sin(lat*rad_per_deg))/(1.0+E_WGS84*sin(lat*rad_per_deg))**(E_WGS84/2.0)))
+         iter = iter + 1 
+      end do
+
+      lat = lat*deg_per_rad
+      lon = lon*deg_per_rad
+
+      RETURN
+   
+   END SUBROUTINE ijll_ps_wgs84
 
 
    SUBROUTINE set_lc(proj)
