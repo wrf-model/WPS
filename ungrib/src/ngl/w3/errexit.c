@@ -46,6 +46,9 @@ C$$$
 #ifdef LINUX
   void errexit_ (int a)
 #endif
+#ifdef LINUXG95
+  void errexit_ (int a)
+#endif
 #ifdef LINUXF90
   void ERREXIT (int a)
 #endif

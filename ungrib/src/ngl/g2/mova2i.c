@@ -51,7 +51,7 @@ C$$$i*/
    int MOVA2I(unsigned char *a)
 #endif
 #ifdef LINUXG95
-   int mova2i__(unsigned char *a)
+   int mova2i_(unsigned char *a)
 #endif
 #ifdef VPP5000
    int mova2i_(unsigned char *a)

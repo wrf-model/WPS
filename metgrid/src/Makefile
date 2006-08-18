@@ -13,13 +13,15 @@ metgrid.exe: $(OBJS)
 	$(FC) $(LDFLAGS) -o $@ $(OBJS) \
 		$(WRF_DIR)/frame/pack_utils.o $(WRF_DIR)/frame/module_machine.o \
 		$(WRF_DIR)/frame/module_internal_header_util.o \
-		-I$(NETCDF)/include -I$(WRF_DIR)/external/io_grib1 \
+		-I$(WRF_DIR)/external/io_grib1 \
 		-I$(WRF_DIR)/external/io_grib_share \
-		-I$(WRF_DIR)/external/io_int -I$(WRF_DIR)/external/io_netcdf \
-		-L$(WRF_DIR)/external/io_netcdf  -lwrfio_nf \
+		-I$(WRF_DIR)/external/io_int \
+		-I$(NETCDF)/include \
+		-I$(WRF_DIR)/external/io_netcdf \
 		-L$(WRF_DIR)/external/io_grib1 -lio_grib1 \
 		-L$(WRF_DIR)/external/io_grib_share -lio_grib_share \
 		-L$(WRF_DIR)/external/io_int -lwrfio_int \
+		-L$(WRF_DIR)/external/io_netcdf -lwrfio_nf \
 		-L$(NETCDF)/lib -lnetcdf
 
 bitarray_module.o: module_debug.o

@@ -100,6 +100,12 @@
           int * nactual, int * fdes, const char *fname, char *datary, 
           int  namelen, int  datanamelen) {
 #endif
+#ifdef LINUXG95
+  int bacio_
+         (int * mode, int * start, int *newpos, int * size, int * no, 
+          int * nactual, int * fdes, const char *fname, char *datary, 
+          int  namelen, int  datanamelen) {
+#endif
 #ifdef LINUXF90
   int BACIO
          (int * mode, int * start, int *newpos, int * size, int * no, 
@@ -378,6 +384,12 @@
 #endif
 #ifdef LINUX
   int banio_
+         (int * mode, int * start, int *newpos, int * size, int * no, 
+          int * nactual, int * fdes, const char *fname, char *datary, 
+          int  namelen ) {
+#endif
+#ifdef LINUXG95
+  int banio
          (int * mode, int * start, int *newpos, int * size, int * no, 
           int * nactual, int * fdes, const char *fname, char *datary, 
           int  namelen ) {

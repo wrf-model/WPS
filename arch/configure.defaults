@@ -1,60 +1,32 @@
 ###########################################################
 #ARCH	AIX	serial
 #
-#	start ibm weird paths
-COMPRESSION_LIBS	=	-L/mmm/users/gill/WPS_LIBS/local/lib -lz \
-				-L/contrib/jasper/lib -ljasper \
-				-L/contrib/libpng/lib -lpng
-
-COMPRESSION_INC		=	-I/mmm/users/gill/WPS_LIBS/local/include \
-				-I/contrib/jasper/include \
-				-I/contrib/libpng/include
-
-NCARG_LIBS		=
-
-NCARG_LIBS2		=	-L/usr/local/lib64/r4i4 -lncarg -lncarg_gks -lncarg_c \
-				-L/usr/X11R6/lib -lX11
-#	end ibm weird paths
 FC		=	xlf90_r
 SFC		=	xlf90_r
 FFLAGS		=	-qfree=f90
-F77FLAGS	=	-qfixed
+F77FLAGS	=	
 LDFLAGS		=	
 CC		=	cc
 SCC		=	cc
 CFLAGS		=	
 CPP		=	/usr/local/bin/cpp -C -P -traditional
-CPPFLAGS	=	-DAIX -DIBM4 -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -DBIT32
-ARFLAGS		=
+CPPFLAGS	=	-DAIX -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -DBIT32
+ARFLAGS		=	-X64
 
 ###########################################################
 #ARCH	AIX	DM parallel
 #
-#	start ibm weird paths
-COMPRESSION_LIBS	=	-L/mmm/users/gill/WPS_LIBS/local/lib -lz \
-				-L/contrib/jasper/lib -ljasper \
-				-L/contrib/libpng/lib -lpng
-
-COMPRESSION_INC		=	-I/mmm/users/gill/WPS_LIBS/local/include \
-				-I/contrib/jasper/include \
-				-I/contrib/libpng/include
-
-NCARG_LIBS		=
-
-NCARG_LIBS2		=	-L/usr/local/lib64/r4i4 -lncarg -lncarg_gks -lncarg_c \
-				-L/usr/X11R6/lib -lX11
-#	end ibm weird paths
 FC		=	mpxlf90_r
 SFC		=	xlf90_r
 FFLAGS		=	-qfree=f90
-F77FLAGS	=	-qfixed
+F77FLAGS	=	
 LDFLAGS		=	
 CC		=	mpcc_r
 SCC		=	cc
 CFLAGS		=	
 CPP		=	/usr/local/bin/cpp -C -P -traditional
-CPPFLAGS	=	-DAIX -DIBM4 -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -D_MPI -DBIT32
-ARFLAGS		=
+CPPFLAGS	=	-DAIX -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -D_MPI -DBIT32
+ARFLAGS		=	-X64
 
 ###########################################################
 #ARCH	Compaq OSF1 alpha	serial
@@ -145,18 +117,18 @@ CPP		=	/lib/cpp -C -P -traditional
 CPPFLAGS	=	-D_UNDERSCORE -DBYTESWAP -DLINUX -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -D_MPI -DBIT32
 
 ###########################################################
-#ARCH	PC Linux i486 i586 i686, g95 compiler	serial
+#ARCH	PC Linux i486 i586 i686, g95 compiler,	serial
 #
 FC              =       g95
 SFC             =       g95
 FFLAGS          =       -ffree-form -g
-F77FLAGS        =       -ffree-form -g
+F77FLAGS        =       -ffixed-form -g
 LDFLAGS         =       -g
 CC              =       gcc
 SCC             =       gcc
 CFLAGS          =       -g
 CPP             =       /usr/bin/cpp -C -P -traditional
-CPPFLAGS        =       -D_DOUBLEUNDERSCORE -DBYTESWAP -DLINUX -DIO_NETCDF -DBIT32
+CPPFLAGS        =       -D_DOUBLEUNDERSCORE -DBYTESWAP -DLINUXG95 -DIO_NETCDF -DBIT32
 
 ###########################################################
 #ARCH    PC Linux x86_64 (IA64 and Opteron), PGI compiler 5.2 or higher, serial
@@ -189,7 +161,7 @@ CPP		=	/lib/cpp -C -P -traditional
 CPPFLAGS	=	-D_UNDERSCORE -DBYTESWAP -DLINUX -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -D_MPI -DBIT64
 NCARG_LIBS2	=	-L${PGI}/linux86-64/5.2/lib -lpgftnrtl -lpgc \
 			-L/usr/lib64 -lg2c
-
+ 
 ###########################################################
 #ARCH	SGI 64 bit IRIX64	serial
 #

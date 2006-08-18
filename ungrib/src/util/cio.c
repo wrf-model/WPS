@@ -19,7 +19,7 @@
 /* length of the char string from the fortran file is 132, plus one for null terminator */
 #define FORT_FILE_LEN 133
 
-#if defined (SGI) || defined (SOLARIS) || defined (SUN) || defined (DEC) || defined (ALPHA) || defined (_UNDERSCORE) || defined (LINUX)
+#if defined (SGI) || defined (SOLARIS) || defined (SUN) || defined (DEC) || defined (ALPHA) || defined (_UNDERSCORE) || defined (LINUX) || defined (LINUXG95)
 
 #define copen copen_
 #define cclose cclose_
