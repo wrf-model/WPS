@@ -8,7 +8,7 @@ TARGETDIR = ./
 NCARG_LIBS=     -L$(NCARG_ROOT)/lib -L/usr/X11R6/lib \
         -lncarg -lncarg_gks -lncarg_c -lX11 -lm
 
-all :	lib$(LIBTARGET).a gribprint.exe plotfmt.exe mod_levs.exe
+all :	lib$(LIBTARGET).a gribprint.exe plotfmt.exe mod_levs.exe rd_intermediate.exe
 
 lib$(LIBTARGET).a:	$(OBJS)
 	$(RM) $(TARGETDIR)lib$(LIBTARGET).a
@@ -23,6 +23,9 @@ plotfmt.exe:	plotfmt.o lib$(LIBTARGET).a
 
 mod_levs.exe:	mod_levs.o
 	$(FC) -o $(@) $(LDFLAGS) mod_levs.o
+
+rd_intermediate.exe:	rd_intermediate.o
+	$(FC) -o $(@) $(LDFLAGS) rd_intermediate.o
 
 clean:
 	$(RM) *.f *.o *.i *.mod *.M lib$(LIBTARGET).a *exe

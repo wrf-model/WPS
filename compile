@@ -61,4 +61,12 @@ if ( $1 == util ) then
 	if ( -e ungrib/src/util/plotfmt.exe ) then
 		ln -sf ungrib/src/util/plotfmt.exe .
 	endif
+	
+	if ( -e ungrib/src/util/mod_levs.exe ) then
+		ln -sf ungrib/src/util/mod_levs.exe .
+	endif
+	
+	if ( -e ungrib/src/util/rd_intermediate.exe ) then
+		ln -sf ungrib/src/util/rd_intermediate.exe .
+	endif
 endif
