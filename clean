@@ -21,7 +21,7 @@ foreach dir ( $DIRS )
 	endif
 end
 
-foreach execs ( plotfmt.exe plotgrids.exe gribprint.exe )
+foreach execs ( plotfmt.exe plotgrids.exe gribprint.exe mod_levs.exe rd_intermediate.exe )
 	/bin/rm -f $execs
 end
 
