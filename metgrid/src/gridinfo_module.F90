@@ -13,12 +13,12 @@ module gridinfo_module
    integer, parameter :: MAX_DOMAINS = 21
  
    ! Variables
-   integer :: interval_seconds, max_dom, io_form_input, io_form_output
+   integer :: interval_seconds, max_dom, io_form_input, io_form_output, debug_level
    character (len=128) :: opt_output_from_geogrid_path, &
                           opt_output_from_metgrid_path, opt_metgrid_tbl_path 
    character (len=128), dimension(MAX_DOMAINS) :: start_date, end_date, fg_name, &
                           constants_name
-   logical :: do_tiled_input, do_tiled_output, opt_ignore_dom_center, debug_print
+   logical :: do_tiled_input, do_tiled_output, opt_ignore_dom_center
    character (len=1) :: gridtype
  
    contains
@@ -43,7 +43,7 @@ module gridinfo_module
                         start_year, end_year, start_month, end_month, &
                         start_day, end_day, start_hour, end_hour, &
                         interval_seconds, &
-                        io_form_geogrid, opt_output_from_geogrid_path, debug_print
+                        io_form_geogrid, opt_output_from_geogrid_path, debug_level
       namelist /metgrid/ io_form_metgrid, fg_name, constants_name, opt_output_from_metgrid_path, &
                          opt_metgrid_tbl_path, opt_ignore_dom_center 
         
@@ -52,7 +52,7 @@ module gridinfo_module
       io_form_metgrid = 2
       max_dom = 1
       wrf_core = 'ARW'
-      debug_print = .false.
+      debug_level = 0
       do i=1,MAX_DOMAINS
          fg_name(i) = '*'
          constants_name(i) = '*'
@@ -83,7 +83,7 @@ module gridinfo_module
       read(funit,metgrid)
       close(funit)
 
-      if (debug_print) then
+      if ( debug_level .gt. 100 ) then
          call set_debug_level(DEBUG)
       else
          call set_debug_level(WARN)
@@ -106,7 +106,7 @@ module gridinfo_module
       call mprintf(.true.,DEBUG,'  INTERVAL_SECONDS = %i',i1=interval_seconds)
       call mprintf(.true.,DEBUG,'  IO_FORM_GEOGRID  = %i',i1=io_form_geogrid)
       call mprintf(.true.,DEBUG,'  OPT_OUTPUT_FROM_GEOGRID_PATH = %s',s1=opt_output_from_geogrid_path)
-      if (debug_print) then
+      if (debug_level .gt. 100) then
          call mprintf(.true.,DEBUG,'  DEBUG_PRINT = .TRUE.')
       else
          call mprintf(.true.,DEBUG,'  DEBUG_PRINT = .FALSE.')

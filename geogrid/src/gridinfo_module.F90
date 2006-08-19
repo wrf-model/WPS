@@ -22,7 +22,8 @@ module gridinfo_module
 
    character (len=128), dimension(MAX_DOMAINS) :: geog_data_res 
    character (len=1) :: gridtype
-   logical :: do_tiled_output, debug_print
+   logical :: do_tiled_output
+   integer :: debug_level
  
    contains
  
@@ -53,7 +54,7 @@ module gridinfo_module
                         start_year, end_year, start_month, end_month, &
                         start_day, end_day, start_hour, end_hour, &
                         interval_seconds, &
-                        io_form_geogrid, opt_output_from_geogrid_path, debug_print
+                        io_form_geogrid, opt_output_from_geogrid_path, debug_level
       namelist /geogrid/ parent_id, parent_grid_ratio, &
                          i_parent_start, j_parent_start, s_we, e_we, s_sn, e_sn, &
                          map_proj, ref_x, ref_y, ref_lat, ref_lon, &
@@ -61,7 +62,7 @@ module gridinfo_module
                          geog_data_res, geog_data_path, opt_geogrid_tbl_path
   
       ! Set defaults for namelist variables
-      debug_print = .false.
+      debug_level = 0
       io_form_geogrid = 2
       wrf_core = 'ARW'
       max_dom = 1
@@ -109,7 +110,7 @@ module gridinfo_module
       read(funit,geogrid)
       close(funit)
 
-      if (debug_print) then
+      if (debug_level.gt.100) then
          call set_debug_level(DEBUG)
       else
          call set_debug_level(WARN)
@@ -132,7 +133,7 @@ module gridinfo_module
       call mprintf(.true.,DEBUG,'  INTERVAL_SECONDS = %i',i1=interval_seconds)
       call mprintf(.true.,DEBUG,'  IO_FORM_GEOGRID  = %i',i1=io_form_geogrid)
       call mprintf(.true.,DEBUG,'  OPT_OUTPUT_FROM_GEOGRID_PATH = %s',s1=opt_output_from_geogrid_path)
-      if (debug_print) then
+      if (debug_level .gt. 100) then
          call mprintf(.true.,DEBUG,'  DEBUG_PRINT = .TRUE.')
       else
          call mprintf(.true.,DEBUG,'  DEBUG_PRINT = .FALSE.')

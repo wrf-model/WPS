@@ -5,7 +5,7 @@
  end_date   = '2000-01-25_12:00:00','2000-01-24_12:00:00',
  interval_seconds = 21600
  io_form_geogrid = 2,
- debug_print = .false.
+ debug_level = 0
 /
  opt_output_from_geogrid_path = './',
 

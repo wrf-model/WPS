@@ -1615,7 +1615,8 @@ program plotgrids
    character (len=3) :: wrf_core
    character (len=1) :: gridtype
 
-   logical :: do_tiled_output, debug_print
+   logical :: do_tiled_output
+   integer :: debug_level
    logical :: is_used
 
    type (proj_info) :: map_projection
@@ -1624,7 +1625,7 @@ program plotgrids
                      start_year, end_year, start_month, end_month, &
                      start_day, end_day, start_hour, end_hour, &
                      interval_seconds, &
-                     io_form_geogrid, opt_output_from_geogrid_path, debug_print
+                     io_form_geogrid, opt_output_from_geogrid_path, debug_level
    namelist /geogrid/ parent_id, parent_grid_ratio, &
                       i_parent_start, j_parent_start, s_we, e_we, s_sn, e_sn, &
                       map_proj, ref_x, ref_y, ref_lat, ref_lon, &
@@ -1632,7 +1633,7 @@ program plotgrids
                       geog_data_res, geog_data_path, opt_geogrid_tbl_path
   
    ! Set defaults for namelist variables
-   debug_print = .false.
+   debug_level = 0
    io_form_geogrid = 2
    wrf_core = 'ARW'
    max_dom = 1
