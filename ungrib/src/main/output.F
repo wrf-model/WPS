@@ -1,4 +1,4 @@
-subroutine output(hdate, nlvl, maxlvl, plvl, interval, iflag, out_format)
+subroutine output(hdate, nlvl, maxlvl, plvl, interval, iflag, out_format, debug_level)
 !                                                                             !
 !*****************************************************************************!
 !  Write output to a file.
@@ -26,7 +26,7 @@ subroutine output(hdate, nlvl, maxlvl, plvl, interval, iflag, out_format)
   real, pointer, dimension(:,:) :: scr2d
 
   integer :: maxlvl
-  integer nlvl
+  integer nlvl, debug_level
   real , dimension(maxlvl) :: plvl
   character (LEN=9) :: field
   real :: level
@@ -46,8 +46,6 @@ subroutine output(hdate, nlvl, maxlvl, plvl, interval, iflag, out_format)
 ! DATELEN:  length of date strings to use for our output file names.
   integer :: datelen
 
-  write(6,*) 'begin output'
-
 ! Decide the length of date strings to use for output file names.  
 ! DATELEN is 13 for hours, 16 for minutes, and 19 for seconds.
   if (mod(interval,3600) == 0) then
@@ -60,6 +58,7 @@ subroutine output(hdate, nlvl, maxlvl, plvl, interval, iflag, out_format)
  
   call get_plvls(plvl, maxlvl, nlvl)
 
+  if ( debug_level .gt. 100 ) then
   write(*,119) hdate(1:10), hdate(12:19)
 119 format(/,79('#'),//,'Inventory for date = ', A10,1x,A8,/)
 
@@ -73,25 +72,34 @@ subroutine output(hdate, nlvl, maxlvl, plvl, interval, iflag, out_format)
   write(*,advance='YES', fmt='(1x)')
 
   write(*,FMT='(79("-"))')
+  end if
   KLOOP : do k = 1, nlvl
      if ((iflag.eq.2).and.(plvl(k).gt.200100) .and. (plvl(k).lt.200200)) then
         cycle KLOOP
      endif
      ilev = nint(plvl(k))
+     if ( debug_level .gt. 100 ) then
      write(*, advance='NO', FMT='(F6.1)') plvl(k)/100.
+     end if
      MLOOP : do m = 1, maxvar
         do n = 1, m-1
            if (namvar(m).eq.namvar(n)) cycle MLOOP
         enddo
+        if ( debug_level .gt. 100 ) then
         if (is_there(ilev,namvar(m))) then
            write(*, advance='NO', FMT='("  X      ")')
         else
            write(*, advance='NO', FMT='("         ")')
         endif
+        endif
      enddo MLOOP
+     if ( debug_level .gt. 100 ) then
      write(*,advance='YES', fmt='(1x)')
+     endif
   enddo KLOOP
+  if ( debug_level .gt. 100 ) then
   write(*,FMT='(79("-"))')
+  endif
   
   if (iflag.eq.1) then
      if (nfiles.eq.0) then
@@ -119,10 +127,14 @@ subroutine output(hdate, nlvl, maxlvl, plvl, interval, iflag, out_format)
           position='REWIND')
   endif
 
-  write(6,*) 'begin nloop'
+  if ( debug_level .gt. 100 ) then
+     write(6,*) 'begin nloop'
+  end if
   NLOOP : do n = 1, nlvl
 
-  write(6,*) 'begin outloop'
+  if ( debug_level .gt. 100 ) then
+     write(6,*) 'begin outloop'
+  end if
      OUTLOOP : do m = 1, maxvar
         field = namvar(m)
         do k = 1, m-1
@@ -142,14 +154,20 @@ subroutine output(hdate, nlvl, maxlvl, plvl, interval, iflag, out_format)
           if (is_there(ilev,field)) then 
             call get_dims(ilev, field)
 
-  write(6,*) 'call refr_storage'
+            if ( debug_level .gt. 100 ) then
+               write(6,*) 'call refr_storage'
+            end if
             call refr_storage(ilev, field, scr2d, map%nx, map%ny)
 
-  write(6,*) 'back from refr'
-  write(6,*) 'out_format = ',out_format
+            if ( debug_level .gt. 100 ) then
+               write(6,*) 'back from refr'
+               write(6,*) 'out_format = ',out_format
+            end if
 
 	    if (iflag .eq. 1 .or. out_format(1:2) .eq. 'SI') then
-	      write(6,*) 'writing in SI format'
+              if ( debug_level .gt. 100 ) then
+                 write(6,*) 'writing in SI format'
+              end if
               write(iunit) 4
               hdate_output = hdate
               write (iunit) hdate_output, xfcst, map%source, field, units, &
@@ -171,7 +189,9 @@ subroutine output(hdate, nlvl, maxlvl, plvl, interval, iflag, out_format)
               endif
               write (iunit) scr2d
 	    else if (out_format(1:2) .eq. 'WP') then   ! currently identical to SI format
-              write(6,*) 'writing in WPS format'
+              if ( debug_level .gt. 100 ) then
+                 write(6,*) 'writing in WPS format'
+              end if
               write(iunit) 5
               hdate_output = hdate
               write (iunit) hdate_output, xfcst, map%source, field, units, &
@@ -193,7 +213,9 @@ subroutine output(hdate, nlvl, maxlvl, plvl, interval, iflag, out_format)
               endif
               write (iunit) scr2d
 	    else if (out_format(1:2) .eq. 'MM') then
-	      write(6,*) 'writing in MM5 format'
+              if ( debug_level .gt. 100 ) then
+	         write(6,*) 'writing in MM5 format'
+              end if
               write(iunit) 3
               hdate_output = hdate
               write (iunit) hdate_output, xfcst, field, units, Desc, level,&
@@ -214,10 +236,15 @@ subroutine output(hdate, nlvl, maxlvl, plvl, interval, iflag, out_format)
               endif
               write (iunit) scr2d
 	    endif
+              if ( debug_level .gt. 100 ) then
 	      write(6,*) 'hdate = ',hdate_output,' xfcst = ',xfcst
 	      write(6,*) 'map%source = ',map%source,' field = ',field,' units = ',units
 	      write(6,*) 'Desc = ',Desc,' level = ',level
 	      write(6,*) 'map%nx = ',map%nx,' map%ny = ',map%ny
+              else if ( debug_level .gt. 0 ) then
+	      write(6,*) ' field = ',field,' level = ',level
+              end if
+              if ( debug_level .gt. 100 ) then
 	      maxv = -99999.
 	      minv = 999999.
 	      do jj = 1, map%ny
@@ -227,6 +254,7 @@ subroutine output(hdate, nlvl, maxlvl, plvl, interval, iflag, out_format)
 	      enddo
 	      enddo
 	      write(6,*) 'max value = ',maxv,' min value = ',minv
+              end if
 
               nullify(scr2d)
 

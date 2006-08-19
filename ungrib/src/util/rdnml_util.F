@@ -19,14 +19,14 @@ program rdnml_util
 
   integer :: interval = 0
 
-  logical :: debug_print = .FALSE.
+  integer :: debug_level = 0
 
   namelist /record1/ start_year, start_month, start_day, start_hour, &
        start_minute, start_second, &
        end_year, end_month, end_day, end_hour, &
        end_minute, end_second,&
        interval, &
-       debug_print
+       debug_level
 
   read(*, NML=record1) 
   write(*,'(2(I4,3(1x,I2.2),1x))') start_year, start_month, start_day, &

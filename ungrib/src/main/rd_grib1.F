@@ -21,7 +21,7 @@
 !                 statement.  If the value of IUARR(IUNIT) is zero, then the  !
 !                 file GRIBFLNM must be opened, and the value of IUARR(IUNIT) !
 !                 becomes the UNIX File descriptor to read from.              !
-!       IPRINT  : Integer for various amounts of printout.                    !
+!       DEBUG_LEVEL Integer for various amounts of printout.                    !
 !                                                                             !
 !    Output:                                                                  !
 !       LEVEL    : The pressure-level (Pa) of the field to process.           !
@@ -60,14 +60,14 @@
 !                                                                             !
 !*****************************************************************************!
 SUBROUTINE rd_grib1(IUNIT, gribflnm, level, field, hdate,  &
-     ierr, iuarr, iprint)
+     ierr, iuarr, debug_level)
   use table
   use gridinfo
   use datarray
 
   implicit none
 
-  integer :: iprint
+  integer :: debug_level
   integer :: iunit ! Array number in IUARR assigned to the C read pointer.
   integer, dimension(100) :: KSEC1
   integer, dimension(10) :: KSEC2 
@@ -98,8 +98,8 @@ SUBROUTINE rd_grib1(IUNIT, gribflnm, level, field, hdate,  &
 ! next time we call this RD_GRIB subroutine.
 !
   if (iuarr(iunit).eq.0) then
-     if (iprint.eq.1) then
-        call copen(iunit, nunit, gribflnm, 1, ierr, iprint)
+     if (debug_level.gt.0) then
+        call copen(iunit, nunit, gribflnm, 1, ierr,  1)
      else
         call copen(iunit, nunit, gribflnm, 1, ierr, -1)
      endif
@@ -116,7 +116,7 @@ SUBROUTINE rd_grib1(IUNIT, gribflnm, level, field, hdate,  &
   call gribget(iuarr(iunit), ierr)
 
   if (ierr.ne.0) then
-     if (iprint.gt.0) write(*,*) 'ierr = ', ierr, ' in RD_GRIB.'
+     if (debug_level.gt.100) write(*,*) 'ierr = ', ierr, ' in RD_GRIB.'
      call deallogrib
      return
   endif

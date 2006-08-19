@@ -1,4 +1,4 @@
-subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_print, out_format)
+subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_level, out_format)
 !                                                                             !
 ! In case you are wondering, RRPR stands for "Read, ReProcess, and wRite"     !
 !                                                                             !
@@ -70,7 +70,7 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_print, out_f
   real , dimension(maxlvl) :: plvl
 
 ! DEBUG_PRINT:  Flag to turn off or on debug printout.
-  logical :: debug_print
+  integer :: debug_level
 
 !------------------------------------------------------------------------------
 
@@ -103,9 +103,11 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_print, out_f
      datelen = 19
   endif
 
+  if ( debug_level .gt. 100 ) then
   print*, 'nfiles = ', nfiles
   print*, 'ntimes = ', ntimes
   print*, 'filedates = ', (filedates(n), n = 1, nfiles)
+  end if
 
 ! Compute the ending time:
 
@@ -123,9 +125,11 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_print, out_f
 ! the requested time we are working on now.
 
      FILELOOP : do n = 1, nfiles
+       if ( debug_level .gt. 100 ) then
        print*, 'hstart, hend = ', hstart//"  "//hend
        print*, 'filedates(n) = ', filedates(n)
        print*, filedates(n)(1:datelen)
+       end if
        if (filedates(n)(1:datelen).ne.hdate(1:datelen)) cycle FILELOOP
        print*, "Doing it: ", filedates(n)(1:datelen)
        open(iunit, file='PFILE:'//filedates(n)(1:datelen), &
@@ -163,7 +167,7 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_print, out_f
 ! We have reached the end of file, so time to close it.
 !
      close(iunit)
-     if (debug_print) call print_storage
+     if (debug_level .gt. 100 ) call print_storage
 !
 ! By now the file has been read completely.  Now, see if we need to fill in 
 ! missing fields:
@@ -183,8 +187,10 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_print, out_f
                  if (is_there(nint(plvl(k)), namvar(m))) then
                     INLOOP : do kk = 200101, nint(plvl(k))
                        if (is_there(kk, namvar(m))) then
+                          if ( debug_level .gt. 100 ) then
                           write(*, &
 '("Copying ", A9, " at level ", I6, " to level 200100.")') namvar(m), kk
+                          end if
                           call get_dims(kk, namvar(m))
                           allocate(scr2d(map%nx,map%ny))
                           call get_storage &
@@ -378,7 +384,9 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_print, out_f
                 is_there(200100, 'SPECHUMD')) then
               call get_dims(200100, 'T')
               call compute_rh_spechumd(map%nx, map%ny)
+              if ( debug_level .gt. 100 ) then
       print *,' SURFACE RH is computed'
+              end if
            elseif (is_there(200100, 'T'       ).and. &
                 is_there(200100, 'DEWPT')) then
               call get_dims(200100, 'T')
@@ -397,8 +405,10 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_print, out_f
            call make_zero_or_one(map%nx, map%ny)
         endif
 
+        if ( debug_level.gt.0 ) then
         write(*, '("ooooo field = ", A19," ooooo",/)' ) hdate
-        call output(hdate, nlvl, maxlvl, plvl, interval, 2, out_format)
+        end if
+        call output(hdate, nlvl, maxlvl, plvl, interval, 2, out_format, debug_level)
         call clear_storage
         exit FILELOOP
      enddo FILELOOP

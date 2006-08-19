@@ -66,7 +66,7 @@ program ungrib
   integer :: nunit1 = 12
   character(LEN=132) :: gribflnm = 'GRIBFILE.AAA        '    ! won't work with len=12
 
-  integer :: iprint
+  integer :: debug_level
 
   integer , parameter :: maxlvl = 100
 
@@ -91,17 +91,15 @@ program ungrib
   integer :: interval
   integer :: ierr
   logical :: ordered_by_date
-  logical :: debug_print
   integer :: grib_version
   integer :: vtable_columns
 
 
-  debug_print = .true.    ! jfb
 ! -----------------
 ! Read the namelist, and return the information we want:
 
   call read_namelist(hstart, hend, interval, ntimes, &
-       ordered_by_date, debug_print, iprint, out_format)
+       ordered_by_date, debug_level, out_format)
 
   write(*,*) 'Interval value:', interval
 
@@ -115,14 +113,17 @@ program ungrib
   else
      vtable_columns=7 
   endif
+  print *,'Reading Grib Edition ',grib_version
 
 ! -----------------
 ! Read the "Vtable" file, and put the information contained therein into 
 ! the module "table".
 
-  call parse_table(debug_print,vtable_columns)
+  call parse_table(debug_level,vtable_columns)
 
-  write(6,*) 'Parsed the vtable'
+  if ( debug_level .gt. 100 ) then
+     write(6,*) 'Parsed the vtable'
+  end if
 
 ! -----------------
 ! Initialize the input filename to GRIBFILE.AA{character just before A}
@@ -153,8 +154,9 @@ program ungrib
      ! Set READIT to .TRUE., meaning that we have not read any records yet 
      ! from the file GRIBFLNM.
 
-     write(6,*) 'reading from gribflnm = ',gribflnm
-     debug_print = .true.
+     if ( debug_level .gt. 100 ) then
+        write(6,*) 'reading from gribflnm = ',gribflnm
+     end if
 
      readit = .TRUE.  ! i.e., "Yes, we want to read a record."
 
@@ -187,22 +189,28 @@ program ungrib
            if (READIT) then
 
               if (grib_version.ne.2) then 
-		 write(6,*) 'calling rd_grib1 with iunit ', nunit1
-		 write(6,*) 'flnm = ',gribflnm
+                 if ( debug_level .gt. 100 ) then
+                    write(6,*) 'calling rd_grib1 with iunit ', nunit1
+                    write(6,*) 'flnm = ',gribflnm
+                 end if
                  ! Read one record at a time from GRIB1 (and older Editions) 
                  call rd_grib1(nunit1, gribflnm, level, field, &
-                      hdate, ierr, iuarr, iprint)
+                      hdate, ierr, iuarr, debug_level)
               else 
 
                  ! Read one file of records from GRIB2.
-		 write(6,*) 'calling rd_grib2'
+                 if ( debug_level .gt. 100 ) then
+                    write(6,*) 'calling rd_grib2'
+                 end if
                  call rd_grib2(nunit1, gribflnm, hdate, &
-                      grib_version, ierr)
+                      grib_version, ierr, debug_level)
                  FIELD='NULL'
 
               endif
 
-	      write(6,*) 'ierr = ',ierr
+              if ( debug_level .gt. 100 ) then
+                 write(6,*) 'ierr = ',ierr
+              end if
               if (ierr.eq.1) then 
                  ! We have hit the end of a file.  Exit LOOP0 so we can 
                  ! write output for date HDATE, and then exit LOOP1
@@ -217,11 +225,15 @@ program ungrib
                  exit LOOP2
               endif
 
-              if (debug_print) print*, 'Read a record '//field//' with date ', hdate(1:13)
+              if (debug_level .gt. 100) then
+                 print*, 'Read a record '//field//' with date ', hdate(1:13)
+              end if
 
            endif
 
-           if (debug_print) print*, "hdate, hsave = "//hdate(1:13)//"  "//hsave(1:13)
+           if (debug_level .gt. 100) then
+              print*, "hdate, hsave = "//hdate(1:13)//"  "//hsave(1:13)
+           end if
 
 !           if (hdate < hstart) then
 !              ! The data read has a date HDATE earlier than the starting
@@ -242,7 +254,7 @@ program ungrib
               ! Exit LOOP0, because we started to read data from another 
               ! date.
 
-              if (debug_print) then
+              if (debug_level .gt. 100) then
                  write(*, '(A19, " > ", A19, " so exit LOOP0")') hdate, hsave
               endif
 
@@ -295,8 +307,8 @@ program ungrib
 ! because that 0000 date is the flag for the very opening of a file.
 
         if ((hsave(1:4).ne.'0000').and.(hsave.le.hend)) then
-           if (debug_print) print*, 'Calling output: '//hsave(1:13)
-           call output(hsave, nlvl, maxlvl, plvl, interval, 1, out_format)
+           if (debug_level .gt. 100) print*, 'Calling output: '//hsave(1:13)
+           call output(hsave, nlvl, maxlvl, plvl, interval, 1, out_format, debug_level)
            hsave=hdate
 
            ! If the next record we process has a date later than HEND,
@@ -319,7 +331,7 @@ program ungrib
 ! the next file.
 
      if (grib_version.ne.2) then
-        call cclose(iuarr(nunit1), iprint, ierr)
+        call cclose(iuarr(nunit1), debug_level, ierr)
         iuarr(nunit1) = 0
      endif 
      hsave = '0000-00-00_00:00:00'
@@ -330,7 +342,7 @@ program ungrib
 
   write(*,*) 'First pass done, doing a reprocess'
 
-  call rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_print, out_format)
+  call rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_level, out_format)
 
 ! Make sure the filedates are in order, with an inefficient sort:
 

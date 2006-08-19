@@ -7,7 +7,7 @@
 !    program what fields to extract from the archive files.                   !
 !                                                                             !
 ! Argument list:                                                              !
-!    Input: DEBUG_PRINT:  T for extra prints; F for little printout.          !
+!    Input: DEBUG_LEVEL:  0 = no prints, bigger numbers = more prints         !
 !              
 ! Externals:                                                                  !
 !    Module TABLE                                                             !
@@ -45,10 +45,10 @@
 !                                                                             !
 !*****************************************************************************!
 
-subroutine parse_table(debug_print,vtable_columns)
+subroutine parse_table(debug_level,vtable_columns)
   use Table
   implicit none
-  logical :: debug_print ! .true./.false. Flag for additional print info.
+  integer :: debug_level
 
   character(LEN=255) :: string = ' '
   integer :: ierr
@@ -62,8 +62,6 @@ subroutine parse_table(debug_print,vtable_columns)
   blankcode = -99
   splatcode = -88
 ! end added for IBM
-
-  debug_print=.true.
 
 ! Open the file called "Vtable"
 
@@ -375,7 +373,7 @@ subroutine parse_table(debug_print,vtable_columns)
   do i = 1, maxtmp-1
      do j = i+1, maxtmp
         if ((nameout(i).eq.nameout(j)).and.(nameout(j).ne.' ')) then
-           if (debug_print) then
+           if (debug_level .gt. 0) then
               write(*,'("Duplicate name.  Removing ",A9," from output list.")') nameout(j)
            endif
            nameout(j:maxlines-1) = nameout(j+1:maxlines)
@@ -408,7 +406,7 @@ subroutine parse_table(debug_print,vtable_columns)
      endif
   enddo
 
-  if (debug_print) then
+  if (debug_level .gt. 1) then
      write(*,'(//"Read from file ''Vtable'' by subroutine PARSE_TABLE:")')
      do i = 1, maxvar
         if (vtable_columns.eq.11) then
@@ -423,6 +421,4 @@ subroutine parse_table(debug_print,vtable_columns)
      write(*,'(//)')
   endif
         
-  debug_print=.false.
-
 end subroutine parse_table

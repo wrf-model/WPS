@@ -1,5 +1,5 @@
 subroutine read_namelist(hstart, hend, delta_time, ntimes,&
-     ordered_by_date, print_flag, iprint, out_format)
+     ordered_by_date, debug_level, out_format)
   implicit none
   integer , parameter :: maxim_doms = 21
   character(len=200) :: extdataroot, file_name_namelist
@@ -7,8 +7,7 @@ subroutine read_namelist(hstart, hend, delta_time, ntimes,&
   integer :: delta_time
   integer :: ntimes
   logical :: ordered_by_date
-  logical :: print_flag
-  integer :: iprint
+  integer :: debug_level
 
   integer :: ierr
   integer :: idts
@@ -37,7 +36,6 @@ subroutine read_namelist(hstart, hend, delta_time, ntimes,&
   integer :: max_dom, io_form_geogrid
 
   character(len=3) :: out_format
-  logical :: debug_print = .FALSE.
 
   namelist /share/ wrf_core, max_dom, &
        start_year, start_month, start_day, start_hour, &
@@ -46,7 +44,7 @@ subroutine read_namelist(hstart, hend, delta_time, ntimes,&
        end_minute, end_second,&
        interval_seconds, &
        start_date, end_date, &
-       io_form_geogrid, opt_output_from_geogrid_path, debug_print
+       io_form_geogrid, opt_output_from_geogrid_path, debug_level
 
   namelist /ungrib/ out_format, &
        ordered_by_date
@@ -162,8 +160,7 @@ subroutine read_namelist(hstart, hend, delta_time, ntimes,&
 
   print*, 'HSTART, HEND = ', hstart//'    '//hend
 
-  if (debug_print) then
-     iprint=1
+  if (debug_level.gt.0) then
      write(*,'(//)')
      write(*,'("Namelist information (coarse domain): ")')
      write(*,'(5x,"start_year = ", I8)') start_year(1)
@@ -180,13 +177,12 @@ subroutine read_namelist(hstart, hend, delta_time, ntimes,&
      write(*,'(5x,"end_second = ", I8)') end_second(1)
      write(*,'(5x,"interval_seconds = ", I10)') interval_seconds
      write(*,'(5x,"ordered_by_date = ", L4)') ordered_by_date
-     write(*,'(5x,"debug_print = ", L4)') debug_print
+     write(*,'(5x,"debug_level = ", I8)') debug_level
      write(*,'(//)')
   else
-     iprint=0
+     debug_level=0
   endif
 
-  print_flag = debug_print
   delta_time = interval_seconds
 
   rewind(10)

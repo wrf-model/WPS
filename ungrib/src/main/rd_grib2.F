@@ -19,7 +19,7 @@
 !       GRIB2FILE: File name to open, if it is not already open.              !
 !       ALENGTH : Length of an array to hold the 2d slab read from the GRIB2  !
 !                 record.  This is a parameter in the main program.           !
-!       IPRINT  : Integer for various amounts of printout.                    !
+!       DEBUG_LEVEL  : Integer for various amounts of printout.               !
 !                                                                             !
 !    Output:                                                                  !
 !                                                                             !
@@ -37,7 +37,7 @@
 !*****************************************************************************!
       
       SUBROUTINE rd_grib2(junit, gribflnm, hdate, 
-     &  grib_edition, ireaderr)
+     &  grib_edition, ireaderr, debug_level)
 
       use grib_mod
       use params
@@ -59,7 +59,7 @@
       integer :: lskip, lgrib
       integer :: junit, itot, icount, iseek
       integer :: grib_edition
-      integer :: i, j, ireaderr, ith
+      integer :: i, j, ireaderr, ith , debug_level
       integer :: currlen
       logical :: unpack, expand
       type(gribfield) :: gfld
@@ -73,7 +73,6 @@
       real , dimension(maxlvl) :: plvl
       integer :: nlvl
       integer , dimension(maxlvl) :: level_array
-      logical :: verbose=.true.
 
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 C  SET ARGUMENTS
@@ -158,7 +157,7 @@ C  SET ARGUMENTS
          endif
          
          ! Additional print statments for developer.
-         if (verbose) then
+         if ( debug_level .GT. 100 ) then
          print *,'G2 SECTION 0: ',(listsec0(j),j=1,3)
          print *,'G2 SECTION 1: ',(listsec1(j),j=1,13)
          print *,'G2 Contains ',numlocal,' Local Sections ',
@@ -198,9 +197,13 @@ C  SET ARGUMENTS
            !print *, 'hhmm  ',gfld%idsect(9),gfld%idsect(10)
    
            call build_hdate(hdate,year,month,day,hour,minute,second)
-           print *, 'G2 hdate = ',hdate
+           if ( debug_level .gt. 100 ) then
+              print *, 'G2 hdate = ',hdate
+           end if
            call geth_newdate(hdate,hdate,3600*fcst)
-           print *, 'G2 hdate (fcst?) = ',hdate
+           if ( debug_level .gt. 100 ) then
+              print *, 'G2 hdate (fcst?) = ',hdate
+           end if
 
            !--
 
@@ -300,8 +303,10 @@ C  SET ARGUMENTS
               if (map%lon1.ge.scale_factor) then 
                  map%lon1 = map%lon1/scale_factor
               endif
+              if ( debug_level .gt. 2 ) then
            print *,'Gaussian Grid: Dx,Dy,lat,lon',map%dx,map%dy,
      &       map%lat1,map%lon1
+              end if
 
            elseif (gfld%igdtnum.eq.20) then ! Polar-Stereographic Grid.
               map%igrid = 5
@@ -334,7 +339,7 @@ C  SET ARGUMENTS
 
 ! ------------------------------------
          ! Additional print information for developer.
-         if (verbose) then
+         if ( debug_level .GT. 100 ) then
            print *
            print *,'G2 FIELD ',n
            if (n==1) then
@@ -493,8 +498,10 @@ C  SET ARGUMENTS
       enddo VERSION ! skgb
 
 
-      print *, 'G2 total number of fields found = ',itot
-      call summary()
+      if ( debug_level .gt. 100 ) then
+         print *, 'G2 total number of fields found = ',itot
+         call summary()
+      end if
 
       CALL BACLOSE(junit,IOS)
 
