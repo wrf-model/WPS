@@ -795,7 +795,7 @@ end subroutine gribget
 !=============================================================================!
 !=============================================================================!
 !
-subroutine gribread(nunit, data, ndata, ierr)
+subroutine gribread(nunit, data, ndata, debug_level, ierr)
 !-----------------------------------------------------------------------------!
 ! Read one grib record, unpack the header and data information.               !
 !                                                                             !
@@ -827,6 +827,7 @@ subroutine gribread(nunit, data, ndata, ierr)
   implicit none
 
   integer :: nunit
+  integer :: debug_level
   integer :: ierr
   real, allocatable, dimension(:) :: datarray
   integer :: ndata
@@ -841,7 +842,7 @@ subroutine gribread(nunit, data, ndata, ierr)
 
 ! Unpack the header information
 
-  call gribheader(ierr)
+  call gribheader(debug_level,ierr)
 
 ! Determine the size of the data array from the information in the header, 
 ! and allocate the array DATARRAY to hold that data.
@@ -1223,12 +1224,13 @@ end subroutine glccone
 !=============================================================================!
 !=============================================================================!
 !
-subroutine gribheader(ierr)
+subroutine gribheader(debug_level,ierr)
 !
 ! IERR non-zero means there was a problem unpacking the grib header.
 !
   use module_grib
   implicit none
+  integer :: debug_level
   integer :: ierr
 
   integer, parameter :: nsec1 = 24
@@ -1336,10 +1338,11 @@ subroutine gribheader(ierr)
         call gbyte_g1(grec, infogrid(11), iskip, 32)
         iskip = iskip + 32
 
+        if ( debug_level .gt. 100 ) then
         print *, "lat/lon grib grid info", infogrid(1), infogrid(3), &
         infogrid(5), infogrid(6), infogrid(8), infogrid(21), &
         infogrid(22), infogrid(10), infogrid(11), infogrid(8)
-
+        end if
 
         infogrid(8) = infogrid(8) * infogrid(21)
         infogrid(9) = infogrid(9) * infogrid(22)

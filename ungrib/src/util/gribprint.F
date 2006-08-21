@@ -89,7 +89,7 @@ program gribscan
   call gribget(munit, ierr)
   do while (ierr.eq.0) 
      irec = irec + 1
-     call gribheader(igherr)
+     call gribheader(0,igherr)
      if (igherr /= 0) then
         call deallogrib
         call gribget(munit, ierr)

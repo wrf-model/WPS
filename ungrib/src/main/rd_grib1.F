@@ -123,7 +123,7 @@ SUBROUTINE rd_grib1(IUNIT, gribflnm, level, field, hdate,  &
 !
 ! Unpack the header information:
 !
-  call gribheader(igherr)
+  call gribheader(debug_level,igherr)
   if (igherr /= 0) then
      field = "NULL"
      call deallogrib
