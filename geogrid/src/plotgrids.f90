@@ -296,7 +296,7 @@ MODULE map_utils
               .NOT.PRESENT(stdlon) .OR. &
               .NOT.PRESENT(dx) ) THEN
             PRINT '(A,I2)', 'The following are mandatory parameters for projection code : ', proj_code
-            PRINT '(A)', ' truelat1, lat1, lon1, knonwi, knownj, stdlon, dx'
+            PRINT '(A)', ' truelat1, lat1, lon1, knowni, knownj, stdlon, dx'
             STOP 'MAP_INIT'
          END IF
       ELSE IF ( proj_code == PROJ_MERC ) THEN
@@ -373,7 +373,7 @@ MODULE map_utils
       IF ( PRESENT(stdlon) ) THEN
          IF ((ABS(stdlon) .GT. 180.).AND.(proj_code .NE. PROJ_MERC)) THEN
             PRINT '(A)', 'Need orientation longitude (stdlon) as: '
-            PRINT '(A)', '   -180E <= lon1 <= 180W' 
+            PRINT '(A)', '   -180E <= stdlon <= 180W' 
             STOP 'MAP_INIT'
          ENDIF
       ENDIF
@@ -1826,16 +1826,10 @@ program plotgrids
                 ixdim=ixdim(1), &
                 jydim=jydim(1))
 
-!   call latlon_to_ij(map_projection, known_lat, known_lon, ri, rj)
-!   write(6,*) known_lat, known_lon, ri, rj
    call ij_to_latlon(map_projection, 1., 1., rlats, rlons)
    call ij_to_latlon(map_projection, real(e_we(1)), real(e_sn(1)) , rlate, rlone)
 
-!  write(6,*) 1., 1., rlats, rlons
-!  write(6,*) e_we(1), e_sn(1) , rlate, rlone
-
    call opngks
-!   call gopwk(13, 41, 3)
 
    ! Set some colors
    call gscr(1, 0, 1.00, 1.00, 1.00)
@@ -1871,7 +1865,6 @@ program plotgrids
 
    call frame
 
-!   call gclwk(13)
    call clsgks
 
    stop
@@ -1930,5 +1923,3 @@ subroutine getxy ( xs, xe, ys, ye, &
    ye = ys + ye
 
 end subroutine getxy
-
-                   
