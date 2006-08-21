@@ -1,7 +1,15 @@
 #!/bin/csh -f
 
 if ( ! -e configure.wps ) then
-	./configure
+	echo "Do 'configure' first"
+	exit ( 1 ) 
+endif
+
+if  ( ( ! $?NETCDF ) && ( -d netcdf_links ) ) then
+	setenv NETCDF `pwd`/netcdf_links
+	setenv temp_netcdf 1
+else
+	setenv temp_netcdf 0
 endif
 
 echo " "
@@ -69,4 +77,8 @@ if ( $1 == util ) then
 	if ( -e ungrib/src/util/rd_intermediate.exe ) then
 		ln -sf ungrib/src/util/rd_intermediate.exe .
 	endif
+endif
+
+if  ( $temp_netcdf == 1 ) then
+	unsetenv NETCDF
 endif
