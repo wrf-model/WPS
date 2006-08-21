@@ -16,9 +16,7 @@ foreach dir ( $DIRS )
 	if ( -d $dir ) then 
 		( cd $dir ; make -i DEV_TOP="${DEV_TOP}" TARGET="${dir}.exe" clean )
 	endif
-	if ( -e ${dir}.exe ) then
-		/bin/rm -f ${dir}.exe
-	endif
+	/bin/rm -f ${dir}.exe >& /dev/null
 end
 
 foreach execs ( plotfmt.exe plotgrids.exe gribprint.exe mod_levs.exe rd_intermediate.exe )
