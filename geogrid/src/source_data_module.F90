@@ -285,7 +285,7 @@ module source_data_module
      
                else if (index('priority',trim(buffer(1:idx-1))) /= 0) then
                   is_priority(i) = .true.
-                  read(buffer(idx+1:eos-1),'(i)') source_priority(i)
+                  read(buffer(idx+1:eos-1),'(i10)') source_priority(i)
      
                else if (index('dest_type',trim(buffer(1:idx-1))) /= 0) then
                   if (index('continuous',trim(buffer(idx+1:eos-1))) /= 0) then
@@ -330,7 +330,7 @@ module source_data_module
      
                else if (index('smooth_passes',trim(buffer(1:idx-1))) /= 0) then
                   is_smooth_passes(i) = .true.
-                  read(buffer(idx+1:eos-1),'(i)') source_smooth_passes(i)
+                  read(buffer(idx+1:eos-1),'(i10)') source_smooth_passes(i)
        
                else if (index('rel_path',trim(buffer(1:idx-1))) /= 0) then
                   ispace = idx+1
@@ -407,12 +407,12 @@ module source_data_module
                else if ((index('landmask_water',trim(buffer(1:idx-1))) /= 0) .and. &
                         (len_trim(buffer(1:idx-1)) == 14)) then
                   is_landmask_water(i) = .true.
-                  read(buffer(idx+1:eos-1),'(i)') source_landmask_water(i)
+                  read(buffer(idx+1:eos-1),'(i10)') source_landmask_water(i)
      
                else if ((index('landmask_land',trim(buffer(1:idx-1))) /= 0) .and. &
                         (len_trim(buffer(1:idx-1)) == 13)) then
                   is_landmask_land(i) = .true.
-                  read(buffer(idx+1:eos-1),'(i)') source_landmask_land(i)
+                  read(buffer(idx+1:eos-1),'(i10)') source_landmask_land(i)
      
                else if ((index('masked',trim(buffer(1:idx-1))) /= 0) .and. &
                         (len_trim(buffer(1:idx-1)) == 6)) then
@@ -730,39 +730,39 @@ module source_data_module
           
                   else if (index('wordsize',trim(buffer(1:i-1))) /= 0) then
                      is_wordsize(idx) = .true.
-                     read(buffer(i+1:eos-1),'(i)') source_wordsize(idx)
+                     read(buffer(i+1:eos-1),'(i10)') source_wordsize(idx)
           
                   else if (index('tile_x',trim(buffer(1:i-1))) /= 0) then
                      is_tile_x(idx) = .true.
-                     read(buffer(i+1:eos-1),'(i)') source_tile_x(idx)
+                     read(buffer(i+1:eos-1),'(i10)') source_tile_x(idx)
         
                   else if (index('tile_y',trim(buffer(1:i-1))) /= 0) then
                      is_tile_y(idx) = .true.
-                     read(buffer(i+1:eos-1),'(i)') source_tile_y(idx)
+                     read(buffer(i+1:eos-1),'(i10)') source_tile_y(idx)
         
                   else if (index('tile_z',trim(buffer(1:i-1))) /= 0) then
                      is_tile_z(idx) = .true.
-                     read(buffer(i+1:eos-1),'(i)') source_tile_z(idx)
+                     read(buffer(i+1:eos-1),'(i10)') source_tile_z(idx)
         
                   else if (index('tile_z_start',trim(buffer(1:i-1))) /= 0) then
                      is_tile_z_start(idx) = .true.
-                     read(buffer(i+1:eos-1),'(i)') source_tile_z_start(idx)
+                     read(buffer(i+1:eos-1),'(i10)') source_tile_z_start(idx)
         
                   else if (index('tile_z_end',trim(buffer(1:i-1))) /= 0) then
                      is_tile_z_end(idx) = .true.
-                     read(buffer(i+1:eos-1),'(i)') source_tile_z_end(idx)
+                     read(buffer(i+1:eos-1),'(i10)') source_tile_z_end(idx)
         
                   else if (index('category_min',trim(buffer(1:i-1))) /= 0) then
                      is_category_min(idx) = .true.
-                     read(buffer(i+1:eos-1),'(i)') source_category_min(idx)
+                     read(buffer(i+1:eos-1),'(i10)') source_category_min(idx)
         
                   else if (index('category_max',trim(buffer(1:i-1))) /= 0) then
                      is_category_max(idx) = .true.
-                     read(buffer(i+1:eos-1),'(i)') source_category_max(idx)
+                     read(buffer(i+1:eos-1),'(i10)') source_category_max(idx)
         
                   else if (index('tile_bdr',trim(buffer(1:i-1))) /= 0) then
                      is_tile_bdr(idx) = .true.
-                     read(buffer(i+1:eos-1),'(i)') source_tile_bdr(idx)
+                     read(buffer(i+1:eos-1),'(i10)') source_tile_bdr(idx)
         
                   else if (index('missing_value',trim(buffer(1:i-1))) /= 0) then
                      is_missing_value(idx) = .true.
