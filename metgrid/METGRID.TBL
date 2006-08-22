@@ -145,11 +145,67 @@ name=ST010200
         fill_missing=285.
         flag_in_output=FLAG_ST010200
 ========================================
-name=SOILM000
+name=SM000007
         interp_option=sixteen_pt+four_pt+average_4pt+search
         masked=water
         interp_mask=LANDSEA(0)
         fill_missing=1.
+        flag_in_output=FLAG_SM000007
+========================================
+name=SM007028
+        interp_option=sixteen_pt+four_pt+average_4pt+search
+        masked=water
+        interp_mask=LANDSEA(0)
+        fill_missing=1.
+        flag_in_output=FLAG_SM007028
+========================================
+name=SM028100
+        interp_option=sixteen_pt+four_pt+average_4pt+search
+        masked=water
+        interp_mask=LANDSEA(0)
+        fill_missing=1.
+        flag_in_output=FLAG_SM028100
+========================================
+name=SM100255
+        interp_option=sixteen_pt+four_pt+average_4pt+search
+        masked=water
+        interp_mask=LANDSEA(0)
+        fill_missing=1.
+        flag_in_output=FLAG_SM100255
+========================================
+name=ST000007
+        interp_option=sixteen_pt+four_pt+average_4pt+search
+        masked=water
+        interp_mask=LANDSEA(0)
+        fill_missing=285.
+        flag_in_output=FLAG_ST000007
+========================================
+name=ST007028
+        interp_option=sixteen_pt+four_pt+average_4pt+search
+        masked=water
+        interp_mask=LANDSEA(0)
+        fill_missing=285.
+        flag_in_output=FLAG_ST007028
+========================================
+name=ST028100
+        interp_option=sixteen_pt+four_pt+average_4pt+search
+        masked=water
+        interp_mask=LANDSEA(0)
+        fill_missing=1.
+        flag_in_output=FLAG_ST028100
+========================================
+name=ST100255
+        interp_option=sixteen_pt+four_pt+average_4pt+search
+        masked=water
+        interp_mask=LANDSEA(0)
+        fill_missing=285.
+        flag_in_output=FLAG_ST100255
+========================================
+name=SOILM000
+        interp_option=sixteen_pt+four_pt+average_4pt+search
+        masked=water
+        interp_mask=LANDSEA(0)
+        fill_missing=285.
         flag_in_output=FLAG_SOILM000
 ========================================
 name=SOILM005
