@@ -24,7 +24,8 @@ NCARG_LIBS		=	-L$(NCARG_ROOT)/lib -lncarg -lncarg_gks -lncarg_c \
 				-L/usr/X11R6/lib -lX11
 
 NCARG_LIBS2		=
-				
+
+FDEFS			=	-DUSE_JPEG2000 -DUSE_PNG
 
 # Listing of options that are usually independent of machine type.
 # When necessary, these are over-ridden by each architecture.
