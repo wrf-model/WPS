@@ -40,6 +40,7 @@
       integer(4) :: ieee
       real :: ref,bscale,dscale
       integer :: dec_png,width,height
+#ifdef USE_PNG
 
       ieee = idrstmpl(1)
       call rdieee(ieee,ref,1)
@@ -66,5 +67,6 @@
       endif
 
 
+#endif /* USE_PNG */
       return
       end

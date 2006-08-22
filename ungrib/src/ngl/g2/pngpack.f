@@ -59,6 +59,7 @@
       integer,parameter :: zero=0
       integer :: enc_png
       character(len=1),allocatable :: ctemp(:)
+#ifdef USE_PNG
       
       ndpts=width*height
       bscale=2.0**real(-idrstmpl(2))
@@ -154,5 +155,7 @@
       idrstmpl(4)=nbits
       idrstmpl(5)=0         ! original data were reals
 
+
+#endif /* USE_PNG */
       return
       end

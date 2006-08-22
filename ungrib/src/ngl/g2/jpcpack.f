@@ -70,6 +70,7 @@
       integer,parameter :: zero=0
       integer :: enc_jpeg2000
       character(len=1),allocatable :: ctemp(:)
+#ifdef USE_JPEG2000
       
       ndpts=width*height
       bscale=2.0**real(-idrstmpl(2))
@@ -172,5 +173,6 @@
       idrstmpl(5)=0         ! original data were reals
       if (idrstmpl(6).eq.0) idrstmpl(7)=255       ! lossy not used
 
+#endif /* USE_JPEG2000 */
       return
       end

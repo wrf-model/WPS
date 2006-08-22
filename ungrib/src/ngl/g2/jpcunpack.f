@@ -39,6 +39,7 @@
       integer(4) :: ieee
       real :: ref,bscale,dscale
       integer :: dec_jpeg2000
+#ifdef USE_JPEG2000
 
       ieee = idrstmpl(1)
       call rdieee(ieee,ref,1)
@@ -62,5 +63,6 @@
       endif
 
 
+#endif /* USE_JPEG2000 */
       return
       end
