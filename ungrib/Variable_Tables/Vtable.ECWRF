@@ -1,8 +1,8 @@
-GRIB | Level| Level| Level| UNGRIB   |  UNGRIB  | UNGRIB                                   |
+GRIB | Level| Level| Level| REGRID   |  REGRID  | REGRID                                   |
 Code | Code |   1  |   2  | Name     |  Units   | Description                              |
 -----+------+------+------+----------+----------+------------------------------------------+
  129 | 100  |   *  |      | GEOPT    | m{2}s{-2}|                                          | 
-     |      |      |      | HGT      | m        | Height                                   |
+     | 100  |   *  |      | HGT      | m        | Height                                   |
  130 | 100  |   *  |      | T        | K        | Temperature                              |
  131 | 100  |   *  |      | U        | m s{-1}  | U                                        |
  132 | 100  |   *  |      | V        | m s{-1}  | V                                        |
@@ -12,9 +12,9 @@ Code | Code |   1  |   2  | Name     |  Units   | Description                   
  167 |  1   |   0  |      | T        | K        | Temperature                              | At 2 m
  168 |  1   |   0  |      | DEWPT    | K        |                                          | At 2 m
  172 |  1   |   0  |      | LANDSEA  | 0/1 Flag | Land/Sea flag                            |
- 129 |  1   |   0  |      | GEOPT    | m{2}s{-2}|                                          | 
-     |      |      |      | SOILHGT  | m        | Terrain field of source analysis         |
- 134 |  1   |   0  |      | PSFC     | Pa       | Surface Pressure                         |
+ 129 |  1   |   0  |      | SOILGEO  | m{2}s{-2}|                                          |
+     |  1   |   0  |      | SOILHGT  | m        | Terrain field of source analysis         |
+ 134 |  1   |   0  |      | PSFC     | Pa       |                                          |
  151 |  1   |   0  |      | PMSL     | Pa       | Sea-level Pressure                       |
  235 |  1   |   0  |      | SKINTEMP | K        | Sea-Surface Temperature                  |
   31 |  1   |   0  |      | SEAICE   | 0/1 Flag | Sea-Ice-Flag                             |

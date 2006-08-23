@@ -15,7 +15,7 @@ $(EXE):		$(OBJS) ../../src/util/libpgu.a
 		-L ../../src/util -lpgu
 
 .F.o:
-	$(CPP) $(CPPFLAGS) $*.F > $*.f
+	$(CPP) $(CPPFLAGS) $(FDEFS) $*.F > $*.f
 	$(FC) -c $(FFLAGS) $*.f -I. -I../../src/util
 	$(RM) $*.f
 

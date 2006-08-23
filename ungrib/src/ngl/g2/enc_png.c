@@ -1,7 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#ifdef USE_PNG
 #include <png.h>
+#endif /* USE_PNG */
 
 #ifdef __64BIT__
   typedef int g2int;
@@ -22,6 +24,7 @@
    #define SUB_NAME enc_png_
 #endif
 
+#ifdef USE_PNG
 struct png_stream {
    unsigned char *stream_ptr;     /*  location to write PNG stream  */
    g2int stream_len;               /*  number of bytes written       */
@@ -58,13 +61,15 @@ void user_flush_data(png_structp png_ptr)
 {
    int *do_nothing=NULL;
 }
+#endif /* USE_PNG */
 
 
 int SUB_NAME(char *data,g2int *width,g2int *height,g2int *nbits,char *pngbuf)
 {
- 
+    g2int pnglen;
+#ifdef USE_PNG
     int color_type;
-    g2int j,bytes,pnglen,bit_depth;
+    g2int j,bytes,bit_depth;
     png_structp png_ptr;
     png_infop info_ptr;
 /*    png_bytep *row_pointers[*height]; */
@@ -139,6 +144,7 @@ int SUB_NAME(char *data,g2int *width,g2int *height,g2int *nbits,char *pngbuf)
     png_destroy_write_struct(&png_ptr, &info_ptr);
     free(row_pointers);
     pnglen=write_io_ptr.stream_len;
+#endif /* USE_PNG */
     return pnglen;
 
 }

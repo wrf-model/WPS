@@ -1,8 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#ifdef USE_JPEG2000
 #include "jasper/jasper.h"
 #define JAS_1_700_2
+#endif /* USE_JPEG2000 */
 
 
 #ifdef __64BIT__
@@ -65,6 +67,7 @@
 *$$$*/
 
 {
+#ifdef USE_JPEG2000
     int ier;
     g2int i,j,k,n;
     jas_image_t *image=0;
@@ -150,6 +153,7 @@
     ier=jas_stream_close(jpcstream);
     jas_image_destroy(image);
 
+#endif /* USE_JPEG2000 */
     return 0;
 
 }

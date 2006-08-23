@@ -405,6 +405,18 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_level, out_f
            call make_zero_or_one(map%nx, map%ny)
         endif
 
+! If we've don't have a SOILHGT field, see if we have a SOILGEO field: 
+
+        if (.not. is_there(200100, 'SOILHGT').and. &
+             is_there(200100, 'SOILGEO')) then
+           call get_dims(200100, 'SOILGEO')
+           allocate(scr2d(map%nx,map%ny))
+           call get_storage(200100, 'SOILGEO', scr2d, map%nx, map%ny)
+           scr2d = scr2d / 9.81
+           call put_storage(200100, 'SOILHGT', scr2d, map%nx, map%ny)
+           deallocate(scr2d)
+        endif
+
         if ( debug_level.gt.0 ) then
         write(*, '("ooooo field = ", A19," ooooo",/)' ) hdate
         end if

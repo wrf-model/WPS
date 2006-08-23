@@ -110,6 +110,19 @@ program ungrib
   if (ierr.eq.3) STOP 'GRIB file problem' 
   if (grib_version.eq.2) then
      vtable_columns=11 
+#if defined (USE_PNG) && (USE_JPEG2000)
+     write(6,*) 'Linked in png and jpeg for Grib Edition 2'
+#else
+     write(6,*) ' '
+     write(6,*) '***********************************************'
+     write(6,*) 'WARNING - Grib Edition 2 data detected, and'
+     write(6,*) '        - png and jpeg libs were NOT selected'
+     write(6,*) '        - during the build.'
+     write(6,*) 'Stopping'
+     write(6,*) '***********************************************'
+     write(6,*) ' '
+     stop 'NEED_GRIB2_LIBS'
+#endif
   else
      vtable_columns=7 
   endif

@@ -1,8 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#ifdef USE_JPEG2000
 #include "jasper/jasper.h"
 #define JAS_1_700_2
+#endif /* USE_JPEG2000 */
 
 #ifdef __64BIT__
   typedef int g2int;
@@ -83,7 +85,9 @@ int SUB_NAME(unsigned char *cin,g2int *pwidth,g2int *pheight,g2int *pnbits,
 *
 *$$$*/
 {
-    int ier,rwcnt;
+    int rwcnt = 0;
+#ifdef USE_JPEG2000
+    int ier ;
     jas_image_t image;
     jas_stream_t *jpcstream,*istream;
     jas_image_cmpt_t cmpt,*pcmpt;
@@ -190,7 +194,7 @@ int SUB_NAME(unsigned char *cin,g2int *pwidth,g2int *pheight,g2int *pnbits,
 /*
  *      Return size of jpeg2000 code stream
  */
+#endif /* USE_JPEG2000 */
     return (rwcnt);
 
 }
-
