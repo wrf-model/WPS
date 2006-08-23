@@ -94,6 +94,12 @@
           int * nactual, int * fdes, const char *fname, char *datary, 
           int  namelen, int  datanamelen) {
 #endif
+#ifdef ALPHA
+  int bacio_
+         (int * mode, int * start, int *newpos, int * size, int * no, 
+          int * nactual, int * fdes, const char *fname, char *datary, 
+          int  namelen, int  datanamelen) {
+#endif
 #ifdef LINUX
   int bacio_
          (int * mode, int * start, int *newpos, int * size, int * no, 
@@ -377,6 +383,12 @@
           int  namelen ) {
 #endif
 #ifdef SGI
+  int banio_
+         (int * mode, int * start, int *newpos, int * size, int * no, 
+          int * nactual, int * fdes, const char *fname, char *datary, 
+          int  namelen ) {
+#endif
+#ifdef ALPHA
   int banio_
          (int * mode, int * start, int *newpos, int * size, int * no, 
           int * nactual, int * fdes, const char *fname, char *datary, 

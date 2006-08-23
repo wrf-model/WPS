@@ -10,9 +10,9 @@ all:		$(EXE)
 $(EXE):		$(OBJS) ../../src/util/libpgu.a
 	$(RM) $@
 	$(FC) -o $@ $(LDFLAGS) $(OBJS) \
-		-L ../../src/ngl -lw3 -lg2_4 \
+		-L../../src/ngl -lw3 -lg2_4 \
 		$(COMPRESSION_LIBS) \
-		-L ../../src/util -lpgu
+		-L../../src/util -lpgu
 
 .F.o:
 	$(CPP) $(CPPFLAGS) $(FDEFS) $*.F > $*.f

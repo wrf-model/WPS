@@ -43,6 +43,9 @@ C$$$
 #ifdef SGI
   void errexit_ (int a)
 #endif
+#ifdef ALPHA
+  void errexit_ (int a)
+#endif
 #ifdef LINUX
   void errexit_ (int a)
 #endif

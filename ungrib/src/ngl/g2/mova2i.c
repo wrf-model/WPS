@@ -44,6 +44,9 @@ C$$$i*/
 #ifdef SGI
    int mova2i_(unsigned char *a)
 #endif
+#ifdef ALPHA
+   int mova2i_(unsigned char *a)
+#endif
 #ifdef LINUX
    int mova2i_(unsigned char *a)
 #endif
