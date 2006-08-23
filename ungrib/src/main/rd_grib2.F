@@ -271,13 +271,13 @@ C  SET ARGUMENTS
               map%igrid = 3
               map%nx = gfld%igdtmpl(8)
               map%ny = gfld%igdtmpl(9)
-              map%lov = gfld%igdtmpl(14)
-              map%truelat1 = gfld%igdtmpl(19)
-              map%truelat2 = gfld%igdtmpl(20)
-              map%dx = gfld%igdtmpl(15)
-              map%dy = gfld%igdtmpl(16)
-              map%lat1 = gfld%igdtmpl(10)
-              map%lon1 = gfld%igdtmpl(11)
+              map%lov = gfld%igdtmpl(14) / scale_factor
+              map%truelat1 = gfld%igdtmpl(19) / scale_factor
+              map%truelat2 = gfld%igdtmpl(20) / scale_factor
+              map%dx = gfld%igdtmpl(15) / scale_factor
+              map%dy = gfld%igdtmpl(16) / scale_factor
+              map%lat1 = gfld%igdtmpl(10) / scale_factor
+              map%lon1 = gfld%igdtmpl(11) / scale_factor
 
            elseif(gfld%igdtnum.eq.40) then ! Gaussian Grid (we will call it lat/lon)
               map%igrid = 0
@@ -312,13 +312,13 @@ C  SET ARGUMENTS
               map%igrid = 5
               map%nx = gfld%igdtmpl(8)
               map%ny = gfld%igdtmpl(9)
-              !map%lov = gfld%igdtmpl(x) ! ?not in Grid Definition Template 3.20 doc
+              map%lov = gfld%igdtmpl(14) / scale_factor
               map%truelat1 = 60.
               map%truelat2 = 91.
-              !map%dx = gfld%igdtmpl(x)
-              !map%dy = gfld%igdtmpl(x)
-              map%lat1 = gfld%igdtmpl(10)
-              map%lon1 = gfld%igdtmpl(11)
+              map%dx = gfld%igdtmpl(15) / scale_factor
+              map%dy = gfld%igdtmpl(16) / scale_factor
+              map%lat1 = gfld%igdtmpl(10 / scale_factor
+              map%lon1 = gfld%igdtmpl(11) / scale_factor
 
            else
               print*, 'GRIB2 Unknown Projection: ',gfld%igdtnum
