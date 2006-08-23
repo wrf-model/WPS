@@ -317,7 +317,7 @@ C  SET ARGUMENTS
               map%truelat2 = 91.
               map%dx = gfld%igdtmpl(15) / scale_factor
               map%dy = gfld%igdtmpl(16) / scale_factor
-              map%lat1 = gfld%igdtmpl(10 / scale_factor
+              map%lat1 = gfld%igdtmpl(10) / scale_factor
               map%lon1 = gfld%igdtmpl(11) / scale_factor
 
            else
