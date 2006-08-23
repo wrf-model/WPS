@@ -68,6 +68,7 @@
       real :: scale_factor
       integer :: iplvl
       character (len=9) :: my_field
+      character (len=8) :: tmp8
       ! For subroutine outout
       integer , parameter :: maxlvl = 100
       real , dimension(maxlvl) :: plvl
@@ -251,7 +252,7 @@ C  SET ARGUMENTS
                  map%dx = map%dx/scale_factor
               endif
               if (map%dy.gt.10000) then 
-                 map%dy = (map%dy/scale_factor)*(-1)
+                 map%dy = map%dy/scale_factor
               endif
 
               ! Scale lat/lon values to 0-180, default range is 1e6.
@@ -262,9 +263,11 @@ C  SET ARGUMENTS
                  map%lon1 = map%lon1/scale_factor
               endif
 
-              if (iprocess.eq.81 .and. map%dy.eq.0) then !Hack for AFWA.
-                 map%dx =  0.5
-                 map%dy = -0.5
+	      ! the following is needed for NCEP GFS, 0.5 degree output
+	      if ( map%lat1 .gt. gfld%igdtmpl(15) .and. 
+     &               map%dy .gt. 0. ) then
+                map%dy = -1. * map%dy
+                write(6,*) 'Resetting map%dy for iprocess = ',iprocess
               endif
 
            elseif (gfld%igdtnum.eq.30) then ! Lambert Conformal Grid
@@ -367,7 +370,7 @@ C  SET ARGUMENTS
      &                              gfld%ipdtmpl(2))
            !call prlevel(gfld%ipdtnum,gfld%ipdtmpl,labbrev)
            !call prvtime(gfld%ipdtnum,gfld%ipdtmpl,listsec1,tabbrev)
-           !print *,'G2 TEXT: ',pabbrev,trim(labbrev)," ",trim(tabbrev)
+            print *,'G2 TEXT: ',pabbrev,trim(labbrev)," ",trim(tabbrev)
 
            if ( gfld%num_coord .eq. 0 ) then
              print *,'G2 NO Optional Vertical Coordinate List.'
@@ -402,6 +405,13 @@ C  SET ARGUMENTS
          endif ! Additional Print information 
 ! ------------------------------------
 
+         if ( debug_level .GT. 100 ) then
+          do i = 1, maxvar
+            write(6,'(a10,4i8)') namvar(i),(g2code(j,i),j=1,4)
+          enddo
+          write(6,*) 'looking for ',gfld%discipline,gfld%ipdtmpl(1),
+     &       gfld%ipdtmpl(2),gfld%ipdtmpl(10)
+         endif
 
          ! Test this data record again list of desired variables 
          ! found in Vtable.
@@ -409,25 +419,41 @@ C  SET ARGUMENTS
          MATCH_LOOP: do i=1,maxvar ! Max variables found in Vtable,
                                    ! maxvar is defined in table.mod
 
-           if(gfld%ipdtmpl(4).eq.g2code(1,i).and.   !Discipline 
-     &        gfld%ipdtmpl(1).eq.g2code(2,i).and.   !Category
-     &        gfld%ipdtmpl(2).eq.g2code(3,i).and.   !Parameter
-     &        gfld%ipdtmpl(10).eq.g2code(4,i)) then !Elevation
+           if ( gfld%discipline .eq. g2code(1,i) .and.   !Discipline 
+     &          gfld%ipdtmpl(1) .eq. g2code(2,i) .and.   !Category
+     &          gfld%ipdtmpl(2) .eq. g2code(3,i) .and.   !Parameter
+     &          gfld%ipdtmpl(10) .eq. g2code(4,i)) then  !Elevation
 
-            pabbrev=param_get_abbrev(gfld%ipdtmpl(4),gfld%ipdtmpl(1),
+            pabbrev=param_get_abbrev(gfld%discipline,gfld%ipdtmpl(1),
      &                               gfld%ipdtmpl(2))
 
-              !my_field (e.g. RH, TMP, i.e. pabbrev)
+              !my_field (e.g. RH, TMP, simlar to, but not the same as pabbrev)
               my_field=namvar(i) 
 
-
-              ! In order to fill in my_field, for sub-soil values
-              ! increment i. As, there are two sub-soil values, 
-              ! one ranges from 0-10cm, the other from 10-200cm. 
-              if(gfld%ipdtmpl(10).eq.106.and.
-     &           gfld%ipdtmpl(15).eq.200) then 
-                 my_field=namvar(i+1) !pabbrev
-              endif
+	      ! need to match up soil levels with those requested.
+	      if ( gfld%ipdtmpl(10) .eq. 106 ) then
+	        if ( gfld%ipdtmpl(2) .eq. 192 ) then
+	          write(tmp8,'(a2,2i3.3)') 'SM',gfld%ipdtmpl(12),
+     &               gfld%ipdtmpl(15)
+	        else if ( gfld%ipdtmpl(2) .eq. 0 ) then
+	          write(tmp8,'(a2,2i3.3)') 'ST',gfld%ipdtmpl(12),
+     &               gfld%ipdtmpl(15)
+		else
+		   write(6,*) 'Something is wrong with the parameter'
+		   write(6,*) 'gfld%ipdtmpl(2) = ',gfld%ipdtmpl(2)
+		   stop 'subsoil'
+		endif
+	        TMP8LOOP: do j = 1, maxvar
+		  if (tmp8 .eq. namvar(j)(1:8)) then
+		    my_field = namvar(j)
+		    exit TMP8LOOP
+		  endif
+		enddo TMP8LOOP
+		if (j .gt. maxvar ) then
+		  write(6,*) 'Subsoil level ',tmp8,' not found in Vtable'
+		endif
+	        write(6,*) 'my_field is now ',my_field
+	      endif
 
               ! Level (eg. 10000 mb)
               if(gfld%ipdtmpl(10).eq.100) then
