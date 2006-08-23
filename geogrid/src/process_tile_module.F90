@@ -455,12 +455,14 @@ module process_tile_module
      
             ! Finally, we may be asked to smooth the fractional field
             call get_smooth_option(landmask_name, smth_opt, smth_passes, istatus)
-            if (smth_opt == ONETWOONE) then
-               call one_two_one(field, start_mem_i, end_mem_i, start_mem_j, end_mem_j, &
-                                min_category, max_category, smth_passes, msg_fill_val)
-            else if (smth_opt == SMTHDESMTH) then
-               call smth_desmth(field, start_mem_i, end_mem_i, start_mem_j, end_mem_j, &
-                                min_category, max_category, smth_passes, msg_fill_val)
+            if (istatus == 0) then
+               if (smth_opt == ONETWOONE) then
+                  call one_two_one(field, start_mem_i, end_mem_i, start_mem_j, end_mem_j, &
+                                   min_category, max_category, smth_passes, msg_fill_val)
+               else if (smth_opt == SMTHDESMTH) then
+                  call smth_desmth(field, start_mem_i, end_mem_i, start_mem_j, end_mem_j, &
+                                   min_category, max_category, smth_passes, msg_fill_val)
+               end if
             end if
       
             call write_field(start_mem_i, end_mem_i, start_mem_j, end_mem_j, &
