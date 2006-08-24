@@ -29,9 +29,9 @@ module source_data_module
                   source_tile_z, source_tile_z_start, source_tile_z_end, source_tile_bdr, &
                   source_category_min, source_category_max, source_landmask_water, &
                   source_landmask_land, source_smooth_option, &
-                  source_smooth_passes, source_masked, source_output_stagger
+                  source_smooth_passes, source_output_stagger
    real, pointer, dimension(:) :: source_dx, source_dy, source_known_x, source_known_y, &
-                  source_known_lat, source_known_lon, source_truelat1, source_truelat2, &
+                  source_known_lat, source_known_lon, source_masked, source_truelat1, source_truelat2, &
                   source_stdlon, source_scale_factor, source_missing_value, source_fill_missing
    character (len=128), pointer, dimension(:) :: source_fieldname, source_path, source_interp_string, &
                   source_dominant_category, source_dominant_only, source_dfdx, source_dfdy, &
@@ -418,10 +418,10 @@ module source_data_module
                         (len_trim(buffer(1:idx-1)) == 6)) then
                   if (index('water',trim(buffer(idx+1:eos-1))) /= 0) then
                      is_masked(i) = .true.
-                     source_masked(i) = 0
+                     source_masked(i) = 0.
                   else if (index('land',trim(buffer(idx+1:eos-1))) /= 0) then
                      is_masked(i) = .true.
-                     source_masked(i) = 1
+                     source_masked(i) = 1.
                   end if
      
                else if (index('fill_missing',trim(buffer(1:idx-1))) /= 0) then
@@ -958,7 +958,7 @@ module source_data_module
    !
    ! Purpose: 
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-   recursive subroutine get_next_output_fieldname(field_name, fieldtype, ndims, &
+   recursive subroutine get_next_output_fieldname(field_name, ndims, &
                                             min_cat, max_cat, &
                                             istagger, memorder, dimnames, units, &
                                             description, istatus)
@@ -968,7 +968,7 @@ module source_data_module
 #include "wrf_io_flags.h"
   
       ! Arguments
-      integer, intent(out) :: istatus, fieldtype, ndims, istagger, min_cat, max_cat
+      integer, intent(out) :: istatus, ndims, istagger, min_cat, max_cat
       character (len=128), intent(out) :: memorder, field_name, units, description
       character (len=128), dimension(3), intent(out) :: dimnames
   
@@ -991,12 +991,11 @@ module source_data_module
             ! We will only save the dominant category
             if (is_dom_only .and. (istatus == 0)) then
                output_field_state = RETURN_DOMCAT_LM
-               call get_next_output_fieldname(field_name, fieldtype, ndims, &
+               call get_next_output_fieldname(field_name, ndims, &
                                               min_cat, max_cat, istagger, &
                                               memorder, dimnames, units, description, istatus)
                return
             else
-               fieldtype = WRF_REAL
                ndims = 2
                min_cat = 1
                max_cat = 1
@@ -1046,7 +1045,7 @@ module source_data_module
             end if
          else
             output_field_state = RETURN_FIELDNAME
-            call get_next_output_fieldname(field_name, fieldtype, ndims, &
+            call get_next_output_fieldname(field_name, ndims, &
                                            min_cat, max_cat, istagger, &
                                            memorder, dimnames, units, description, istatus)
             return
@@ -1062,14 +1061,13 @@ module source_data_module
             ! We will only save the dominant category
             if (is_dom_only .and. (istatus == 0)) then
                output_field_state = RETURN_DOMCAT
-               call get_next_output_fieldname(field_name, fieldtype, ndims, &
+               call get_next_output_fieldname(field_name, ndims, &
                                               min_cat, max_cat, istagger, &
                                               memorder, dimnames, units, description, istatus)
                return
      
             ! Return the fractional field
             else
-               fieldtype = WRF_REAL
                ndims = 2
                min_cat = 1
                max_cat = 1
@@ -1122,7 +1120,7 @@ module source_data_module
             call hash_destroy(duplicate_fnames)
             return 
          else if (hash_search(duplicate_fnames, temphash)) then
-            call get_next_output_fieldname(field_name, fieldtype, ndims, &
+            call get_next_output_fieldname(field_name, ndims, &
                                            min_cat, max_cat, istagger, &
                                            memorder, dimnames, units, description, istatus)
             return
@@ -1139,7 +1137,6 @@ module source_data_module
          if (istatus == 0) then
             call get_domcategory_name(field_name, domcat_name, is_dom_only, istatus)
             if (istatus == 0) then
-               fieldtype = WRF_INTEGER
                ndims = 2
                min_cat = 1
                max_cat = 1
@@ -1176,7 +1173,7 @@ module source_data_module
                else
                   output_field_state = RETURN_DFDX_LM
                end if
-               call get_next_output_fieldname(field_name, fieldtype, ndims, &
+               call get_next_output_fieldname(field_name, ndims, &
                                               min_cat, max_cat, istagger, &
                                               memorder, dimnames, units, description, istatus)
               return
@@ -1197,7 +1194,6 @@ module source_data_module
          if (istatus == 0) then
             call get_dfdx_name(field_name, dfdx_name, istatus)
             if (istatus == 0) then
-               fieldtype = WRF_REAL
                ndims = 2
                min_cat = 1
                max_cat = 1
@@ -1252,7 +1248,7 @@ module source_data_module
                else
                   output_field_state = RETURN_DFDY_LM
                end if
-               call get_next_output_fieldname(field_name, fieldtype, ndims, &
+               call get_next_output_fieldname(field_name, ndims, &
                                               min_cat, max_cat, istagger, &
                                               memorder, dimnames, units, description, istatus)
                return
@@ -1273,7 +1269,6 @@ module source_data_module
          if (istatus == 0) then
             call get_dfdy_name(field_name, dfdy_name, istatus)
             if (istatus == 0) then
-               fieldtype = WRF_REAL
                ndims = 2
                min_cat = 1
                max_cat = 1
@@ -1320,7 +1315,7 @@ module source_data_module
                output_field_state = RETURN_FIELDNAME
             else
                output_field_state = RETURN_FIELDNAME
-               call get_next_output_fieldname(field_name, fieldtype, ndims, &
+               call get_next_output_fieldname(field_name, ndims, &
                                               min_cat, max_cat, istagger, &
                                               memorder, dimnames, units, description, istatus)
                return
@@ -1573,14 +1568,14 @@ module source_data_module
       ! Arguments
       integer, intent(in) :: ilevel
       integer, intent(out) :: istatus
-      integer, intent(out) :: masked
+      real, intent(out) :: masked
       character (len=128), intent(in) :: fieldnm
   
       ! Local variables
       integer :: idx
   
       istatus = 0
-      masked = -1
+      masked = -1.
   
       do idx=1,num_entries
          if ((index(source_fieldname(idx),trim(fieldnm)) /= 0) .and. &

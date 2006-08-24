@@ -86,7 +86,6 @@ module storage_module
          allocate(name_cursor)
          call dup(store_me, name_cursor%fg_data)
          nullify(name_cursor%fg_data%r_arr)
-         nullify(name_cursor%fg_data%i_arr)
          nullify(name_cursor%fg_data%valid_mask)
          nullify(name_cursor%fg_data%modified_mask)
          nullify(name_cursor%fieldlist_head)
@@ -119,7 +118,6 @@ call mprintf(.true.,WARN,'WE NEED TO FREE THE FILE ASSOCIATED WITH DATA_CURSOR')
 call mprintf(.true.,WARN,'PLEASE REPORT THIS BUG TO THE DEVELOPER!')
             end if
             data_cursor%fg_data%r_arr => store_me%r_arr 
-            data_cursor%fg_data%i_arr => store_me%i_arr 
             data_cursor%fg_data%valid_mask => store_me%valid_mask 
             data_cursor%fg_data%modified_mask => store_me%modified_mask 
             return
@@ -129,17 +127,8 @@ call mprintf(.true.,WARN,'PLEASE REPORT THIS BUG TO THE DEVELOPER!')
       allocate(newnode)
       call dup(store_me, newnode%fg_data)
 
-      if (associated(store_me%r_arr)) then
-         newnode%field_shape = shape(newnode%fg_data%r_arr)
-         memsize = memsize + size(newnode%fg_data%r_arr)
-         newnode%is_real_array = .true.
-         newnode%is_integer_array = .false.
-      else if (associated(store_me%i_arr)) then
-         newnode%field_shape = shape(newnode%fg_data%i_arr)
-         memsize = memsize + size(newnode%fg_data%i_arr)
-         newnode%is_integer_array = .true.
-         newnode%is_real_array = .false.
-      end if
+      newnode%field_shape = shape(newnode%fg_data%r_arr)
+      memsize = memsize + size(newnode%fg_data%r_arr)
       newnode%last_used = global_time
       global_time = global_time + 1
       newnode%filenumber = 0
@@ -153,21 +142,12 @@ call mprintf(.true.,WARN,'PLEASE REPORT THIS BUG TO THE DEVELOPER!')
             inquire(unit=funit, opened=is_used)
             if (.not. is_used) exit
          end do
-         if (evictnode%is_real_array) then
-            memsize = memsize - size(evictnode%fg_data%r_arr)
-            write(fname,'(i9.9,a2,i3.3)') evictnode%filenumber,'.p',my_proc_id
-            open(funit,file=trim(fname),form='unformatted',status='unknown')
-            write(funit) evictnode%fg_data%r_arr  
-            close(funit)
-            deallocate(evictnode%fg_data%r_arr)
-         else if (evictnode%is_integer_array) then
-            memsize = memsize - size(evictnode%fg_data%i_arr)
-            write(fname,'(i9.9,a2,i3.3)') evictnode%filenumber,'.p',my_proc_id
-            open(funit,file=trim(fname),form='unformatted',status='unknown')
-            write(funit) evictnode%fg_data%i_arr  
-            close(funit)
-            deallocate(evictnode%fg_data%i_arr)
-         end if
+         memsize = memsize - size(evictnode%fg_data%r_arr)
+         write(fname,'(i9.9,a2,i3.3)') evictnode%filenumber,'.p',my_proc_id
+         open(funit,file=trim(fname),form='unformatted',status='unknown')
+         write(funit) evictnode%fg_data%r_arr  
+         close(funit)
+         deallocate(evictnode%fg_data%r_arr)
       end do
 
       ! Inserting node at the tail of list
@@ -260,21 +240,12 @@ call mprintf(.true.,WARN,'PLEASE REPORT THIS BUG TO THE DEVELOPER!')
                   inquire(unit=funit, opened=is_used)
                   if (.not. is_used) exit
                end do
-               if (evictnode%is_real_array) then
-                  memsize = memsize - size(evictnode%fg_data%r_arr)
-                  write(fname,'(i9.9,a2,i3.3)') evictnode%filenumber,'.p',my_proc_id
-                  open(funit,file=trim(fname),form='unformatted',status='unknown')
-                  write(funit) evictnode%fg_data%r_arr  
-                  close(funit)
-                  deallocate(evictnode%fg_data%r_arr)
-               else if (evictnode%is_integer_array) then
-                  memsize = memsize - size(evictnode%fg_data%i_arr)
-                  write(fname,'(i9.9,a2,i3.3)') evictnode%filenumber,'.p',my_proc_id
-                  open(funit,file=trim(fname),form='unformatted',status='unknown')
-                  write(funit) evictnode%fg_data%i_arr  
-                  close(funit)
-                  deallocate(evictnode%fg_data%i_arr)
-               end if
+               memsize = memsize - size(evictnode%fg_data%r_arr)
+               write(fname,'(i9.9,a2,i3.3)') evictnode%filenumber,'.p',my_proc_id
+               open(funit,file=trim(fname),form='unformatted',status='unknown')
+               write(funit) evictnode%fg_data%r_arr  
+               close(funit)
+               deallocate(evictnode%fg_data%r_arr)
             end do
 
             ! Get requested array
@@ -288,21 +259,13 @@ call mprintf(.true.,WARN,'PLEASE REPORT THIS BUG TO THE DEVELOPER!')
                   if (.not. is_used) exit
                end do
                open(funit,file=trim(fname),form='unformatted',status='old')
-               if (data_cursor%is_real_array) then
-                  allocate(data_cursor%fg_data%r_arr(data_cursor%field_shape(1),data_cursor%field_shape(2)))
-                  read(funit) data_cursor%fg_data%r_arr 
-                  get_me%r_arr => data_cursor%fg_data%r_arr
-                  close(funit,status='delete')
-               else if (data_cursor%is_integer_array) then
-                  allocate(data_cursor%fg_data%i_arr(data_cursor%field_shape(1),data_cursor%field_shape(2)))
-                  read(funit) data_cursor%fg_data%i_arr 
-                  get_me%i_arr => data_cursor%fg_data%i_arr
-                  close(funit,status='delete')
-               end if
+               allocate(data_cursor%fg_data%r_arr(data_cursor%field_shape(1),data_cursor%field_shape(2)))
+               read(funit) data_cursor%fg_data%r_arr 
+               get_me%r_arr => data_cursor%fg_data%r_arr
+               close(funit,status='delete')
                data_cursor%filenumber = 0
             else
                get_me%r_arr => data_cursor%fg_data%r_arr
-               get_me%i_arr => data_cursor%fg_data%i_arr
 
                call remove_index(data_cursor%heap_index)
                data_cursor%last_used = global_time 
@@ -352,7 +315,6 @@ call mprintf(.true.,WARN,'PLEASE REPORT THIS BUG TO THE DEVELOPER!')
       do while ( associated(data_cursor) )
          if (secondary_cmp(get_me, data_cursor%fg_data) == EQUAL) then
             get_me%r_arr => data_cursor%fg_data%r_arr
-            get_me%i_arr => data_cursor%fg_data%i_arr
             get_me%valid_mask => data_cursor%fg_data%valid_mask
             get_me%modified_mask => data_cursor%fg_data%modified_mask
             istatus = 0
@@ -369,7 +331,7 @@ call mprintf(.true.,WARN,'PLEASE REPORT THIS BUG TO THE DEVELOPER!')
    !
    ! Purpose: 
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-   subroutine get_next_output_fieldname(field_name, field_type, ndims, &
+   subroutine get_next_output_fieldname(field_name, ndims, &
                                         min_level, max_level, &
                                         istagger, mem_order, dim_names, units, description, &
                                         istatus)
@@ -377,7 +339,7 @@ call mprintf(.true.,WARN,'PLEASE REPORT THIS BUG TO THE DEVELOPER!')
       implicit none
 
       ! Arguments
-      integer, intent(out) :: field_type, ndims, min_level, max_level, istagger, istatus
+      integer, intent(out) :: ndims, min_level, max_level, istagger, istatus
       character (len=128), intent(out) :: field_name, mem_order, units, description
       character (len=128), dimension(3), intent(out) :: dim_names
 
@@ -427,11 +389,6 @@ call mprintf(.true.,WARN,'PLEASE REPORT THIS BUG TO THE DEVELOPER!')
                write(dim_names(3),'(a11,i4.4)') 'z-dimension', max_level
             end if
          end if
-         if (next_output_field%fieldlist_head%is_real_array) then
-            field_type = WRF_REAL 
-         else if (next_output_field%fieldlist_head%is_integer_array) then
-            field_type = WRF_INTEGER 
-         end if
          field_name = get_fieldname(next_output_field%fg_data)
          istagger = get_staggering(next_output_field%fg_data)
          if (istagger == M .or. istagger == HH .or. istagger == VV) then
@@ -461,14 +418,13 @@ call mprintf(.true.,WARN,'PLEASE REPORT THIS BUG TO THE DEVELOPER!')
    !
    ! Purpose: 
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-   subroutine get_next_output_field(field_name, r_array, i_array, &
+   subroutine get_next_output_field(field_name, r_array, &
                                     start_i, end_i, start_j, end_j, min_level, max_level, istatus)
 
       implicit none
 
       ! Arguments
       integer, intent(out) :: start_i, end_i, start_j, end_j, min_level, max_level, istatus
-      integer, pointer, dimension(:,:,:) :: i_array
       real, pointer, dimension(:,:,:) :: r_array
       character (len=128), intent(out) :: field_name
 
@@ -511,28 +467,16 @@ call mprintf(.true.,WARN,'PLEASE REPORT THIS BUG TO THE DEVELOPER!')
          start_j = 1
          end_j = next_output_field%fieldlist_head%field_shape(2)
 
-         if (next_output_field%fieldlist_head%is_real_array) then
-            allocate(r_array(next_output_field%fieldlist_head%field_shape(1), &
-                             next_output_field%fieldlist_head%field_shape(2), &
-                             max_level) )
-            nullify(i_array)
-         else if (next_output_field%fieldlist_head%is_integer_array) then
-            allocate(i_array(next_output_field%fieldlist_head%field_shape(1), &
-                             next_output_field%fieldlist_head%field_shape(2), &
-                             max_level) )
-            nullify(r_array)
-         end if
+         allocate(r_array(next_output_field%fieldlist_head%field_shape(1), &
+                          next_output_field%fieldlist_head%field_shape(2), &
+                          max_level) )
 
          k = 1
          data_cursor => next_output_field%fieldlist_head
          do while ( associated(data_cursor) )
             call dup(data_cursor%fg_data, temp_field)
             call storage_get_field(temp_field, istatus)
-            if (associated(r_array)) then
-               r_array(:,:,k) = temp_field%r_arr
-            else if (associated(i_array)) then
-               i_array(:,:,k) = temp_field%i_arr
-            end if
+            r_array(:,:,k) = temp_field%r_arr
             k = k + 1 
             data_cursor => data_cursor%next
          end do
@@ -588,13 +532,8 @@ call mprintf(.true.,WARN,'PLEASE REPORT THIS BUG TO THE DEVELOPER!')
                close(funit,status='delete')
             else
                call remove_index(data_cursor%heap_index)
-               if (data_cursor%is_real_array) then
-                  memsize = memsize - size(data_cursor%fg_data%r_arr)
-                  deallocate(data_cursor%fg_data%r_arr)
-               else if (data_cursor%is_integer_array) then
-                  memsize = memsize - size(data_cursor%fg_data%i_arr)
-                  deallocate(data_cursor%fg_data%i_arr)
-               end if
+               memsize = memsize - size(data_cursor%fg_data%r_arr)
+               deallocate(data_cursor%fg_data%r_arr)
             end if
             if (associated(data_cursor%fg_data%valid_mask)) call bitarray_destroy(data_cursor%fg_data%valid_mask)
             nullify(data_cursor%fg_data%valid_mask)
@@ -674,13 +613,8 @@ call mprintf(.true.,WARN,'PLEASE REPORT THIS BUG TO THE DEVELOPER!')
                   close(funit,status='delete')
                else
                   call remove_index(data_cursor%heap_index)
-                  if (data_cursor%is_real_array) then
-                     memsize = memsize - size(data_cursor%fg_data%r_arr)
-                     deallocate(data_cursor%fg_data%r_arr)
-                  else if (data_cursor%is_integer_array) then
-                     memsize = memsize - size(data_cursor%fg_data%i_arr)
-                     deallocate(data_cursor%fg_data%i_arr)
-                  end if
+                  memsize = memsize - size(data_cursor%fg_data%r_arr)
+                  deallocate(data_cursor%fg_data%r_arr)
                end if
                if (associated(data_cursor%fg_data%valid_mask)) call bitarray_destroy(data_cursor%fg_data%valid_mask)
                nullify(data_cursor%fg_data%valid_mask)
@@ -820,13 +754,8 @@ call mprintf(.true.,WARN,'PLEASE REPORT THIS BUG TO THE DEVELOPER!')
                   close(funit,status='delete')
                else
                   call remove_index(data_cursor%heap_index)
-                  if (data_cursor%is_real_array) then
-                     memsize = memsize - size(data_cursor%fg_data%r_arr)
-                     deallocate(data_cursor%fg_data%r_arr)
-                  else if (data_cursor%is_integer_array) then
-                     memsize = memsize - size(data_cursor%fg_data%i_arr)
-                     deallocate(data_cursor%fg_data%i_arr)
-                  end if
+                  memsize = memsize - size(data_cursor%fg_data%r_arr)
+                  deallocate(data_cursor%fg_data%r_arr)
                end if
                if (associated(data_cursor%fg_data%valid_mask)) call bitarray_destroy(data_cursor%fg_data%valid_mask)
                nullify(data_cursor%fg_data%valid_mask)

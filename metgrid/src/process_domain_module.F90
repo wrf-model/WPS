@@ -37,7 +37,7 @@ module process_domain_module
               rx, ry, xfcst, xlvl, startlat, startlon, starti, startj, deltalat, deltalon, &
               dom_dx, dom_dy
       real, dimension(16) :: corner_lats, corner_lons
-      integer, pointer, dimension(:,:) :: landmask
+      real, pointer, dimension(:,:) :: landmask
       real, pointer, dimension(:,:) :: xlat, xlon, xlat_u, xlon_u, xlat_v, xlon_v
       character (len=19) :: valid_date, temp_date
       character (len=128) :: cname, stagger, cunits, cdesc, title
@@ -179,7 +179,7 @@ module process_domain_module
                                 is_water, is_ice, grid_id, parent_id, &
                                 i_parent_start, j_parent_start, i_parent_end, j_parent_end, &
                                 parent_grid_ratio
-      integer, pointer, dimension(:,:) :: landmask
+      real, pointer, dimension(:,:) :: landmask
       real, intent(inout) :: cen_lat, moad_cen_lat, cen_lon, stand_lon, truelat1, truelat2, &
                              dom_dx, dom_dy
       real, pointer, dimension(:,:) :: xlat, xlon, xlat_u, xlon_u, xlat_v, xlon_v
@@ -189,7 +189,6 @@ module process_domain_module
       ! Local variables
       integer :: istatus, i, j, k, sp1, ep1, sp2, ep2, sp3, ep3, &
                  lh_mult, rh_mult, bh_mult, th_mult
-      integer, pointer, dimension(:,:,:) :: int_array
       real, pointer, dimension(:,:,:) :: real_array
       character (len=3) :: memorder
       character (len=128) :: grid_type, datestr, cname, stagger, cunits, cdesc
@@ -297,8 +296,7 @@ module process_domain_module
       istatus = 0
       do while (istatus == 0)  
         call read_next_field(sp1, ep1, sp2, ep2, sp3, ep3, cname, cunits, cdesc, &
-                             memorder, stagger, dimnames, real_array, int_array, &
-                             istatus)
+                             memorder, stagger, dimnames, real_array, istatus)
         if (istatus == 0) then
 
           call mprintf(.true.,LOGFILE, 'Read in static field %s.',s1=cname)
@@ -350,8 +348,8 @@ module process_domain_module
 
           else if (index(cname, 'LANDMASK') /= 0) then
              allocate(landmask(we_mem_s:we_mem_e,sn_mem_s:sn_mem_e))
-             landmask(we_patch_s:we_patch_e,sn_patch_s:sn_patch_e) = int_array(:,:,1)
-             call exchange_halo_i(landmask, & 
+             landmask(we_patch_s:we_patch_e,sn_patch_s:sn_patch_e) = real_array(:,:,1)
+             call exchange_halo_r(landmask, & 
                                   we_mem_s, we_mem_e, sn_mem_s, sn_mem_e, 1, 1, &
                                   we_patch_s, we_patch_e, sn_patch_s, sn_patch_e, 1, 1)
 
@@ -395,17 +393,10 @@ module process_domain_module
                 end if
              end if
             
-             if (associated(real_array)) then
-                allocate(field%r_arr(sp1-HALO_WIDTH*lh_mult:ep1+HALO_WIDTH*rh_mult,&
-                                     sp2-HALO_WIDTH*bh_mult:ep2+HALO_WIDTH*th_mult))
-                field%r_arr(sp1:ep1,sp2:ep2) = real_array(:,:,k)
-                nullify(field%i_arr)
-             else if (associated(int_array)) then
-                allocate(field%i_arr(sp1-HALO_WIDTH*lh_mult:ep1+HALO_WIDTH*rh_mult,&
-                                     sp2-HALO_WIDTH*bh_mult:ep2+HALO_WIDTH*th_mult))
-                field%i_arr(sp1:ep1,sp2:ep2) = int_array(:,:,k)
-                nullify(field%r_arr)
-             end if
+             allocate(field%r_arr(sp1-HALO_WIDTH*lh_mult:ep1+HALO_WIDTH*rh_mult,&
+                                  sp2-HALO_WIDTH*bh_mult:ep2+HALO_WIDTH*th_mult))
+             field%r_arr(sp1:ep1,sp2:ep2) = real_array(:,:,k)
+
              allocate(field%valid_mask)
              call bitarray_create(field%valid_mask, &
                                   (ep1+HALO_WIDTH*rh_mult)-(sp1-HALO_WIDTH*lh_mult)+1, &
@@ -475,7 +466,7 @@ module process_domain_module
                  sn_mem_s, sn_mem_e, sn_mem_stag_s, sn_mem_stag_e, &
                  is_water, is_ice, grid_id, parent_id, i_parent_start, j_parent_start, &
                  i_parent_end, j_parent_end, parent_grid_ratio
-      integer, pointer, dimension(:,:) :: landmask
+      real, pointer, dimension(:,:) :: landmask
       real, intent(in) :: dom_dx, dom_dy, cen_lat, moad_cen_lat, cen_lon, stand_lon, truelat1, truelat2
       real, dimension(16), intent(in) :: corner_lats, corner_lons
       real, pointer, dimension(:,:) :: xlat, xlon, xlat_u, xlon_u, xlat_v, xlon_v
@@ -495,7 +486,6 @@ module process_domain_module
       real :: met_cen_lon, met_truelat1, met_truelat2
       logical :: is_rotated, do_gcell_interp
       integer, pointer, dimension(:) :: u_levels, v_levels
-      integer, pointer, dimension(:,:,:) :: int_array
       real, pointer, dimension(:,:) :: slab, data_count
       real, pointer, dimension(:,:,:) :: real_array
       character (len=3) :: memorder
@@ -570,7 +560,6 @@ module process_domain_module
                   field%header%winds_rotated_on_input = is_rotated 
                   field%header%array_has_missing_values = .false.
                   nullify(field%r_arr)
-                  nullify(field%i_arr)
                   nullify(field%valid_mask)
                   nullify(field%modified_mask)
       
@@ -923,20 +912,14 @@ module process_domain_module
     
       ! Now loop over all output fields, writing each to the output module
       do while (istatus == 0)
-         call get_next_output_field(cname, real_array, int_array, &
+         call get_next_output_field(cname, real_array, &
                                     sm1, em1, sm2, em2, sm3, em3, istatus)
          if (istatus == 0) then
 
             call mprintf(.true.,LOGFILE,'Writing field %s to output.',s1=cname)
-            if (associated(real_array)) then
-               call write_field(sm1, em1, sm2, em2, sm3, em3, &
-                                cname, temp_date, real_array=real_array)
-               deallocate(real_array)
-            else if (associated(int_array)) then
-               call write_field(sm1, em1, sm2, em2, sm3, em3, &
-                                cname, temp_date, int_array=int_array)
-               deallocate(int_array)
-            end if
+            call write_field(sm1, em1, sm2, em2, sm3, em3, &
+                             cname, temp_date, real_array)
+            deallocate(real_array)
    
          end if
    
@@ -1018,7 +1001,6 @@ module process_domain_module
                   mask_field%map%stagger = M
                   allocate(mask_field%r_arr(1:nx,1:ny))
                   mask_field%r_arr = slab
-                  nullify(mask_field%i_arr)
                   nullify(mask_field%valid_mask)
                   nullify(mask_field%modified_mask)
      
@@ -1058,7 +1040,7 @@ module process_domain_module
 
       ! Arguments
       integer, intent(in) :: istagger, sm1, em1, sm2, em2, nx, ny
-      integer, pointer, dimension(:,:), optional :: landmask
+      real, pointer, dimension(:,:), optional :: landmask
       real, pointer, dimension(:,:) :: slab, xlat, xlon
       logical, intent(in) :: do_gcell_interp
       character (len=9), intent(in) :: short_fieldnm
@@ -1097,11 +1079,8 @@ module process_domain_module
       field%header%dim2(1) = sm2
       field%header%dim2(2) = em2
       field%map%stagger = istagger
-      call mprintf(associated(field%i_arr), ERROR, &
-                   'In interp_met_field(), i_arr is allocated, but the routine will only deal with r_arr')
       if (.not. associated(field%r_arr)) then
          allocate(field%r_arr(sm1:em1,sm2:em2))
-         nullify(field%i_arr)
       end if
 
       interp_mask_status = 1
@@ -1563,7 +1542,6 @@ module process_domain_module
                      call get_constant_fill_lev(fill_field, fill_const, istatus)
                      allocate(p_field%r_arr(p_field%header%dim1(1):p_field%header%dim1(2), &
                                             p_field%header%dim2(1):p_field%header%dim2(2)))
-                     nullify(p_field%i_arr)
                      allocate(p_field%valid_mask)
                      call bitarray_create(p_field%valid_mask, &
                                           we_dim_e-we_dim_s+1,&
@@ -1598,31 +1576,16 @@ module process_domain_module
                                                    sn_dim_e-sn_dim_s+1)
                               nullify(p_field%modified_mask)
 
-                              if (associated(search_field%r_arr)) then
-                                 allocate(p_field%r_arr(p_field%header%dim1(1):p_field%header%dim1(2), &
-                                                        p_field%header%dim2(1):p_field%header%dim2(2)))
-                                 nullify(p_field%i_arr)
-                                 do j = sn_dim_s, sn_dim_e
-                                    do i = we_dim_s, we_dim_e
-                                       if (bitarray_test(search_field%valid_mask, i-we_dim_s+1, j-sn_dim_s+1)) then
-                                          p_field%r_arr(i,j) = search_field%r_arr(i,j) 
-                                          call bitarray_set(p_field%valid_mask, i-we_dim_s+1, j-sn_dim_s+1)
-                                       end if
-                                    end do
+                              allocate(p_field%r_arr(p_field%header%dim1(1):p_field%header%dim1(2), &
+                                                     p_field%header%dim2(1):p_field%header%dim2(2)))
+                              do j = sn_dim_s, sn_dim_e
+                                 do i = we_dim_s, we_dim_e
+                                    if (bitarray_test(search_field%valid_mask, i-we_dim_s+1, j-sn_dim_s+1)) then
+                                       p_field%r_arr(i,j) = search_field%r_arr(i,j) 
+                                       call bitarray_set(p_field%valid_mask, i-we_dim_s+1, j-sn_dim_s+1)
+                                    end if
                                  end do
-                              else if (associated(search_field%i_arr)) then
-                                 allocate(p_field%i_arr(p_field%header%dim1(1):p_field%header%dim1(2), &
-                                                        p_field%header%dim2(1):p_field%header%dim2(2)))
-                                 nullify(p_field%r_arr)
-                                 do j = sn_dim_s, sn_dim_e
-                                    do i = we_dim_s, we_dim_e
-                                       if (bitarray_test(search_field%valid_mask, i-we_dim_s+1, j-sn_dim_s+1)) then
-                                          p_field%i_arr(i,j) =  search_field%i_arr(i,j)
-                                          call bitarray_set(p_field%valid_mask, i-we_dim_s+1, j-sn_dim_s+1)
-                                       end if
-                                    end do
-                                 end do
-                              end if
+                              end do
 
                            ! The specified level does not exist for the field that we fill from
                            else
@@ -1646,7 +1609,6 @@ module process_domain_module
                                      'Will fill with constant %f', &
                                      s1=trim(fill_src), i1=union_levels(k), f1=real(union_levels(k)))
                         allocate(p_field%r_arr(we_dim_s:we_dim_e,sn_dim_s:sn_dim_e))
-                        nullify(p_field%i_arr)
                         allocate(p_field%valid_mask)
                         call bitarray_create(p_field%valid_mask, &
                                              we_dim_e-we_dim_s+1,&
@@ -1668,7 +1630,6 @@ module process_domain_module
                !
                else
                   allocate(p_field%r_arr(we_dim_s:we_dim_e,sn_dim_s:sn_dim_e))
-                  nullify(p_field%i_arr)
                   allocate(p_field%valid_mask)
                   call bitarray_create(p_field%valid_mask, &
                                        we_dim_e-we_dim_s+1,&
@@ -1689,7 +1650,6 @@ module process_domain_module
             !
             else
                allocate(p_field%r_arr(we_dim_s:we_dim_e,sn_dim_s:sn_dim_e))
-               nullify(p_field%i_arr)
                allocate(p_field%valid_mask)
                call bitarray_create(p_field%valid_mask, &
                                     we_dim_e-we_dim_s+1,&
@@ -1848,7 +1808,6 @@ module process_domain_module
                         if (fill_field /= ' ') then 
                            call dup(headers(i),new_field)
                            nullify(new_field%r_arr)
-                           nullify(new_field%i_arr)
 
                            allocate(new_field%valid_mask)
                            call bitarray_create(new_field%valid_mask, &
@@ -1885,37 +1844,20 @@ module process_domain_module
 
                                     call storage_get_field(search_field,istatus) 
                                     if (istatus == 0) then
-                                       if (associated(search_field%r_arr)) then
-                                          allocate(new_field%r_arr(new_field%header%dim1(1):new_field%header%dim1(2), &
-                                                                   new_field%header%dim2(1):new_field%header%dim2(2)))
-                                          do jx = new_field%header%dim2(1),new_field%header%dim2(2)
-                                             do ix = new_field%header%dim1(1),new_field%header%dim1(2)
-                                                if (bitarray_test(search_field%valid_mask, &
+                                       allocate(new_field%r_arr(new_field%header%dim1(1):new_field%header%dim1(2), &
+                                                                new_field%header%dim2(1):new_field%header%dim2(2)))
+                                       do jx = new_field%header%dim2(1),new_field%header%dim2(2)
+                                          do ix = new_field%header%dim1(1),new_field%header%dim1(2)
+                                             if (bitarray_test(search_field%valid_mask, &
+                                                               ix-new_field%header%dim1(1)+1, &
+                                                               jx-new_field%header%dim2(1)+1)) then
+                                                new_field%r_arr(ix,jx) = search_field%r_arr(ix,jx) 
+                                                call bitarray_set(new_field%valid_mask, &
                                                                   ix-new_field%header%dim1(1)+1, &
-                                                                  jx-new_field%header%dim2(1)+1)) then
-                                                   new_field%r_arr(ix,jx) = search_field%r_arr(ix,jx) 
-                                                   call bitarray_set(new_field%valid_mask, &
-                                                                     ix-new_field%header%dim1(1)+1, &
-                                                                     jx-new_field%header%dim2(1)+1)
-                                                end if
-                                             end do
+                                                                  jx-new_field%header%dim2(1)+1)
+                                             end if
                                           end do
-                                       else if (associated(search_field%i_arr)) then
-                                          allocate(new_field%i_arr(new_field%header%dim1(1):new_field%header%dim1(2), &
-                                                                   new_field%header%dim2(1):new_field%header%dim2(2)))
-                                          do jx = new_field%header%dim2(1),new_field%header%dim2(2)
-                                             do ix = new_field%header%dim1(1),new_field%header%dim1(2)
-                                                if (bitarray_test(search_field%valid_mask, &
-                                                                  ix-new_field%header%dim1(1)+1, &
-                                                                  jx-new_field%header%dim2(1)+1)) then
-                                                   new_field%i_arr(ix,jx) = search_field%i_arr(ix,jx) 
-                                                   call bitarray_set(new_field%valid_mask, &
-                                                                     ix-new_field%header%dim1(1)+1, &
-                                                                     jx-new_field%header%dim2(1)+1)
-                                                end if
-                                             end do
-                                          end do
-                                       end if
+                                       end do
                                        call storage_put_field(new_field)
                                     else
                                        call mprintf(.true.,ERROR,'Couldn''t get level %i for field %s.', &
@@ -1942,7 +1884,6 @@ module process_domain_module
 !MGD                           call mprintf(.true.,ERROR,'Level %i of field %s is missing, but there is no suitable fill_level spec in METGRID.TBL.',i1=union_levels(j), s1=headers(i)%header%field)
                            call dup(headers(i),new_field)
                            nullify(new_field%r_arr)
-                           nullify(new_field%i_arr)
                            allocate(new_field%valid_mask)
                            call bitarray_create(new_field%valid_mask, &
                                                 new_field%header%dim1(2)-new_field%header%dim1(1)+1,&
@@ -1962,7 +1903,6 @@ module process_domain_module
 !MGD                        call mprintf(.true.,ERROR,'Level %i of field %s is missing, but there is no entry for %s in METGRID.TBL.', i1=union_levels(j), s1=headers(i)%header%field, s2=headers(i)%header%field)
                         call dup(headers(i),new_field)
                         nullify(new_field%r_arr)
-                        nullify(new_field%i_arr)
                         allocate(new_field%valid_mask)
                         call bitarray_create(new_field%valid_mask, &
                                              new_field%header%dim1(2)-new_field%header%dim1(1)+1,&
@@ -2141,7 +2081,6 @@ call mprintf(.true.,DEBUG,'Going to create the field %s',s1=fieldname(idx))
                   end if
 
                   nullify(field%r_arr)
-                  nullify(field%i_arr)
                   nullify(field%valid_mask)
                   nullify(field%modified_mask)
 

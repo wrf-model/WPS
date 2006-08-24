@@ -8,8 +8,8 @@ module interp_option_module
    integer, parameter :: BUFSIZE=128
 
    integer :: num_entries
-   integer, pointer, dimension(:) :: masked, output_stagger
-   real, pointer, dimension(:) :: fill_missing, missing_value, interp_mask_val
+   integer, pointer, dimension(:) :: output_stagger
+   real, pointer, dimension(:) :: masked, fill_missing, missing_value, interp_mask_val
    logical, pointer, dimension(:) :: output_this_field, is_u_field, is_v_field, is_derived_field
    character (len=128), pointer, dimension(:) :: fieldname, interp_method, v_interp_method, &
                   interp_mask, flag_in_output, from_input, z_dim_name
@@ -102,7 +102,7 @@ module interp_option_module
          z_dim_name(i) = 'num_metgrid_levels'
          interp_method(i) = 'nearest_neighbor'
          v_interp_method(i) = 'linear_log_p'
-         masked(i) = -1
+         masked(i) = -1.
          fill_missing(i) = NAN
          missing_value(i) = NAN
          call list_init(fill_lev_list(i))
@@ -281,9 +281,9 @@ module interp_option_module
                      else if (index('masked',trim(buffer(1:idx-1))) /= 0 .and. &
                          len_trim('masked') == len_trim(buffer(1:idx-1))) then
                         if (index('water',trim(buffer(idx+1:eos-1))) /= 0) then
-                           masked(i) = 0
+                           masked(i) = 0.
                         else if (index('land',trim(buffer(idx+1:eos-1))) /= 0) then
-                           masked(i) = 1
+                           masked(i) = 1.
                         end if
            
                      else if (index('flag_in_output',trim(buffer(1:idx-1))) /= 0 .and. &
@@ -394,7 +394,7 @@ module interp_option_module
                call mprintf(.true.,ERROR,'In entry %i of METGRID.TBL, HH is not a valid output staggering for ARW.',i1=i)
             end if
 
-            if (masked(i) /= -1 .and. output_stagger(i) /= M) then
+            if (masked(i) /= -1. .and. output_stagger(i) /= M) then
                call mprintf(.true.,ERROR,'In entry %i of METGRID.TBL, staggered output field '// &
                             'cannot use the ''masked'' option.',i1=i)
             end if
@@ -416,7 +416,7 @@ module interp_option_module
                call mprintf(.true.,ERROR,'In entry %i of METGRID.TBL, V is not a valid output staggering for NMM.',i1=i)
             end if
 
-            if (masked(i) /= -1 .and. output_stagger(i) /= HH) then
+            if (masked(i) /= -1. .and. output_stagger(i) /= HH) then
                call mprintf(.true.,ERROR,'In entry %i of METGRID.TBL, staggered output field '// &
                             'cannot use the ''masked'' option.',i1=i)
             end if

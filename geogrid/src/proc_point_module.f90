@@ -106,8 +106,8 @@ module proc_point_module
   
       ! Arguments
       integer, intent(in) :: start_i, end_i, start_j, end_j, start_k, end_k, &
-                             istagger, ilevel, maskval
-      real, intent(in) :: xlat, xlon, msgval
+                             istagger, ilevel
+      real, intent(in) :: xlat, xlon, msgval, maskval
       real, dimension(start_i:end_i, start_j:end_j, start_k:end_k), intent(inout) :: array
       character (len=128), intent(in) :: fieldname
       type (bitarray), intent(inout) :: processed_pts, new_pts
@@ -181,9 +181,9 @@ module proc_point_module
   
       ! Arguments
       integer, intent(in) :: min_i, min_j, min_k, max_i, max_j, max_k, istagger, &
-                             start_x, end_x, start_y, end_y, start_z, end_z, ilevel, maskval
+                             start_x, end_x, start_y, end_y, start_z, end_z, ilevel
       integer, dimension(src_min_x:src_max_x,src_min_y:src_max_y,2), intent(inout) :: where_maps_to
-      real, intent(in) :: msgval
+      real, intent(in) :: msgval, maskval
       real, dimension(src_min_x:src_max_x,src_min_y:src_max_y,src_min_z:src_max_z), intent(in) :: tile_array
       real, dimension(src_min_x:src_max_x,src_min_y:src_max_y), intent(in), optional :: mask_array
       real, dimension(start_x:end_x,start_y:end_y,start_z:end_z), intent(inout) :: dst_array
@@ -425,8 +425,8 @@ module proc_point_module
   
       ! Arguments
       integer, intent(in) :: start_i, end_i, start_j, end_j, start_k, end_k, &
-                             istagger, ilevel, maskval
-      real, intent(in) :: xlat, xlon, msgval
+                             istagger, ilevel
+      real, intent(in) :: xlat, xlon, msgval, maskval
       real, dimension(start_i:end_i, start_j:end_j, start_k:end_k), intent(inout) :: array, n
       character (len=128), intent(in) :: fieldname
       type (bitarray), intent(inout) :: processed_pts, new_pts
@@ -500,9 +500,9 @@ module proc_point_module
   
       ! Arguments
       integer, intent(in) :: min_i, min_j, min_k, max_i, max_j, max_k, istagger, &
-                             start_x, end_x, start_y, end_y, start_z, end_z, ilevel, maskval
+                             start_x, end_x, start_y, end_y, start_z, end_z, ilevel
       integer, dimension(src_min_x:src_max_x,src_min_y:src_max_y,2), intent(inout) :: where_maps_to
-      real, intent(in) :: msgval
+      real, intent(in) :: msgval, maskval
       real, dimension(src_min_x:src_max_x,src_min_y:src_max_y,src_min_z:src_max_z), intent(in) :: tile_array
       real, dimension(src_min_x:src_max_x,src_min_y:src_max_y), intent(in), optional :: mask_array
       real, dimension(start_x:end_x,start_y:end_y,start_z:end_z), intent(inout) :: dst_array, n

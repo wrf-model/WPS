@@ -59,7 +59,6 @@ module datatype_module
       type (map_info) :: map
       ! END any types we want to keep and use for sorting in storage module 
  
-      integer, dimension(:,:), pointer :: i_arr  !!!!! REQUIRED !!!!!
       real, dimension(:,:), pointer :: r_arr     !!!!! REQUIRED !!!!!
       type (bitarray), pointer :: valid_mask, modified_mask
    end type fg_input
@@ -74,7 +73,6 @@ module datatype_module
 
       ! If non-zero, the array is actually stored in a Fortran unit 
       integer :: filenumber
-      logical :: is_real_array, is_integer_array
 
       ! The following two are used by heaps
       integer :: last_used
@@ -166,7 +164,6 @@ module datatype_module
 
       dst%header = src%header
       dst%map = src%map
-      dst%i_arr => src%i_arr
       dst%r_arr => src%r_arr
       dst%valid_mask => src%valid_mask
       dst%modified_mask => src%modified_mask

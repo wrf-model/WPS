@@ -47,8 +47,6 @@ module process_tile_module
       integer :: start_mem_i, end_mem_i, start_mem_j, end_mem_j, end_mem_stag_i, end_mem_stag_j
       integer :: sm1, em1, sm2, em2
       integer :: istagger
-      integer, pointer, dimension(:,:) :: dominant_field
-      integer, pointer, dimension(:,:) :: landmask
       real :: sum, dominant, scale_factor, msg_fill_val
       real, dimension(16) :: corner_lats, corner_lons
       real, pointer, dimension(:,:) :: xlat_array,   xlon_array, &
@@ -57,7 +55,7 @@ module process_tile_module
                                        f_array, e_array, &
                                        mapfac_array_m, mapfac_array_u, mapfac_array_v, &
                                        sina_array, cosa_array
-      real, pointer, dimension(:,:) :: xlat_ptr, xlon_ptr, mapfac_ptr
+      real, pointer, dimension(:,:) :: xlat_ptr, xlon_ptr, mapfac_ptr, landmask, dominant_field
       real, pointer, dimension(:,:,:) :: field, slp_field
       logical :: is_water_mask, only_save_dominant, halt_on_missing
       character (len=19) :: datestr
@@ -332,14 +330,14 @@ module process_tile_module
          call mprintf(.true.,WARN,'No field specified for landmask calculation. Will set landmask=1 at every grid point.')
      
          allocate(landmask(start_mem_i:end_mem_i, start_mem_j:end_mem_j))
-         landmask = 1
+         landmask = 1.
          call write_field(start_mem_i, end_mem_i, start_mem_j, end_mem_j, 1, 1, 'LANDMASK', &
-                          datestr, int_array=landmask)
+                          datestr, landmask)
     
       else
     
          allocate(landmask(start_mem_i:end_mem_i, start_mem_j:end_mem_j))
-         landmask = 1
+         landmask = 1.
      
          call mprintf(.true.,STDOUT,'  Processing %s', s1=trim(landmask_name))
      
@@ -422,12 +420,12 @@ module process_tile_module
                do j=start_mem_j, end_mem_j
                   if (field(i,j,landmask_value) /= msg_fill_val) then
                      if (field(i,j,landmask_value) < 0.50) then
-                        landmask(i,j) = 1
+                        landmask(i,j) = 1.
                      else
-                        landmask(i,j) = 0
+                        landmask(i,j) = 0.
                      end if
                   else
-                     landmask(i,j) = -1
+                     landmask(i,j) = -1.
                   end if
                end do
             end do
@@ -436,19 +434,19 @@ module process_tile_module
                do j=start_mem_j, end_mem_j
                   if (field(i,j,landmask_value) /= msg_fill_val) then
                      if (field(i,j,landmask_value) >= 0.50) then
-                        landmask(i,j) = 1
+                        landmask(i,j) = 1.
                      else
-                        landmask(i,j) = 0
+                        landmask(i,j) = 0.
                      end if
                   else
-                     landmask(i,j) = -1
+                     landmask(i,j) = -1.
                   end if
                end do
             end do
          end if
     
          call write_field(start_mem_i, end_mem_i, start_mem_j, end_mem_j, 1, 1, 'LANDMASK', &
-                          datestr, int_array=landmask)
+                          datestr, landmask)
      
          ! If we should only save the dominant category, then no need to write out fractional field
          if (.not.only_save_dominant .or. (idomcatstatus /= 0)) then
@@ -481,25 +479,25 @@ module process_tile_module
 
             do i=start_mem_i, end_mem_i
                do j=start_mem_j, end_mem_j
-                  if ((landmask(i,j) == 1 .and. is_water_mask) .or. &
-                      (landmask(i,j) == 0 .and. .not.is_water_mask)) then
+                  if ((landmask(i,j) == 1. .and. is_water_mask) .or. &
+                      (landmask(i,j) == 0. .and. .not.is_water_mask)) then
                     dominant = 0.
-                    dominant_field(i,j) = min_category-1
+                    dominant_field(i,j) = real(min_category-1)
                     do k=min_category,max_category
                        if ((field(i,j,k) > dominant) .and. &
                             (k /= landmask_value)) then
-                          dominant_field(i,j) = k
+                          dominant_field(i,j) = real(k)
                           dominant = field(i,j,k)
                        end if
                     end do
                   else
-                     dominant_field(i,j) = landmask_value
+                     dominant_field(i,j) = real(landmask_value)
                   end if
                end do
             end do
      
             call write_field(start_mem_i, end_mem_i, start_mem_j, end_mem_j, 1, 1, trim(domname), &
-                             datestr, int_array=dominant_field)
+                             datestr, dominant_field)
           
             deallocate(dominant_field)
          end if
@@ -754,10 +752,10 @@ module process_tile_module
                      do i=sm1, em1
                         do j=sm2, em2
                            dominant = 0.
-                           dominant_field(i,j) = min_category-1
+                           dominant_field(i,j) = real(min_category-1)
                            do k=min_category,max_category
                               if (field(i,j,k) > dominant .and. field(i,j,k) /= msg_fill_val) then 
-                                 dominant_field(i,j) = k
+                                 dominant_field(i,j) = real(k)
                                  dominant = field(i,j,k)
              !                  else
              !                    dominant_field(i,j) = nint(msg_fill_val)
@@ -770,11 +768,11 @@ module process_tile_module
 !   which points are missing and which just happen to have the missing fill value?
                               end if
                            end do
-                           if (dominant_field(i,j) == min_category-1) dominant_field(i,j) = nint(msg_fill_val)
+                           if (dominant_field(i,j) == real(min_category-1)) dominant_field(i,j) = msg_fill_val
                         end do
                      end do
                      call write_field(sm1, em1, sm2, em2, 1, 1, &
-                                      trim(domname), datestr, int_array=dominant_field)
+                                      trim(domname), datestr, dominant_field)
                      deallocate(dominant_field)
                   end if
        
@@ -835,9 +833,9 @@ module process_tile_module
     
       ! Arguments
       integer, intent(in) :: start_i, end_i, start_j, end_j, start_k, end_k, ilevel, istagger
-      integer, dimension(start_i:end_i, start_j:end_j), intent(in), optional :: landmask
       real, dimension(start_i:end_i, start_j:end_j), intent(in) :: xlat_array, xlon_array
       real, dimension(start_i:end_i, start_j:end_j, start_k:end_k), intent(inout) :: field
+      real, dimension(start_i:end_i, start_j:end_j), intent(in), optional :: landmask
       character (len=128), intent(in) :: fieldname
       type (bitarray), intent(inout) :: processed_domain
     
@@ -845,7 +843,7 @@ module process_tile_module
       integer :: start_src_k, end_src_k
       integer :: i, j, k, ix, iy, itype
       integer :: user_iproj, istatus
-      integer :: mask_val
+      real :: mask_val
       real :: temp
       real :: msg_val, msg_fill_val, threshold, src_dx, src_dy, dom_dx, dom_dy
       real :: user_stand_lon, user_truelat1, user_truelat2, user_dxkm, user_dykm, &
@@ -931,7 +929,7 @@ module process_tile_module
       if (istatus /= 0) msg_fill_val = NAN
     
       call get_masked_value(fieldname, ilevel, mask_val, istatus)
-      if (istatus /= 0) mask_val = -1
+      if (istatus /= 0) mask_val = -1.
     
       if (itype == CONTINUOUS .or. itype == SP_CONTINUOUS) then
          call get_source_levels(fieldname, ilevel, start_src_k, end_src_k, istatus)

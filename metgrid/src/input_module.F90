@@ -115,7 +115,7 @@ module input_module
                               start_patch_j, end_patch_j, &
                               start_patch_k, end_patch_k, &
                               cname, cunits, cdesc, memorder, stagger, &
-                              dimnames, real_array, int_array, istatus)
+                              dimnames, real_array, istatus)
  
       implicit none
   
@@ -124,7 +124,6 @@ module input_module
                               start_patch_j, end_patch_j, &
                               start_patch_k, end_patch_k
       real, pointer, dimension(:,:,:) :: real_array
-      integer, pointer, dimension(:,:,:) :: int_array
       character (len=*), intent(out) :: cname, memorder, stagger, cunits, cdesc
       character (len=128), dimension(3) :: dimnames
       integer, intent(inout) :: istatus
@@ -204,61 +203,32 @@ module input_module
          end if
      
          nullify(real_domain)
-         nullify(int_domain)
      
-         if (wrftype == WRF_REAL) then
-            allocate(real_domain(start_patch_i:end_patch_i, start_patch_j:end_patch_j, start_patch_k:end_patch_k))
+         allocate(real_domain(start_patch_i:end_patch_i, start_patch_j:end_patch_j, start_patch_k:end_patch_k))
 #ifdef IO_BINARY
-            if (io_form_input == BINARY) then
-               call ext_int_read_field(handle, '0000-00-00_00:00:00', cname, real_domain, WRF_REAL, &
-                             1, 1, 0, memorder, stagger, &
-                             dimnames, domain_start, domain_end, domain_start, domain_end, &
-                             domain_start, domain_end, istatus)
-            end if
-#endif
-#ifdef IO_NETCDF
-            if (io_form_input == NETCDF) then
-               call ext_ncd_read_field(handle, '0000-00-00_00:00:00', cname, real_domain, WRF_REAL, &
-                             1, 1, 0, memorder, stagger, &
-                             dimnames, domain_start, domain_end, domain_start, domain_end, &
-                             domain_start, domain_end, istatus)
-            end if
-#endif
-#ifdef IO_GRIB1
-            if (io_form_input == GRIB1) then
-               call ext_gr1_read_field(handle, '0000-00-00_00:00:00', cname, real_domain, WRF_REAL, &
-                             1, 1, 0, memorder, stagger, &
-                             dimnames, domain_start, domain_end, domain_start, domain_end, &
-                             domain_start, domain_end, istatus)
-            end if
-#endif
-         else if (wrftype == WRF_INTEGER) then
-            allocate(int_domain(start_patch_i:end_patch_i, start_patch_j:end_patch_j, start_patch_k:end_patch_k))
-#ifdef IO_BINARY
-            if (io_form_input == BINARY) then
-               call ext_int_read_field(handle, '0000-00-00_00:00:00', cname, int_domain, WRF_INTEGER, &
-                             1, 1, 0, memorder, stagger, &
-                             dimnames, domain_start, domain_end, domain_start, domain_end, &
-                             domain_start, domain_end, istatus)
-            end if
-#endif
-#ifdef IO_NETCDF
-            if (io_form_input == NETCDF) then
-               call ext_ncd_read_field(handle, '0000-00-00_00:00:00', cname, int_domain, WRF_INTEGER, &
-                             1, 1, 0, memorder, stagger, &
-                             dimnames, domain_start, domain_end, domain_start, domain_end, &
-                             domain_start, domain_end, istatus)
-            end if
-#endif
-#ifdef IO_GRIB1
-            if (io_form_input == GRIB1) then
-               call ext_gr1_read_field(handle, '0000-00-00_00:00:00', cname, int_domain, WRF_INTEGER, &
-                             1, 1, 0, memorder, stagger, &
-                             dimnames, domain_start, domain_end, domain_start, domain_end, &
-                             domain_start, domain_end, istatus)
-            end if
-#endif
+         if (io_form_input == BINARY) then
+            call ext_int_read_field(handle, '0000-00-00_00:00:00', cname, real_domain, WRF_REAL, &
+                          1, 1, 0, memorder, stagger, &
+                          dimnames, domain_start, domain_end, domain_start, domain_end, &
+                          domain_start, domain_end, istatus)
          end if
+#endif
+#ifdef IO_NETCDF
+         if (io_form_input == NETCDF) then
+            call ext_ncd_read_field(handle, '0000-00-00_00:00:00', cname, real_domain, WRF_REAL, &
+                          1, 1, 0, memorder, stagger, &
+                          dimnames, domain_start, domain_end, domain_start, domain_end, &
+                          domain_start, domain_end, istatus)
+         end if
+#endif
+#ifdef IO_GRIB1
+         if (io_form_input == GRIB1) then
+            call ext_gr1_read_field(handle, '0000-00-00_00:00:00', cname, real_domain, WRF_REAL, &
+                          1, 1, 0, memorder, stagger, &
+                          dimnames, domain_start, domain_end, domain_start, domain_end, &
+                          domain_start, domain_end, istatus)
+         end if
+#endif
      
          call mprintf((istatus /= 0),ERROR,'In read_next_field(), got error code %i.', i1=istatus)
      
@@ -299,7 +269,6 @@ module input_module
          call parallel_bcast_char(dimnames(1), 128)
          call parallel_bcast_char(dimnames(2), 128)
          call parallel_bcast_char(dimnames(3), 128)
-         call parallel_bcast_int(wrftype)
          call parallel_bcast_int(domain_start(3))
          call parallel_bcast_int(domain_end(3))
    
@@ -336,56 +305,29 @@ module input_module
          start_patch_k = sp3
          end_patch_k   = ep3
    
-         if (wrftype == WRF_REAL) then
-   
-            allocate(real_array(sm1:em1,sm2:em2,sm3:em3))
-            nullify(int_array)
-            if (my_proc_id /= IO_NODE) then
-               allocate(real_domain(1,1,1))
-               domain_start(1) = 1
-               domain_start(2) = 1
-               domain_start(3) = 1
-               domain_end(1) = 1
-               domain_end(2) = 1
-               domain_end(3) = 1
-            end if
-            call scatter_whole_field_r(real_array, &
-                                      sm1, em1, sm2, em2, sm3, em3, &
-                                      sp1, ep1, sp2, ep2, sp3, ep3, &
-                                      real_domain, &
-                                      domain_start(1), domain_end(1), &
-                                      domain_start(2), domain_end(2), &
-                                      domain_start(3), domain_end(3))
-            deallocate(real_domain)
-   
-         else if (wrftype == WRF_INTEGER) then
-   
-            allocate(int_array(sm1:em1,sm2:em2,sm3:em3))
-            nullify(real_array)
-            if (my_proc_id /= IO_NODE) then
-               allocate(int_domain(1,1,1))
-               domain_start(1) = 1
-               domain_start(2) = 1
-               domain_start(3) = 1
-               domain_end(1) = 1
-               domain_end(2) = 1
-               domain_end(3) = 1
-            end if
-            call scatter_whole_field_i(int_array, &
-                                      sm1, em1, sm2, em2, sm3, em3, &
-                                      sp1, ep1, sp2, ep2, sp3, ep3, &
-                                      int_domain, &
-                                      domain_start(1), domain_end(1), &
-                                      domain_start(2), domain_end(2), &
-                                      domain_start(3), domain_end(3))
-            deallocate(int_domain)
-  
-        end if    
-  
+         allocate(real_array(sm1:em1,sm2:em2,sm3:em3))
+         if (my_proc_id /= IO_NODE) then
+            allocate(real_domain(1,1,1))
+            domain_start(1) = 1
+            domain_start(2) = 1
+            domain_start(3) = 1
+            domain_end(1) = 1
+            domain_end(2) = 1
+            domain_end(3) = 1
+         end if
+         call scatter_whole_field_r(real_array, &
+                                   sm1, em1, sm2, em2, sm3, em3, &
+                                   sp1, ep1, sp2, ep2, sp3, ep3, &
+                                   real_domain, &
+                                   domain_start(1), domain_end(1), &
+                                   domain_start(2), domain_end(2), &
+                                   domain_start(3), domain_end(3))
+         deallocate(real_domain)
+
       else
   
          real_array => real_domain
-         int_array => int_domain
+
       end if
  
    end subroutine read_next_field

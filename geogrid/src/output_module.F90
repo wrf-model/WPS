@@ -25,10 +25,9 @@ module output_module
    integer :: NUM_FIELDS
  
    type field_info
-      integer :: datatype, ndims, istagger
+      integer :: ndims, istagger
       integer, dimension(MAX_DIMENSIONS) :: dom_start, mem_start, patch_start
       integer, dimension(MAX_DIMENSIONS) :: dom_end, mem_end, patch_end
-      integer, pointer, dimension(:,:,:) :: idata_arr
   
       real, pointer, dimension(:,:,:) :: rdata_arr
   
@@ -255,28 +254,15 @@ module output_module
    
          do i=1,NUM_FIELDS
    
-            if (fields(i)%datatype == WRF_REAL) then
-               allocate(fields(i)%rdata_arr(fields(i)%mem_start(1):fields(i)%mem_end(1), &
-                                            fields(i)%mem_start(2):fields(i)%mem_end(2), &
-                                            fields(i)%mem_start(3):fields(i)%mem_end(3)))
+            allocate(fields(i)%rdata_arr(fields(i)%mem_start(1):fields(i)%mem_end(1), &
+                                         fields(i)%mem_start(2):fields(i)%mem_end(2), &
+                                         fields(i)%mem_start(3):fields(i)%mem_end(3)))
      
-               call write_field(fields(i)%mem_start(1), fields(i)%mem_end(1), fields(i)%mem_start(2), &
-                                fields(i)%mem_end(2), fields(i)%mem_start(3), fields(i)%mem_end(3), &
-                                trim(fields(i)%fieldname), datestr, real_array=fields(i)%rdata_arr, is_training=.true.)
+            call write_field(fields(i)%mem_start(1), fields(i)%mem_end(1), fields(i)%mem_start(2), &
+                             fields(i)%mem_end(2), fields(i)%mem_start(3), fields(i)%mem_end(3), &
+                             trim(fields(i)%fieldname), datestr, fields(i)%rdata_arr, is_training=.true.)
      
-               deallocate(fields(i)%rdata_arr)
-            else if (fields(i)%datatype == WRF_INTEGER) then
-     
-               allocate(fields(i)%idata_arr(fields(i)%mem_start(1):fields(i)%mem_end(1), &
-                                            fields(i)%mem_start(2):fields(i)%mem_end(2), &
-                                            fields(i)%mem_start(3):fields(i)%mem_end(3)))
-     
-               call write_field(fields(i)%mem_start(1), fields(i)%mem_end(1), fields(i)%mem_start(2), &
-                                fields(i)%mem_end(2), fields(i)%mem_start(3), fields(i)%mem_end(3), &
-                                trim(fields(i)%fieldname), datestr, int_array=fields(i)%idata_arr, is_training=.true.)
-     
-               deallocate(fields(i)%idata_arr)
-            end if
+            deallocate(fields(i)%rdata_arr)
     
          end do
    
@@ -403,7 +389,7 @@ module output_module
       ! Local variables
       integer :: i, istagger, istatus, iunit_status, idomstatus, ifieldstatus, &
                  nfields, min_category, max_category
-      integer :: fieldtype, ndims
+      integer :: ndims
       logical :: only_save_dominant
       character (len=128) :: fieldname, domname, gradname, z_dim_name
       character (len=128) :: memorder, units, description
@@ -417,7 +403,7 @@ module output_module
       ifieldstatus = 0
       nfields = 0
       do while (ifieldstatus == 0)
-         call get_next_output_fieldname(fieldname, fieldtype, ndims, &
+         call get_next_output_fieldname(fieldname, ndims, &
                                         min_category, max_category, &
                                         istagger, memorder, dimnames, &
                                         units, description, ifieldstatus)
@@ -532,7 +518,6 @@ module output_module
       ! General defaults for "always computed" fields 
       !
       do i=1,NUM_AUTOMATIC_FIELDS
-         fields(i)%datatype = WRF_REAL
          fields(i)%ndims = 2
          fields(i)%dom_start(1) = start_dom_1 
          fields(i)%dom_start(2) = start_dom_2
@@ -563,13 +548,6 @@ module output_module
          fields(i)%dimnames(1) = 'west_east'
          fields(i)%dimnames(2) = 'south_north'
       end do
-  
-      ! Landmask
-      if (grid_type == 'C') then
-         fields(14)%datatype = WRF_INTEGER
-      else if (grid_type == 'E') then
-         fields(7)%datatype = WRF_INTEGER
-      end if
   
       if (grid_type == 'C') then
          ! Lat U
@@ -671,7 +649,7 @@ module output_module
 #endif
   
       do while (ifieldstatus == 0)  !{
-         call get_next_output_fieldname(fieldname, fieldtype, ndims, &
+         call get_next_output_fieldname(fieldname, ndims, &
                                       min_category, max_category, &
                                       istagger, memorder, dimnames, &
                                       units, description, ifieldstatus)
@@ -680,7 +658,6 @@ module output_module
      
             fields(nfields)%ndims = ndims
             fields(nfields)%fieldname = fieldname
-            fields(nfields)%datatype = fieldtype
             fields(nfields)%istagger = istagger
             if (istagger == M) then
                fields(nfields)%stagger = 'M'
@@ -753,16 +730,14 @@ module output_module
    subroutine write_field(start_mem_i, end_mem_i, &
                           start_mem_j, end_mem_j, &
                           start_mem_k, end_mem_k, &
-                          cname, datestr, real_array, int_array, is_training)
+                          cname, datestr, real_array, is_training)
  
       implicit none
   
       ! Arguments
       integer, intent(in) :: start_mem_i, end_mem_i, start_mem_j, end_mem_j, start_mem_k, end_mem_k
       real, target, dimension(start_mem_i:end_mem_i, start_mem_j:end_mem_j, start_mem_k:end_mem_k), &
-                              intent(in), optional :: real_array
-      integer, target, dimension(start_mem_i:end_mem_i, start_mem_j:end_mem_j, start_mem_k:end_mem_k), &
-                              intent(in), optional :: int_array
+                              intent(in) :: real_array
       logical, intent(in), optional :: is_training
       character (len=19), intent(in) :: datestr
       character (len=*), intent(in) :: cname
@@ -774,17 +749,11 @@ module output_module
       integer :: i
       integer :: istatus, iunit_status, comm_1, comm_2, domain_desc
       integer, dimension(3) :: sd, ed, sp, ep, sm, em
-      integer, pointer, dimension(:,:,:) :: int_dom_array
       real, pointer, dimension(:,:,:) :: real_dom_array
       character (len=128) :: cunits
       character (len=128) :: cdescr
-      logical :: allocated_int_locally, allocated_real_locally
+      logical :: allocated_real_locally
   
-      if (.not. present(real_array) .and. .not. present(int_array)) then
-         call mprintf(.true.,ERROR,'write_field() called without specifying an array.')
-      end if
-  
-      allocated_int_locally = .false.
       allocated_real_locally = .false.
   
       ! If we are running distributed memory and need to gather all tiles onto a single processor for output
@@ -806,23 +775,13 @@ module output_module
                sm = fields(i)%mem_start
                em = fields(i)%mem_end
      
-               if (present(real_array) .and. fields(i)%datatype == WRF_REAL) then
-                  allocate(real_dom_array(sd(1):ed(1),sd(2):ed(2),sd(3):ed(3)))
-                  allocated_real_locally = .true.
-                  call gather_whole_field_r(real_array, &
-                                            sm(1), em(1), sm(2), em(2), sm(3), em(3), &
-                                            sp(1), ep(1), sp(2), ep(2), sp(3), ep(3), &
-                                            real_dom_array, &
-                                            sd(1), ed(1), sd(2), ed(2), sd(3), ed(3))
-               else if (present(int_array) .and. fields(i)%datatype == WRF_INTEGER) then
-                  allocate(int_dom_array(sd(1):ed(1),sd(2):ed(2),sd(3):ed(3)))
-                  allocated_int_locally = .true.
-                  call gather_whole_field_i(int_array, &
-                                            sm(1), em(1), sm(2), em(2), sm(3), em(3), &
-                                            sp(1), ep(1), sp(2), ep(2), sp(3), ep(3), &
-                                            int_dom_array, &
-                                            sd(1), ed(1), sd(2), ed(2), sd(3), ed(3))
-               end if 
+               allocate(real_dom_array(sd(1):ed(1),sd(2):ed(2),sd(3):ed(3)))
+               allocated_real_locally = .true.
+               call gather_whole_field_r(real_array, &
+                                         sm(1), em(1), sm(2), em(2), sm(3), em(3), &
+                                         sp(1), ep(1), sp(2), ep(2), sp(3), ep(3), &
+                                         real_dom_array, &
+                                         sd(1), ed(1), sd(2), ed(2), sd(3), ed(3))
                exit
             end if 
          end do
@@ -831,11 +790,7 @@ module output_module
             if ( (index(cname, trim(fields(i)%fieldname) ) /= 0) .and. &
                  (len_trim(cname) == len_trim(fields(i)%fieldname)) ) then
                istatus = 0
-               if (present(real_array) .and. fields(i)%datatype == WRF_REAL) then
-                  real_dom_array => real_array
-               else if (present(int_array) .and. fields(i)%datatype == WRF_INTEGER) then
-                  int_dom_array => int_array
-               end if 
+               real_dom_array => real_array
                exit
             end if 
          end do
@@ -875,54 +830,27 @@ module output_module
                end if
      
                istatus = 0
-               if (present(real_array) .and. fields(i)%datatype == WRF_REAL) then
 #ifdef IO_BINARY
-                  if (io_form_output == BINARY) then
-                     call ext_int_write_field(handle, datestr, trim(fields(i)%fieldname), &
-                          real_dom_array, fields(i)%datatype, comm_1, comm_2, domain_desc, trim(fields(i)%mem_order), &
-                          trim(fields(i)%stagger), fields(i)%dimnames, sd, ed, sm, em, sp, ep, istatus)
-                  end if
-#endif
-#ifdef IO_NETCDF
-                  if (io_form_output == NETCDF) then
-                     call ext_ncd_write_field(handle, datestr, trim(fields(i)%fieldname), &
-                          real_dom_array, fields(i)%datatype, comm_1, comm_2, domain_desc, trim(fields(i)%mem_order), &
-                          trim(fields(i)%stagger), fields(i)%dimnames, sd, ed, sm, em, sp, ep, istatus)
-                  end if
-#endif
-#ifdef IO_GRIB1
-                  if (io_form_output == GRIB1) then
-                     call ext_gr1_write_field(handle, datestr, trim(fields(i)%fieldname), &
-                          real_dom_array, fields(i)%datatype, comm_1, comm_2, domain_desc, trim(fields(i)%mem_order), &
-                          trim(fields(i)%stagger), fields(i)%dimnames, sd, ed, sm, em, sp, ep, istatus)
-                  end if
-#endif
-               else if (present(int_array) .and. fields(i)%datatype == WRF_INTEGER) then
-#ifdef IO_BINARY
-                  if (io_form_output == BINARY) then
-                     call ext_int_write_field(handle, datestr, trim(fields(i)%fieldname), &
-                          int_dom_array, fields(i)%datatype, comm_1, comm_2, domain_desc, trim(fields(i)%mem_order), &
-                          trim(fields(i)%stagger), fields(i)%dimnames, sd, ed, sm, em, sp, ep, istatus)
-                  end if
-#endif
-#ifdef IO_NETCDF
-                  if (io_form_output == NETCDF) then
-                     call ext_ncd_write_field(handle, datestr, trim(fields(i)%fieldname), &
-                          int_dom_array, fields(i)%datatype, comm_1, comm_2, domain_desc, trim(fields(i)%mem_order), &
-                          trim(fields(i)%stagger), fields(i)%dimnames, sd, ed, sm, em, sp, ep, istatus)
-                  end if
-#endif
-#ifdef IO_GRIB1
-                  if (io_form_output == GRIB1) then
-                     call ext_gr1_write_field(handle, datestr, trim(fields(i)%fieldname), &
-                          int_dom_array, fields(i)%datatype, comm_1, comm_2, domain_desc, trim(fields(i)%mem_order), &
-                          trim(fields(i)%stagger), fields(i)%dimnames, sd, ed, sm, em, sp, ep, istatus)
-                  end if
-#endif
-               else
-                  call mprintf(.true.,ERROR,'Datatype of field in write_field() does not match '// &
-                               'specified type for %s', s1=trim(fields(i)%fieldname))
+               if (io_form_output == BINARY) then
+                  call ext_int_write_field(handle, datestr, trim(fields(i)%fieldname), &
+                       real_dom_array, WRF_REAL, comm_1, comm_2, domain_desc, trim(fields(i)%mem_order), &
+                       trim(fields(i)%stagger), fields(i)%dimnames, sd, ed, sm, em, sp, ep, istatus)
                end if
+#endif
+#ifdef IO_NETCDF
+               if (io_form_output == NETCDF) then
+                  call ext_ncd_write_field(handle, datestr, trim(fields(i)%fieldname), &
+                       real_dom_array, WRF_REAL, comm_1, comm_2, domain_desc, trim(fields(i)%mem_order), &
+                       trim(fields(i)%stagger), fields(i)%dimnames, sd, ed, sm, em, sp, ep, istatus)
+               end if
+#endif
+#ifdef IO_GRIB1
+               if (io_form_output == GRIB1) then
+                  call ext_gr1_write_field(handle, datestr, trim(fields(i)%fieldname), &
+                       real_dom_array, WRF_REAL, comm_1, comm_2, domain_desc, trim(fields(i)%mem_order), &
+                       trim(fields(i)%stagger), fields(i)%dimnames, sd, ed, sm, em, sp, ep, istatus)
+               end if
+#endif
                call mprintf((istatus /= 0),ERROR,'Error in ext_pkg_write_field')
 
                if (present(is_training)) then
@@ -965,7 +893,6 @@ module output_module
    
       end if
   
-      if (allocated_int_locally) deallocate(int_dom_array)
       if (allocated_real_locally) deallocate(real_dom_array)
   
    end subroutine write_field
