@@ -1011,6 +1011,8 @@ module process_domain_module
                end if 
             end do
 
+            if (associated(slab)) deallocate(slab)
+
          end if
 
       end do
