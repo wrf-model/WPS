@@ -3,13 +3,13 @@ Code | Code |   1  |   2  | Name     |  Units   | Description                   
 -----+------+------+------+----------+----------+------------------------------------------+
  129 | 100  |   *  |      | GEOPT    | m{2}s{-2}|                                          | 
      | 100  |   *  |      | HGT      | m        | Height                                   |
- 130 | 100  |   *  |      | T        | K        | Temperature                              |
- 131 | 100  |   *  |      | U        | m s{-1}  | U                                        |
- 132 | 100  |   *  |      | V        | m s{-1}  | V                                        |
+ 130 | 100  |   *  |      | TT       | K        | Temperature                              |
+ 131 | 100  |   *  |      | UU       | m s{-1}  | U                                        |
+ 132 | 100  |   *  |      | VV       | m s{-1}  | V                                        |
  157 | 100  |   *  |      | RH       | %        | Relative Humidity                        |
- 165 |  1   |   0  |      | U        | m s{-1}  | U                                        | At 10 m
- 166 |  1   |   0  |      | V        | m s{-1}  | V                                        | At 10 m
- 167 |  1   |   0  |      | T        | K        | Temperature                              | At 2 m
+ 165 |  1   |   0  |      | UU       | m s{-1}  | U                                        | At 10 m
+ 166 |  1   |   0  |      | VV       | m s{-1}  | V                                        | At 10 m
+ 167 |  1   |   0  |      | TT       | K        | Temperature                              | At 2 m
  168 |  1   |   0  |      | DEWPT    | K        |                                          | At 2 m
  172 |  1   |   0  |      | LANDSEA  | 0/1 Flag | Land/Sea flag                            |
  129 |  1   |   0  |      | SOILGEO  | m{2}s{-2}|                                          |

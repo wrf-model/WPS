@@ -2,9 +2,9 @@
 GRIB | Level| Level| Level| REGRID   |  REGRID  | REGRID                                   |
 Code | Code |   1  |   2  | Name     |  Units   | Description                              |
 -----+------+------+------+----------+----------+------------------------------------------+
-  11 | 100  |   *  |      | T        | K        | Temperature                              |
-  33 | 100  |   *  |      | U        | m s-1    | U                                        |
-  34 | 100  |   *  |      | V        | m s-1    | V                                        |
+  11 | 100  |   *  |      | TT       | K        | Temperature                              |
+  33 | 100  |   *  |      | UU       | m s-1    | U                                        |
+  34 | 100  |   *  |      | VV       | m s-1    | V                                        |
   52 | 100  |   *  |      | RH       |          | Relative Humidity                        |
    7 | 100  |   *  |      | HGT      | m        | Height                                   |
    2 | 102  |   0  |      | PMSL     | Pa       | Sea-level Pressure                       |

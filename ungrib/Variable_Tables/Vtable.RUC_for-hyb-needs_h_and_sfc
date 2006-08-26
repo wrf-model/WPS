@@ -2,10 +2,10 @@ GRIB1| Level| From |  To  | UNGRIB   |  UNGRIB  | UNGRIB                        
 Param| Type |Level1|Level2| Name     |  Units   | Description                             |Discp|Catgy|Param|Level|
 -----+------+------+------+----------+----------+-----------------------------------------+-----------------------+
    1 | 109  |   *  |      | PRESSURE | Pa       | Pressure                                |
-     | 109  |   *  |      | T        | K        | Temperature                             |
+     | 109  |   *  |      | TT       | K        | Temperature                             |
  189 | 109  |   *  |      | VPTMP    | K        |                                         |
-  33 | 109  |   *  |      | U        | m s{-1}  | U                                       |
-  34 | 109  |   *  |      | V        | m s{-1}  | V                                       |
+  33 | 109  |   *  |      | UU       | m s{-1}  | U                                       |
+  34 | 109  |   *  |      | VV       | m s{-1}  | V                                       |
      | 109  |   *  |      | RH       | %        | Relative Humidity                       |
   53 | 109  |   *  |      | SPECHUMD | kg kg{-1}|                                         |
   7  | 109  |   *  |      | HGT      | m        | Height                                  |
@@ -13,11 +13,11 @@ Param| Type |Level1|Level2| Name     |  Units   | Description                   
   65 |  1   |   0  |      | WEASD    | kg m{-2} | Water Equivalent Snow Depth             |
   66 |  1   |   0  |      | SNOW     | kg m{-2} | Snow Depth                              |
   11 |  1   |   0  |      | SKINTEMP | K        | Skin Temperature                        |
-  11 | 105  |   2  |      | T        | K        | Temperature                             |
+  11 | 105  |   2  |      | TT       | K        | Temperature                             |
      | 105  |   2  |      | RH       | %        | Relative Humidity                       |
   53 | 105  |   2  |      | SPECHUMD | kg kg{-1}|                                         |
-  33 | 105  |  10  |      | U        | m s{-1}  | U                                       |
-  34 | 105  |  10  |      | V        | m s{-1}  | V                                       |
+  33 | 105  |  10  |      | UU       | m s{-1}  | U                                       |
+  34 | 105  |  10  |      | VV       | m s{-1}  | V                                       |
  144 |   1  |   0  |      | SOILM000 | kg m-3   | Soil Moist   0 cm below ground          |  2  |  0  | 192 | 106 |
  144 | 111  |   5  |      | SOILM005 | kg m-3   | Soil Moist   5 cm below ground          |  2  |  0  | 192 | 106 |
  144 | 111  |  20  |      | SOILM020 | kg m-3   | Soil Moist  20 cm below ground          |  2  |  0  | 192 | 106 |

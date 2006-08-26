@@ -1,9 +1,9 @@
 GRIB | Level| Level| Level| REGRID   |  REGRID  | REGRID                                   |
 Code | Code |   1  |   2  | Name     |  Units   | Description                              |
 -----+------+------+------+----------+----------+------------------------------------------+
-  11 | 100  |   *  |      | T        | K        | Temperature                              |
-  33 | 100  |   *  |      | U        | m s{-1}  | U                                        |
-  34 | 100  |   *  |      | V        | m s{-1}  | V                                        |
+  11 | 100  |   *  |      | TT       | K        | Temperature                              |
+  33 | 100  |   *  |      | UU       | m s{-1}  | U                                        |
+  34 | 100  |   *  |      | VV       | m s{-1}  | V                                        |
      | 100  |   *  |      | RH       | %        | Relative Humidity                        |
   51 | 100  |   *  |      | SPECHUMD | kg kg{-1}|                                          |
   7  | 100  |   *  |      | HGT      | m        | Height                                   |
@@ -20,11 +20,11 @@ Code | Code |   1  |   2  | Name     |  Units   | Description                   
  144 | 112  | 100  | 200  | SM100200 | fraction | Soil Moisture of 100-200 cm ground layer    |
  7   |  1   |   0  |      | SOILHGT  | m        | Terrain field of source analysis            |
   11 |  1   |   0  |      | SKINTEMP | K        | Skin Temperature                         |
-  11 | 105  |   2  |      | T        | K        | Temperature                              | At 2 m
+  11 | 105  |   2  |      | TT       | K        | Temperature                              | At 2 m
      | 105  |   2  |      | RH       | %        | Relative Humidity                        | At 2 m
   51 | 105  |   2  |      | SPECHUMD | kg kg{-1}|                                          | At 2 m
-  33 | 105  |  10  |      | U        | m s{-1}  | U                                        | At 10 m
-  34 | 105  |  10  |      | V        | m s{-1}  | V                                        | At 10 m
+  33 | 105  |  10  |      | UU       | m s{-1}  | U                                        | At 10 m
+  34 | 105  |  10  |      | VV       | m s{-1}  | V                                        | At 10 m
  91  |  1   |   0  |      | SEAICE   | 0/1 Flag | Ice flag                                    |
  81  |  1   |   0  |      | LANDSEA  | 0/1 Flag | Land/Sea flag                               |
 -----+------+------+------+----------+----------+------------------------------------------+

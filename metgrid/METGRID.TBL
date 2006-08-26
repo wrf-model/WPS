@@ -293,17 +293,17 @@ name=RH
         fill_missing=0.
         fill_lev=200100:const(0.)
 ========================================
-name=T
+name=TT
         interp_option=four_pt
         fill_missing=0.
 ========================================
-name=U
+name=UU
         interp_option=sixteen_pt+four_pt+average_4pt
         is_u_field=yes
         output_stagger=U
         fill_missing=0.
 ========================================
-name=V
+name=VV
         interp_option=sixteen_pt+four_pt+average_4pt
         is_v_field=yes
         output_stagger=V
@@ -315,10 +315,39 @@ name=SST
         fill_missing=0. 
         flag_in_output=FLAG_SST
 ========================================
-name=QVAPOR
-        interp_option=sixteen_pt+four_pt+average_4pt
+name=QV
+        interp_option=four_pt+average_4pt
         fill_missing=0.
         fill_lev=200100:const(0.)
+========================================
+name=QR
+        interp_option=four_pt+average_4pt
+        fill_missing=0.
+        fill_lev=200100:const(0.)
+        flag_in_output=FLAG_QR
+========================================
+name=QC
+        interp_option=four_pt+average_4pt
+        fill_missing=0.
+        fill_lev=200100:const(0.)
+        flag_in_output=FLAG_QC
+========================================
+name=QI
+        interp_option=four_pt+average_4pt
+        fill_missing=0.
+        fill_lev=200100:const(0.)
+        flag_in_output=FLAG_QI
+========================================
+name=QS
+        interp_option=four_pt+average_4pt
+        fill_missing=0.
+        fill_lev=200100:const(0.)
+========================================
+name=QG
+        interp_option=four_pt+average_4pt
+        fill_missing=0.
+        fill_lev=200100:const(0.)
+        flag_in_output=FLAG_QG
 ========================================
 name=VPTMP
         interp_option=sixteen_pt+four_pt+average_4pt
