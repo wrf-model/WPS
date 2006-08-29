@@ -27,6 +27,11 @@ geogrid.exe: $(OBJS) plotgrids.exe
 plotgrids.exe: plotgrids.o
 	$(FC) -o $(@) $(LDFLAGS) plotgrids.o $(NCARG_LIBS) $(NCARG_LIBS2)
 
+plotgrids.o: plotgrids.f90
+	$(CP) $< $*.f
+	$(FC) $(FNGFLAGS) -c $*.f
+	$(RM) $*.f
+
 bitarray_module.o: module_debug.o
 
 constants_module.o:

@@ -1,7 +1,7 @@
 include $(DEV_TOP)/configure.wps
 
 OBJS=   build_hdate.o geth_newdate.o geth_idts.o swap.o table.o parse_table.o \
-        gbytesys.o gribcode.o read_namelist.o cio.o pregrid_version.o
+        gbytesys.o gribcode.o read_namelist.o cio.o
 
 LIBTARGET = pgu
 TARGETDIR = ./
@@ -20,6 +20,11 @@ gribprint.exe:	gribprint.o lib$(LIBTARGET).a
 
 plotfmt.exe:	plotfmt.o lib$(LIBTARGET).a
 	$(FC) -o $(@) $(LDFLAGS) plotfmt.o lib$(LIBTARGET).a $(NCARG_LIBS) $(NCARG_LIBS2)
+
+plotfmt.o: 	plotfmt.F
+	$(CPP) $(CPPFLAGS) -I. $< > $*.f
+	$(FC) $(FNGFLAGS) -c $*.f
+	$(RM) $*.f
 
 mod_levs.exe:	mod_levs.o
 	$(FC) -o $(@) $(LDFLAGS) mod_levs.o
