@@ -327,7 +327,7 @@ CC		=	pgcc
 SCC		=	pgcc
 CFLAGS		=	-O
 CPP		=	/lib/cpp -C -P -traditional
-CPPFLAGS	=	-D_UNDERSCORE -DBYTESWAP -DLINUX -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -DBIT64
+CPPFLAGS	=	-D_UNDERSCORE -DBYTESWAP -DLINUX -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -DBIT32
 NCARG_LIBS2	=	-L${PGI}/linux86-64/5.2/lib -lpgftnrtl -lpgc \
 			-L/usr/lib64 -lg2c
 
@@ -343,7 +343,7 @@ CC		=	pgcc
 SCC		=	pgcc
 CFLAGS		=	-O
 CPP		=	/lib/cpp -C -P -traditional
-CPPFLAGS	=	-D_UNDERSCORE -DBYTESWAP -DLINUX -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -DBIT64
+CPPFLAGS	=	-D_UNDERSCORE -DBYTESWAP -DLINUX -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -DBIT32
 NCARG_LIBS2	=	-L${PGI}/linux86-64/5.2/lib -lpgftnrtl -lpgc \
 			-L/usr/lib64 -lg2c
 
@@ -362,7 +362,7 @@ CC		=	mpicc -cc=pgcc
 SCC		=	pgcc
 CFLAGS		=	-O
 CPP		=	/lib/cpp -C -P -traditional
-CPPFLAGS	=	-D_UNDERSCORE -DBYTESWAP -DLINUX -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -D_MPI -DBIT64
+CPPFLAGS	=	-D_UNDERSCORE -DBYTESWAP -DLINUX -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -D_MPI -DBIT32
 NCARG_LIBS2	=	-L${PGI}/linux86-64/5.2/lib -lpgftnrtl -lpgc \
 			-L/usr/lib64 -lg2c
 
@@ -378,7 +378,7 @@ CC		=	mpicc -cc=pgcc
 SCC		=	pgcc
 CFLAGS		=	-O
 CPP		=	/lib/cpp -C -P -traditional
-CPPFLAGS	=	-D_UNDERSCORE -DBYTESWAP -DLINUX -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -D_MPI -DBIT64
+CPPFLAGS	=	-D_UNDERSCORE -DBYTESWAP -DLINUX -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -D_MPI -DBIT32
 NCARG_LIBS2	=	-L${PGI}/linux86-64/5.2/lib -lpgftnrtl -lpgc \
 			-L/usr/lib64 -lg2c
 
@@ -453,13 +453,14 @@ FDEFS			=
 FC		=	xlf90_r
 SFC		=	xlf90_r
 FFLAGS		=	-qfree
-F77FLAGS	=	
+F77FLAGS	=	-qfixed
 LDFLAGS		=	-Wl,-stack_size,10000000,-stack_addr,0xc0000000
+CC		=	gcc-3.3 # NCAR silly thing
 CC		=	cc
-SCC		=	cc
+SCC		=	$(CC)
 CFLAGS		=	-O
 CPP		=	/usr/bin/cpp -C -P
-CPPFLAGS	=	-DAIX -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -DBIT32
+CPPFLAGS	=	-DAIX -DMAC -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -DBIT32
 RANLIB		=	ranlib
 
 ###########################################################
@@ -468,13 +469,14 @@ RANLIB		=	ranlib
 FC		=	xlf90_r
 SFC		=	xlf90_r
 FFLAGS		=	-qfree
-F77FLAGS	=	
+F77FLAGS	=	-qfixed
 LDFLAGS		=	-Wl,-stack_size,10000000,-stack_addr,0xc0000000
+CC		=	gcc-3.3 # NCAR silly thing
 CC		=	cc
-SCC		=	cc
+SCC		=	$(CC)
 CFLAGS		=	-O
 CPP		=	/usr/bin/cpp -C -P
-CPPFLAGS	=	-DAIX -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -DBIT32
+CPPFLAGS	=	-DAIX -DMAC -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -DBIT32
 RANLIB		=	ranlib
 
 ##################################################################

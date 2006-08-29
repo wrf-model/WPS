@@ -18,7 +18,7 @@
    #define SUB_NAME DEC_PNG
 #elif defined LINUXG95
    #define SUB_NAME dec_png__
-#elif defined HP || defined AIX
+#elif defined HP || defined AIX || defined MAC
    #define SUB_NAME dec_png
 #elif defined SGI || defined LINUX || defined VPP5000
    #define SUB_NAME dec_png_

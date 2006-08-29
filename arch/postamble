@@ -25,27 +25,21 @@ WRF_INCLUDE	=	-I$(WRF_DIR)/external/io_netcdf \
 .f90.o:
 	$(RM) $@ $*.mod
 	$(CP) $< $*.f
-	$(FC) $(FFLAGS) -c $*.f \
-		$(WRF_INCLUDE)
+	$(FC) $(FFLAGS) -c $*.f $(WRF_INCLUDE)
 	$(RM) $*.f
 
 .f.o:
 	$(RM) $@ $*.mod
-	$(FC) $(FFLAGS) -c $< \
-		$(WRF_INCLUDE)
+	$(FC) $(FFLAGS) -c $< $(WRF_INCLUDE)
 
 .F90.o:
 	$(RM) $@ $*.mod
-	$(CPP) $(CPPFLAGS) $< \
-		$(WRF_INCLUDE) > $*.f
-	$(FC) $(FFLAGS) -c $*.f \
-                $(WRF_INCLUDE)
+	$(CPP) $(CPPFLAGS) $(WRF_INCLUDE) $< > $*.f
+	$(FC) $(FFLAGS) -c $*.f $(WRF_INCLUDE)
 	$(RM) $*.f
 
 .F.o:
 	$(RM) $@ $*.mod
-	$(CPP) $(CPPFLAGS) $< \
-		$(WRF_INCLUDE) > $*.f
-	$(FC) $(FFLAGS) -c $*.f  \
-                $(WRF_INCLUDE)
+	$(CPP) $(CPPFLAGS) $(WRF_INCLUDE) $< > $*.f
+	$(FC) $(FFLAGS) -c $*.f $(WRF_INCLUDE)
 	$(RM) $*.f

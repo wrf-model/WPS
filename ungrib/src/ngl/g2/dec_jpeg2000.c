@@ -20,7 +20,7 @@
    #define SUB_NAME DEC_JPEG2000
 #elif defined LINUXG95
    #define SUB_NAME dec_jpeg2000__
-#elif defined HP || defined AIX
+#elif defined HP || defined AIX || defined MAC
    #define SUB_NAME dec_jpeg2000
 #elif defined SGI || defined LINUX || defined VPP5000
    #define SUB_NAME dec_jpeg2000_

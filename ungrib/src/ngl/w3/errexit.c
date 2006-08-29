@@ -61,6 +61,9 @@ C$$$
 #ifdef IBM8
   void errexit (int a)
 #endif
+#ifdef MAC
+  void errexit (int a)
+#endif
 {
     exit (a);
 }

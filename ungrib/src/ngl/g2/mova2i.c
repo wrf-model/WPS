@@ -65,6 +65,9 @@ C$$$i*/
 #ifdef IBM8
    long long int mova2i(unsigned char *a)
 #endif
+#ifdef MAC
+   int mova2i(unsigned char *a)
+#endif
 
 {
     return (int)(*a);

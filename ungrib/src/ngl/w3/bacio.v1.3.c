@@ -11,7 +11,11 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
+#ifdef MAC
+#include <malloc/malloc.h>
+#else
 #include <malloc.h>
+#endif
 #include <ctype.h>
 #include <string.h>
 
@@ -131,6 +135,12 @@
           long long int * nactual, long long int * fdes, const char *fname,
           char *datary, 
           long long int  namelen, long long int  datanamelen) {
+#endif
+#ifdef MAC
+  int bacio
+         (int * mode, int * start, int *newpos, int * size, int * no, 
+          int * nactual, int * fdes, const char *fname, char *datary, 
+          int  namelen, int  datanamelen) {
 #endif
   int i, j, jret, seekret;
   char *realname, *tempchar;
@@ -425,6 +435,12 @@
           long long int * nactual, long long int * fdes, const char *fname,
           char *datary, 
           long long int  namelen ) {
+#endif
+#ifdef MAC
+  int banio
+         (int * mode, int * start, int *newpos, int * size, int * no, 
+          int * nactual, int * fdes, const char *fname, char *datary, 
+          int  namelen ) {
 #endif
   int i, j, jret, seekret;
   char *realname, *tempchar;
