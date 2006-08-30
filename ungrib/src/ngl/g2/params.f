@@ -21,7 +21,7 @@
 !
 !$$$
 
-      integer,parameter :: MAXPARAM=229
+      integer,parameter :: MAXPARAM=239
 
       type gribparam
           integer :: g1tblver
@@ -1135,6 +1135,17 @@
       data paramlist(227) /gribparam(2,129,0,3,198,'MSLMA   ')/
       data paramlist(228) /gribparam(129,163,0,13,194,'LPMTF   ')/
       data paramlist(229) /gribparam(129,164,0,13,195,'LIPMF   ')/
+! Added 8/25/2006 - JFB NCAR/MMM
+      data paramlist(230) /gribparam(2,189,0,0,15,'VPTMP   ')/
+      data paramlist(231) /gribparam(2,178,0,1,23,'ICMR    ')/
+      data paramlist(232) /gribparam(2,179,0,1,32,'GRMR    ')/
+      data paramlist(233) /gribparam(2,198,0,1,207,'NCIP    ')/
+      data paramlist(234) /gribparam(2,186,0,1,206,'TIPD    ')/
+      data paramlist(235) /gribparam(2,188,2,0,206,'RDRIP   ')/
+      data paramlist(236) /gribparam(2,239,0,1,208,'SNO T   ')/
+      data paramlist(237) /gribparam(130,171,2,3,193,'RLYRS   ')/
+      data paramlist(238) /gribparam(2,187,0,17,192,'LTNG    ')/
+      data paramlist(239) /gribparam(2,137,0,3,199,'TSLSA   ')/
 
       contains
 

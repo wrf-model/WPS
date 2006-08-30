@@ -36,8 +36,6 @@ program pltfmt
   integer :: iii
   iii = signal(2, graceful_stop, -1)
 
-#include "pregrid_version.inc"
-
   call getarg(1,flnm)
   open(13, file=flnm, form='unformatted', status='old')
 

@@ -41,7 +41,7 @@
 
       use grib_mod
       use params
-      use table          ! Included to define cg2code
+      use table          ! Included to define g2code
       use gridinfo       ! Included to define map%
       use storage_module ! Included sub put_storage
 
@@ -217,11 +217,17 @@ C  SET ARGUMENTS
 
            if (icenter.eq.7) then
              if (iprocess.eq.83 .or. iprocess.eq.84) then
-               map%source = 'NCEP Eta Model'
+               map%source = 'NCEP NAM Model'
              elseif (iprocess.eq.81) then
                map%source = 'NCEP GFS Model'
              elseif (iprocess.eq.96) then
                map%source = 'NCEP GFS Model'
+             elseif (iprocess.eq.109) then
+               map%source = 'NCEP RTMA'
+             elseif (iprocess.eq.105) then
+               map%source = 'NCEP RUC Model'
+             elseif (iprocess.eq.140) then
+               map%source = 'NARR'
              else
                map%source = 'unknown model from NCEP'
 	       write (6,*) 'iprocess = ',iprocess
@@ -405,13 +411,13 @@ C  SET ARGUMENTS
          endif ! Additional Print information 
 ! ------------------------------------
 
-         if ( debug_level .GT. 100 ) then
-          do i = 1, maxvar
-            write(6,'(a10,4i8)') namvar(i),(g2code(j,i),j=1,4)
-          enddo
+!         do i = 1, maxvar
+!           write(6,'(a10,4i8)') namvar(i),(g2code(j,i),j=1,4)
+!         enddo
+	  if (debug_level .gt. 50) then
           write(6,*) 'looking for ',gfld%discipline,gfld%ipdtmpl(1),
      &       gfld%ipdtmpl(2),gfld%ipdtmpl(10)
-         endif
+          endif
 
          ! Test this data record again list of desired variables 
          ! found in Vtable.
@@ -427,32 +433,35 @@ C  SET ARGUMENTS
             pabbrev=param_get_abbrev(gfld%discipline,gfld%ipdtmpl(1),
      &                               gfld%ipdtmpl(2))
 
-              !my_field (e.g. RH, TMP, simlar to, but not the same as pabbrev)
+              !my_field (e.g. RH, TMP, similar to, but not the same as pabbrev)
               my_field=namvar(i) 
 
-	      ! need to match up soil levels with those requested.
+	if (debug_level .gt. 50) then
+	 write(6,*) 'namvar(i) = ',namvar(i),' pabbrev = ',pabbrev
+	 write(6,*) 'Parameter = ',gfld%ipdtmpl(2)
+	endif
+
+
+! need to match up soil levels with those requested.
+! For the Vtable levels, -88 = all levels, -99 = missing. The units
+! vary depending on the level code (e.g. 106 = cm, 103 = m).
 	      if ( gfld%ipdtmpl(10) .eq. 106 ) then
-	        if ( gfld%ipdtmpl(2) .eq. 192 ) then
-	          write(tmp8,'(a2,2i3.3)') 'SM',gfld%ipdtmpl(12),
-     &               gfld%ipdtmpl(15)
-	        else if ( gfld%ipdtmpl(2) .eq. 0 ) then
-	          write(tmp8,'(a2,2i3.3)') 'ST',gfld%ipdtmpl(12),
-     &               gfld%ipdtmpl(15)
-		else
-		   write(6,*) 'Something is wrong with the parameter'
-		   write(6,*) 'gfld%ipdtmpl(2) = ',gfld%ipdtmpl(2)
-		   stop 'subsoil'
-		endif
 	        TMP8LOOP: do j = 1, maxvar
-		  if (tmp8 .eq. namvar(j)(1:8)) then
+		  if ((g2code(4,j) .eq. 106) .and.
+     &               (gfld%ipdtmpl(2) .eq. g2code(3,j)) .and.
+     &               (gfld%ipdtmpl(12) .eq. level1(j)) .and.
+     &               ((gfld%ipdtmpl(15) .eq. level2(j)) .or. 
+     &                                   (level2(j) .le. -88))) then
 		    my_field = namvar(j)
 		    exit TMP8LOOP
 		  endif
 		enddo TMP8LOOP
 		if (j .gt. maxvar ) then
-		  write(6,*) 'Subsoil level ',tmp8,' not found in Vtable'
+		  write(6,'(a,i6,a,i6,a)') 'Subsoil level ',
+     &               gfld%ipdtmpl(12),' to ',gfld%ipdtmpl(15),
+     &           ' in the GRIB2 file, was not found in the Vtable'
 		endif
-	        write(6,*) 'my_field is now ',my_field
+         if (debug_level .gt. 50) write(6,*) 'my_field is now ',my_field
 	      endif
 
               ! Level (eg. 10000 mb)
@@ -501,7 +510,7 @@ C  SET ARGUMENTS
               ! Specific Humidity.
               if (.not. is_there(iplvl, 'RH') .and.
      &            is_there(iplvl, 'SH') .and.
-     &            is_there(iplvl, 'TT') .and.
+     &            is_there(iplvl, 'T') .and.
      &            is_there(iplvl, 'P')) then
                   call g2_compute_rh_spechumd_upa(map%nx,map%ny,iplvl)
                  !call llstor_remove(iplvl, 'SH') !We are done with SH
@@ -533,7 +542,7 @@ C  SET ARGUMENTS
 
        ireaderr=1
       else 
-       print *,'open status failed because',ios
+       if (debug_level .gt. 50) print *,'open status failed because',ios
        hdate = '9999-99-99_99:99:99'
        ireaderr=2
       endif ! ireaderr check 
@@ -541,7 +550,7 @@ C  SET ARGUMENTS
       END subroutine rd_grib2
 
 !*****************************************************************************!
-! Subroutine edition_num                                                         !
+! Subroutine edition_num                                                      !
 !                                                                             !
 ! Purpose:                                                                    !
 !    Read one record from the input GRIB2 file.  Based on the information in  !
@@ -695,7 +704,7 @@ C  SET ARGUMENTS
       real startlat, startlon, deltalat, deltalon
 
       call get_storage(iiplvl, 'P', P, ix, jx)
-      call get_storage(iiplvl, 'TT', T, ix, jx)
+      call get_storage(iiplvl, 'T', T, ix, jx)
       call get_storage(iiplvl, 'SH', Q, ix, jx)
     
       rh=1.E2*(p*q/(q*(1.-eps)+eps))/(svp1*exp(svp2*(t-svpt0)/(T-svp3)))

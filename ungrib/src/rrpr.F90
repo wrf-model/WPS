@@ -69,7 +69,7 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_level, out_f
 ! PLVL:  Array of pressure levels (Pa) in the dataset
   real , dimension(maxlvl) :: plvl
 
-! DEBUG_PRINT:  Flag to turn off or on debug printout.
+! DEBUG_LEVEL:  Integer level of debug printing (from namelist)
   integer :: debug_level
 
 !------------------------------------------------------------------------------
@@ -119,7 +119,7 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_level, out_f
   TIMELOOP : do ntime = 1, ntimes
      idts = (ntime-1) * interval
      call geth_newdate(hdate, hstart, idts)
-     print*, 'hstart, hdate = ', hstart, hdate, idts
+     print*, 'hstart, hdate = ', hstart,' ', hdate, idts
 
 ! Loop over the output file dates, and do stuff if the file date matches
 ! the requested time we are working on now.
@@ -245,7 +245,7 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_level, out_f
 !
         do k = 1, nlvl
            if (plvl(k).lt.200000.) then
-              if (.not. is_there(nint(plvl(k)), 'TT').and. &
+              if (.not. is_there(nint(plvl(k)), 'T').and. &
                    is_there(nint(plvl(k)), 'VPTMP')) then
                  call get_dims(nint(plvl(k)), 'VPTMP')
                  call compute_t_vptmp(map%nx, map%ny, plvl(k))
@@ -261,10 +261,10 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_level, out_f
 
         do k = 2, nlvl-1, 1
            if (plvl(k-1) .lt. 200000.) then
-              if ( (.not. is_there(nint(plvl(k)),'TT')) .and. &
-                   ( is_there(nint(plvl(k-1)), 'TT')) .and.&
-                   ( is_there(nint(plvl(k+1)), 'TT')) ) then
-                 call get_dims(nint(plvl(k+1)), 'TT')
+              if ( (.not. is_there(nint(plvl(k)),'T')) .and. &
+                   ( is_there(nint(plvl(k-1)), 'T')) .and.&
+                   ( is_there(nint(plvl(k+1)), 'T')) ) then
+                 call get_dims(nint(plvl(k+1)), 'T')
                  call vntrp(plvl, maxlvl, k, "T       ", map%nx, map%ny)
               endif
            endif
@@ -308,7 +308,7 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_level, out_f
            if (plvl(k).lt.200000.) then
               if (.not. is_there(nint(plvl(k)), 'RH').and. &
                    is_there(nint(plvl(k)), 'SPECHUMD')) then
-                 call get_dims(nint(plvl(k)), 'TT')
+                 call get_dims(nint(plvl(k)), 'T')
                  call compute_rh_spechumd_upa(map%nx, map%ny, plvl(k))
               endif
            endif
@@ -321,7 +321,7 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_level, out_f
            if (plvl(k).lt.200000.) then
               if (.not. is_there(nint(plvl(k)),'RH').and. &
                    is_there(nint(plvl(k)),'VAPP')) then
-                 call get_dims(nint(plvl(k)),'TT')
+                 call get_dims(nint(plvl(k)),'T')
                  call compute_rh_vapp_upa(map%nx, map%ny, plvl(k))
               endif
            endif
@@ -333,7 +333,7 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_level, out_f
            if (plvl(k).lt.200000.) then
               if (.not. is_there(nint(plvl(k)),'RH').and. &
                    is_there(nint(plvl(k)),'DEPR')) then
-                 call get_dims(nint(plvl(k)),'TT')
+                 call get_dims(nint(plvl(k)),'T')
                  call compute_rh_depr(map%nx, map%ny, plvl(k))
               endif
            endif
@@ -379,21 +379,21 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_level, out_f
 ! or Dewpoint or Dewpoint depression:
 !
         if (.not. is_there (200100, 'RH')) then
-           if (is_there(200100, 'TT').and. &
+           if (is_there(200100, 'T').and. &
                 is_there(200100, 'PSFC'    )   .and. &
                 is_there(200100, 'SPECHUMD')) then
-              call get_dims(200100, 'TT')
+              call get_dims(200100, 'T')
               call compute_rh_spechumd(map%nx, map%ny)
               if ( debug_level .gt. 100 ) then
       print *,' SURFACE RH is computed'
               end if
-           elseif (is_there(200100, 'TT'       ).and. &
+           elseif (is_there(200100, 'T'       ).and. &
                 is_there(200100, 'DEWPT')) then
-              call get_dims(200100, 'TT')
+              call get_dims(200100, 'T')
               call compute_rh_dewpt(map%nx, map%ny)
-           elseif (is_there(200100, 'TT').and. &
+           elseif (is_there(200100, 'T').and. &
                 is_there(200100, 'DEPR')) then
-              call get_dims(200100, 'TT')
+              call get_dims(200100, 'T')
               call compute_rh_depr(map%nx, map%ny, 200100.)
            endif
         endif
@@ -403,18 +403,6 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_level, out_f
         if (is_there(200100, 'SEAICE')) then
            call get_dims(200100, 'SEAICE')
            call make_zero_or_one(map%nx, map%ny)
-        endif
-
-! If we've don't have a SOILHGT field, see if we have a SOILGEO field: 
-
-        if (.not. is_there(200100, 'SOILHGT').and. &
-             is_there(200100, 'SOILGEO')) then
-           call get_dims(200100, 'SOILGEO')
-           allocate(scr2d(map%nx,map%ny))
-           call get_storage(200100, 'SOILGEO', scr2d, map%nx, map%ny)
-           scr2d = scr2d / 9.81
-           call put_storage(200100, 'SOILHGT', scr2d, map%nx, map%ny)
-           deallocate(scr2d)
         endif
 
         if ( debug_level.gt.0 ) then
@@ -489,7 +477,7 @@ subroutine compute_t_vptmp(ix, jx, plvl)
 
    t=vptmp * (p*1.e-5)**rovcp * (1./(1.+0.6078*Q))  
 
-  call put_storage(nint(plvl), 'TT', t, ix, jx)
+  call put_storage(nint(plvl), 'T', t, ix, jx)
        if(nint(plvl).eq.1) then
   call put_storage(200100, 'PSFC', p, ix, jx) 
        endif
@@ -513,7 +501,7 @@ subroutine compute_rh_spechumd(ix, jx)
 
   real startlat, startlon, deltalat, deltalon
 
-  call get_storage(200100, 'TT',        T, ix, jx)
+  call get_storage(200100, 'T',        T, ix, jx)
   call get_storage(200100, 'PSFC',     P, ix, jx)
   call get_storage(200100, 'SPECHUMD', Q, ix, jx)
 
@@ -545,7 +533,7 @@ subroutine compute_rh_spechumd_upa(ix, jx, plvl)
   ELSE
     P = plvl
   ENDIF
-  call get_storage(nint(plvl), 'TT',        T, ix, jx)
+  call get_storage(nint(plvl), 'T',        T, ix, jx)
   call get_storage(nint(plvl), 'SPECHUMD', Q, ix, jx)
 
   rh = 1.E2 * (p*q/(q*(1.-eps) + eps))/(svp1*exp(svp2*(t-svpt0)/(T-svp3)))
@@ -576,7 +564,7 @@ subroutine compute_rh_vapp_upa(ix, jx, plvl)
   allocate(RH(ix,jx))
 
   P = plvl
-  call refr_storage(nint(plvl), 'TT',    T, ix, jx)
+  call refr_storage(nint(plvl), 'T',    T, ix, jx)
   call refr_storage(nint(plvl), 'VAPP', E, ix, jx)
 
   ES=svp1*exp(svp2*(T-svpt0)/(T-svp3))
@@ -602,7 +590,7 @@ subroutine compute_rh_depr(ix, jx, plvl)
 
   integer :: i, j
 
-  call get_storage(nint(plvl), 'TT', T,  ix, jx)
+  call get_storage(nint(plvl), 'T', T,  ix, jx)
   call get_storage(nint(plvl), 'DEPR', DEPR, ix, jx)
 
   where(DEPR < 100.)
@@ -626,7 +614,7 @@ subroutine compute_rh_dewpt(ix,jx)
   real, parameter :: Xlv = 2.5e6
   real, parameter :: Rv = 461.5
 
-  call get_storage(200100, 'TT      ', T,  ix, jx)
+  call get_storage(200100, 'T       ', T,  ix, jx)
   call get_storage(200100, 'DEWPT   ', DP, ix, jx)
 
   rh = exp(Xlv/Rv*(1./T - 1./dp)) * 1.E2
