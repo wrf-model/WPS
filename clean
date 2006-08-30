@@ -19,7 +19,7 @@ foreach dir ( $DIRS )
 	/bin/rm -f ${dir}.exe >& /dev/null
 end
 
-foreach execs ( plotfmt.exe plotgrids.exe gribprint.exe mod_levs.exe rd_intermediate.exe )
+foreach execs ( plotfmt.exe plotgrids.exe g1print.exe g2print.exe mod_levs.exe rd_intermediate.exe )
 	/bin/rm -f $execs
 end
 

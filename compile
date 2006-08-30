@@ -45,8 +45,8 @@ set count = 1
 foreach f ( $names )
 	if ( $f == ungrib ) then
 		( cd ungrib ; make -i -r DEV_TOP="${DEV_TOP}" all )
-		if ( -e ${f}/src/main/${f}.exe ) then
-			ln -sf ${f}/src/main/${f}.exe .
+		if ( -e ${f}/src/${f}.exe ) then
+			ln -sf ${f}/src/${f}.exe .
 		endif
 	else
 		( cd $f ; make -i -r WRF_DIR_PRE="${WRF_DIR_PRE}" DEV_TOP="${DEV_TOP}" TARGET="${f}.exe" CPP_TARGET="$NAMES[$count]" all )
@@ -62,20 +62,24 @@ if ( $1 == util ) then
 		ln -sf geogrid/src/plotgrids.exe .
 	endif
 	
-	if ( -e ungrib/src/util/gribprint.exe ) then
-		ln -sf ungrib/src/util/gribprint.exe .
+	if ( -e ungrib/src/g1print.exe ) then
+		ln -sf ungrib/src/g1print.exe .
 	endif
 	
-	if ( -e ungrib/src/util/plotfmt.exe ) then
-		ln -sf ungrib/src/util/plotfmt.exe .
+	if ( -e ungrib/src/g2print.exe ) then
+		ln -sf ungrib/src/g2print.exe .
 	endif
 	
-	if ( -e ungrib/src/util/mod_levs.exe ) then
-		ln -sf ungrib/src/util/mod_levs.exe .
+	if ( -e ungrib/src/plotfmt.exe ) then
+		ln -sf ungrib/src/plotfmt.exe .
 	endif
 	
-	if ( -e ungrib/src/util/rd_intermediate.exe ) then
-		ln -sf ungrib/src/util/rd_intermediate.exe .
+	if ( -e ungrib/src/mod_levs.exe ) then
+		ln -sf ungrib/src/mod_levs.exe .
+	endif
+	
+	if ( -e ungrib/src/rd_intermediate.exe ) then
+		ln -sf ungrib/src/rd_intermediate.exe .
 	endif
 endif
 
