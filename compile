@@ -48,6 +48,14 @@ foreach f ( $names )
 		if ( -e ${f}/src/${f}.exe ) then
 			ln -sf ${f}/src/${f}.exe .
 		endif
+	else if ( $f == metgrid ) then
+		( cd $f ; make -i -r WRF_DIR_PRE="${WRF_DIR_PRE}" DEV_TOP="${DEV_TOP}" TARGET="${f}.exe" CPP_TARGET="$NAMES[$count]" all )
+		if ( -e ${f}/src/${f}.exe ) then
+			ln -sf ${f}/src/${f}.exe .
+		endif
+		if ( -e ${f}/src/avg_tsfc.exe ) then
+			ln -sf ${f}/src/avg_tsfc.exe .
+		endif
 	else
 		( cd $f ; make -i -r WRF_DIR_PRE="${WRF_DIR_PRE}" DEV_TOP="${DEV_TOP}" TARGET="${f}.exe" CPP_TARGET="$NAMES[$count]" all )
 		if ( -e ${f}/src/${f}.exe ) then
