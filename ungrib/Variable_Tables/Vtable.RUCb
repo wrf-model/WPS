@@ -1,0 +1,37 @@
+GRIB1| Level| From |  To  | UNGRIB   |  UNGRIB  | UNGRIB                                  |GRIB2|GRIB2|GRIB2|GRIB2|
+Param| Type |Level1|Level2| Name     |  Units   | Description                             |Discp|Catgy|Param|Level|
+-----+------+------+------+----------+----------+-----------------------------------------+-----------------------+
+   7 | 109  |   *  |      | HGT      | m        | Height                                  |  0  |  3  |  5  | 105 |
+   1 | 109  |   *  |      | PRESSURE | Pa       | Pressure                                |  0  |  3  |  0  | 105 |
+ 189 | 109  |   *  |      | VPTMP    | K        | Virtual potential temperature           |  0  |  0  | 15  | 105 |
+  53 | 109  |   *  |      | QVAPOR   | kg kg{-1}| QV                                      |  0  |  1  |  2  | 105 |
+  33 | 109  |   *  |      | UU       | m s{-1}  | U                                       |  0  |  2  |  2  | 105 |
+  34 | 109  |   *  |      | VV       | m s{-1}  | V                                       |  0  |  2  |  3  | 105 |
+  52 | 109  |   *  |      | RH       | %        | Relative Humidity                       |  0  |  1  |  1  | 105 |
+  11 | 109  |   *  |      | T        | K        | Temperature                             |  0  |  0  |  0  | 105 |
+ 129 | 102  |   0  |      | PMSL     | Pa       | Sea-level Pressure                      |  0  |  3  | 198 | 101 |
+  65 |  1   |   0  |      | WEASD    | kg m{-2} | Water Equivalent Snow Depth             |  0  |  1  | 13  |   1 |
+  66 |  1   |   0  |      | SNOW     | kg m{-2} | Snow Depth                              |  0  |  1  | 11  |   1 |
+  11 | 105  |   2  |      | T        | K        | Temperature                             |  0  |  0  |  0  | 103 |
+  52 | 105  |   2  |      | RH       | %        | Relative Humidity                       |  0  |  1  |  1  | 103 |
+  53 | 105  |   2  |      | QVG      | kg kg{-1}| Water vapor mixing ratio at 2 m         |  0  |  1  |  2  | 103 |
+  33 | 105  |  10  |      | UU       | m s{-1}  | U                                       |  2  |  2  |  2  | 103 |
+  34 | 105  |  10  |      | VV       | m s{-1}  | V                                       |  2  |  2  |  3  | 103 |
+ 144 |   1  |   0  |      | SOILM000 | kg m-3   | Soil Moist   0 cm below ground          |  2  |  0  | 192 | 106 |
+ 144 | 111  |   5  |      | SOILM005 | kg m-3   | Soil Moist   5 cm below ground          |  2  |  0  | 192 | 106 |
+ 144 | 111  |  20  |      | SOILM020 | kg m-3   | Soil Moist  20 cm below ground          |  2  |  0  | 192 | 106 |
+ 144 | 111  |  40  |      | SOILM040 | kg m-3   | Soil Moist  40 cm below ground          |  2  |  0  | 192 | 106 |
+ 144 | 111  | 160  |      | SOILM160 | kg m-3   | Soil Moist 160 cm below ground          |  2  |  0  | 192 | 106 |
+ 144 | 111  | 300  |      | SOILM300 | kg m-3   | Soil Moist 300 cm below ground          |  2  |  0  | 192 | 106 |
+  85 |   1  |   0  |      | SOILT000 | K        | Soil Temp    0 cm below ground          |  2  |  0  |  2  | 106 |
+  85 | 111  |   5  |      | SOILT005 | K        | Soil Temp    5 cm below ground          |  2  |  0  |  2  | 106 |
+  85 | 111  |  20  |      | SOILT020 | K        | Soil Temp   20 cm below ground          |  2  |  0  |  2  | 106 |
+  85 | 111  |  40  |      | SOILT040 | K        | Soil Temp   40 cm below ground          |  2  |  0  |  2  | 106 |
+  85 | 111  | 160  |      | SOILT160 | K        | Soil Temp  160 cm below ground          |  2  |  0  |  2  | 106 |
+  85 | 111  | 300  |      | SOILT300 | K        | Soil Temp  300 cm below ground          |  2  |  0  |  2  | 106 |
+ 223 |   1  |   0  |      | CANWAT   | kg m-2   | Plant Canopy Surface Water              |  2  |  0  | 196 |   1 |
+ 224 |   1  |   0  |      | SOILCAT  | Tab4.213 | Dominant soil type category             |  2  |  3  |  0  |   1 |
+ 225 |   1  |   0  |      | VEGCAT   | Tab4.212 | Dominant land use category              |  2  |  0  | 198 |   1 |
+  11 |   1  |   0  |      | SKINTEMP | K        | Temperature at ground sfc (from s file) |  0  |  0  |  0  |   1 |
+  85 |   1  |   0  |      | TSOIL    | K        | TSOIL at ground sfc (from b file)       |  2  |  0  |  2  |   1 |
+-----+------+------+------+----------+----------+-----------------------------------------+-----------------------+
