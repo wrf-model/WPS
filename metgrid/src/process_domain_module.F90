@@ -2034,63 +2034,225 @@ module process_domain_module
       character (len=24), intent(in) :: hdate 
 
       ! Local variables
-      integer :: idx
+      integer :: idx, i, istatus, isrclevel
+      real :: rfillconst, rlevel, rsrclevel
       type (fg_input) :: field
+      type (list_item), pointer, dimension(:) :: keys
+      character (len=128) :: asrcname
 
       do idx=1,num_entries
          if (is_derived_field(idx)) then
-call mprintf(.true.,DEBUG,'Going to create the field %s',s1=fieldname(idx))
 
-                  ! Initialize fg_input structure to store the field
-                  field%header%version = 1
-                  field%header%date = hdate//'        '
-                  field%header%time_dependent = .true.
-                  field%header%mask_field = .false.
-                  field%header%forecast_hour = xfcst 
-                  field%header%fg_source = 'Derived from FG'
-                  field%header%field = ' '
-                  field%header%field(1:9) = fieldname(idx)(1:9)
-                  field%header%units = ' '
-                  field%header%description = ' '
-                  call get_z_dim_name(fieldname(idx)(1:9),field%header%vertical_coord)
-                  field%header%vertical_level = 0
-                  field%header%array_order = 'XY ' 
-                  field%header%winds_rotated_on_input = .true.
-                  field%header%array_has_missing_values = .false.
-                  field%map%stagger = output_stagger(idx)
-                  if (arg_gridtype == 'E') then
-                     field%header%dim1(1) = we_mem_s
-                     field%header%dim1(2) = we_mem_e
-                     field%header%dim2(1) = sn_mem_s
-                     field%header%dim2(2) = sn_mem_e
-                  else if (arg_gridtype == 'C') then
-                     if (output_stagger(idx) == M) then
-                        field%header%dim1(1) = we_mem_s
-                        field%header%dim1(2) = we_mem_e
-                        field%header%dim2(1) = sn_mem_s
-                        field%header%dim2(2) = sn_mem_e
-                     else if (output_stagger(idx) == U) then
-                        field%header%dim1(1) = we_mem_stag_s
-                        field%header%dim1(2) = we_mem_stag_e
-                        field%header%dim2(1) = sn_mem_s
-                        field%header%dim2(2) = sn_mem_e
-                     else if (output_stagger(idx) == V) then
-                        field%header%dim1(1) = we_mem_s
-                        field%header%dim1(2) = we_mem_e
-                        field%header%dim2(1) = sn_mem_stag_s
-                        field%header%dim2(2) = sn_mem_stag_e
-                     end if
+            call mprintf(.true.,INFORM,'Going to create the field %s',s1=fieldname(idx))
+
+            ! Initialize fg_input structure to store the field
+            field%header%version = 1
+            field%header%date = hdate//'        '
+            field%header%time_dependent = .true.
+            field%header%mask_field = .false.
+            field%header%forecast_hour = xfcst 
+            field%header%fg_source = 'Derived from FG'
+            field%header%field = ' '
+            field%header%field(1:9) = fieldname(idx)(1:9)
+            field%header%units = ' '
+            field%header%description = ' '
+            call get_z_dim_name(fieldname(idx)(1:9),field%header%vertical_coord)
+            field%header%vertical_level = 0
+            field%header%array_order = 'XY ' 
+            field%header%winds_rotated_on_input = .true.
+            field%header%array_has_missing_values = .false.
+            field%map%stagger = output_stagger(idx)
+            if (arg_gridtype == 'E') then
+               field%header%dim1(1) = we_mem_s
+               field%header%dim1(2) = we_mem_e
+               field%header%dim2(1) = sn_mem_s
+               field%header%dim2(2) = sn_mem_e
+            else if (arg_gridtype == 'C') then
+               if (output_stagger(idx) == M) then
+                  field%header%dim1(1) = we_mem_s
+                  field%header%dim1(2) = we_mem_e
+                  field%header%dim2(1) = sn_mem_s
+                  field%header%dim2(2) = sn_mem_e
+               else if (output_stagger(idx) == U) then
+                  field%header%dim1(1) = we_mem_stag_s
+                  field%header%dim1(2) = we_mem_stag_e
+                  field%header%dim2(1) = sn_mem_s
+                  field%header%dim2(2) = sn_mem_e
+               else if (output_stagger(idx) == V) then
+                  field%header%dim1(1) = we_mem_s
+                  field%header%dim1(2) = we_mem_e
+                  field%header%dim2(1) = sn_mem_stag_s
+                  field%header%dim2(2) = sn_mem_stag_e
+               end if
+            end if
+
+            nullify(field%r_arr)
+            nullify(field%valid_mask)
+            nullify(field%modified_mask)
+
+            keys => list_get_keys(fill_lev_list(idx))
+
+! First handle a specification for levels "all"
+do i=1,list_length(fill_lev_list(idx))
+   if (trim(keys(i)%ckey) == 'all') then
+write(6,*) 'Filling all'; call flush(6)
+   end if
+end do
+
+            ! Now handle individually specified levels
+            do i=1,list_length(fill_lev_list(idx))
+               if (index(keys(i)%ckey,'all') == 0) then
+
+                  read(keys(i)%ckey,*) rlevel
+
+                  ! See if we are filling this level with a constant
+                  call get_constant_fill_lev(keys(i)%cvalue, rfillconst, istatus)
+                  if (istatus == 0) then
+write(6,*) 'Filling level ',rlevel,' with constant value ',rfillconst; call flush(6)
+                     call create_level(field, rlevel, rfillconst=rfillconst)
+
+                  ! Otherwise, we are filling from another level
+                  else
+                     call get_fill_src_level(keys(i)%cvalue, asrcname, isrclevel)
+                     rsrclevel = real(isrclevel)
+write(6,*) 'Filling level ',rlevel,' from field ',trim(asrcname), ' at level ',rsrclevel; call flush(6)
+                     call create_level(field, rlevel, asrcname=asrcname, rsrclevel=rsrclevel)
+                     
                   end if
+               end if
+            end do
 
-                  nullify(field%r_arr)
-                  nullify(field%valid_mask)
-                  nullify(field%modified_mask)
-
+            deallocate(keys)
+                 
          end if
       end do
 
 
    end subroutine create_derived_fields
+
+
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
+   ! Name: create_level
+   !
+   ! Purpose: 
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
+   subroutine create_level(field_template, rlevel, rfillconst, asrcname, rsrclevel)
+
+      use storage_module
+
+      implicit none
+
+      ! Arguments
+      type (fg_input), intent(inout) :: field_template
+      real, intent(in) :: rlevel
+      real, intent(in), optional :: rfillconst, rsrclevel
+      character (len=128), intent(in), optional :: asrcname
+       
+      ! Local variables
+      integer :: i, j, istatus
+      integer :: sm1,em1,sm2,em2
+      type (fg_input) :: query_field
+
+      !
+      ! Check to make sure optional arguments are sane
+      !
+      if (present(rfillconst) .and. (present(asrcname) .or. present(rsrclevel))) then
+         call mprintf(.true.,ERROR,'A call to create_level() cannot be given specifications '// &
+                      'for both a constant fill value and a source level.')
+
+      else if ((present(asrcname) .and. .not. present(rsrclevel)) .or. &
+               (.not. present(asrcname) .and. present(rsrclevel))) then
+         call mprintf(.true.,ERROR,'Neither or both of optional arguments asrcname and '// &
+                      'rsrclevel must be specified to subroutine create_level().')
+
+      else if (.not. present(rfillconst) .and. &
+               .not. present(asrcname)   .and. &
+               .not. present(rsrclevel)) then
+         call mprintf(.true.,ERROR,'A call to create_level() must be given either a specification '// &
+                      'for a constant fill value or a source level.')
+      end if
+
+! BUG: Still need to verify that this level of the destination field does not already exist
+      sm1 = field_template%header%dim1(1)
+      em1 = field_template%header%dim1(2)
+      sm2 = field_template%header%dim2(1)
+      em2 = field_template%header%dim2(2)
+
+      !
+      ! Handle constant fill value case
+      !
+      if (present(rfillconst)) then
+
+         field_template%header%vertical_level = rlevel
+         allocate(field_template%r_arr(sm1:em1,sm2:em2))
+         allocate(field_template%valid_mask)
+         call bitarray_create(field_template%valid_mask, em1-sm1+1, em2-sm2+1)
+ 
+         field_template%r_arr = rfillconst
+
+         do j=sm2,em2
+            do i=sm1,em1
+               call bitarray_set(field_template%valid_mask, i-sm1+1, j-sm2+1)
+            end do
+         end do
+
+         call storage_put_field(field_template)
+
+      !
+      ! Handle source field and source level case
+      !
+      else if (present(asrcname) .and. present(rsrclevel)) then
+
+         query_field%header%time_dependent = .true.
+         query_field%header%field = ' '
+         query_field%header%field(1:9) = asrcname(1:9)
+         query_field%header%vertical_level = rsrclevel
+         nullify(query_field%r_arr)
+         nullify(query_field%valid_mask)
+         nullify(query_field%modified_mask)
+
+         ! Check to see whether the requested source field exists at the requested level
+         call storage_query_field(query_field, istatus)
+
+         if (istatus == 0) then
+
+            ! Read in requested field at requested level
+            call storage_get_field(query_field, istatus)
+            if ((query_field%header%dim1(1) /= field_template%header%dim1(1)) .or. &
+                (query_field%header%dim1(2) /= field_template%header%dim1(2)) .or. &
+                (query_field%header%dim2(1) /= field_template%header%dim2(1)) .or. &
+                (query_field%header%dim2(2) /= field_template%header%dim2(2))) then
+               call mprintf(.true.,ERROR,'Dimensions for %s do not match those of %s. This is '// &
+                            'probably because the staggerings of the fields do not match.', &
+                            s1=query_field%header%field, s2=field_template%header%field)
+            end if
+
+            field_template%header%vertical_level = rlevel
+            allocate(field_template%r_arr(sm1:em1,sm2:em2))
+            allocate(field_template%valid_mask)
+            call bitarray_create(field_template%valid_mask, em1-sm1+1, em2-sm2+1)
+ 
+            field_template%r_arr = query_field%r_arr
+
+            ! We should retain information about which points in the field are valid
+            do j=sm2,em2
+               do i=sm1,em1
+                  if (bitarray_test(query_field%valid_mask, i-sm1+1, j-sm2+1)) then
+                     call bitarray_set(field_template%valid_mask, i-sm1+1, j-sm2+1)
+                  end if
+               end do
+            end do
+
+            call storage_put_field(field_template)
+
+         else
+            call mprintf(.true.,WARN,'Couldn''t find %s at level %f to fill level %f of %s.', &
+                         s1=asrcname,f1=rsrclevel,f2=rlevel,s2=field_template%header%field)
+         end if
+
+      end if
+
+   end subroutine create_level
    
    
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 

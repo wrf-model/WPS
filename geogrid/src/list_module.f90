@@ -101,6 +101,44 @@ module list_module
       l%l_len = l%l_len + 1
  
    end subroutine c_list_insert
+
+ 
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
+   ! Name: list_get_keys
+   !
+   ! Purpose:
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
+   function list_get_keys(l)
+
+      implicit none
+
+      ! Arguments
+      type (list), intent(in) :: l
+
+      ! Return value
+      type (list_item), pointer, dimension(:) :: list_get_keys
+
+      ! Local variables
+      integer :: i
+      type (list_item), pointer :: lp 
+
+      allocate(list_get_keys(l%l_len)) 
+
+      lp => l%head
+  
+      i = 1
+      do while (associated(lp))
+         list_get_keys(i)%ikey   = lp%ikey
+         list_get_keys(i)%ivalue = lp%ivalue
+         list_get_keys(i)%ckey   = lp%ckey
+         list_get_keys(i)%cvalue = lp%cvalue
+         lp => lp%next
+         i = i + 1
+      end do
+
+      return
+
+   end function list_get_keys
  
  
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 

@@ -530,8 +530,8 @@ module interp_option_module
             call mprintf(.true.,WARN, 'Problem in specifying fill_lev constant. Setting fill_const to %f', f1=NAN)
             fill_const = NAN
          end if
+         istatus = 0
       end if
-      istatus = 0
 
       return
 
