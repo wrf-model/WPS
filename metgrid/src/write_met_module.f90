@@ -93,12 +93,12 @@ module write_met_module
          ! Lambert conformal
          else if (iproj == PROJ_LC) then
             write(unit=output_unit) hdate, xfcst, field, units, desc, xlvl, nx, ny, 3
-            write(unit=output_unit) startlat, startlon, dx, dy, xlonc, truelat1, truelat2
+            write(unit=output_unit) startlat, startlon, dx/1000., dy/1000., xlonc, truelat1, truelat2
      
          ! Polar stereographic
          else if (iproj == PROJ_PS) then
             write(unit=output_unit) hdate, xfcst, field, units, desc, xlvl, nx, ny, 5
-            write(unit=output_unit) startlat, startlon, dx, dy, xlonc, truelat1
+            write(unit=output_unit) startlat, startlon, dx/1000., dy/1000., xlonc, truelat1
 
          ! ?????????
          else
@@ -126,12 +126,12 @@ module write_met_module
          ! Lambert conformal
          else if (iproj == PROJ_LC) then
             write(unit=output_unit) hdate, xfcst, map_source, field, units, desc, xlvl, nx, ny, 3
-            write(unit=output_unit) startloc, startlat, startlon, dx, dy, xlonc, truelat1, truelat2
+            write(unit=output_unit) startloc, startlat, startlon, dx/1000., dy/1000., xlonc, truelat1, truelat2
 
          ! Polar stereographic
          else if (iproj == PROJ_PS) then
             write(unit=output_unit) hdate, xfcst, map_source, field, units, desc, xlvl, nx, ny, 5
-            write(unit=output_unit) startloc, startlat, startlon, dx, dy, xlonc, truelat1
+            write(unit=output_unit) startloc, startlat, startlon, dx/1000., dy/1000., xlonc, truelat1
      
          ! ?????????
          else
@@ -159,12 +159,12 @@ module write_met_module
          ! Lambert conformal
          else if (iproj == PROJ_LC) then
             write(unit=output_unit) hdate, xfcst, map_source, field, units, desc, xlvl, nx, ny, 3
-            write(unit=output_unit) startloc, startlat, startlon, dx, dy, xlonc, truelat1, truelat2
+            write(unit=output_unit) startloc, startlat, startlon, dx/1000., dy/1000., xlonc, truelat1, truelat2
 
          ! Polar stereographic
          else if (iproj == PROJ_PS) then
             write(unit=output_unit) hdate, xfcst, map_source, field, units, desc, xlvl, nx, ny, 5
-            write(unit=output_unit) startloc, startlat, startlon, dx, dy, xlonc, truelat1
+            write(unit=output_unit) startloc, startlat, startlon, dx/1000., dy/1000., xlonc, truelat1
      
          ! ?????????
          else

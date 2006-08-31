@@ -97,7 +97,7 @@ stop
       end do 
 
       if (associated(mean)) then
-         mean = mean /real(n_times+1)
+         mean = mean /real(n_times-discardtimes+1)
 
          call write_met_init('TAVGSFC', .true., temp_date(1:13), istatus)
 ! BUG: Need to save all of these arguments from the TT field read
