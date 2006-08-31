@@ -74,7 +74,7 @@ write(6,*) 'Reading from '//trim(input_name), ' at time ', temp_date(1:13)
 
                   if (trim(short_fieldnm) == 'TT' .and. xlvl == 200100.) then
 ! BUG: Should check here whether projection and dimensions match from previous read of the TT field
-                     if (.not. allocated(mean)) then
+                     if (.not. associated(mean)) then
                         allocate(mean(nx,ny))
                         mean = 0.
                      end if
