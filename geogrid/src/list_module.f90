@@ -14,7 +14,7 @@ module list_module
  
    type list
       integer :: l_len
-      type (list_item), pointer :: head
+      type (list_item), pointer :: head, tail
    end type list
 
    contains
@@ -32,6 +32,7 @@ module list_module
       type (list), intent(inout) :: l
   
       nullify(l%head)
+      nullify(l%tail)
       l%l_len = 0
     
    end subroutine list_init
@@ -58,13 +59,20 @@ module list_module
       type (list_item), pointer :: lp 
   
       allocate(lp)
+      nullify(lp%prev)
+      nullify(lp%next)
       lp%ikey = key
       lp%ivalue = value
   
-      lp%next => l%head
-      if (associated(l%head)) l%head%prev => lp
-      l%head => lp
-  
+      if (associated(l%tail)) then
+         l%tail%next => lp
+         lp%prev => l%tail
+         l%tail => lp
+      else
+         l%tail => lp
+         l%head => lp
+      end if
+
       l%l_len = l%l_len + 1
  
    end subroutine i_list_insert
@@ -91,12 +99,19 @@ module list_module
       type (list_item), pointer :: lp 
   
       allocate(lp)
+      nullify(lp%prev)
+      nullify(lp%next)
       lp%ckey = key
       lp%cvalue = value
   
-      lp%next => l%head
-      if (associated(l%head)) l%head%prev => lp
-      l%head => lp
+      if (associated(l%tail)) then
+         l%tail%next => lp
+         lp%prev => l%tail
+         l%tail => lp
+      else
+         l%tail => lp
+         l%head => lp
+      end if
   
       l%l_len = l%l_len + 1
  
@@ -221,11 +236,10 @@ module list_module
    ! Name: list_get_first_item
    !
    ! Purpose: Sets k and v equal to the key and value, respectively, of the
-   !   first item in the list. The "first item" should not be assumed to be
-   !   related in any way to the order in which items were added or removed from
-   !   the list; rather, the "first item" is simply the first item encountered
-   !   in the internal storage of items. This item is also removed from the
-   !   list before the subroutine returns.
+   !   first item in the list. The list should be thought of as a queue, so that
+   !   the first item refers to the least recently inserted item that has not yet
+   !   been removed or retrieved. This item is also removed from the list before 
+   !   the subroutine returns.
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
    subroutine i_list_get_first_item(l, k, v)
  
@@ -256,11 +270,10 @@ module list_module
    ! Name: list_get_first_item
    !
    ! Purpose: Sets k and v equal to the key and value, respectively, of the
-   !   first item in the list. The "first item" should not be assumed to be
-   !   related in any way to the order in which items were added or removed from
-   !   the list; rather, the "first item" is simply the first item encountered
-   !   in the internal storage of items. This item is also removed from the
-   !   list before the subroutine returns.
+   !   first item in the list. The list should be thought of as a queue, so that
+   !   the first item refers to the least recently inserted item that has not yet
+   !   been removed or retrieved. This item is also removed from the list before 
+   !   the subroutine returns.
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
    subroutine c_list_get_first_item(l, k, v)
  
@@ -311,17 +324,20 @@ module list_module
     
             if (.not. associated(lp%prev)) then
                l%head => lp%next
+               if (.not. associated(l%head)) nullify(l%tail)
                if (associated(lp%next)) nullify(lp%next%prev)
                deallocate(lp)
             else if (.not. associated(lp%next)) then
-               nullify(lp%prev%next)
+               l%tail => lp%prev
+               if (.not. associated(l%tail)) nullify(l%head)
+               if (associated(lp%prev)) nullify(lp%prev%next)
                deallocate(lp)
             else
                lp%prev%next => lp%next
                lp%next%prev => lp%prev
                deallocate(lp)
             end if
-            l%l_len = l%l_len + 1
+            l%l_len = l%l_len - 1
     
             exit
    
@@ -356,17 +372,20 @@ module list_module
     
             if (.not. associated(lp%prev)) then
                l%head => lp%next
+               if (.not. associated(l%head)) nullify(l%tail)
                if (associated(lp%next)) nullify(lp%next%prev)
                deallocate(lp)
             else if (.not. associated(lp%next)) then
-               nullify(lp%prev%next)
+               l%tail => lp%prev
+               if (.not. associated(l%tail)) nullify(l%head)
+               if (associated(lp%prev)) nullify(lp%prev%next)
                deallocate(lp)
             else
                lp%prev%next => lp%next
                lp%next%prev => lp%prev
                deallocate(lp)
             end if
-            l%l_len = l%l_len + 1
+            l%l_len = l%l_len - 1
     
             exit
    
@@ -424,6 +443,8 @@ module list_module
       end do
   
       l%l_len = 0
+      nullify(l%head)
+      nullify(l%tail)
     
    end subroutine list_destroy
  

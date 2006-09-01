@@ -2034,9 +2034,10 @@ module process_domain_module
       character (len=24), intent(in) :: hdate 
 
       ! Local variables
-      integer :: idx, i, istatus, isrclevel
+      integer :: idx, i, j, istatus, isrclevel
+      integer, pointer, dimension(:) :: all_list
       real :: rfillconst, rlevel, rsrclevel
-      type (fg_input) :: field
+      type (fg_input) :: field, query_field
       type (list_item), pointer, dimension(:) :: keys
       character (len=128) :: asrcname
 
@@ -2092,14 +2093,51 @@ module process_domain_module
 
             keys => list_get_keys(fill_lev_list(idx))
 
-! First handle a specification for levels "all"
-do i=1,list_length(fill_lev_list(idx))
-   if (trim(keys(i)%ckey) == 'all') then
-write(6,*) 'Filling all'
-   end if
-end do
+            !
+            ! First handle a specification for levels "all"
+            !
+            do i=1,list_length(fill_lev_list(idx))
+               if (trim(keys(i)%ckey) == 'all') then
+                  query_field%header%time_dependent = .true.
+                  query_field%header%field = ' '
+                  query_field%header%field(1:9) = level_template(idx)(1:9)
+write(6,*) 'Filling all using ',level_template(idx)(1:9),' as a level template'
+                  nullify(query_field%r_arr)
+                  nullify(query_field%valid_mask)
+                  nullify(query_field%modified_mask)
+                  nullify(all_list)
+                  call storage_get_levels(query_field, all_list)
+                  if (associated(all_list)) then
+                     do j=1,size(all_list)
+write(6,*) ' Filling level ',all_list(j)
+                        ! See if we are filling this level with a constant
+                        call get_constant_fill_lev(keys(i)%cvalue, rfillconst, istatus)
+                        if (istatus == 0) then
+                           call create_level(field, real(all_list(j)), rfillconst=rfillconst)
+            
+                        ! Else see if we are filling this level with a constant equal
+                        !   to the value of the level
+                        else if (index(keys(i)%cvalue,'vertical_index') /= 0) then
+                           call create_level(field, real(all_list(j)), rfillconst=real(all_list(j)))
+            
+                        ! Else, we assume that it is a field from which we are copying levels
+                        else
+                           call create_level(field, real(all_list(j)), asrcname=keys(i)%cvalue, rsrclevel=real(all_list(j)))
+            
+                        end if
+                        
+                     end do
+            
+                     deallocate(all_list)
+            
+                  end if
+            
+               end if
+            end do
 
+            !
             ! Now handle individually specified levels
+            !
             do i=1,list_length(fill_lev_list(idx))
                if (index(keys(i)%ckey,'all') == 0) then
 

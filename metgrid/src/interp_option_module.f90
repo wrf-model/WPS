@@ -12,7 +12,7 @@ module interp_option_module
    real, pointer, dimension(:) :: masked, fill_missing, missing_value, interp_mask_val
    logical, pointer, dimension(:) :: output_this_field, is_u_field, is_v_field, is_derived_field
    character (len=128), pointer, dimension(:) :: fieldname, interp_method, v_interp_method, &
-                  interp_mask, flag_in_output, from_input, z_dim_name
+                  interp_mask, flag_in_output, from_input, z_dim_name, level_template
    type (list), pointer, dimension(:) :: fill_lev_list
    type (list) :: flag_in_output_list
 
@@ -83,6 +83,7 @@ module interp_option_module
       allocate(fill_lev_list(num_entries))
       allocate(interp_mask(num_entries))
       allocate(interp_mask_val(num_entries))
+      allocate(level_template(num_entries))
       allocate(flag_in_output(num_entries))
       allocate(from_input(num_entries))
       allocate(z_dim_name(num_entries))
@@ -108,6 +109,7 @@ module interp_option_module
          call list_init(fill_lev_list(i))
          interp_mask(i) = ' '
          interp_mask_val(i) = NAN
+         level_template(i) = ' '
          if (gridtype == 'C') then
             output_stagger(i) = M
          else if (gridtype == 'E') then
@@ -257,6 +259,14 @@ module interp_option_module
                         end do
                         v_interp_method(i) = ' '
                         v_interp_method(i)(1:ispace-idx) = buffer(idx+1:ispace-1)
+
+                     else if (index('level_template',trim(buffer(1:idx-1))) /= 0 .and. &
+                         len_trim('level_template') == len_trim(buffer(1:idx-1))) then
+                        ispace = idx+1
+                        do while ((ispace < eos) .and. (buffer(ispace:ispace) /= ' '))
+                           ispace = ispace + 1
+                        end do
+                        level_template(i)(1:ispace-idx) = buffer(idx+1:ispace-1)
 
                      else if (index('interp_mask',trim(buffer(1:idx-1))) /= 0 .and. &
                          len_trim('interp_mask') == len_trim(buffer(1:idx-1))) then
@@ -606,6 +616,7 @@ module interp_option_module
       deallocate(fill_lev_list)
       deallocate(interp_mask)
       deallocate(interp_mask_val)
+      deallocate(level_template)
       deallocate(flag_in_output)
       deallocate(output_stagger)
       deallocate(output_this_field)
