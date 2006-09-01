@@ -1,8 +1,8 @@
 &share
  wrf_core = 'ARW',
  max_dom = 2,
- start_date = '2000-01-24_12:00:00','2000-01-24_12:00:00',
- end_date   = '2000-01-25_12:00:00','2000-01-24_12:00:00',
+ start_date = '2006-08-16_12:00:00','2006-08-16_12:00:00',
+ end_date   = '2006-08-16_18:00:00','2006-08-16_12:00:00',
  interval_seconds = 21600
  io_form_geogrid = 2,
  debug_level = 0
@@ -27,7 +27,7 @@
  truelat1  =  30.0,
  truelat2  =  60.0,
  stand_lon = -98.
- geog_data_path = '/bouleau2/duda/geog',
+ geog_data_path = '/standalone/users/gill/DATA/WPS_GEOG'
 /
  ref_x     = 50.,
  ref_y     = 40.,
@@ -44,3 +44,4 @@
  opt_output_from_metgrid_path = './',
  opt_metgrid_tbl_path         = 'metgrid/',
  opt_ignore_dom_center        = .false.
+ constants_name = './TAVGSFC'

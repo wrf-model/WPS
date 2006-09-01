@@ -191,7 +191,7 @@ name=ST028100
         interp_option=sixteen_pt+four_pt+average_4pt+search
         masked=water
         interp_mask=LANDSEA(0)
-        fill_missing=1.
+        fill_missing=285.
         flag_in_output=FLAG_ST028100
 ========================================
 name=ST100255
@@ -205,7 +205,7 @@ name=SOILM000
         interp_option=sixteen_pt+four_pt+average_4pt+search
         masked=water
         interp_mask=LANDSEA(0)
-        fill_missing=285.
+        fill_missing=1.
         flag_in_output=FLAG_SOILM000
 ========================================
 name=SOILM005
@@ -247,42 +247,42 @@ name=SOILT000
         interp_option=sixteen_pt+four_pt+average_4pt+search
         masked=water
         interp_mask=LANDSEA(0)
-        fill_missing=1.
+        fill_missing=285.
         flag_in_output=FLAG_SOILT000
 ========================================
 name=SOILT005
         interp_option=sixteen_pt+four_pt+average_4pt+search
         masked=water
         interp_mask=LANDSEA(0)
-        fill_missing=1.
+        fill_missing=285.
         flag_in_output=FLAG_SOILT005
 ========================================
 name=SOILT020
         interp_option=sixteen_pt+four_pt+average_4pt+search
         masked=water
         interp_mask=LANDSEA(0)
-        fill_missing=1.
+        fill_missing=285.
         flag_in_output=FLAG_SOILT020
 ========================================
 name=SOILT040
         interp_option=sixteen_pt+four_pt+average_4pt+search
         masked=water
         interp_mask=LANDSEA(0)
-        fill_missing=1.
+        fill_missing=285.
         flag_in_output=FLAG_SOILT040
 ========================================
 name=SOILT160
         interp_option=sixteen_pt+four_pt+average_4pt+search
         masked=water
         interp_mask=LANDSEA(0)
-        fill_missing=1.
+        fill_missing=285.
         flag_in_output=FLAG_SOILT160
 ========================================
 name=SOILT300
         interp_option=sixteen_pt+four_pt+average_4pt+search
         masked=water
         interp_mask=LANDSEA(0)
-        fill_missing=1.
+        fill_missing=285.
         flag_in_output=FLAG_SOILT300
 ========================================
 name=PMSL
@@ -292,6 +292,12 @@ name=RH
         interp_option=sixteen_pt+four_pt+average_4pt
         fill_missing=0.
         fill_lev=200100:const(0.)
+========================================
+name=TAVGSFC
+        interp_option=four_pt
+        fill_missing=0.
+        fill_lev=200100:TT(200100)
+        flag_in_output=FLAG_TAVGSFC
 ========================================
 name=TT
         interp_option=four_pt
@@ -319,6 +325,7 @@ name=QV
         interp_option=four_pt+average_4pt
         fill_missing=0.
         fill_lev=200100:const(0.)
+        flag_in_output=FLAG_QV
 ========================================
 name=QR
         interp_option=four_pt+average_4pt

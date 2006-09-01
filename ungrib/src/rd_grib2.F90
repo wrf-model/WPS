@@ -510,7 +510,7 @@ C  SET ARGUMENTS
               ! Specific Humidity.
               if (.not. is_there(iplvl, 'RH') .and.
      &            is_there(iplvl, 'SH') .and.
-     &            is_there(iplvl, 'T') .and.
+     &            is_there(iplvl, 'TT') .and.
      &            is_there(iplvl, 'P')) then
                   call g2_compute_rh_spechumd_upa(map%nx,map%ny,iplvl)
                  !call llstor_remove(iplvl, 'SH') !We are done with SH
@@ -704,7 +704,7 @@ C  SET ARGUMENTS
       real startlat, startlon, deltalat, deltalon
 
       call get_storage(iiplvl, 'P', P, ix, jx)
-      call get_storage(iiplvl, 'T', T, ix, jx)
+      call get_storage(iiplvl, 'TT', T, ix, jx)
       call get_storage(iiplvl, 'SH', Q, ix, jx)
     
       rh=1.E2*(p*q/(q*(1.-eps)+eps))/(svp1*exp(svp2*(t-svpt0)/(T-svp3)))
