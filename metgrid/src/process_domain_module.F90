@@ -2095,7 +2095,7 @@ module process_domain_module
 ! First handle a specification for levels "all"
 do i=1,list_length(fill_lev_list(idx))
    if (trim(keys(i)%ckey) == 'all') then
-write(6,*) 'Filling all'; call flush(6)
+write(6,*) 'Filling all'
    end if
 end do
 
@@ -2108,14 +2108,14 @@ end do
                   ! See if we are filling this level with a constant
                   call get_constant_fill_lev(keys(i)%cvalue, rfillconst, istatus)
                   if (istatus == 0) then
-write(6,*) 'Filling level ',rlevel,' with constant value ',rfillconst; call flush(6)
+write(6,*) 'Filling level ',rlevel,' with constant value ',rfillconst
                      call create_level(field, rlevel, rfillconst=rfillconst)
 
                   ! Otherwise, we are filling from another level
                   else
                      call get_fill_src_level(keys(i)%cvalue, asrcname, isrclevel)
                      rsrclevel = real(isrclevel)
-write(6,*) 'Filling level ',rlevel,' from field ',trim(asrcname), ' at level ',rsrclevel; call flush(6)
+write(6,*) 'Filling level ',rlevel,' from field ',trim(asrcname), ' at level ',rsrclevel
                      call create_level(field, rlevel, asrcname=asrcname, rsrclevel=rsrclevel)
                      
                   end if
