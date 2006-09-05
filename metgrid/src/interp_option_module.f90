@@ -333,14 +333,14 @@ module interp_option_module
                         end if
                         write(fill_string,'(a)') trim(fill_string(ispace+1:128))
                         fill_string(128-ispace:128) = ' '
-                        if (list_search(fill_lev_list(i), ckey=lev_string, cvalue=fill_string)) then
-                           call mprintf(.true.,WARN, &
-                                        'In entry %i of METGRID.TBL, multiple fields are specified '// &
-                                        'to fill level %s. %s will be used.', &
-                                        i1=i, s1=trim(lev_string), s2=trim(fill_string))
-                        else
+!                        if (list_search(fill_lev_list(i), ckey=lev_string, cvalue=fill_string)) then
+!                           call mprintf(.true.,WARN, &
+!                                        'In entry %i of METGRID.TBL, multiple fields are specified '// &
+!                                        'to fill level %s. %s will be used.', &
+!                                        i1=i, s1=trim(lev_string), s2=trim(fill_string))
+!                        else
                            call list_insert(fill_lev_list(i), ckey=lev_string, cvalue=fill_string)
-                        end if
+!                        end if
        
                      else
                         call mprintf(.true.,WARN, 'In METGRID.TBL, unrecognized option %s in entry %i.', s1=buffer(1:idx-1), i1=idx)
@@ -453,7 +453,7 @@ module interp_option_module
       ! Local variables
       integer :: i
 
-      zdim_name = ' '
+      zdim_name = z_dim_name(num_entries)(1:32)
       do i=1,num_entries
          if (trim(fldname) == trim(fieldname(i))) then
             zdim_name = z_dim_name(i)(1:32)

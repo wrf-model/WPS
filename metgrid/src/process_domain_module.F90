@@ -876,9 +876,6 @@ module process_domain_module
       call mprintf(.true.,LOGFILE,'Filling missing levels.')
       call fill_missing_levels()
 
-      call mprintf(.true.,LOGFILE,'Creating a 3-d pressure field.')
-      call make_pressure_field(gridtype, hdate, xfcst, we_mem_s, we_mem_e, sn_mem_s, sn_mem_e)
-
       call mprintf(.true.,LOGFILE,'Creating derived fields.')
       call create_derived_fields(gridtype, hdate, xfcst, &
                                  we_mem_s, we_mem_e, sn_mem_s, sn_mem_e, &
@@ -1394,299 +1391,6 @@ module process_domain_module
 
    
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-   ! Name: make_pressure_field
-   !
-   ! Purpose: This routine generates a 3-d pressure field having a set of levels 
-   !   equal to the union of the available levels for all other 3-d fields. The
-   !   pressure field is stored in the storage module. Finally, for all other 3-d
-   !   fields, levels in the pressure field but not in the 3-d field are generated 
-   !   (i.e., interpolated or filled with default values) for that field, and 
-   !   stored in the storage module.
-   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-   subroutine make_pressure_field(arg_gridtype, hdate, xfcst, we_dim_s, we_dim_e, sn_dim_s, sn_dim_e)
-   
-      use interp_option_module
-      use list_module
-      use module_debug
-      use module_mergesort
-      use storage_module
-   
-      implicit none
-   
-      ! Arguments
-      integer, intent(in) :: we_dim_s, we_dim_e, sn_dim_s, sn_dim_e
-      real, intent(in) :: xfcst
-      character (len=1), intent(in) :: arg_gridtype
-      character (len=24), intent(in) :: hdate
-   
-      ! Local variables
-      integer :: i, ii, j, ix, jx, k, lower, upper, temp, fill_src_level, istatus
-      integer, pointer, dimension(:) :: union_levels, field_levels
-      real :: fill_const
-      character (len=128) :: clevel, fill_field, fill_src
-      type (fg_input) :: p_field, lower_field, upper_field, new_field, search_field
-      type (fg_input), pointer, dimension(:) :: headers, all_headers
-      type (list) :: temp_levels
-   
-      ! Initialize a list to store levels that are found for 3-d fields 
-      call list_init(temp_levels)
-   
-      ! Get a list of all fields (given by their headers) from the storage module
-      call storage_get_td_headers(headers)
-      call storage_get_all_headers(all_headers)
-   
-      !
-      ! Given headers of all fields, we first build a list of all possible levels
-      !    for 3-d met fields (excluding sea-level, though).
-      !
-      do i=1,size(headers)
-   
-         ! Find out what levels the current field has
-         call storage_get_levels(headers(i), field_levels)
-         do j=1,size(field_levels)
-   
-            ! If this level has not yet been encountered, add it to our list
-            if (.not. list_search(temp_levels, ikey=field_levels(j), ivalue=field_levels(j))) then
-               if (field_levels(j) /= 201300) then
-                  call list_insert(temp_levels, ikey=field_levels(j), ivalue=field_levels(j))
-               end if
-            end if
-   
-         end do
-   
-         deallocate(field_levels)
-   
-      end do
-
-      deallocate(headers)
-   
-      if (list_length(temp_levels) > 0) then
-   
-         ! 
-         ! With all possible levels stored in a list, get an array of levels, sorted
-         !    in decreasing order
-         !
-         i = 0
-         allocate(union_levels(list_length(temp_levels)))
-         do while (list_length(temp_levels) > 0)
-            i = i + 1
-            call list_get_first_item(temp_levels, ikey=union_levels(i), ivalue=temp)     
-         end do
-         call mergesort(union_levels, 1, size(union_levels))
-
-         call list_destroy(temp_levels)
-   
-         ! Initialize fg_input structure to store the pressure field
-         p_field%header%version = 1
-         p_field%header%date = hdate//'        '
-         p_field%header%time_dependent = .true.
-         p_field%header%mask_field = .false.
-         p_field%header%forecast_hour = xfcst
-         p_field%header%fg_source = 'FG'
-         p_field%header%field = ' '
-         p_field%header%field(1:2) = 'P '
-         p_field%header%units = ' '
-         p_field%header%units(1:3) = 'Pa'
-         p_field%header%description = ' '
-         p_field%header%description(1:8) = 'Pressure'
-         p_field%header%vertical_coord = 'num_metgrid_levels'
-         p_field%header%array_order = 'XY '
-         p_field%header%winds_rotated_on_input = .true.
-         p_field%header%array_has_missing_values = .false.
-         p_field%header%dim1(1) = we_dim_s
-         p_field%header%dim1(2) = we_dim_e
-         p_field%header%dim2(1) = sn_dim_s
-         p_field%header%dim2(2) = sn_dim_e
-         if (arg_gridtype == 'C') then
-            p_field%map%stagger = M
-         else if (arg_gridtype == 'E') then
-            p_field%map%stagger = HH
-         end if 
-   
-         !
-         ! Now we begin building a 3-d pressure array
-         !
-
-         !
-         ! Add a level to the pressure field for each of the levels in union_levels
-         !
-         do k = 1, size(union_levels)
-            p_field%header%vertical_level = real(union_levels(k))
-     
-            !
-            ! Find the entry for pressure (P) in METGRID.TBL
-            !
-            do ii=1,num_entries
-               if (fieldname(ii) == p_field%header%field) exit 
-            end do
-            if (ii <= num_entries) then
-               
-               fill_field = ' '
-               write(clevel,'(i)') union_levels(k)
-               call despace(clevel)
-
-               ! First check if this level was specified explicitly to be filled from another field
-               if (.not.list_search(fill_lev_list(ii), ckey=clevel, cvalue=fill_field)) then
-                 
-                  ! Otherwise, check if we just copy the corresponding level from another field 
-                  write(clevel,'(a)') 'all'
-                  if (.not.list_search(fill_lev_list(ii), ckey=clevel, cvalue=fill_field)) then
-                     fill_field = ' '
-                  else
-                     if (index(fill_field,'const') == 0) call get_fill_src_level(fill_field, fill_src, fill_src_level)
-                     fill_src_level = union_levels(k)
-                  end if
-               else
-                  if (index(fill_field,'const') == 0) call get_fill_src_level(fill_field, fill_src, fill_src_level)
-               end if
-
-               !
-               ! If fill_field is not empty, then we need to fill this level of the pressure array
-               !   from another field (or with a constant).
-               !
-               if (fill_field /= ' ') then
-      
-                  ! Fill with a constant
-                  if (index(fill_field,'const') /= 0) then
-                     call get_constant_fill_lev(fill_field, fill_const, istatus)
-                     allocate(p_field%r_arr(p_field%header%dim1(1):p_field%header%dim1(2), &
-                                            p_field%header%dim2(1):p_field%header%dim2(2)))
-                     allocate(p_field%valid_mask)
-                     call bitarray_create(p_field%valid_mask, &
-                                          we_dim_e-we_dim_s+1,&
-                                          sn_dim_e-sn_dim_s+1)
-                     do j = sn_dim_s, sn_dim_e
-                        do i = we_dim_s, we_dim_e
-                           p_field%r_arr(i,j) = fill_const
-                           call bitarray_set(p_field%valid_mask, i-we_dim_s+1, j-sn_dim_s+1)
-                        end do
-                     end do
-                     nullify(p_field%modified_mask)
-
-                  ! Fill from another field
-                  else
-
-                     ! Try to find the field that we fill from a list of known fields 
-                     do ii=1,size(all_headers)
-
-                        ! We have found the entry
-                        if (index(all_headers(ii)%header%field,trim(fill_src)) /= 0 .and. &
-                            len_trim(all_headers(ii)%header%field) == len_trim(fill_src)) then
-
-                           call dup(all_headers(ii),search_field)
-                           search_field%header%vertical_level = fill_src_level
-
-                           ! Now try to read the specified level for that field
-                           call storage_get_field(search_field,istatus) 
-                           if (istatus == 0) then
-                              allocate(p_field%valid_mask)
-                              call bitarray_create(p_field%valid_mask, &
-                                                   we_dim_e-we_dim_s+1,&
-                                                   sn_dim_e-sn_dim_s+1)
-                              nullify(p_field%modified_mask)
-
-                              allocate(p_field%r_arr(p_field%header%dim1(1):p_field%header%dim1(2), &
-                                                     p_field%header%dim2(1):p_field%header%dim2(2)))
-                              do j = sn_dim_s, sn_dim_e
-                                 do i = we_dim_s, we_dim_e
-                                    if (bitarray_test(search_field%valid_mask, i-we_dim_s+1, j-sn_dim_s+1)) then
-                                       p_field%r_arr(i,j) = search_field%r_arr(i,j) 
-                                       call bitarray_set(p_field%valid_mask, i-we_dim_s+1, j-sn_dim_s+1)
-                                    end if
-                                 end do
-                              end do
-
-                           ! The specified level does not exist for the field that we fill from
-                           else
-                              call mprintf(.true.,ERROR,'Couldn''t get level %i for field %s.', &
-                                           i1=fill_src_level, s1=fill_src)
-! BUG: Maybe at this point, if this level was explicitly specified, and there is another entry for "all",
-!      we could now try to get the corresponding level from that field, and if all else fails, fill in with 
-!      the value of the vertical_level
-                           end if
-
-                           exit
-
-                        end if
-                     end do
-
-                     ! If we get through all known fields and we still cannot find the field
-                     !   that we are supposed to fill from, we just fill in the level with the 
-                     !   value of the level itself
-                     if (ii == size(all_headers)+1) then
-                        call mprintf(.true.,INFORM,'Couldn''t find field %s to fill P array level %i. '// &
-                                     'Will fill with constant %f', &
-                                     s1=trim(fill_src), i1=union_levels(k), f1=real(union_levels(k)))
-                        allocate(p_field%r_arr(we_dim_s:we_dim_e,sn_dim_s:sn_dim_e))
-                        allocate(p_field%valid_mask)
-                        call bitarray_create(p_field%valid_mask, &
-                                             we_dim_e-we_dim_s+1,&
-                                             sn_dim_e-sn_dim_s+1)
-                        nullify(p_field%modified_mask)
-      
-                        do j = sn_dim_s, sn_dim_e
-                           do i = we_dim_s, we_dim_e
-                              p_field%r_arr(i,j) = real(union_levels(k))
-                              call bitarray_set(p_field%valid_mask, i-we_dim_s+1, j-sn_dim_s+1)
-                           end do
-                        end do
-                     end if
-                  end if
-
-               !
-               ! If fill_field was empty, we just set this level of the pressure field
-               !   equal to the value of the level 
-               !
-               else
-                  allocate(p_field%r_arr(we_dim_s:we_dim_e,sn_dim_s:sn_dim_e))
-                  allocate(p_field%valid_mask)
-                  call bitarray_create(p_field%valid_mask, &
-                                       we_dim_e-we_dim_s+1,&
-                                       sn_dim_e-sn_dim_s+1)
-                  nullify(p_field%modified_mask)
-      
-                  do j = sn_dim_s, sn_dim_e
-                     do i = we_dim_s, we_dim_e
-                        p_field%r_arr(i,j) = real(union_levels(k))
-                        call bitarray_set(p_field%valid_mask, i-we_dim_s+1, j-sn_dim_s+1)
-                     end do
-                  end do
-               end if
-
-            !
-            ! We have no entry in METGRID.TBL for P, so just set this level
-            !   of the pressure field equal to the value of the level
-            !
-            else
-               allocate(p_field%r_arr(we_dim_s:we_dim_e,sn_dim_s:sn_dim_e))
-               allocate(p_field%valid_mask)
-               call bitarray_create(p_field%valid_mask, &
-                                    we_dim_e-we_dim_s+1,&
-                                    sn_dim_e-sn_dim_s+1)
-               nullify(p_field%modified_mask)
-   
-               do j = sn_dim_s, sn_dim_e
-                  do i = we_dim_s, we_dim_e
-                     p_field%r_arr(i,j) = real(union_levels(k))
-                     call bitarray_set(p_field%valid_mask, i-we_dim_s+1, j-sn_dim_s+1)
-                  end do
-               end do
-            end if
-   
-            call storage_put_field(p_field)
-         end do
-   
-   
-         deallocate(union_levels)
-
-      end if
-   
-      deallocate(all_headers)
-   
-   end subroutine make_pressure_field
-
-   
-   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
    ! Name: fill_missing_levels
    !
    ! Purpose:
@@ -2047,28 +1751,38 @@ module process_domain_module
       type (fg_input) :: field, query_field
       type (list_item), pointer, dimension(:) :: keys
       character (len=128) :: asrcname
+      logical :: filled_all_lev
 
+      ! Initialize fg_input structure to store the field
+      field%header%version = 1
+      field%header%date = hdate//'        '
+      field%header%time_dependent = .true.
+      field%header%mask_field = .false.
+      field%header%forecast_hour = xfcst 
+      field%header%fg_source = 'Derived from FG'
+      field%header%field = ' '
+      field%header%units = ' '
+      field%header%description = ' '
+      field%header%vertical_level = 0
+      field%header%array_order = 'XY ' 
+      field%header%winds_rotated_on_input = .true.
+      field%header%array_has_missing_values = .false.
+      nullify(field%r_arr)
+      nullify(field%valid_mask)
+      nullify(field%modified_mask)
+
+      !
+      ! Check each entry in METGRID.TBL to see whether it is a derive field
+      !
       do idx=1,num_entries
          if (is_derived_field(idx)) then
 
             call mprintf(.true.,INFORM,'Going to create the field %s',s1=fieldname(idx))
+            filled_all_lev = .false.
 
-            ! Initialize fg_input structure to store the field
-            field%header%version = 1
-            field%header%date = hdate//'        '
-            field%header%time_dependent = .true.
-            field%header%mask_field = .false.
-            field%header%forecast_hour = xfcst 
-            field%header%fg_source = 'Derived from FG'
-            field%header%field = ' '
+            ! Intialize more fields in storage structure
             field%header%field = fieldname(idx)
-            field%header%units = ' '
-            field%header%description = ' '
             call get_z_dim_name(fieldname(idx),field%header%vertical_coord)
-            field%header%vertical_level = 0
-            field%header%array_order = 'XY ' 
-            field%header%winds_rotated_on_input = .true.
-            field%header%array_has_missing_values = .false.
             field%map%stagger = output_stagger(idx)
             if (arg_gridtype == 'E') then
                field%header%dim1(1) = we_mem_s
@@ -2094,80 +1808,99 @@ module process_domain_module
                end if
             end if
 
-            nullify(field%r_arr)
-            nullify(field%valid_mask)
-            nullify(field%modified_mask)
-
+            !
+            ! Get a list of all levels to be filled for this field
+            !
             keys => list_get_keys(fill_lev_list(idx))
 
-            !
-            ! First handle a specification for levels "all"
-            !
             do i=1,list_length(fill_lev_list(idx))
-               if (trim(keys(i)%ckey) == 'all') then
-                  query_field%header%time_dependent = .true.
-                  query_field%header%field = ' '
-                  query_field%header%field = level_template(idx)
-write(6,*) 'Filling all using ',level_template(idx),' as a level template'
-                  nullify(query_field%r_arr)
-                  nullify(query_field%valid_mask)
-                  nullify(query_field%modified_mask)
-                  nullify(all_list)
-                  call storage_get_levels(query_field, all_list)
-                  if (associated(all_list)) then
-                     do j=1,size(all_list)
-write(6,*) ' Filling level ',all_list(j)
-                        ! See if we are filling this level with a constant
-                        call get_constant_fill_lev(keys(i)%cvalue, rfillconst, istatus)
-                        if (istatus == 0) then
-                           call create_level(field, real(all_list(j)), rfillconst=rfillconst)
-            
-                        ! Else see if we are filling this level with a constant equal
-                        !   to the value of the level
-                        else if (index(keys(i)%cvalue,'vertical_index') /= 0) then
-                           call create_level(field, real(all_list(j)), rfillconst=real(all_list(j)))
-            
-                        ! Else, we assume that it is a field from which we are copying levels
-                        else
-                           call create_level(field, real(all_list(j)), asrcname=keys(i)%cvalue, rsrclevel=real(all_list(j)))
-            
-                        end if
-                        
-                     end do
-            
-                     deallocate(all_list)
-            
-                  end if
-            
-               end if
-            end do
 
-            !
-            ! Now handle individually specified levels
-            !
-            do i=1,list_length(fill_lev_list(idx))
-               if (index(keys(i)%ckey,'all') == 0) then
+               !
+               ! First handle a specification for levels "all"
+               !
+               if (trim(keys(i)%ckey) == 'all') then
+                
+                  ! We only want to fill all levels if we haven't already filled "all" of them
+                  if (.not. filled_all_lev) then
+
+                     filled_all_lev = .true.
+
+                     query_field%header%time_dependent = .true.
+                     query_field%header%field = ' '
+                     nullify(query_field%r_arr)
+                     nullify(query_field%valid_mask)
+                     nullify(query_field%modified_mask)
+   
+                     ! See if we are filling this level with a constant
+                     call get_constant_fill_lev(keys(i)%cvalue, rfillconst, istatus)
+                     if (istatus == 0) then
+                        query_field%header%field = level_template(idx)
+                        nullify(all_list)
+                        call storage_get_levels(query_field, all_list)
+                        if (associated(all_list)) then
+                           do j=1,size(all_list)
+                              call create_level(field, real(all_list(j)), rfillconst=rfillconst)
+                           end do
+                           deallocate(all_list)
+                        end if
+               
+                     ! Else see if we are filling this level with a constant equal
+                     !   to the value of the level
+                     else if (trim(keys(i)%cvalue) == 'vertical_index') then
+                        query_field%header%field = level_template(idx)
+                        nullify(all_list)
+                        call storage_get_levels(query_field, all_list)
+                        if (associated(all_list)) then
+                           do j=1,size(all_list)
+                              call create_level(field, real(all_list(j)), rfillconst=real(all_list(j)))
+                           end do
+                           deallocate(all_list)
+                        end if
+              
+                     ! Else, we assume that it is a field from which we are copying levels
+                     else
+                        query_field%header%field = keys(i)%cvalue  ! Use same levels as source field, not level_template
+                        nullify(all_list)
+                        call storage_get_levels(query_field, all_list)
+                        if (associated(all_list)) then
+                           do j=1,size(all_list)
+                              call create_level(field, real(all_list(j)), asrcname=keys(i)%cvalue, rsrclevel=real(all_list(j)))
+                           end do
+                           deallocate(all_list)
+
+                        else
+
+                           ! If the field doesn't have any levels (or does not exist) then we have not
+                           !   really filled all levels at this point.
+                           filled_all_lev = .false.
+                        end if
+            
+                     end if
+                  end if
+                        
+               !
+               ! Handle individually specified levels
+               !
+               else 
 
                   read(keys(i)%ckey,*) rlevel
 
                   ! See if we are filling this level with a constant
                   call get_constant_fill_lev(keys(i)%cvalue, rfillconst, istatus)
                   if (istatus == 0) then
-write(6,*) 'Filling level ',rlevel,' with constant value ',rfillconst
                      call create_level(field, rlevel, rfillconst=rfillconst)
 
                   ! Otherwise, we are filling from another level
                   else
                      call get_fill_src_level(keys(i)%cvalue, asrcname, isrclevel)
                      rsrclevel = real(isrclevel)
-write(6,*) 'Filling level ',rlevel,' from field ',trim(asrcname), ' at level ',rsrclevel
                      call create_level(field, rlevel, asrcname=asrcname, rsrclevel=rsrclevel)
                      
                   end if
                end if
             end do
 
-            deallocate(keys)
+            if (associated(keys)) deallocate(keys)
                  
          end if
       end do
@@ -2217,7 +1950,20 @@ write(6,*) 'Filling level ',rlevel,' from field ',trim(asrcname), ' at level ',r
                       'for a constant fill value or a source level.')
       end if
 
-! BUG: Still need to verify that this level of the destination field does not already exist
+      query_field%header%time_dependent = .true.
+      query_field%header%field = field_template%header%field
+      query_field%header%vertical_level = rlevel
+      nullify(query_field%r_arr)
+      nullify(query_field%valid_mask)
+      nullify(query_field%modified_mask)
+
+      call storage_query_field(query_field, istatus)
+      if (istatus == 0) then
+         call mprintf(.true.,INFORM,'%s at level %f already exists; leaving it alone.', &
+                      s1=field_template%header%field, f1=rlevel)
+         return 
+      end if
+
       sm1 = field_template%header%dim1(1)
       em1 = field_template%header%dim1(2)
       sm2 = field_template%header%dim2(1)
@@ -2248,13 +1994,9 @@ write(6,*) 'Filling level ',rlevel,' from field ',trim(asrcname), ' at level ',r
       !
       else if (present(asrcname) .and. present(rsrclevel)) then
 
-         query_field%header%time_dependent = .true.
          query_field%header%field = ' '
          query_field%header%field = asrcname
          query_field%header%vertical_level = rsrclevel
-         nullify(query_field%r_arr)
-         nullify(query_field%valid_mask)
-         nullify(query_field%modified_mask)
 
          ! Check to see whether the requested source field exists at the requested level
          call storage_query_field(query_field, istatus)
@@ -2291,7 +2033,7 @@ write(6,*) 'Filling level ',rlevel,' from field ',trim(asrcname), ' at level ',r
             call storage_put_field(field_template)
 
          else
-            call mprintf(.true.,WARN,'Couldn''t find %s at level %f to fill level %f of %s.', &
+            call mprintf(.true.,INFORM,'Couldn''t find %s at level %f to fill level %f of %s.', &
                          s1=asrcname,f1=rsrclevel,f2=rlevel,s2=field_template%header%field)
          end if
 

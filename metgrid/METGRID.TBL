@@ -1,4 +1,11 @@
 ========================================
+name=P
+        z_dim_name=num_metgrid_levels
+        derived=yes
+        fill_lev=all:PRESSURE
+        fill_lev=200100:PSFC(200100)
+        fill_lev=all:vertical_index; level_template=T
+========================================
 name=LANDSEA 
         interp_option=nearest_neighbor
         fill_missing=-1.
@@ -370,10 +377,6 @@ name=GHT
         interp_option=sixteen_pt+four_pt+average_4pt
         fill_missing=0.
         fill_lev=200100:HGT_M(1)
-========================================
-name=P
-        fill_lev=200100:PSFC(200100)
-        fill_lev=all:PRESSURE
 ========================================
 name=WEASD
         interp_option=four_pt+average_4pt
