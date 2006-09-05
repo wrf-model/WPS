@@ -49,7 +49,7 @@ interp_module.o: bitarray_module.o misc_definitions_module.o module_debug.o queu
 
 interp_option_module.o: list_module.o misc_definitions_module.o module_debug.o
 
-list_module.o:
+list_module.o: module_debug.o
 
 llxy_module.o: gridinfo_module.o module_map_utils.o module_debug.o misc_definitions_module.o
 

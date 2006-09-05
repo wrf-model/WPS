@@ -304,49 +304,56 @@ module process_domain_module
           ! We will also keep copies in core of the lat/lon arrays, for use in 
           !    interpolation of the met fields to the model grid.
           ! For now, we assume that the lat/lon arrays will have known field names
-          if (index(cname, 'XLAT_M') /= 0) then
+          if (index(cname, 'XLAT_M') /= 0 .and. &
+              len_trim(cname) == len_trim('XLAT_M')) then
              allocate(xlat(we_mem_s:we_mem_e,sn_mem_s:sn_mem_e))
              xlat(we_patch_s:we_patch_e,sn_patch_s:sn_patch_e) = real_array(:,:,1)
              call exchange_halo_r(xlat, & 
                                   we_mem_s, we_mem_e, sn_mem_s, sn_mem_e, 1, 1, &
                                   we_patch_s, we_patch_e, sn_patch_s, sn_patch_e, 1, 1)
 
-          else if (index(cname, 'XLONG_M') /= 0) then
+          else if (index(cname, 'XLONG_M') /= 0 .and. &
+                   len_trim(cname) == len_trim('XLONG_M')) then
              allocate(xlon(we_mem_s:we_mem_e,sn_mem_s:sn_mem_e))
              xlon(we_patch_s:we_patch_e,sn_patch_s:sn_patch_e) = real_array(:,:,1)
              call exchange_halo_r(xlon, & 
                                   we_mem_s, we_mem_e, sn_mem_s, sn_mem_e, 1, 1, &
                                   we_patch_s, we_patch_e, sn_patch_s, sn_patch_e, 1, 1)
 
-          else if (index(cname, 'XLAT_U') /= 0) then
+          else if (index(cname, 'XLAT_U') /= 0 .and. &
+                   len_trim(cname) == len_trim('XLAT_U')) then
              allocate(xlat_u(we_mem_stag_s:we_mem_stag_e,sn_mem_s:sn_mem_e))
              xlat_u(we_patch_stag_s:we_patch_stag_e,sn_patch_s:sn_patch_e) = real_array(:,:,1)
              call exchange_halo_r(xlat_u, & 
                                   we_mem_stag_s, we_mem_stag_e, sn_mem_s, sn_mem_e, 1, 1, &
                                   we_patch_stag_s, we_patch_stag_e, sn_patch_s, sn_patch_e, 1, 1)
 
-          else if (index(cname, 'XLONG_U') /= 0) then
+          else if (index(cname, 'XLONG_U') /= 0 .and. &
+                   len_trim(cname) == len_trim('XLONG_U')) then
              allocate(xlon_u(we_mem_stag_s:we_mem_stag_e,sn_mem_s:sn_mem_e))
              xlon_u(we_patch_stag_s:we_patch_stag_e,sn_patch_s:sn_patch_e) = real_array(:,:,1)
              call exchange_halo_r(xlon_u, & 
                                   we_mem_stag_s, we_mem_stag_e, sn_mem_s, sn_mem_e, 1, 1, &
                                   we_patch_stag_s, we_patch_stag_e, sn_patch_s, sn_patch_e, 1, 1)
 
-          else if (index(cname, 'XLAT_V') /= 0) then
+          else if (index(cname, 'XLAT_V') /= 0 .and. &
+                   len_trim(cname) == len_trim('XLAT_V')) then
              allocate(xlat_v(we_mem_s:we_mem_e,sn_mem_stag_s:sn_mem_stag_e))
              xlat_v(we_patch_s:we_patch_e,sn_patch_stag_s:sn_patch_stag_e) = real_array(:,:,1)
              call exchange_halo_r(xlat_v, & 
                                   we_mem_s, we_mem_e, sn_mem_stag_s, sn_mem_stag_e, 1, 1, &
                                   we_patch_s, we_patch_e, sn_patch_stag_s, sn_patch_stag_e, 1, 1)
 
-          else if (index(cname, 'XLONG_V') /= 0) then
+          else if (index(cname, 'XLONG_V') /= 0 .and. &
+                   len_trim(cname) == len_trim('XLONG_V')) then
              allocate(xlon_v(we_mem_s:we_mem_e,sn_mem_stag_s:sn_mem_stag_e))
              xlon_v(we_patch_s:we_patch_e,sn_patch_stag_s:sn_patch_stag_e) = real_array(:,:,1)
              call exchange_halo_r(xlon_v, & 
                                   we_mem_s, we_mem_e, sn_mem_stag_s, sn_mem_stag_e, 1, 1, &
                                   we_patch_s, we_patch_e, sn_patch_stag_s, sn_patch_stag_e, 1, 1)
 
-          else if (index(cname, 'LANDMASK') /= 0) then
+          else if (index(cname, 'LANDMASK') /= 0 .and. &
+                   len_trim(cname) == len_trim('LANDMASK')) then
              allocate(landmask(we_mem_s:we_mem_e,sn_mem_s:sn_mem_e))
              landmask(we_patch_s:we_patch_e,sn_patch_s:sn_patch_e) = real_array(:,:,1)
              call exchange_halo_r(landmask, & 
@@ -1477,7 +1484,7 @@ module process_domain_module
          p_field%header%forecast_hour = xfcst
          p_field%header%fg_source = 'FG'
          p_field%header%field = ' '
-         p_field%header%field(1:9) = 'P        '
+         p_field%header%field(1:2) = 'P '
          p_field%header%units = ' '
          p_field%header%units(1:3) = 'Pa'
          p_field%header%description = ' '
@@ -2054,10 +2061,10 @@ module process_domain_module
             field%header%forecast_hour = xfcst 
             field%header%fg_source = 'Derived from FG'
             field%header%field = ' '
-            field%header%field(1:9) = fieldname(idx)(1:9)
+            field%header%field = fieldname(idx)
             field%header%units = ' '
             field%header%description = ' '
-            call get_z_dim_name(fieldname(idx)(1:9),field%header%vertical_coord)
+            call get_z_dim_name(fieldname(idx),field%header%vertical_coord)
             field%header%vertical_level = 0
             field%header%array_order = 'XY ' 
             field%header%winds_rotated_on_input = .true.
@@ -2100,8 +2107,8 @@ module process_domain_module
                if (trim(keys(i)%ckey) == 'all') then
                   query_field%header%time_dependent = .true.
                   query_field%header%field = ' '
-                  query_field%header%field(1:9) = level_template(idx)(1:9)
-write(6,*) 'Filling all using ',level_template(idx)(1:9),' as a level template'
+                  query_field%header%field = level_template(idx)
+write(6,*) 'Filling all using ',level_template(idx),' as a level template'
                   nullify(query_field%r_arr)
                   nullify(query_field%valid_mask)
                   nullify(query_field%modified_mask)
@@ -2243,7 +2250,7 @@ write(6,*) 'Filling level ',rlevel,' from field ',trim(asrcname), ' at level ',r
 
          query_field%header%time_dependent = .true.
          query_field%header%field = ' '
-         query_field%header%field(1:9) = asrcname(1:9)
+         query_field%header%field = asrcname
          query_field%header%vertical_level = rsrclevel
          nullify(query_field%r_arr)
          nullify(query_field%valid_mask)

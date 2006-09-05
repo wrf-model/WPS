@@ -447,7 +447,7 @@ module interp_option_module
       implicit none
  
       ! Arguments
-      character (len=9), intent(in) :: fldname
+      character (len=*), intent(in) :: fldname
       character (len=32), intent(out) :: zdim_name
 
       ! Local variables
