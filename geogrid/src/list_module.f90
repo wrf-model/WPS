@@ -6,6 +6,8 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 module list_module
 
+   use module_debug
+
    type list_item
       integer :: ikey, ivalue
       character (len=128) :: ckey, cvalue
@@ -47,12 +49,13 @@ module list_module
    ! NOTE: If the key already exists in the list, a second copy of a list item 
    !   with that key is added, possibly with a different associated value. 
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
-   subroutine i_list_insert(l, key, value)
+   subroutine list_insert(l, ikey, ivalue, ckey, cvalue)
    
       implicit none
   
       ! Arguments
-      integer, intent(in) :: key, value
+      integer, intent(in), optional :: ikey, ivalue
+      character (len=128), intent(in), optional :: ckey, cvalue
       type (list), intent(inout) :: l
   
       ! Local variables
@@ -61,8 +64,15 @@ module list_module
       allocate(lp)
       nullify(lp%prev)
       nullify(lp%next)
-      lp%ikey = key
-      lp%ivalue = value
+      if (present(ikey) .and. present(ivalue)) then
+         lp%ikey   = ikey
+         lp%ivalue = ivalue
+      else if (present(ckey) .and. present(cvalue)) then
+         lp%ckey   = ckey
+         lp%cvalue = cvalue
+      else
+         call mprintf(.true.,ERROR,'list_insert() called without proper arguments.')
+      end if
   
       if (associated(l%tail)) then
          l%tail%next => lp
@@ -75,48 +85,8 @@ module list_module
 
       l%l_len = l%l_len + 1
  
-   end subroutine i_list_insert
+   end subroutine list_insert
  
- 
-   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
-   ! Name: list_insert
-   !
-   ! Purpose: Given a list l, a key, and a value to be stored with that key,
-   !   this routine adds (key, value) to the table. 
-   !
-   ! NOTE: If the key already exists in the list, a second copy of a list item 
-   !   with that key is added, possibly with a different associated value. 
-   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
-   subroutine c_list_insert(l, key, value)
-   
-      implicit none
-  
-      ! Arguments
-      character (len=128), intent(in) :: key, value
-      type (list), intent(inout) :: l
-  
-      ! Local variables
-      type (list_item), pointer :: lp 
-  
-      allocate(lp)
-      nullify(lp%prev)
-      nullify(lp%next)
-      lp%ckey = key
-      lp%cvalue = value
-  
-      if (associated(l%tail)) then
-         l%tail%next => lp
-         lp%prev => l%tail
-         l%tail => lp
-      else
-         l%tail => lp
-         l%head => lp
-      end if
-  
-      l%l_len = l%l_len + 1
- 
-   end subroutine c_list_insert
-
  
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
    ! Name: list_get_keys
@@ -163,107 +133,47 @@ module list_module
    !   value equal to the value stored with k. If the k is not found, this
    !   function returns FALSE, and value is undefined.
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
-   function i_list_search(l, k, value)
+   function list_search(l, ikey, ivalue, ckey, cvalue)
    
       implicit none
   
       ! Arguments
-      integer, intent(in) :: k
-      integer, intent(out) :: value
+      integer, intent(in), optional :: ikey
+      integer, intent(out), optional :: ivalue
+      character (len=128), intent(in), optional :: ckey
+      character (len=128), intent(out), optional :: cvalue
       type (list), intent(inout) :: l
   
       ! Return value
-      logical :: i_list_search
+      logical :: list_search
   
       ! Local variables
       type (list_item), pointer :: lp 
   
-      i_list_search = .false.
+      list_search = .false.
   
       lp => l%head
   
       do while (associated(lp))
-         if (lp%ikey == k) then
-            i_list_search = .true.
-            value = lp%ivalue
-            exit
+         if (present(ikey) .and. present(ivalue)) then
+            if (lp%ikey == ikey) then
+               list_search = .true.
+               ivalue = lp%ivalue
+               exit
+            end if
+         else if (present(ckey) .and. present(cvalue)) then
+            if (lp%ckey == ckey) then
+               list_search = .true.
+               cvalue = lp%cvalue
+               exit
+            end if
+         else
+            call mprintf(.true.,ERROR,'list_search() called without proper arguments.')
          end if
          lp => lp%next
       end do
  
-   end function i_list_search
- 
- 
-   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
-   ! Name: list_search
-   !
-   ! Purpose: If key k is found in the list, this function returns TRUE and sets 
-   !   value equal to the value stored with k. If the k is not found, this
-   !   function returns FALSE, and value is undefined.
-   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
-   function c_list_search(l, k, value)
-   
-      implicit none
-  
-      ! Arguments
-      character (len=128), intent(in) :: k
-      character (len=128), intent(out) :: value
-      type (list), intent(inout) :: l
-  
-      ! Return value
-      logical :: c_list_search
-  
-      ! Local variables
-      type (list_item), pointer :: lp 
-  
-      c_list_search = .false.
-  
-      lp => l%head
-  
-      do while (associated(lp))
-         if (lp%ckey == k) then
-            c_list_search = .true.
-            value = lp%cvalue
-            exit
-         end if
-         lp => lp%next
-      end do
- 
-   end function c_list_search
-
-
-   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-   ! Name: list_get_first_item
-   !
-   ! Purpose: Sets k and v equal to the key and value, respectively, of the
-   !   first item in the list. The list should be thought of as a queue, so that
-   !   the first item refers to the least recently inserted item that has not yet
-   !   been removed or retrieved. This item is also removed from the list before 
-   !   the subroutine returns.
-   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-   subroutine i_list_get_first_item(l, k, v)
- 
-      implicit none
-  
-      ! Arguments
-      integer, intent(out) :: k, v
-      type (list), intent(inout) :: l
- 
-      ! Local variables
-      type (list_item), pointer :: lp
-  
-      lp => l%head
-  
-      if (associated(lp)) then
-         k = lp%ikey
-         v = lp%ivalue
-         l%head => lp%next
-         if (associated(lp%next)) nullify(lp%next%prev)
-         deallocate(lp)
-         l%l_len = l%l_len - 1
-      end if
- 
-   end subroutine i_list_get_first_item
+   end function list_search
  
  
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -275,12 +185,13 @@ module list_module
    !   been removed or retrieved. This item is also removed from the list before 
    !   the subroutine returns.
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-   subroutine c_list_get_first_item(l, k, v)
+   subroutine list_get_first_item(l, ikey, ivalue, ckey, cvalue)
  
       implicit none
   
       ! Arguments
-      character (len=128), intent(out) :: k, v
+      integer, intent(out), optional :: ikey, ivalue
+      character (len=128), intent(out), optional :: ckey, cvalue
       type (list), intent(inout) :: l
  
       ! Local variables
@@ -289,15 +200,22 @@ module list_module
       lp => l%head
   
       if (associated(lp)) then
-         k = lp%ckey
-         v = lp%cvalue
+         if (present(ikey) .and. present(ivalue)) then
+            ikey = lp%ikey
+            ivalue = lp%ivalue
+         else if (present(ckey) .and. present(cvalue)) then
+            ckey = lp%ckey
+            cvalue = lp%cvalue
+         else
+            call mprintf(.true.,ERROR,'list_get_first_item() called without proper arguments.')
+         end if
          l%head => lp%next
          if (associated(lp%next)) nullify(lp%next%prev)
          deallocate(lp)
          l%l_len = l%l_len - 1
       end if
  
-   end subroutine c_list_get_first_item
+   end subroutine list_get_first_item
  
  
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
@@ -306,12 +224,13 @@ module list_module
    ! Purpose: Deletes the entry with key k from the list. If multiple entries 
    !   have the specified key, only the first encountered entry is deleted.
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
-   subroutine i_list_remove(l, k)
+   subroutine list_remove(l, ikey, ckey)
    
       implicit none
   
       ! Arguments
-      integer, intent(in) :: k
+      integer, intent(in), optional :: ikey
+      character (len=128), intent(in), optional :: ckey
       type (list), intent(inout) :: l
   
       ! Local variables
@@ -320,80 +239,62 @@ module list_module
       lp => l%head
   
       do while (associated(lp))
-         if (lp%ikey == k) then
+         if (present(ikey)) then
+            if (lp%ikey == ikey) then
     
-            if (.not. associated(lp%prev)) then
-               l%head => lp%next
-               if (.not. associated(l%head)) nullify(l%tail)
-               if (associated(lp%next)) nullify(lp%next%prev)
-               deallocate(lp)
-            else if (.not. associated(lp%next)) then
-               l%tail => lp%prev
-               if (.not. associated(l%tail)) nullify(l%head)
-               if (associated(lp%prev)) nullify(lp%prev%next)
-               deallocate(lp)
-            else
-               lp%prev%next => lp%next
-               lp%next%prev => lp%prev
-               deallocate(lp)
-            end if
-            l%l_len = l%l_len - 1
+               if (.not. associated(lp%prev)) then
+                  l%head => lp%next
+                  if (.not. associated(l%head)) nullify(l%tail)
+                  if (associated(lp%next)) nullify(lp%next%prev)
+                  deallocate(lp)
+               else if (.not. associated(lp%next)) then
+                  l%tail => lp%prev
+                  if (.not. associated(l%tail)) nullify(l%head)
+                  if (associated(lp%prev)) nullify(lp%prev%next)
+                  deallocate(lp)
+               else
+                  lp%prev%next => lp%next
+                  lp%next%prev => lp%prev
+                  deallocate(lp)
+               end if
+               l%l_len = l%l_len - 1
     
-            exit
+               exit
    
+            end if
+
+         else if (present(ckey)) then
+
+            if (lp%ckey == ckey) then
+
+               if (.not. associated(lp%prev)) then
+                  l%head => lp%next
+                  if (.not. associated(l%head)) nullify(l%tail)
+                  if (associated(lp%next)) nullify(lp%next%prev)
+                  deallocate(lp)
+               else if (.not. associated(lp%next)) then
+                  l%tail => lp%prev
+                  if (.not. associated(l%tail)) nullify(l%head)
+                  if (associated(lp%prev)) nullify(lp%prev%next)
+                  deallocate(lp)
+               else
+                  lp%prev%next => lp%next
+                  lp%next%prev => lp%prev
+                  deallocate(lp)
+               end if
+               l%l_len = l%l_len - 1
+    
+               exit
+   
+            end if
+         else
+            call mprintf(.true.,ERROR,'list_remove() called without proper arguments.')
          end if
+
          lp => lp%next
       end do
  
-   end subroutine i_list_remove
- 
- 
-   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
-   ! Name: list_remove
-   !
-   ! Purpose: Deletes the entry with key k from the list. If multiple entries 
-   !   have the specified key, only the first encountered entry is deleted.
-   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
-   subroutine c_list_remove(l, k)
-   
-      implicit none
-  
-      ! Arguments
-      character (len=128), intent(in) :: k
-      type (list), intent(inout) :: l
-  
-      ! Local variables
-      type (list_item), pointer :: lp 
-  
-      lp => l%head
-  
-      do while (associated(lp))
-         if (lp%ckey == k) then
-    
-            if (.not. associated(lp%prev)) then
-               l%head => lp%next
-               if (.not. associated(l%head)) nullify(l%tail)
-               if (associated(lp%next)) nullify(lp%next%prev)
-               deallocate(lp)
-            else if (.not. associated(lp%next)) then
-               l%tail => lp%prev
-               if (.not. associated(l%tail)) nullify(l%head)
-               if (associated(lp%prev)) nullify(lp%prev%next)
-               deallocate(lp)
-            else
-               lp%prev%next => lp%next
-               lp%next%prev => lp%prev
-               deallocate(lp)
-            end if
-            l%l_len = l%l_len - 1
-    
-            exit
-   
-         end if
-         lp => lp%next
-      end do
- 
-   end subroutine c_list_remove
+   end subroutine list_remove
  
  
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 

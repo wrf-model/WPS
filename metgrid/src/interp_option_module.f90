@@ -300,13 +300,13 @@ module interp_option_module
                          len_trim('flag_in_output') == len_trim(buffer(1:idx-1))) then
                         flag_string = ' '
                         flag_string(1:eos-idx-1) = buffer(idx+1:eos-1)
-                        if (c_list_search(flag_in_output_list, flag_string, flag_val)) then
+                        if (list_search(flag_in_output_list, ckey=flag_string, cvalue=flag_val)) then
                            call mprintf(.true.,WARN, 'In METGRID.TBL, %s is given as a flag more than once.', &
                                         s1=flag_string)
                         else
                            flag_in_output(i)(1:eos-idx-1) = buffer(idx+1:eos-1)
                            write(flag_val,'(i1)') 1
-                           call c_list_insert(flag_in_output_list, flag_string, flag_val)
+                           call list_insert(flag_in_output_list, ckey=flag_string, cvalue=flag_val)
                         end if
            
                      else if (index('fill_missing',trim(buffer(1:idx-1))) /= 0 .and. &
@@ -333,13 +333,13 @@ module interp_option_module
                         end if
                         write(fill_string,'(a)') trim(fill_string(ispace+1:128))
                         fill_string(128-ispace:128) = ' '
-                        if (c_list_search(fill_lev_list(i), lev_string, fill_string)) then
+                        if (list_search(fill_lev_list(i), ckey=lev_string, cvalue=fill_string)) then
                            call mprintf(.true.,WARN, &
                                         'In entry %i of METGRID.TBL, multiple fields are specified '// &
                                         'to fill level %s. %s will be used.', &
                                         i1=i, s1=trim(lev_string), s2=trim(fill_string))
                         else
-                           call c_list_insert(fill_lev_list(i), lev_string, fill_string)
+                           call list_insert(fill_lev_list(i), ckey=lev_string, cvalue=fill_string)
                         end if
        
                      else

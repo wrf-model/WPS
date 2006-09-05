@@ -310,13 +310,13 @@ module source_data_module
                      res_string = 'default'
                   end if
                   write(interp_string,'(a)') trim(interp_string(ispace+1:128))
-                  if (c_list_search(source_interp_option(i), res_string, interp_string)) then
+                  if (list_search(source_interp_option(i), ckey=res_string, cvalue=interp_string)) then
                      call mprintf(.true., WARN, &
                                   'In GEOGRID.TBL entry %i, multiple interpolation methods are '// &
                                   'given for resolution %s. %s will be used.', &
                                   i1=i, s1=trim(res_string), s2=trim(interp_string))
                   else
-                     call c_list_insert(source_interp_option(i), res_string, interp_string)
+                     call list_insert(source_interp_option(i), ckey=res_string, cvalue=interp_string)
                   end if
      
                else if (index('smooth_option',trim(buffer(1:idx-1))) /= 0) then
@@ -352,13 +352,13 @@ module source_data_module
                      res_string = 'default'
                   end if
                   write(path_string,'(a)') trim(geog_data_path)//trim(path_string(ispace+1:128))
-                  if (c_list_search(source_res_path(i), res_string, path_string)) then
+                  if (list_search(source_res_path(i), ckey=res_string, cvalue=path_string)) then
                      call mprintf(.true., WARN, &
                                   'In GEOGRID.TBL entry %i, multiple paths are given for '// &
                                   'resolution %s. %s will be used.', &
                                   i1=i, s1=trim(res_string), s2=trim(path_string))
                   else
-                     call c_list_insert(source_res_path(i), res_string, path_string)
+                     call list_insert(source_res_path(i), ckey=res_string, cvalue=path_string)
                   end if
      
                else if (index('abs_path',trim(buffer(1:idx-1))) /= 0) then
@@ -377,13 +377,13 @@ module source_data_module
                      res_string = 'default'
                   end if
                   write(path_string,'(a)') trim(path_string(ispace+1:128))
-                  if (c_list_search(source_res_path(i), res_string, path_string)) then
+                  if (list_search(source_res_path(i), ckey=res_string, cvalue=path_string)) then
                      call mprintf(.true., WARN, &
                                   'In GEOGRID.TBL entry %i, multiple paths are given for '// &
                                   'resolution %s. %s will be used.', &
                                   i1=i, s1=trim(res_string), s2=trim(path_string))
                   else
-                     call c_list_insert(source_res_path(i), res_string, path_string)
+                     call list_insert(source_res_path(i), ckey=res_string, cvalue=path_string)
                   end if
     
                else if (index('output_stagger',trim(buffer(1:idx-1))) /= 0) then
@@ -564,12 +564,12 @@ module source_data_module
          is_signed(idx) = .false.
          is_missing_value(idx) = .false.
    
-         if (.not. c_list_search(source_interp_option(idx), res_string, source_interp_string(idx))) then
+         if (.not. list_search(source_interp_option(idx), ckey=res_string, cvalue=source_interp_string(idx))) then
             call mprintf(.true., INFORM, 'For %s, couldn''t find interpolator sequence for '// &
                          'resolution %s. Trying default.', &
                          s1=trim(source_fieldname(idx)), s2=trim(res_string))
             temp_str = 'default'
-            if (c_list_search(source_interp_option(idx), temp_str, source_interp_string(idx))) then
+            if (list_search(source_interp_option(idx), ckey=temp_str, cvalue=source_interp_string(idx))) then
                call mprintf(.true., INFORM, 'Using default interpolator sequence for %s.', &
                             s1=trim(source_fieldname(idx)))
             else
@@ -579,11 +579,11 @@ module source_data_module
             end if
          end if
    
-         if (.not. c_list_search(source_res_path(idx), res_string, source_path(idx))) then
+         if (.not. list_search(source_res_path(idx), ckey=res_string, cvalue=source_path(idx))) then
             call mprintf(.true., INFORM, 'For %s, couldn''t find %s source. Trying '// &
                          'default.', s1=trim(source_fieldname(idx)), s2=trim(res_string))
             temp_str = 'default'
-            if (c_list_search(source_res_path(idx), temp_str, source_path(idx))) then
+            if (list_search(source_res_path(idx), ckey=temp_str, cvalue=source_path(idx))) then
                call mprintf(.true., INFORM, 'Using default data source for %s.', &
                             s1=trim(source_fieldname(idx)))
             else

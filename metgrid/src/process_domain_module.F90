@@ -1366,9 +1366,9 @@ module process_domain_module
          do j=1,size(field_levels)
    
             ! If this level has not yet been encountered, add it to our list
-            if (.not. i_list_search(temp_levels, field_levels(j), field_levels(j))) then
+            if (.not. list_search(temp_levels, ikey=field_levels(j), ivalue=field_levels(j))) then
                if (field_levels(j) /= 201300) then
-                  call i_list_insert(temp_levels, field_levels(j), field_levels(j))
+                  call list_insert(temp_levels, ikey=field_levels(j), ivalue=field_levels(j))
                end if
             end if
    
@@ -1439,9 +1439,9 @@ module process_domain_module
          do j=1,size(field_levels)
    
             ! If this level has not yet been encountered, add it to our list
-            if (.not. i_list_search(temp_levels, field_levels(j), field_levels(j))) then
+            if (.not. list_search(temp_levels, ikey=field_levels(j), ivalue=field_levels(j))) then
                if (field_levels(j) /= 201300) then
-                  call i_list_insert(temp_levels, field_levels(j), field_levels(j))
+                  call list_insert(temp_levels, ikey=field_levels(j), ivalue=field_levels(j))
                end if
             end if
    
@@ -1463,7 +1463,7 @@ module process_domain_module
          allocate(union_levels(list_length(temp_levels)))
          do while (list_length(temp_levels) > 0)
             i = i + 1
-            call i_list_get_first_item(temp_levels, union_levels(i), temp)     
+            call list_get_first_item(temp_levels, ikey=union_levels(i), ivalue=temp)     
          end do
          call mergesort(union_levels, 1, size(union_levels))
 
@@ -1519,11 +1519,11 @@ module process_domain_module
                call despace(clevel)
 
                ! First check if this level was specified explicitly to be filled from another field
-               if (.not.c_list_search(fill_lev_list(ii), clevel, fill_field)) then
+               if (.not.list_search(fill_lev_list(ii), ckey=clevel, cvalue=fill_field)) then
                  
                   ! Otherwise, check if we just copy the corresponding level from another field 
                   write(clevel,'(a)') 'all'
-                  if (.not.c_list_search(fill_lev_list(ii), clevel, fill_field)) then
+                  if (.not.list_search(fill_lev_list(ii), ckey=clevel, cvalue=fill_field)) then
                      fill_field = ' '
                   else
                      if (index(fill_field,'const') == 0) call get_fill_src_level(fill_field, fill_src, fill_src_level)
@@ -1721,9 +1721,9 @@ module process_domain_module
          do j=1,size(field_levels)
    
             ! If this level has not yet been encountered, add it to our list
-            if (.not. i_list_search(temp_levels, field_levels(j), field_levels(j))) then
+            if (.not. list_search(temp_levels, ikey=field_levels(j), ivalue=field_levels(j))) then
                if (field_levels(j) /= 201300) then
-                  call i_list_insert(temp_levels, field_levels(j), field_levels(j))
+                  call list_insert(temp_levels, ikey=field_levels(j), ivalue=field_levels(j))
                end if
             end if
    
@@ -1743,7 +1743,7 @@ module process_domain_module
          allocate(union_levels(list_length(temp_levels)))
          do while (list_length(temp_levels) > 0)
             i = i + 1
-            call i_list_get_first_item(temp_levels, union_levels(i), temp)     
+            call list_get_first_item(temp_levels, ikey=union_levels(i), ivalue=temp)     
          end do
          call mergesort(union_levels, 1, size(union_levels))
    
@@ -1789,11 +1789,11 @@ module process_domain_module
                         call despace(clevel)
 
                         ! First check whether user has explicitly named this level to be filled
-                        if (.not.c_list_search(fill_lev_list(ii), clevel, fill_field)) then
+                        if (.not.list_search(fill_lev_list(ii), ckey=clevel, cvalue=fill_field)) then
 
                            ! Otherwise, check whether user has given a field to copy missing levels from 
                            write(clevel,'(a)') 'all'
-                           if (.not.c_list_search(fill_lev_list(ii), clevel, fill_field)) then
+                           if (.not.list_search(fill_lev_list(ii), ckey=clevel, cvalue=fill_field)) then
                               fill_field = ' '
                            else
                               if (index(fill_field,'const') == 0) call get_fill_src_level(fill_field, fill_src, fill_src_level)
