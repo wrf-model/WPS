@@ -51,29 +51,28 @@ g2print.exe:		gridinfo.o g2print.o
 				$(COMPRESSION_LIBS)
 
 g2print.o:		table.o gridinfo.o new_storage.o filelist.o module_datarray.o \
-				ngl/g2/gribmod.o ngl/g2/params.o
+				ngl/g2/gribmod.o ngl/g2/params.o g2print.F90
 			$(CPP) $(CPPFLAGS) $*.F90 > $*.f
 			$(FC) -c $(FFLAGS) $*.f -I. -I./ngl/g2
 			$(RM) $*.f
 
-rd_grib2.o:		ngl/g2/gribmod.o table.o gridinfo.o ngl/g2/params.o new_storage.o
+rd_grib2.o:		ngl/g2/gribmod.o table.o gridinfo.o ngl/g2/params.o new_storage.o \
+				rd_grib2.F90
 			$(CPP) $(CPPFLAGS) $*.F90 > $*.f
 			$(FC) -c $(F77FLAGS) $*.f -I. -I./ngl/g2
 			$(RM) $*.f
 
-datint.o:		gridinfo.o new_storage.o
+datint.o:		gridinfo.o new_storage.o datint.F90
 
-gribcode.o:		gribcode.o
+new_storage.o:		gridinfo.o new_storage.F90
 
-new_storage.o:		gridinfo.o
+output.o:		table.o gridinfo.o new_storage.o filelist.o output.F90
 
-output.o:		table.o gridinfo.o new_storage.o filelist.o
+parse_table.o:		table.o parse_table.F90
 
-parse_table.o:		table.o
+rd_grib1.o:		table.o gridinfo.o module_datarray.o rd_grib1.F90
 
-rd_grib1.o:		table.o gridinfo.o module_datarray.o
-
-rrpr.o:			filelist.o gridinfo.o table.o new_storage.o
+rrpr.o:			filelist.o gridinfo.o table.o new_storage.o rrpr.F90
 
 .F90.o:
 			$(CPP) $(CPPFLAGS) $(FDEFS) $< > $*.f
