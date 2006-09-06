@@ -1,0 +1,93 @@
+Version - prerelease
+
+The WRF Pre-Processing System (WPS) is a collection
+of Fortran and C programs that provide data which is
+input to the real.exe program.  There are three main
+programs and a number of auxillary programs that
+are part of WPS.  Both the ARW and NMM dynamical cores
+in WRF are supported by WPS.
+
+
+Main programs: geogrid.exe, ungrib.exe, metgrid.exe
+
+Input to the main programs is through the namelist
+file "namelist.wps".  Each main program has an 
+exclusive namelist record (named "geogrid", "ungrib",
+or "metgrid", respectively), and the three programs 
+have a group record (named "share") that each program
+reads.
+
+geogrid
+-------
+1) Defines the model horizontal domain
+2) Horizontally interpolates static data to the model
+domain
+3) Output conforms to the WRF IO API
+
+ungrib
+------
+1) Decodes Grib Edition 1 and 2 data
+2) Uses tables to decide which variables to extract
+3) Isobaric and generalized vertical coordinates
+4) Output is in non WRF-API form, referred to as an
+   intermediate format
+
+metgrid
+-------
+1) Ingest static data and raw met fields
+2) Horizontally interpolate met fields to the model
+   domain
+3) Output conforms to WRF IO API
+
+
+
+
+PARALLELISM
+
+The geogrid and metgrid programs may be run as
+distributed memory parallel jobs to reduce the 
+time-to-solution.  These two programs use MPI calls
+directly, compared to WRF which has an abstraction
+layer (RSL or RSL_LITE).
+
+
+
+
+GRIB Edition 2
+
+The Grib Edition 2 compression requires three libraries
+external to the WPS source code: zlib, png, and jasper.
+It is recommended that users request support from their
+system administrators when installing these packages.
+Users can compile the code without these libraries by 
+not selecting the GRIB2 options in the build.
+
+
+
+Building WPS
+
+Similar to the WRF package, WPS uses a two-step:
+./configure
+./compile
+build mechanism, which directs the unix make underneath.
+If the user is on a recognized architecture, the
+configure script will display a list of available
+compile options (usually serial vs parallel, Grib 2
+enabled vs a "no Grib 2" option).  For some OS options,
+there are multiple compilers that are supported.
+Please see the web page for build the WPS executables
+on the http://www.mmm.ucar.edu/people/duda/files/wps.html 
+page.
+
+
+
+
+STATIC INPUT DATA
+
+The static input data is provided for users in a large
+tar file (250 MB to 350 MB, depending on whether bzip2
+or gzip files are selected).  This data may be downloaded 
+from the http://www.mmm.ucar.edu/people/duda/files/wps.html
+site.
+
+
