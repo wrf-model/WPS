@@ -8,6 +8,8 @@
  debug_level = 0
 /
  opt_output_from_geogrid_path = './',
+ start_date = '2000-01-24_12:00:00','2000-01-24_12:00:00',
+ end_date   = '2000-01-25_12:00:00','2000-01-24_12:00:00',
 
 &geogrid
  parent_id =           1, 1,
@@ -27,11 +29,13 @@
  truelat1  =  30.0,
  truelat2  =  60.0,
  stand_lon = -98.
- geog_data_path = '/standalone/users/gill/DATA/WPS_GEOG'
+ geog_data_path = '/data3a/mp/gill/DATA/GEOG'
 /
  ref_x     = 50.,
  ref_y     = 40.,
  opt_geogrid_tbl_path = 'geogrid/'
+ geog_data_path = '/mmm/users/gill/DATA/GEOG'
+ geog_data_path = '/standalone/users/gill/DATA/GEOG'
 
 &ungrib
  out_format = 'SI'
@@ -45,3 +49,17 @@
  opt_metgrid_tbl_path         = 'metgrid/',
  opt_ignore_dom_center        = .false.
  constants_name = './TAVGSFC'
+
+&mod_levs
+ press_pa = 201300 , 200100 , 100000 , 
+             95000 ,  90000 , 
+             85000 ,  80000 , 
+             75000 ,  70000 , 
+             65000 ,  60000 , 
+             55000 ,  50000 , 
+             45000 ,  40000 , 
+             35000 ,  30000 , 
+             25000 ,  20000 , 
+             15000 ,  10000 , 
+              5000 ,   1000
+/
