@@ -36,6 +36,7 @@
  opt_geogrid_tbl_path = 'geogrid/'
  geog_data_path = '/mmm/users/gill/DATA/GEOG'
  geog_data_path = '/standalone/users/gill/DATA/GEOG'
+ geog_data_path = '/bouleau2/duda/geog'
 
 &ungrib
  out_format = 'SI'
