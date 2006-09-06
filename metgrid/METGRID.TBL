@@ -4,7 +4,7 @@ name=P
         derived=yes
         fill_lev=all:PRESSURE
         fill_lev=200100:PSFC(200100)
-        fill_lev=all:vertical_index; level_template=T
+        fill_lev=all:vertical_index; level_template=TT
 ========================================
 name=LANDSEA 
         interp_option=nearest_neighbor

@@ -52,7 +52,7 @@ module write_met_module
    subroutine write_next_met_field(version, field, hdate, xfcst, xlvl, units, desc, &
                           iproj, startlat, startlon, starti, startj, deltalat, &
                           deltalon, dx, dy, xlonc, truelat1, truelat2, nx, ny, map_source, &
-                          slab, is_rotated_windfield, istatus)
+                          slab, is_wind_earth_rel, istatus)
  
       implicit none
   
@@ -62,7 +62,7 @@ module write_met_module
       real, intent(in) :: xfcst, xlvl, startlat, startlon, starti, startj, &
                            deltalat, deltalon, dx, dy, xlonc, truelat1, truelat2
       real, dimension(nx,ny) :: slab
-      logical, intent(in) :: is_rotated_windfield
+      logical, intent(in) :: is_wind_earth_rel
       character (len=9), intent(in) :: field
       character (len=24), intent(in) :: hdate
       character (len=25), intent(in) :: units
@@ -123,6 +123,11 @@ module write_met_module
             write(unit=output_unit) hdate, xfcst, map_source, field, units, desc, xlvl, nx, ny, 0
             write(unit=output_unit) startloc, startlat, startlon, deltalat, deltalon
 
+         ! Mercator
+         else if (iproj == PROJ_MERC) then
+            write(unit=output_unit) hdate, xfcst, map_source, field, units, desc, xlvl, nx, ny, 1
+            write(unit=output_unit) startloc, startlat, startlon, dx, dy, truelat1
+
          ! Lambert conformal
          else if (iproj == PROJ_LC) then
             write(unit=output_unit) hdate, xfcst, map_source, field, units, desc, xlvl, nx, ny, 3
@@ -156,6 +161,11 @@ module write_met_module
             write(unit=output_unit) hdate, xfcst, map_source, field, units, desc, xlvl, nx, ny, 0
             write(unit=output_unit) startloc, startlat, startlon, deltalat, deltalon
 
+         ! Mercator
+         else if (iproj == PROJ_MERC) then
+            write(unit=output_unit) hdate, xfcst, map_source, field, units, desc, xlvl, nx, ny, 1
+            write(unit=output_unit) startloc, startlat, startlon, dx, dy, truelat1
+
          ! Lambert conformal
          else if (iproj == PROJ_LC) then
             write(unit=output_unit) hdate, xfcst, map_source, field, units, desc, xlvl, nx, ny, 3
@@ -171,6 +181,8 @@ module write_met_module
      
          end if
   
+         write(unit=output_unit) is_wind_earth_rel
+
          write(unit=output_unit) slab
       
          istatus = 0

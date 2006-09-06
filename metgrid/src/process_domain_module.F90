@@ -382,7 +382,7 @@ module process_domain_module
              field%header%dim1(2) = ep1 + HALO_WIDTH*rh_mult
              field%header%dim2(1) = sp2 - HALO_WIDTH*bh_mult
              field%header%dim2(2) = ep2 + HALO_WIDTH*th_mult
-             field%header%winds_rotated_on_input = .false.
+             field%header%is_wind_earth_rel = .false.
              field%header%array_has_missing_values = .false.
              if (gridtype == 'C') then
                 if (trim(stagger) == 'M') then
@@ -491,7 +491,7 @@ module process_domain_module
       real :: rx, ry, xfcst, xlvl, startlat, startlon, starti, startj, deltalat, deltalon
       real :: threshold, met_dx, met_dy
       real :: met_cen_lon, met_truelat1, met_truelat2
-      logical :: is_rotated, do_gcell_interp
+      logical :: is_wind_earth_rel, do_gcell_interp
       integer, pointer, dimension(:) :: u_levels, v_levels
       real, pointer, dimension(:,:) :: slab, data_count
       real, pointer, dimension(:,:,:) :: real_array
@@ -536,7 +536,7 @@ module process_domain_module
                call read_next_met_field(version, short_fieldnm, hdate, xfcst, xlvl, units, desc, &
                                    met_map_proj, startlat, startlon, starti, startj, deltalat, &
                                    deltalon, met_dx, met_dy, met_cen_lon, met_truelat1, met_truelat2, nx, ny, &
-                                   map_src, slab, is_rotated, istatus)
+                                   map_src, slab, is_wind_earth_rel, istatus)
       
                if (istatus == 0) then
                   call mprintf(.true.,LOGFILE,'Processing %s at level %f.',s1=short_fieldnm,f1=xlvl)               
@@ -564,7 +564,7 @@ module process_domain_module
                   call get_z_dim_name(short_fieldnm,field%header%vertical_coord)
                   field%header%vertical_level = nint(xlvl) 
                   field%header%array_order = 'XY ' 
-                  field%header%winds_rotated_on_input = is_rotated 
+                  field%header%is_wind_earth_rel = is_wind_earth_rel 
                   field%header%array_has_missing_values = .false.
                   nullify(field%r_arr)
                   nullify(field%valid_mask)
@@ -776,7 +776,7 @@ module process_domain_module
      
 ! BUG: Need to consider that E grid doesn't have u_s and u_e, since no U staggering.
 ! BUG: Perhaps we need entirely separate map rotation routines for E staggering, where U and V are colocated.
-                     if (.not. u_field%header%winds_rotated_on_input) then
+                     if (.not. u_field%header%is_wind_earth_rel) then
                         if (gridtype == 'C') then
                            call map_to_met(u_field%r_arr, u_field%modified_mask, &
                                            v_field%r_arr, v_field%modified_mask, &
@@ -955,7 +955,7 @@ module process_domain_module
       real :: xfcst, xlvl, startlat, startlon, starti, startj, &
               deltalat, deltalon, dx, dy, xlonc, truelat1, truelat2
       real, pointer, dimension(:,:) :: slab
-      logical :: is_rotated_windfield
+      logical :: is_wind_earth_rel
       character (len=9) :: field
       character (len=24) :: hdate
       character (len=25) :: units
@@ -972,7 +972,7 @@ module process_domain_module
          call read_next_met_field(version, field, hdate, xfcst, xlvl, units, desc, &
                              iproj, startlat, startlon, starti, startj, deltalat, &
                              deltalon, dx, dy, xlonc, truelat1, truelat2, nx, ny, map_source, &
-                             slab, is_rotated_windfield, istatus)
+                             slab, is_wind_earth_rel, istatus)
 
          if (istatus == 0) then
 
@@ -1000,7 +1000,7 @@ module process_domain_module
                   mask_field%header%dim1(2) = nx
                   mask_field%header%dim2(1) = 1
                   mask_field%header%dim2(2) = ny
-                  mask_field%header%winds_rotated_on_input = .false.
+                  mask_field%header%is_wind_earth_rel = .false.
                   mask_field%header%array_has_missing_values = .false.
                   mask_field%map%stagger = M
                   allocate(mask_field%r_arr(1:nx,1:ny))
@@ -1338,6 +1338,7 @@ module process_domain_module
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
    subroutine get_bottom_top_dim(bottom_top_dim)
 
+      use interp_option_module
       use list_module
       use storage_module
 
@@ -1349,6 +1350,7 @@ module process_domain_module
       ! Local variables
       integer :: i, j
       integer, pointer, dimension(:) :: field_levels
+      character (len=32) :: z_dim
       type (fg_input), pointer, dimension(:) :: headers
       type (list) :: temp_levels
    
@@ -1364,21 +1366,27 @@ module process_domain_module
       !    for 3-d met fields (excluding sea-level, though).
       !
       do i=1,size(headers)
+         call get_z_dim_name(headers%header%field, z_dim)
    
-         ! Find out what levels the current field has
-         call storage_get_levels(headers(i), field_levels)
-         do j=1,size(field_levels)
+         ! We only want to consider 3-d met fields
+         if (z_dim(1:18) == 'num_metgrid_levels') then
+
+            ! Find out what levels the current field has
+            call storage_get_levels(headers(i), field_levels)
+            do j=1,size(field_levels)
    
-            ! If this level has not yet been encountered, add it to our list
-            if (.not. list_search(temp_levels, ikey=field_levels(j), ivalue=field_levels(j))) then
-               if (field_levels(j) /= 201300) then
-                  call list_insert(temp_levels, ikey=field_levels(j), ivalue=field_levels(j))
+               ! If this level has not yet been encountered, add it to our list
+               if (.not. list_search(temp_levels, ikey=field_levels(j), ivalue=field_levels(j))) then
+                  if (field_levels(j) /= 201300) then
+                     call list_insert(temp_levels, ikey=field_levels(j), ivalue=field_levels(j))
+                  end if
                end if
-            end if
    
-         end do
+            end do
    
-         deallocate(field_levels)
+            deallocate(field_levels)
+
+         end if
    
       end do
 
@@ -1765,7 +1773,7 @@ module process_domain_module
       field%header%description = ' '
       field%header%vertical_level = 0
       field%header%array_order = 'XY ' 
-      field%header%winds_rotated_on_input = .true.
+      field%header%is_wind_earth_rel = .true.
       field%header%array_has_missing_values = .false.
       nullify(field%r_arr)
       nullify(field%valid_mask)

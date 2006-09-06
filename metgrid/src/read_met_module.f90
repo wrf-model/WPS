@@ -52,7 +52,7 @@ module read_met_module
    subroutine read_next_met_field(version, field, hdate, xfcst, xlvl, units, desc, &
                           iproj, startlat, startlon, starti, startj, deltalat, &
                           deltalon, dx, dy, xlonc, truelat1, truelat2, nx, ny, map_source, &
-                          slab, is_rotated_windfield, istatus)
+                          slab, is_wind_earth_rel, istatus)
  
       implicit none
   
@@ -61,7 +61,7 @@ module read_met_module
       real, intent(out) :: xfcst, xlvl, startlat, startlon, starti, startj, &
                            deltalat, deltalon, dx, dy, xlonc, truelat1, truelat2
       real, pointer, dimension(:,:) :: slab
-      logical, intent(out) :: is_rotated_windfield
+      logical, intent(out) :: is_wind_earth_rel
       character (len=9), intent(out) :: field
       character (len=24), intent(out) :: hdate
       character (len=25), intent(out) :: units
@@ -119,7 +119,7 @@ module read_met_module
          dx = dx * 1000.
          dy = dy * 1000.
      
-         is_rotated_windfield = .false.
+         is_wind_earth_rel = .false.
      
          allocate(slab(nx, ny))
          read(unit=input_unit,err=1001,end=1001) slab
@@ -138,6 +138,11 @@ module read_met_module
          if (iproj == 0) then
             iproj = PROJ_LATLON
             read(unit=input_unit,err=1001,end=1001) startloc, startlat, startlon, deltalat, deltalon
+
+         ! Mercator
+         else if (iproj == 1) then
+            iproj = PROJ_MERC
+            read(unit=input_unit,err=1001,end=1001) startloc, startlat, startlon, dx, dy, truelat1
 
          ! Lambert conformal
          else if (iproj == 3) then
@@ -168,7 +173,7 @@ module read_met_module
          if (xlonc > 180.) xlonc = xlonc - 360.
          if (startlon > 180.) startlon = startlon - 360.
          
-         is_rotated_windfield = .false.
+         is_wind_earth_rel = .false.
   
          if (startlat < -90.) startlat = -90.
          if (startlat > 90.) startlat = 90.
@@ -191,6 +196,11 @@ module read_met_module
             iproj = PROJ_LATLON
             read(unit=input_unit,err=1001,end=1001) startloc, startlat, startlon, deltalat, deltalon
 
+         ! Mercator
+         else if (iproj == 1) then
+            iproj = PROJ_MERC
+            read(unit=input_unit,err=1001,end=1001) startloc, startlat, startlon, dx, dy, truelat1
+
          ! Lambert conformal
          else if (iproj == 3) then
             iproj = PROJ_LC
@@ -220,10 +230,10 @@ module read_met_module
          if (xlonc > 180.) xlonc = xlonc - 360.
          if (startlon > 180.) startlon = startlon - 360.
          
-         is_rotated_windfield = .false.
-  
          if (startlat < -90.) startlat = -90.
          if (startlat > 90.) startlat = 90.
+ 
+         read(unit=input_unit,err=1001,end=1001) is_wind_earth_rel
       
          allocate(slab(nx, ny))
          read(unit=input_unit,err=1001,end=1001) slab
