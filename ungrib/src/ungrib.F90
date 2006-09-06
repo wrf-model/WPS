@@ -372,7 +372,8 @@ program ungrib
 ! And Now we are done:
 
    print*,'!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
-   print*,'!  Successful completion of ungrib.   !'
+!  print*,'!  Successful completion of ungrib.   !'
+   print*,"!  We're hauling gear at Bandimere.   !"
    print*,'!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
 
 

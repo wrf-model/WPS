@@ -433,7 +433,7 @@ end program g2print
              elseif (iprocess.eq.109) then
                map%source = 'NCEP RTMA'
              elseif (iprocess.eq.140) then
-               map%source = 'NARR'
+               map%source = 'NCEP NARR'
              else
                map%source = 'unknown model from NCEP'
                write (6,*) 'unknown NCEP model, iprocess = ',iprocess

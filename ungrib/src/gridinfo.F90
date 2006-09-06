@@ -27,6 +27,12 @@ module gridinfo
      real :: lon1      ! Starting longitude
      real :: dx        ! grid-spacing in the X direction (km or degrees)
      real :: dy        ! grid-spacing in the Y direction (km or degrees)
+                       ! 
+		       ! The following are WPS extensions (intermediate format version 5)
+     integer :: num_ints = 1
+     integer :: grid_wind     ! Winds are grid_relative (=1) or earth-realtive(=0)
+     integer :: num_real = 0
+     integer :: num_char = 0
   end type mapinfo
 
   type (mapinfo) :: map

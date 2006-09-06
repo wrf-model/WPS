@@ -227,7 +227,7 @@ C  SET ARGUMENTS
              elseif (iprocess.eq.105) then
                map%source = 'NCEP RUC Model'
              elseif (iprocess.eq.140) then
-               map%source = 'NARR'
+               map%source = 'NCEP NARR'
              else
                map%source = 'unknown model from NCEP'
 	       write (6,*) 'iprocess = ',iprocess
@@ -252,6 +252,8 @@ C  SET ARGUMENTS
               map%dy = gfld%igdtmpl(18)
               map%lat1 = gfld%igdtmpl(12)
               map%lon1 = gfld%igdtmpl(13)
+              write(tmp8,'(b8.8)') gfld%igdtmpl(14)
+              read(tmp8,'(4x,i1)') map%grid_wind
 
               ! Scale dx/dy values to degrees, default range is 1e6.
               if (map%dx.gt.10000) then 
@@ -269,12 +271,32 @@ C  SET ARGUMENTS
                  map%lon1 = map%lon1/scale_factor
               endif
 
-	      ! the following is needed for NCEP GFS, 0.5 degree output
-	      if ( map%lat1 .gt. gfld%igdtmpl(15) .and. 
-     &               map%dy .gt. 0. ) then
-                map%dy = -1. * map%dy
-                write(6,*) 'Resetting map%dy for iprocess = ',iprocess
-              endif
+! The following is needed for NCEP GFS, 0.5 degree output. The j-scan is in the -y direction.
+! In WPS, the sign of dy indicates the direction of the scan.
+	      write(tmp8,'(b8.8)') gfld%igdtmpl(19)
+	      read(tmp8,'(1x,i1)') jscan
+              if ( jscan .eq. 0 .and. map%dy .gt. 0. ) then
+	        map%dy = -1. * map%dy
+	      endif
+!             if ( map%lat1 .gt. gfld%igdtmpl(15) .and. 
+!    &               map%dy .gt. 0. ) then
+!               map%dy = -1. * map%dy
+!               write(6,*) 'Resetting map%dy for iprocess = ',iprocess
+!             endif
+
+           elseif (gfld%igdtnum.eq.20) then ! Polar-Stereographic Grid.
+              map%igrid = 5
+              map%nx = gfld%igdtmpl(8)
+              map%ny = gfld%igdtmpl(9)
+              map%lov = gfld%igdtmpl(14) / scale_factor
+              map%truelat1 = 60.
+              map%truelat2 = 91.
+              map%dx = gfld%igdtmpl(15) / scale_factor
+              map%dy = gfld%igdtmpl(16) / scale_factor
+              map%lat1 = gfld%igdtmpl(10) / scale_factor
+              map%lon1 = gfld%igdtmpl(11) / scale_factor
+              write(tmp8,'(b8.8)') gfld%igdtmpl(12)
+              read(tmp8,'(4x,i1)') map%grid_wind
 
            elseif (gfld%igdtnum.eq.30) then ! Lambert Conformal Grid
               map%igrid = 3
@@ -287,15 +309,19 @@ C  SET ARGUMENTS
               map%dy = gfld%igdtmpl(16) / scale_factor
               map%lat1 = gfld%igdtmpl(10) / scale_factor
               map%lon1 = gfld%igdtmpl(11) / scale_factor
+              write(tmp8,'(b8.8)') gfld%igdtmpl(12)
+              read(tmp8,'(4x,i1)') map%grid_wind
 
            elseif(gfld%igdtnum.eq.40) then ! Gaussian Grid (we will call it lat/lon)
               map%igrid = 0
-              map%nx = gfld%igdtmpl(8)
-              map%ny = gfld%igdtmpl(9)
-              map%dx = gfld%igdtmpl(17)
-              map%dy = gfld%igdtmpl(18) ! ?not in Grid Definition Template 3.40 doc
-              map%lat1 = gfld%igdtmpl(12)
-              map%lon1 = gfld%igdtmpl(13)
+              map%nx = gfld%igdtmpl(8)     ! Ni - # of points along a parallel
+              map%ny = gfld%igdtmpl(9)     ! Nj - # of points along meridian
+              map%dx = gfld%igdtmpl(17)    ! Di - i direction increment
+              map%dy = gfld%igdtmpl(18)    ! N - # of parallels between pole and equator
+              map%lat1 = gfld%igdtmpl(12)  ! La1 - lat of 1st grid point
+              map%lon1 = gfld%igdtmpl(13)  ! Lo1 - lon of 1st grid point
+              write(tmp8,'(b8.8)') gfld%igdtmpl(14)
+              read(tmp8,'(4x,i1)') map%grid_wind   ! resolution/component flag
 
               ! Scale dx/dy values to degrees, default range is 1e6.
               if (map%dx.gt.10000) then 
@@ -317,23 +343,14 @@ C  SET ARGUMENTS
      &       map%lat1,map%lon1
               end if
 
-           elseif (gfld%igdtnum.eq.20) then ! Polar-Stereographic Grid.
-              map%igrid = 5
-              map%nx = gfld%igdtmpl(8)
-              map%ny = gfld%igdtmpl(9)
-              map%lov = gfld%igdtmpl(14) / scale_factor
-              map%truelat1 = 60.
-              map%truelat2 = 91.
-              map%dx = gfld%igdtmpl(15) / scale_factor
-              map%dy = gfld%igdtmpl(16) / scale_factor
-              map%lat1 = gfld%igdtmpl(10) / scale_factor
-              map%lon1 = gfld%igdtmpl(11) / scale_factor
-
            else
               print*, 'GRIB2 Unknown Projection: ',gfld%igdtnum
               print*, 'see Code Table 3.1: Grid Definition Template No'
            endif
          
+	   if (icenter.eq.7) then
+	     call ncep_grid_num (gfld%igdtnum)
+	   endif
          endif
 
          ! ----
@@ -712,3 +729,52 @@ C  SET ARGUMENTS
       call put_storage(iiplvl, 'RH', rh, ix, jx)
     
       end subroutine g2_compute_rh_spechumd_upa
+
+!*****************************************************************************!
+
+      subroutine ncep_grid_num (pnum)
+!
+!  Grib2 doesn't have a grid-number entry, so we have to figure it out
+!
+      use gridinfo       ! Included to define map%
+      integer :: pnum
+      real, parameter :: eps = .01
+      character (len=8) :: tmp8
+
+!     write(6,*) 'begin ncep_grid_num'
+!     write(6,*) 'dx = ',map%dx,' pnum = ',pnum,' nx = ',map%nx
+      tmp8 = '        '
+      if (pnum .eq. 30) then
+        if ( abs(map%dx - 12.19058) .lt. eps .and. map%nx .eq. 614) then
+	  write(tmp8,'("GRID 218")') 
+        else if (abs(map%dx - 40.63525) .lt. eps 
+     &     .and. map%nx .eq. 185) then
+	  write(tmp8,'("GRID 212")') 
+        else if (abs(map%dx - 40.63525) .lt. eps 
+     &     .and. map%nx .eq. 151) then
+	  write(tmp8,'("GRID 236")') 
+        else if (abs(map%dx - 81.2705) .lt. eps 
+     &     .and. map%nx .eq. 93) then
+	  write(tmp8,'("GRID 211")') 
+        else if (abs (map%dx - 32.46341) .lt. eps 
+     &     .and. map%nx .eq. 349) then
+	  write(tmp8,'("GRID 221")') 
+        else if (abs(map%dx - 20.317625) .lt. eps 
+     &     .and. map%nx .eq. 301) then
+	  write(tmp8,'("GRID 252")') 
+        endif
+      else if (pnum .eq. 20) then
+        if (abs(map%dx - 15.0) .lt. eps) then
+	  write(tmp8,'("GRID  88")') 
+	endif
+      else if (pnum .eq. 0) then
+	write(6,*) 'in pnum = 0'
+        if (abs(map%dx - 1.) .lt. eps .and. map%nx .eq. 360) then
+	  write(tmp8,'("GRID   3")') 
+        else if (abs(map%dx - 0.5) .lt. eps .and. map%nx .eq. 720) then
+	  write(tmp8,'("GRID   4")') 
+	endif
+      endif
+      map%source(25:32) = tmp8
+!     write(6,*) 'map%source = ',map%source
+      end subroutine ncep_grid_num

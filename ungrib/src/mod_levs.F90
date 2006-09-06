@@ -5,7 +5,7 @@
 
 !  NRCM helper, WPS toy code
 
-PROGRAM mod_levs
+PROGRAM mod_levs_prog
 
    IMPLICIT NONE
 
@@ -27,6 +27,7 @@ PROGRAM mod_levs
 
    INTEGER                           :: idim, jdim
    INTEGER                           :: llflag, ierr, iop
+   INTEGER                           :: grid_wind
 
    CHARACTER ( LEN =  8 )            :: map_start
    CHARACTER ( LEN = 32 )            :: source
@@ -40,7 +41,7 @@ PROGRAM mod_levs
    INTEGER                           :: l , max_pres_keep
    INTEGER , PARAMETER               :: num_pres_lev = 1000
    REAL, DIMENSION(num_pres_lev)     :: press_pa = -1.
-   NAMELIST /keep_press/ press_pa
+   NAMELIST /mod_levs/ press_pa
 
    INTEGER , EXTERNAL :: lenner
 
@@ -59,7 +60,7 @@ PROGRAM mod_levs
 
    !  Input the pressure levels requested.
 
-   READ ( 10 , keep_press ) 
+   READ ( 10 , mod_levs ) 
 
    CLOSE ( 10 ) 
 
@@ -233,6 +234,57 @@ print *,'blowing off level ',level,' Pa'
                STOP
          END SELECT
 
+      ELSE IF ( ifv .EQ. 5) THEN
+
+         READ ( 13 )  hdate, xfcst, source, field, units, desc, level,&
+              idim, jdim, llflag
+         
+         !  Is this a level that we want?
+
+         keep_this_one = .FALSE.
+         DO l = 1 , max_pres_keep
+            IF ( level .EQ. press_pa(l) ) THEN
+               keep_this_one = .TRUE.
+               EXIT
+            END IF
+         END DO 
+
+         IF ( keep_this_one ) THEN
+            WRITE ( 14 ) ifv
+            WRITE ( 14 ) hdate, xfcst, source, field, units, desc, level,&
+                         idim, jdim, llflag
+else
+print *,'blowing off level ',level,' Pa'
+         END IF
+
+         SELECT CASE ( llflag )
+            CASE (0)
+               READ ( 13 )  map_start, lat1, lon1, dy, dx
+               IF ( keep_this_one ) THEN
+                  WRITE ( 14 ) map_start, lat1, lon1, dy, dx
+               END IF
+            CASE (1)
+               READ ( 13 )  map_start, lat1, lon1, dy, dx, truelat1
+               IF ( keep_this_one ) THEN
+                  WRITE ( 14 ) map_start, lat1, lon1, dy, dx, truelat1
+               END IF
+            CASE (3)
+               READ ( 13 )  map_start, lat1, lon1, dx, dy, lov, truelat1, truelat2
+               IF ( keep_this_one ) THEN
+                  WRITE ( 14 ) map_start, lat1, lon1, dx, dy, lov, truelat1, truelat2
+               END IF
+            CASE (5)
+               READ ( 13 )  map_start, lat1, lon1, dx, dy, lov, truelat1
+               IF ( keep_this_one ) THEN
+                  WRITE ( 14 ) map_start, lat1, lon1, dx, dy, lov, truelat1
+               END IF
+            CASE default
+               print *, 'Unknown flag for ifv = ',ifv,', llflag = ', llflag
+               STOP
+         END SELECT
+	 READ ( 13 ) grid_wind
+	 WRITE ( 14 ) grid_wind
+
       ELSE
          print*, 'Unknown ifv: ', ifv
          STOP
@@ -264,7 +316,7 @@ print *,'blowing off level ',level,' Pa'
    print *,'SUCCESSFUL COMPLETION OF PROGRAM MOD_LEVS'
    STOP
 
-END PROGRAM mod_levs
+END PROGRAM mod_levs_prog
    
 INTEGER FUNCTION lenner ( string ) 
    CHARACTER ( LEN = 132 ) ::  string

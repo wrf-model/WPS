@@ -104,9 +104,10 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_level, out_f
   endif
 
   if ( debug_level .gt. 100 ) then
-  print*, 'nfiles = ', nfiles
-  print*, 'ntimes = ', ntimes
-  print*, 'filedates = ', (filedates(n), n = 1, nfiles)
+    print*, 'Begin rrpr'
+    print*, 'nfiles = ', nfiles
+    print*, 'ntimes = ', ntimes
+    print*, 'filedates = ', (filedates(n), n = 1, nfiles)
   end if
 
 ! Compute the ending time:
@@ -131,7 +132,9 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_level, out_f
        print*, filedates(n)(1:datelen)
        end if
        if (filedates(n)(1:datelen).ne.hdate(1:datelen)) cycle FILELOOP
-       print*, "Doing it: ", filedates(n)(1:datelen)
+       if (debug_level .gt. 50 ) then
+         print*, "RRPR Processing : ", filedates(n)(1:datelen)
+       endif
        open(iunit, file='PFILE:'//filedates(n)(1:datelen), &
           form='unformatted',status='old')
 
@@ -385,7 +388,7 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_level, out_f
               call get_dims(200100, 'TT')
               call compute_rh_spechumd(map%nx, map%ny)
               if ( debug_level .gt. 100 ) then
-      print *,' SURFACE RH is computed'
+                print *,' RRPR:   SURFACE RH is computed'
               end if
            elseif (is_there(200100, 'TT'       ).and. &
                 is_there(200100, 'DEWPT')) then
@@ -405,8 +408,8 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_level, out_f
            call make_zero_or_one(map%nx, map%ny)
         endif
 
-        if ( debug_level.gt.0 ) then
-        write(*, '("ooooo field = ", A19," ooooo",/)' ) hdate
+        if ( debug_level.gt.50 ) then
+        write(*, '("RRPR: hdate = ", A19," ",/)' ) hdate
         end if
         call output(hdate, nlvl, maxlvl, plvl, interval, 2, out_format, debug_level)
         call clear_storage

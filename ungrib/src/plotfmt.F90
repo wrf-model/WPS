@@ -26,7 +26,8 @@ program pltfmt
   integer :: idum, ifv, llflag, ilev, ierr
   real :: xfcst, dy, dx, lov, truelat1, truelat2, lon2
   character (len=8) :: startloc  ! "CENTER  " or "SWCORNER"
-  character (len=32) :: source
+  character (len=32) :: source="                                "
+  integer :: grid_wind
 
 !
 !   Set up the graceful stop (Sun, SGI, DEC).
@@ -66,7 +67,7 @@ program pltfmt
         read(13) lat1, lon1, deltalat, deltalon
         allocate(scr2d(idim,jdim))
         read(13) scr2d
-     elseif (ifv.eq.2) then
+     elseif (ifv.eq.2) then       
         read(13) hdate_output, xfcst, field2, units2, Desc2, level,&
              idim, jdim, llflag
         field = field2
@@ -87,7 +88,7 @@ program pltfmt
         end select
         allocate(scr2d(idim,jdim))
         read(13) scr2d
-     elseif (ifv.eq.3) then
+     elseif (ifv.eq.3) then        ! MM5
         read(13) hdate_output, xfcst, field, units, Desc, level,&
              idim, jdim, llflag
         hdate = hdate_output(1:19)
@@ -107,7 +108,7 @@ program pltfmt
         end select
         allocate(scr2d(idim,jdim))
         read(13) scr2d
-     elseif (ifv.eq.4) then
+     elseif (ifv.eq.4) then         ! SI
         read(13) hdate_output, xfcst, source, field, units, Desc, level,&
 	   idim, jdim, llflag
         hdate = hdate_output(1:19)
@@ -124,6 +125,24 @@ program pltfmt
         end select
         allocate(scr2d(idim,jdim))
         read(13) scr2d
+     elseif (ifv.eq.5) then         ! WPS
+        read(13) hdate_output, xfcst, source, field, units, Desc, level,&
+	   idim, jdim, llflag
+        hdate = hdate_output(1:19)
+        select case (llflag)
+        case (0)
+           read(13) startloc, lat1, lon1, dy, dx
+        case (3)
+           read(13) startloc, lat1, lon1, dx, dy, lov, truelat1, truelat2
+        case (5)
+           read(13) startloc, lat1, lon1, dx, dy, lov, truelat1
+        case default
+           print*, 'Unknown llflag: ', llflag
+           stop
+        end select
+	read(13) grid_wind
+        allocate(scr2d(idim,jdim))
+        read(13) scr2d
      else
         print*, 'Unknown ifv: ', ifv
          stop
@@ -133,7 +152,7 @@ program pltfmt
 
      call plt2d(scr2d, idim, jdim, llflag, &
           lat1, lon1, dx, dy, lov, lon2, truelat1, truelat2, &
-          field, ilev, units, desc) 
+          field, ilev, units, desc, source)
 
      deallocate(scr2d)
 
@@ -145,7 +164,7 @@ end program pltfmt
 
 subroutine plt2d(scr2d, ix, jx, llflag, &
      lat1, lon1, dx, dy, lov, lon2, truelat1, truelat2, &
-     field, ilev, units, Desc)
+     field, ilev, units, Desc, source)
   implicit none
   integer :: llflag
   integer :: ix, jx
@@ -155,6 +174,7 @@ subroutine plt2d(scr2d, ix, jx, llflag, &
   character(len=*) :: field
   character(len=*) ::  units
   character(len=*) :: Desc
+  character(len=*) :: source
   character(len=30) :: hunit
 
   integer :: iproj, ierr
@@ -236,7 +256,7 @@ subroutine plt2d(scr2d, ix, jx, llflag, &
   call set(0., 1., 0., 1., 0., 1., 0., 1., 1)
   call pchiqu(0.1, xb-0.04, hlev//'  '//field, .020, 0.0, -1.0)
   print*, field//'#'//units//'#'//trim(Desc)
-  call pchiqu(0.1, xb-0.12, Desc, .012, 0.0, -1.0)
+! call pchiqu(0.1, xb-0.12, Desc, .012, 0.0, -1.0)
   hunit = '                                      '
   ih = 0
   do i = 1, len(units)
@@ -253,6 +273,7 @@ subroutine plt2d(scr2d, ix, jx, llflag, &
   enddo
   call pchiqu(0.1, xb-0.08, hunit, .015, 0.0, -1.0)
   call pchiqu(0.1, xb-0.12, Desc, .012, 0.0, -1.0)
+  call pchiqu(0.6, xb-0.12, source, .012, 0.0, -1.0)
 
 
   call set(xl,xr,xb,xt,1.,float(ix),1.,float(jx),ml)

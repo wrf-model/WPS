@@ -321,10 +321,11 @@ contains
 
     else
        ! Grib2
-       write(*,'("You need Grib2 decoding software for Grib2 data.")')
-       write(*,'("cd SOURCE_ROOT/src/grib_prep")')
-       write(*,'("make -f Makefile.GRIB2")')
-       write(*,'("make install")')
+       write(*,'("I was expecting a Grib1 file, but this is a Grib2 file.")')
+       write(*,'("Most likely this is because your GRIBFILE.XXX files")')
+       write(*,'("are not all the same type.")')
+       write(*,'("WPS can handle both file types, but a separate ungrib")')
+       write(*,'("job must be run for each Grib type.")')
        write(*,'("\t*** stopping gribcode ***")')
        stop
     endif

@@ -211,6 +211,7 @@ subroutine output(hdate, nlvl, maxlvl, plvl, interval, iflag, out_format, debug_
                  write(*,'("Unrecognized map%igrid: ", I20)') map%igrid
                  stop
               endif
+	      write (iunit) map%grid_wind
               write (iunit) scr2d
 	    else if (out_format(1:2) .eq. 'MM') then
               if ( debug_level .gt. 100 ) then

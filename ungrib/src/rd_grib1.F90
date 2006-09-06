@@ -84,6 +84,7 @@ SUBROUTINE rd_grib1(IUNIT, gribflnm, level, field, hdate,  &
   real :: level
   character(LEN=*) :: field
   character(LEN=132) :: gribflnm
+  character(LEN=8) :: tmp8
   integer, dimension(255) :: iuarr
   integer :: ierr, iostat, nunit
   integer :: i, lvl2, lvl1
@@ -151,10 +152,13 @@ SUBROUTINE rd_grib1(IUNIT, gribflnm, level, field, hdate,  &
     elseif (iprocess.eq.105) then
       map%source = 'NCEP RUC Model'
     elseif (iprocess.eq.140) then
-      map%source = 'NARR'
+      map%source = 'NCEP NARR'
     else
       map%source = 'unknown model from NCEP'
     end if
+!  grid numbers only set for NCEP models
+    write(tmp8,'("GRID ",i3)') KSEC1(5)
+    map%source(25:32) = tmp8
   else
     map%source = 'unknown model and orig center'
   end if
@@ -307,6 +311,8 @@ SUBROUTINE rd_grib1(IUNIT, gribflnm, level, field, hdate,  &
      map%dy = ginfo(9)
      map%lat1 = ginfo(3)
      map%lon1 = ginfo(4)
+     write(tmp8,'(b8.8)') infogrid(5)
+     read(tmp8,'(4x,i1)') map%grid_wind
 
 !    print *, "CE map stuff", map%igrid, map%nx, map%ny, map%dx, &
 !    map%dy, map%lat1, map%lon1
@@ -322,6 +328,8 @@ SUBROUTINE rd_grib1(IUNIT, gribflnm, level, field, hdate,  &
      map%dy = ginfo(8)
      map%lat1 = ginfo(3)
      map%lon1 = ginfo(4)
+     write(tmp8,'(b8.8)') infogrid(5)
+     read(tmp8,'(4x,i1)') map%grid_wind
          
   elseif(ksec2(4).eq.4) then ! Gaussian Grid; we will call it lat/lon
      map%igrid = 0
@@ -331,6 +339,8 @@ SUBROUTINE rd_grib1(IUNIT, gribflnm, level, field, hdate,  &
      map%dy = ginfo(19)
      map%lon1 = ginfo(4)
      map%lat1 = ginfo(3)
+     write(tmp8,'(b8.8)') infogrid(5)
+     read(tmp8,'(4x,i1)') map%grid_wind
 
   elseif (ksec2(4).eq.5) then ! Polar-Stereographic Grid.
      map%igrid = 5
@@ -343,6 +353,8 @@ SUBROUTINE rd_grib1(IUNIT, gribflnm, level, field, hdate,  &
      map%dy = ginfo(8)
      map%lat1 = ginfo(3)
      map%lon1 = ginfo(4)
+     write(tmp8,'(b8.8)') infogrid(5)
+     read(tmp8,'(4x,i1)') map%grid_wind
 
   else
      print*, 'Unknown ksec2(4): ', ksec2(4)

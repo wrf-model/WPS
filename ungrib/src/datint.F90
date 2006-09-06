@@ -129,6 +129,7 @@ subroutine datint(fuldates, nful, hstart, ntimes, interval, out_format)
 	        write(6,*) 'unknown out_format'
 		stop 'datint'
               endif
+              read (10) map%grid_wind
               allocate(scr2d(map%nx, map%ny))
               read (10) scr2d
               call put_storage(nint(level), field, scr2d, map%nx, map%ny)
@@ -158,6 +159,7 @@ subroutine datint(fuldates, nful, hstart, ntimes, interval, out_format)
                  print*, 'Unrecognized map%igrid: ', map%igrid
                  stop "STOP IN DATINT"
               endif
+
               else if ( out_format(1:2) .eq. 'WP' ) then
               read (10,END=45) ifv
               read (10) jdate, xfcst, map%source, field, units, desc, level, &
@@ -176,6 +178,8 @@ subroutine datint(fuldates, nful, hstart, ntimes, interval, out_format)
                  print*, 'Unrecognized map%igrid: ', map%igrid
                  stop "STOP IN DATINT"
               endif
+              read (10) map%grid_wind
+
               else if ( out_format(1:2) .eq. 'MM' ) then
               read(10, end=45) ifv
               read(10) jdate, xfcst, field, units, desc, level,&
@@ -194,10 +198,12 @@ subroutine datint(fuldates, nful, hstart, ntimes, interval, out_format)
                  write(*,'("Unrecognized map%igrid: ", I20)') map%igrid
                  stop 'DATINT'
               endif
+
               else
                 write(6,*) 'unknown out_format'
                 stop 'datint'
               endif
+
               allocate(scr2d(map%nx, map%ny))
               read (10) scr2d
               if (is_there(nint(level), field)) then
@@ -205,6 +211,7 @@ subroutine datint(fuldates, nful, hstart, ntimes, interval, out_format)
                  call get_storage(nint(level), field, bfr2d, map%nx, map%ny)
                  scr2d = bfr2d * (AWT) + scr2d * (1.-AWT)
                  hdate_output = hdate
+
 		 if (out_format(1:2) .eq. 'SI') then
                  write(11) ifv
                  write(11) hdate_output, xfcst, map%source, field, units, desc, &
@@ -223,6 +230,7 @@ subroutine datint(fuldates, nful, hstart, ntimes, interval, out_format)
                     print*, 'Unrecognized map%igrid: ', map%igrid
                     stop "STOP IN DATINT"
                  endif
+
 		 else if (out_format(1:2) .eq. 'WP') then
                  write(11) ifv
                  write(11) hdate_output, xfcst, map%source, field, units, desc, &
@@ -241,6 +249,8 @@ subroutine datint(fuldates, nful, hstart, ntimes, interval, out_format)
                     print*, 'Unrecognized map%igrid: ', map%igrid
                     stop "STOP IN DATINT"
                  endif
+		 write(11) map%grid_wind
+
 		 else if (out_format(1:2) .eq. 'MM') then
                  write (11) ifv
                  write (11) hdate_output, xfcst, field, units, Desc, level,&

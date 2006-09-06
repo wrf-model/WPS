@@ -22,6 +22,7 @@ PROGRAM rd_intermediate
 
    INTEGER                           :: idim, jdim
    INTEGER                           :: llflag, ierr, iop
+   INTEGER                           :: grid_wind
 
    CHARACTER ( LEN =  8 )            :: map_start
    CHARACTER ( LEN = 32 )            :: source
@@ -81,16 +82,16 @@ PROGRAM rd_intermediate
          SELECT CASE ( llflag )
             CASE (0)
                READ ( 13 )  lat1, lon1, dy, dx
-               WRITE (*,FMT='(A,/,4g10.4)') 'lat1, lon1, dy, dx = ',lat1, lon1, dy, dx
+               WRITE (*,FMT='(A,/,4g12.6)') 'lat1, lon1, dy, dx = ',lat1, lon1, dy, dx
             CASE (1)
                READ ( 13 )  lat1, lon1, dy, dx, truelat1
-               WRITE (*,FMT='(A,/,5g10.4)') 'lat1, lon1, dy, dx, truelat1 = ', lat1, lon1, dy, dx, truelat1
+               WRITE (*,FMT='(A,/,5g12.6)') 'lat1, lon1, dy, dx, truelat1 = ', lat1, lon1, dy, dx, truelat1
             CASE (3)
                READ ( 13 )  lat1, lon1, dx, dy, lov, truelat1, truelat2
-               WRITE (*,FMT='(A,/,7g10.4)') 'lat1, lon1, dx, dy, lov, truelat1, truelat2 = ',lat1, lon1, dx, dy, lov, truelat1, truelat2
+               WRITE (*,FMT='(A,/,7g12.6)') 'lat1, lon1, dx, dy, lov, truelat1, truelat2 = ',lat1, lon1, dx, dy, lov, truelat1, truelat2
             CASE (5)
                READ ( 13 )  lat1, lon1, dx, dy, lov, truelat1
-               WRITE (*,FMT='(A,/,6g10.4)') 'lat1, lon1, dx, dy, lov, truelat1 = ',lat1, lon1, dx, dy, lov, truelat1
+               WRITE (*,FMT='(A,/,6g12.6)') 'lat1, lon1, dx, dy, lov, truelat1 = ',lat1, lon1, dx, dy, lov, truelat1
             CASE default
                print *, 'Unknown flag for ifv = ',ifv,', llflag = ', llflag
                STOP
@@ -108,20 +109,49 @@ PROGRAM rd_intermediate
          SELECT CASE ( llflag )
             CASE (0)
                READ ( 13 )  map_start, lat1, lon1, dy, dx
-               WRITE (*,FMT='(A,/,A,1x,4g11.4)') 'map_start, lat1, lon1, dy, dx = ',map_start, lat1, lon1, dy, dx
+               WRITE (*,FMT='(A,/,A,1x,4g12.6)') 'map_start, lat1, lon1, dy, dx = ',map_start, lat1, lon1, dy, dx
             CASE (1)
                READ ( 13 )  map_start, lat1, lon1, dy, dx, truelat1
-               WRITE (*,FMT='(A,/,A,1x,5g11.4)') 'map_start, lat1, lon1, dy, dx, truelat1 = ' ,map_start, lat1, lon1, dy, dx, truelat1
+               WRITE (*,FMT='(A,/,A,1x,5g12.6)') 'map_start, lat1, lon1, dy, dx, truelat1 = ' ,map_start, lat1, lon1, dy, dx, truelat1
             CASE (3)
                READ ( 13 )  map_start, lat1, lon1, dx, dy, lov, truelat1, truelat2
-               WRITE (*,FMT='(A,/,A,1x,7g11.4)') 'map_start, lat1, lon1, dx, dy, lov, truelat1, truelat2 = ' , map_start, lat1, lon1, dx, dy, lov, truelat1, truelat2
+               WRITE (*,FMT='(A,/,A,1x,7g12.6)') 'map_start, lat1, lon1, dx, dy, lov, truelat1, truelat2 = ' , map_start, lat1, lon1, dx, dy, lov, truelat1, truelat2
             CASE (5)
                READ ( 13 )  map_start, lat1, lon1, dx, dy, lov, truelat1
-               WRITE (*,FMT='(A,/,A,1x,6g11.4)') 'map_start, lat1, lon1, dx, dy, lov, truelat1 = ', map_start, lat1, lon1, dx, dy, lov, truelat1
+               WRITE (*,FMT='(A,/,A,1x,6g12.6)') 'map_start, lat1, lon1, dx, dy, lov, truelat1 = ', map_start, lat1, lon1, dx, dy, lov, truelat1
             CASE default
                print *, 'Unknown flag for ifv = ',ifv,', llflag = ', llflag
                STOP
          END SELECT
+
+      ELSE IF ( ifv .EQ. 5) THEN
+
+         READ ( 13 )  hdate, xfcst, source, field, units, desc, level, idim, jdim, llflag
+         write (*,FMT='("date = ",A," FCST = ",F8.4,&
+               &" SOURCE = ",A," FIELD = ",A," UNITS = ",A,/&
+               &" DESCRIPTION = ",A," LEVEL = ",F8.0,/,&
+               &" i,j dims = ",2i4," FLAG = ",I2)' ) &
+               hdate, xfcst, source, field, units, desc, level,idim, jdim, llflag
+
+         SELECT CASE ( llflag )
+            CASE (0)
+               READ ( 13 )  map_start, lat1, lon1, dy, dx
+               WRITE (*,FMT='(A,/,A,1x,4g12.6)') 'map_start, lat1, lon1, dy, dx = ',map_start, lat1, lon1, dy, dx
+            CASE (1)
+               READ ( 13 )  map_start, lat1, lon1, dy, dx, truelat1
+               WRITE (*,FMT='(A,/,A,1x,5g12.6)') 'map_start, lat1, lon1, dy, dx, truelat1 = ' ,map_start, lat1, lon1, dy, dx, truelat1
+            CASE (3)
+               READ ( 13 )  map_start, lat1, lon1, dx, dy, lov, truelat1, truelat2
+               WRITE (*,FMT='(A,/,A,1x,7g12.6)') 'map_start, lat1, lon1, dx, dy, lov, truelat1, truelat2 = ' , map_start, lat1, lon1, dx, dy, lov, truelat1, truelat2
+            CASE (5)
+               READ ( 13 )  map_start, lat1, lon1, dx, dy, lov, truelat1
+               WRITE (*,FMT='(A,/,A,1x,6g12.6)') 'map_start, lat1, lon1, dx, dy, lov, truelat1 = ', map_start, lat1, lon1, dx, dy, lov, truelat1
+            CASE default
+               print *, 'Unknown flag for ifv = ',ifv,', llflag = ', llflag
+               STOP
+         END SELECT
+         READ ( 13 )  grid_wind
+	 WRITE (*,FMT='(A,i4)') 'grid_wind = ', grid_wind
 
       ELSE
          print*, 'Unknown ifv: ', ifv

@@ -406,7 +406,7 @@ subroutine parse_table(debug_level,vtable_columns)
      endif
   enddo
 
-  if (debug_level .gt. 1) then
+  if (debug_level .gt. 0) then
      write(*,'(//"Read from file ''Vtable'' by subroutine PARSE_TABLE:")')
      do i = 1, maxvar
         if (vtable_columns.eq.11) then
