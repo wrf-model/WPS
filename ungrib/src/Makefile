@@ -41,8 +41,8 @@ plotfmt.o: 		plotfmt.F90
 mod_levs.exe:		mod_levs.o
 			$(FC) -o $(@) $(LDFLAGS) mod_levs.o
 
-rd_intermediate.exe:	rd_intermediate.o
-			$(FC) -o $(@) $(LDFLAGS) rd_intermediate.o
+rd_intermediate.exe:	rd_intermediate.o read_met_module.o module_debug.o
+			$(FC) -o $(@) $(LDFLAGS) rd_intermediate.o read_met_module.o module_debug.o misc_definitions_module.o parallel_module.o mprintf.o
 
 g2print.exe:		gridinfo.o g2print.o
 			$(FC) -o $(@) $(LDFLAGS) g2print.o \
@@ -64,7 +64,13 @@ rd_grib2.o:		ngl/g2/gribmod.o table.o gridinfo.o ngl/g2/params.o new_storage.o \
 
 datint.o:		gridinfo.o new_storage.o datint.F90
 
+rd_intermediate.o:	module_debug.o read_met_module.o rd_intermediate.F90
+
 new_storage.o:		gridinfo.o new_storage.F90
+
+read_met_module.o:	module_debug.o misc_definitions_module.o read_met_module.f90
+
+module_debug.o:		parallel_module.o mprintf.o module_debug.F90
 
 output.o:		table.o gridinfo.o new_storage.o filelist.o output.F90
 
@@ -78,6 +84,15 @@ rrpr.o:			filelist.o gridinfo.o table.o new_storage.o rrpr.F90
 			$(CPP) $(CPPFLAGS) $(FDEFS) $< > $*.f
 			$(FC) -c $(FFLAGS) $*.f
 			$(RM) $*.f
+
+.f90.o:
+			$(CPP) $(CPPFLAGS) $(FDEFS) $< > $*.f
+			$(FC) -c $(FFLAGS) $*.f
+			$(RM) $*.f
+.c.o:
+	$(RM) $@
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c $<
+
 
 clean:
 			$(RM) *.f *.o *.i *.mod *.M lib$(LIBTARGET).a *exe

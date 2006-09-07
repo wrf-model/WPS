@@ -1,173 +1,101 @@
-!  NRCM helper, WPS toy code
-
 PROGRAM rd_intermediate
+
+   USE module_debug
+   USE read_met_module
 
    IMPLICIT NONE
 
    !  Intermediate input and output from same source.
 
-   CHARACTER ( LEN =132 )            :: flnm
+   INTEGER :: istatus, version, nx, ny, iproj
+   REAL :: xfcst, xlvl, startlat, startlon, starti, startj, &
+           deltalat, deltalon, dx, dy, xlonc, truelat1, truelat2
+   REAL, POINTER, DIMENSION(:,:) :: slab
+   LOGICAL :: is_wind_earth_rel
 
-   INTEGER                           :: ifv
+   CHARACTER ( LEN =132 )            :: flnm
 
    CHARACTER ( LEN = 24 )            :: hdate
    CHARACTER ( LEN =  9 )            :: field
    CHARACTER ( LEN = 25 )            :: units
    CHARACTER ( LEN = 46 )            :: desc
-
-   REAL                              :: level
-   REAL                              :: lat1, lon1
-   REAL                              :: deltalat, deltalon
-   REAL                              :: xfcst, dy, dx, lov, truelat1, truelat2
-
-   INTEGER                           :: idim, jdim
-   INTEGER                           :: llflag, ierr, iop
-   INTEGER                           :: grid_wind
-
-   CHARACTER ( LEN =  8 )            :: map_start
-   CHARACTER ( LEN = 32 )            :: source
-
-   REAL                              :: scr
+   CHARACTER ( LEN = 32 )            :: map_source
 
    !  Get the input file name from the command line.
-
    CALL getarg ( 1 , flnm  )
 
-   IF ( flnm(1:1) .EQ. ' ' ) THEN
-      print *,'USAGE: rd_intermediate.exe FILE:2006-07-31_00'
+   IF ( flnm(1:1) == ' ' ) THEN
+      print *,'USAGE: rd_intermediate.exe <filename>'
+      print *,'       where <filename> is the name of an intermediate-format file'
       STOP
    END IF
 
-   !  This is the input to open.
+   CALL set_debug_level(WARN)
 
-   OPEN ( UNIT   =  13           , &
-          FILE   =  flnm         , &
-          FORM   = 'UNFORMATTED' , &
-          STATUS = 'OLD'         , &
-          IOSTAT =  iop            )
+   CALL read_met_init(trim(flnm), .true., '0000-00-00_00', istatus)
 
-   IF ( iop .NE. 0) then
+   IF ( istatus == 0 ) THEN
+
+      CALL  read_next_met_field(version, field, hdate, xfcst, xlvl, units, desc, &
+                          iproj, startlat, startlon, starti, startj, deltalat, &
+                          deltalon, dx, dy, xlonc, truelat1, truelat2, nx, ny, map_source, &
+                          slab, is_wind_earth_rel, istatus)
+
+      DO WHILE (istatus == 0)
+
+         CALL mprintf(.true.,STDOUT, '================================================')
+         CALL mprintf(.true.,STDOUT, 'FIELD = %s', s1=field)
+         CALL mprintf(.true.,STDOUT, 'UNITS = %s DESCRIPTION = %s', s1=units, s2=desc)
+         CALL mprintf(.true.,STDOUT, 'DATE = %s FCST = %f', s1=hdate, f1=xfcst)
+         CALL mprintf(.true.,STDOUT, 'SOURCE = %s', s1=map_source)
+         CALL mprintf(.true.,STDOUT, 'LEVEL = %f', f1=xlvl)
+         CALL mprintf(.true.,STDOUT, 'I,J DIMS = %i, %i', i1=nx, i2=ny)
+         CALL mprintf(.true.,STDOUT, 'IPROJ = %i', i1=iproj) 
+
+         SELECT CASE ( iproj )
+            CASE (0)
+               CALL mprintf(.true.,STDOUT,'  REF_X, REF_Y = %f, %f', f1=starti, f2=startj)
+               CALL mprintf(.true.,STDOUT,'  REF_LAT, REF_LON = %f, %f', f1=startlat, f2=startlon)
+               CALL mprintf(.true.,STDOUT,'  DX, DY = %f, %f', f1=deltalat, f2=deltalon)
+            CASE (1)
+               CALL mprintf(.true.,STDOUT,'  REF_X, REF_Y = %f, %f', f1=starti, f2=startj)
+               CALL mprintf(.true.,STDOUT,'  REF_LAT, REF_LON = %f, %f', f1=startlat, f2=startlon)
+               CALL mprintf(.true.,STDOUT,'  DX, DY = %f, %f', f1=dx, f2=dy)
+               CALL mprintf(.true.,STDOUT,'  TRUELAT1 = %f', f1=truelat1)
+            CASE (3)
+               CALL mprintf(.true.,STDOUT,'  REF_X, REF_Y = %f, %f', f1=starti, f2=startj)
+               CALL mprintf(.true.,STDOUT,'  REF_LAT, REF_LON = %f, %f', f1=startlat, f2=startlon)
+               CALL mprintf(.true.,STDOUT,'  DX, DY = %f, %f', f1=dx, f2=dy)
+               CALL mprintf(.true.,STDOUT,'  LOV = %f', f1=xlonc)
+               CALL mprintf(.true.,STDOUT,'  TRUELAT1 = %f', f1=truelat1)
+               CALL mprintf(.true.,STDOUT,'  TRUELAT2 = %f', f1=truelat2)
+            CASE (5)
+               CALL mprintf(.true.,STDOUT,'  REF_X, REF_Y = %f, %f', f1=starti, f2=startj)
+               CALL mprintf(.true.,STDOUT,'  REF_LAT, REF_LON = %f, %f', f1=startlat, f2=startlon)
+               CALL mprintf(.true.,STDOUT,'  DX, DY = %f, %f', f1=dx, f2=dy)
+               CALL mprintf(.true.,STDOUT,'  LOV = %f', f1=xlonc)
+               CALL mprintf(.true.,STDOUT,'  TRUELAT1 = %f', f1=truelat1)
+            CASE default
+               CALL mprintf(.true.,ERROR, '  Unknown iproj %i for version %i', i1=iproj, i2=version)
+         END SELECT
+         CALL mprintf(.true.,STDOUT,'DATA(1,1)=%f',f1=slab(1,1))
+         CALL mprintf(.true.,STDOUT,'')
+
+         IF (ASSOCIATED(slab)) DEALLOCATE(slab)
+
+         CALL  read_next_met_field(version, field, hdate, xfcst, xlvl, units, desc, &
+                             iproj, startlat, startlon, starti, startj, deltalat, &
+                             deltalon, dx, dy, xlonc, truelat1, truelat2, nx, ny, map_source, &
+                             slab, is_wind_earth_rel, istatus)
+      END DO
+
+      CALL read_met_close()
+
+   ELSE
       print *, 'File = ',TRIM(flnm)
-      print *, 'Status = ',iop
       print *, 'Problem with input file, I can''t open it'
       STOP 
    END IF
-
-   !  Loop over all of the fields in the file.
-
-   all_fields : DO
-
-      !  The format version.
-
-      READ ( 13, IOSTAT=ierr ) ifv
-
-      IF ( ierr .NE. 0 ) THEN
-         EXIT all_fields
-      END IF
-
-
-      !  There are a few recognized format versions:
-      !     3 = MM5 pregrid  intermediate format
-      !     4 = SI  gribprep intermediate format
-      !     5 = WPS ungrib   intermediate format
-       
-      IF ( ifv .EQ. 3 ) THEN
-
-         READ ( 13 )  hdate, xfcst, field, units, desc, level,idim, jdim, llflag
-         write (*,FMT='("date = ",A," FCST = ",F8.4," FIELD = ",A," UNITS = ",A,/&
-               &" DESCRIPTION = ",A," LEVEL = ",F8.0,/,&
-               &" i,j dims = ",2i4," FLAG = ",I2)' ) &
-               hdate, xfcst, field, units, desc, level,idim, jdim, llflag
-         
-         SELECT CASE ( llflag )
-            CASE (0)
-               READ ( 13 )  lat1, lon1, dy, dx
-               WRITE (*,FMT='(A,/,4g12.6)') 'lat1, lon1, dy, dx = ',lat1, lon1, dy, dx
-            CASE (1)
-               READ ( 13 )  lat1, lon1, dy, dx, truelat1
-               WRITE (*,FMT='(A,/,5g12.6)') 'lat1, lon1, dy, dx, truelat1 = ', lat1, lon1, dy, dx, truelat1
-            CASE (3)
-               READ ( 13 )  lat1, lon1, dx, dy, lov, truelat1, truelat2
-               WRITE (*,FMT='(A,/,7g12.6)') 'lat1, lon1, dx, dy, lov, truelat1, truelat2 = ',lat1, lon1, dx, dy, lov, truelat1, truelat2
-            CASE (5)
-               READ ( 13 )  lat1, lon1, dx, dy, lov, truelat1
-               WRITE (*,FMT='(A,/,6g12.6)') 'lat1, lon1, dx, dy, lov, truelat1 = ',lat1, lon1, dx, dy, lov, truelat1
-            CASE default
-               print *, 'Unknown flag for ifv = ',ifv,', llflag = ', llflag
-               STOP
-         END SELECT
-
-      ELSE IF ( ifv .EQ. 4) THEN
-
-         READ ( 13 )  hdate, xfcst, source, field, units, desc, level, idim, jdim, llflag
-         write (*,FMT='("date = ",A," FCST = ",F8.4,&
-               &" SOURCE = ",A," FIELD = ",A," UNITS = ",A,/&
-               &" DESCRIPTION = ",A," LEVEL = ",F8.0,/,&
-               &" i,j dims = ",2i4," FLAG = ",I2)' ) &
-               hdate, xfcst, source, field, units, desc, level,idim, jdim, llflag
-
-         SELECT CASE ( llflag )
-            CASE (0)
-               READ ( 13 )  map_start, lat1, lon1, dy, dx
-               WRITE (*,FMT='(A,/,A,1x,4g12.6)') 'map_start, lat1, lon1, dy, dx = ',map_start, lat1, lon1, dy, dx
-            CASE (1)
-               READ ( 13 )  map_start, lat1, lon1, dy, dx, truelat1
-               WRITE (*,FMT='(A,/,A,1x,5g12.6)') 'map_start, lat1, lon1, dy, dx, truelat1 = ' ,map_start, lat1, lon1, dy, dx, truelat1
-            CASE (3)
-               READ ( 13 )  map_start, lat1, lon1, dx, dy, lov, truelat1, truelat2
-               WRITE (*,FMT='(A,/,A,1x,7g12.6)') 'map_start, lat1, lon1, dx, dy, lov, truelat1, truelat2 = ' , map_start, lat1, lon1, dx, dy, lov, truelat1, truelat2
-            CASE (5)
-               READ ( 13 )  map_start, lat1, lon1, dx, dy, lov, truelat1
-               WRITE (*,FMT='(A,/,A,1x,6g12.6)') 'map_start, lat1, lon1, dx, dy, lov, truelat1 = ', map_start, lat1, lon1, dx, dy, lov, truelat1
-            CASE default
-               print *, 'Unknown flag for ifv = ',ifv,', llflag = ', llflag
-               STOP
-         END SELECT
-
-      ELSE IF ( ifv .EQ. 5) THEN
-
-         READ ( 13 )  hdate, xfcst, source, field, units, desc, level, idim, jdim, llflag
-         write (*,FMT='("date = ",A," FCST = ",F8.4,&
-               &" SOURCE = ",A," FIELD = ",A," UNITS = ",A,/&
-               &" DESCRIPTION = ",A," LEVEL = ",F8.0,/,&
-               &" i,j dims = ",2i4," FLAG = ",I2)' ) &
-               hdate, xfcst, source, field, units, desc, level,idim, jdim, llflag
-
-         SELECT CASE ( llflag )
-            CASE (0)
-               READ ( 13 )  map_start, lat1, lon1, dy, dx
-               WRITE (*,FMT='(A,/,A,1x,4g12.6)') 'map_start, lat1, lon1, dy, dx = ',map_start, lat1, lon1, dy, dx
-            CASE (1)
-               READ ( 13 )  map_start, lat1, lon1, dy, dx, truelat1
-               WRITE (*,FMT='(A,/,A,1x,5g12.6)') 'map_start, lat1, lon1, dy, dx, truelat1 = ' ,map_start, lat1, lon1, dy, dx, truelat1
-            CASE (3)
-               READ ( 13 )  map_start, lat1, lon1, dx, dy, lov, truelat1, truelat2
-               WRITE (*,FMT='(A,/,A,1x,7g12.6)') 'map_start, lat1, lon1, dx, dy, lov, truelat1, truelat2 = ' , map_start, lat1, lon1, dx, dy, lov, truelat1, truelat2
-            CASE (5)
-               READ ( 13 )  map_start, lat1, lon1, dx, dy, lov, truelat1
-               WRITE (*,FMT='(A,/,A,1x,6g12.6)') 'map_start, lat1, lon1, dx, dy, lov, truelat1 = ', map_start, lat1, lon1, dx, dy, lov, truelat1
-            CASE default
-               print *, 'Unknown flag for ifv = ',ifv,', llflag = ', llflag
-               STOP
-         END SELECT
-         READ ( 13 )  grid_wind
-	 WRITE (*,FMT='(A,i4)') 'grid_wind = ', grid_wind
-
-      ELSE
-         print*, 'Unknown ifv: ', ifv
-         STOP
-      END IF
-
-      READ ( 13 )  scr
-      print *,'data = ',scr
-      print *,' '
-
-
-   END DO all_fields
-
-   !  We have processed all of the input data, close both files.
-
-   CLOSE ( 13 )
 
    print *,'SUCCESSFUL COMPLETION OF PROGRAM RD_INTERMEDIATE'
    STOP

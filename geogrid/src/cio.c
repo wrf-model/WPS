@@ -13,9 +13,12 @@
 
 #ifdef _GEOGRID
 char logfilename[] = "geogrid.log";
-#endif
+#else
 #ifdef _METGRID
 char logfilename[] = "metgrid.log";
+#else
+char logfilename[] = "logfile.log";
+#endif
 #endif
 
 FILE * cio_out = 0;

@@ -20,7 +20,10 @@ module module_debug
    end subroutine set_debug_level
 
 
-   subroutine mprintf(assertion, level, fmtstring, i1, i2, i3, f1, f2, f3, s1, s2, s3)
+   subroutine mprintf(assertion, level, fmtstring, &
+                      i1, i2, i3, i4, i5, i6, &
+                      f1, f2, f3, f4, f5, f6, &
+                      s1, s2, s3, s4, s5, s6)
 
       implicit none
 
@@ -28,9 +31,9 @@ module module_debug
       integer, intent(in) :: level
       logical, intent(in) :: assertion
       character (len=*), intent(in) :: fmtstring
-      integer, intent(in), optional :: i1, i2, i3
-      real, intent(in), optional :: f1, f2, f3
-      character (len=*), intent(in), optional :: s1, s2, s3
+      integer, intent(in), optional :: i1, i2, i3, i4, i5, i6
+      real, intent(in), optional :: f1, f2, f3, f4, f5, f6
+      character (len=*), intent(in), optional :: s1, s2, s3, s4, s5, s6
 
       ! Local variables 
       integer :: idxi, idxf, idxs, istart, i, iend, ia
@@ -112,6 +115,12 @@ module module_debug
                   ia = i2
                else if (idxi == 3 .and. present(i3)) then
                   ia = i3
+               else if (idxi == 4 .and. present(i4)) then
+                  ia = i4
+               else if (idxi == 5 .and. present(i5)) then
+                  ia = i5
+               else if (idxi == 6 .and. present(i6)) then
+                  ia = i6
                end if
    
                if (level >= the_debug_level) &
@@ -128,6 +137,12 @@ module module_debug
                   fa = f2
                else if (idxf == 3 .and. present(f3)) then
                   fa = f3
+               else if (idxf == 4 .and. present(f4)) then
+                  fa = f4
+               else if (idxf == 5 .and. present(f5)) then
+                  fa = f5
+               else if (idxf == 6 .and. present(f6)) then
+                  fa = f6
                end if
    
                if (level >= the_debug_level) &
@@ -144,6 +159,12 @@ module module_debug
                   sa = s2
                else if (idxs == 3 .and. present(s3)) then
                   sa = s3
+               else if (idxs == 4 .and. present(s4)) then
+                  sa = s4
+               else if (idxs == 5 .and. present(s5)) then
+                  sa = s5
+               else if (idxs == 6 .and. present(s6)) then
+                  sa = s6
                end if
    
                write(ctemp,'(a)') trim(sa)
