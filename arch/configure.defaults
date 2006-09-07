@@ -16,7 +16,7 @@ LDFLAGS		=
 CC		=	cc
 SCC		=	cc
 CFLAGS		=	
-CPP		=	/usr/local/bin/cpp -C -P -traditional
+CPP		=	/usr/lib/cpp -C -P
 CPPFLAGS	=	-DAIX -DIBM4 -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -DBIT32
 ARFLAGS		=
 
@@ -41,7 +41,7 @@ LDFLAGS		=
 CC		=	cc
 SCC		=	cc
 CFLAGS		=	
-CPP		=	/usr/local/bin/cpp -C -P -traditional
+CPP		=	/usr/lib/cpp -C -P
 CPPFLAGS	=	-DAIX -DIBM4 -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -DBIT32
 ARFLAGS		=
 
@@ -63,7 +63,7 @@ LDFLAGS		=
 CC		=	mpcc_r
 SCC		=	cc
 CFLAGS		=	
-CPP		=	/usr/local/bin/cpp -C -P -traditional
+CPP		=	/usr/lib/cpp -C -P
 CPPFLAGS	=	-DAIX -DIBM4 -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -D_MPI -DBIT32
 ARFLAGS		=
 
@@ -88,7 +88,7 @@ LDFLAGS		=
 CC		=	mpcc_r
 SCC		=	cc
 CFLAGS		=	
-CPP		=	/usr/local/bin/cpp -C -P -traditional
+CPP		=	/usr/lib/cpp -C -P
 CPPFLAGS	=	-DAIX -DIBM4 -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -D_MPI -DBIT32
 ARFLAGS		=
 
