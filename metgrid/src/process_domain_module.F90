@@ -1366,7 +1366,7 @@ module process_domain_module
       !    for 3-d met fields (excluding sea-level, though).
       !
       do i=1,size(headers)
-         call get_z_dim_name(headers%header%field, z_dim)
+         call get_z_dim_name(headers(i)%header%field, z_dim)
    
          ! We only want to consider 3-d met fields
          if (z_dim(1:18) == 'num_metgrid_levels') then
@@ -1504,7 +1504,7 @@ module process_domain_module
                      if (ii <= num_entries) then
                        
                         fill_field = ' '
-                        write(clevel,'(i)') union_levels(j)
+                        write(clevel,'(i10)') union_levels(j)
                         call despace(clevel)
 
                         ! First check whether user has explicitly named this level to be filled
