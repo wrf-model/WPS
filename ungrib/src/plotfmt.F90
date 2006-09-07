@@ -1,44 +1,38 @@
 program pltfmt
+
+  use read_met_module
+
   implicit none
 !
 ! Utility program to plot up the files created by pregrid.
 ! Uses NCAR graphics routines.  If you don't have NCAR Graphics, you're 
 ! out of luck.
 !
-  real, allocatable, dimension(:,:) :: scr2d
+   INTEGER :: istatus, version, nx, ny, iproj
+   integer :: idum, ilev
+   REAL :: xfcst, xlvl, startlat, startlon, starti, startj, &
+           deltalat, deltalon, dx, dy, xlonc, truelat1, truelat2
+   REAL, POINTER, DIMENSION(:,:) :: slab
+   LOGICAL :: is_wind_earth_rel
 
-  character(len=19) :: hdate
-  character(len=24) :: hdate_output
+   CHARACTER ( LEN =132 )            :: flnm
 
-  character(len=8)  :: field2
-  character(len=16) :: units2
-  character(len=56) :: Desc2
-
-  character(len=9)  :: field
-  character(len=25) :: units
-  character(len=46) :: Desc
-  real :: level
-  integer :: idim, jdim
-  real :: lat1, lon1
-  real :: deltalat, deltalon
-  character(len=80) :: flnm
-
-  integer :: idum, ifv, llflag, ilev, ierr
-  real :: xfcst, dy, dx, lov, truelat1, truelat2, lon2
-  character (len=8) :: startloc  ! "CENTER  " or "SWCORNER"
-  character (len=32) :: source="                                "
-  integer :: grid_wind
+   CHARACTER ( LEN = 24 )            :: hdate
+   CHARACTER ( LEN =  9 )            :: field
+   CHARACTER ( LEN = 25 )            :: units
+   CHARACTER ( LEN = 46 )            :: desc
+   CHARACTER ( LEN = 32 )            :: map_source
 
 !
 !   Set up the graceful stop (Sun, SGI, DEC).
 !
-  integer, external :: graceful_stop
-  integer, external :: signal
-  integer :: iii
+   integer, external :: graceful_stop
+   integer, external :: signal
+   integer :: iii
+
   iii = signal(2, graceful_stop, -1)
 
   call getarg(1,flnm)
-  open(13, file=flnm, form='unformatted', status='old')
 
   call gopks(6,idum)
   call gopwk(1,55,1)
@@ -52,120 +46,60 @@ program pltfmt
   call gscr(1,1, 0.000, 0.000, 0.000)
   call gscr(1,2, 0.900, 0.600, 0.600)
 
-! Find format version
+   CALL read_met_init(TRIM(flnm), .true., '0000-00-00_00', istatus)
+
+   IF ( istatus == 0 ) THEN
+
+      CALL  read_next_met_field(version, field, hdate, xfcst, xlvl, units, desc, &
+                          iproj, startlat, startlon, starti, startj, deltalat, &
+                          deltalon, dx, dy, xlonc, truelat1, truelat2, nx, ny, map_source, &
+                          slab, is_wind_earth_rel, istatus)
+
+      DO WHILE (istatus == 0)
+
+         ilev = nint(xlvl)
+
+         if (iproj == PROJ_LATLON) then
+            call plt2d(slab, nx, ny, iproj, &
+                       startlat, startlon, deltalon, deltalat, xlonc, truelat1, truelat2, &
+                       field, ilev, units, desc, map_source)
+         else
+            call plt2d(slab, nx, ny, iproj, &
+                       startlat, startlon, dx, dy, xlonc, truelat1, truelat2, &
+                       field, ilev, units, desc, map_source)
+         end if
 
 
-  BIGLOOP : DO
-     read(13, iostat=ierr) ifv
-     if (ierr /= 0) exit BIGLOOP
-     if (ifv.eq.1) then
-        read(13) hdate_output, field2, units2, Desc2, level, idim, jdim, llflag
-        field = field2
-        units = units2
-        desc = desc2
-        hdate = hdate_output(1:19)
-        read(13) lat1, lon1, deltalat, deltalon
-        allocate(scr2d(idim,jdim))
-        read(13) scr2d
-     elseif (ifv.eq.2) then       
-        read(13) hdate_output, xfcst, field2, units2, Desc2, level,&
-             idim, jdim, llflag
-        field = field2
-        units = units2
-        desc = desc2
-        hdate = hdate_output(1:19)
-        select case (llflag)
-        case (0)
-           read(13) lat1, lon1, dy, dx
-        case (3)
-           read(13) lat1, lon1, dx, dy, lov, truelat1, truelat2
-           dy = dx
-        case (5)
-           read(13) lat1, lon1, dx, dy, lov, truelat1
-        case default
-           print*, 'Unknown llflag: ', llflag
-           stop
-        end select
-        allocate(scr2d(idim,jdim))
-        read(13) scr2d
-     elseif (ifv.eq.3) then        ! MM5
-        read(13) hdate_output, xfcst, field, units, Desc, level,&
-             idim, jdim, llflag
-        hdate = hdate_output(1:19)
-        select case (llflag)
-        case (0)
-           read(13) lat1, lon1, dy, dx
-        case (1)
-           read(13) lat1, lon1, dy, dx, truelat1
-        case (3)
-           read(13) lat1, lon1, dx, dy, lov, truelat1, truelat2
-           dy = dx
-        case (5)
-           read(13) lat1, lon1, dx, dy, lov, truelat1
-        case default
-           print*, 'Unknown llflag: ', llflag
-           stop
-        end select
-        allocate(scr2d(idim,jdim))
-        read(13) scr2d
-     elseif (ifv.eq.4) then         ! SI
-        read(13) hdate_output, xfcst, source, field, units, Desc, level,&
-	   idim, jdim, llflag
-        hdate = hdate_output(1:19)
-        select case (llflag)
-        case (0)
-           read(13) startloc, lat1, lon1, dy, dx
-        case (3)
-           read(13) startloc, lat1, lon1, dx, dy, lov, truelat1, truelat2
-        case (5)
-           read(13) startloc, lat1, lon1, dx, dy, lov, truelat1
-        case default
-           print*, 'Unknown llflag: ', llflag
-           stop
-        end select
-        allocate(scr2d(idim,jdim))
-        read(13) scr2d
-     elseif (ifv.eq.5) then         ! WPS
-        read(13) hdate_output, xfcst, source, field, units, Desc, level,&
-	   idim, jdim, llflag
-        hdate = hdate_output(1:19)
-        select case (llflag)
-        case (0)
-           read(13) startloc, lat1, lon1, dy, dx
-        case (3)
-           read(13) startloc, lat1, lon1, dx, dy, lov, truelat1, truelat2
-        case (5)
-           read(13) startloc, lat1, lon1, dx, dy, lov, truelat1
-        case default
-           print*, 'Unknown llflag: ', llflag
-           stop
-        end select
-	read(13) grid_wind
-        allocate(scr2d(idim,jdim))
-        read(13) scr2d
-     else
-        print*, 'Unknown ifv: ', ifv
-         stop
-     endif
+         IF (ASSOCIATED(slab)) DEALLOCATE(slab)
 
-     ilev = nint(level)
+         CALL  read_next_met_field(version, field, hdate, xfcst, xlvl, units, desc, &
+                             iproj, startlat, startlon, starti, startj, deltalat, &
+                             deltalon, dx, dy, xlonc, truelat1, truelat2, nx, ny, map_source, &
+                             slab, is_wind_earth_rel, istatus)
+      END DO
 
-     call plt2d(scr2d, idim, jdim, llflag, &
-          lat1, lon1, dx, dy, lov, lon2, truelat1, truelat2, &
-          field, ilev, units, desc, source)
+      CALL read_met_close()
 
-     deallocate(scr2d)
+   ELSE
 
-  enddo BIGLOOP
+      print *, 'File = ',TRIM(flnm)
+      print *, 'Problem with input file, I can''t open it'
+      STOP
+
+   END IF
 
   call stopit
 
 end program pltfmt
 
 subroutine plt2d(scr2d, ix, jx, llflag, &
-     lat1, lon1, dx, dy, lov, lon2, truelat1, truelat2, &
+     lat1, lon1, dx, dy, lov, truelat1, truelat2, &
      field, ilev, units, Desc, source)
+
+  use misc_definitions_module
+
   implicit none
+
   integer :: llflag
   integer :: ix, jx
   real, dimension(ix,jx) :: scr2d(ix,jx)
@@ -178,7 +112,7 @@ subroutine plt2d(scr2d, ix, jx, llflag, &
   character(len=30) :: hunit
 
   integer :: iproj, ierr
-  real :: pl1, pl2, pl3, pl4, plon, plat, rota, lon2, phic
+  real :: pl1, pl2, pl3, pl4, plon, plat, rota, phic
   real :: xl, xr, xb, xt, wl, wr, wb, wt
   integer :: ml, ih, i
 
@@ -190,7 +124,7 @@ subroutine plt2d(scr2d, ix, jx, llflag, &
   character(len=8) :: hlev
 
   select case (llflag)
-  case (0)
+  case (PROJ_LATLON)
      pl1 = lat1
      pl2 = lon1
      call fmtxyll(float(ix), float(jx), pl3, pl4, 'CE', pl1, pl2, &
@@ -199,7 +133,7 @@ subroutine plt2d(scr2d, ix, jx, llflag, &
      plat = 0.
      rota = 0.
      iproj=8
-  case (1)
+  case (PROJ_MERC)
      pl1 = lat1
      pl2 = lon1
      plon = 0.
@@ -208,7 +142,7 @@ subroutine plt2d(scr2d, ix, jx, llflag, &
      plat = 0.
      rota = 0
      iproj = 9
-  case (3)
+  case (PROJ_LC)
      pl1 = lat1
      pl2 = lon1
      plon = lov
@@ -225,7 +159,7 @@ subroutine plt2d(scr2d, ix, jx, llflag, &
         plat = plat + 1.E-8
         rota = rota - 1.E-8
      endif
-  case (5)
+  case (PROJ_PS)
      print*, 'ix, jx = ', ix, jx
      print*, 'lat1, lon1 = ', lat1, lon1
      pl1 = lat1
@@ -240,7 +174,6 @@ subroutine plt2d(scr2d, ix, jx, llflag, &
      iproj=1
      print*, pl1, pl2, pl3, pl4
   end select
-
 
   call supmap(iproj,plat,plon,rota,pl1,pl2,pl3,pl4,2,30,4,0,ierr)
 ! call supmap(iproj,plat+0.001,plon,rota-0.001,pl1,pl2,pl3,pl4,2,30,4,0,ierr)

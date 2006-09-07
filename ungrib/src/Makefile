@@ -29,11 +29,11 @@ lib$(LIBTARGET).a:	$(OBJS2)
 g1print.exe:		g1print.o gribcode.o lib$(LIBTARGET).a
 			$(FC) -o $(@) $(LDFLAGS) g1print.o lib$(LIBTARGET).a
 
-plotfmt.exe:		plotfmt.o lib$(LIBTARGET).a
-			$(FC) -o $(@) $(LDFLAGS) plotfmt.o \
+plotfmt.exe:		plotfmt.o read_met_module.o lib$(LIBTARGET).a
+			$(FC) -o $(@) $(LDFLAGS) plotfmt.o read_met_module.o module_debug.o misc_definitions_module.o parallel_module.o mprintf.o \
 				lib$(LIBTARGET).a $(NCARG_LIBS) $(NCARG_LIBS2)
 
-plotfmt.o: 		plotfmt.F90
+plotfmt.o: 		plotfmt.F90 misc_definitions_module.o read_met_module.o
 			$(CPP) $(CPPFLAGS) -I. $< > $*.f
 			$(FC) $(FNGFLAGS) -c $*.f
 			$(RM) $*.f
