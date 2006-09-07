@@ -71,33 +71,38 @@ module write_met_module
   
       ! Local variables
       character (len=8) :: startloc
+      character (len=9) :: local_field
   
       istatus = 1
   
       !  1) WRITE FORMAT VERSION
       write(unit=output_unit) version
 
+      local_field = field
+      if (field == 'GHT      ') local_field = 'HGT      '
+      if (field == 'SOIL_CAT ') local_field = 'SOILCAT  '
+
       ! PREGRID
       if (version == 3) then
 
          ! Cylindrical equidistant
          if (iproj == PROJ_LATLON) then
-            write(unit=output_unit) hdate, xfcst, field, units, desc, xlvl, nx, ny, 0
+            write(unit=output_unit) hdate, xfcst, local_field, units, desc, xlvl, nx, ny, 0
             write(unit=output_unit) startlat, startlon, deltalat, deltalon
      
          ! Mercator
          else if (iproj == PROJ_MERC) then
-            write(unit=output_unit) hdate, xfcst, field, units, desc, xlvl, nx, ny, 1
+            write(unit=output_unit) hdate, xfcst, local_field, units, desc, xlvl, nx, ny, 1
             write(unit=output_unit) startlat, startlon, dx, dy, truelat1
      
          ! Lambert conformal
          else if (iproj == PROJ_LC) then
-            write(unit=output_unit) hdate, xfcst, field, units, desc, xlvl, nx, ny, 3
+            write(unit=output_unit) hdate, xfcst, local_field, units, desc, xlvl, nx, ny, 3
             write(unit=output_unit) startlat, startlon, dx/1000., dy/1000., xlonc, truelat1, truelat2
      
          ! Polar stereographic
          else if (iproj == PROJ_PS) then
-            write(unit=output_unit) hdate, xfcst, field, units, desc, xlvl, nx, ny, 5
+            write(unit=output_unit) hdate, xfcst, local_field, units, desc, xlvl, nx, ny, 5
             write(unit=output_unit) startlat, startlon, dx/1000., dy/1000., xlonc, truelat1
 
          ! ?????????
@@ -120,22 +125,22 @@ module write_met_module
   
          ! Cylindrical equidistant
          if (iproj == PROJ_LATLON) then
-            write(unit=output_unit) hdate, xfcst, map_source, field, units, desc, xlvl, nx, ny, 0
+            write(unit=output_unit) hdate, xfcst, map_source, local_field, units, desc, xlvl, nx, ny, 0
             write(unit=output_unit) startloc, startlat, startlon, deltalat, deltalon
 
          ! Mercator
          else if (iproj == PROJ_MERC) then
-            write(unit=output_unit) hdate, xfcst, map_source, field, units, desc, xlvl, nx, ny, 1
+            write(unit=output_unit) hdate, xfcst, map_source, local_field, units, desc, xlvl, nx, ny, 1
             write(unit=output_unit) startloc, startlat, startlon, dx, dy, truelat1
 
          ! Lambert conformal
          else if (iproj == PROJ_LC) then
-            write(unit=output_unit) hdate, xfcst, map_source, field, units, desc, xlvl, nx, ny, 3
+            write(unit=output_unit) hdate, xfcst, map_source, local_field, units, desc, xlvl, nx, ny, 3
             write(unit=output_unit) startloc, startlat, startlon, dx/1000., dy/1000., xlonc, truelat1, truelat2
 
          ! Polar stereographic
          else if (iproj == PROJ_PS) then
-            write(unit=output_unit) hdate, xfcst, map_source, field, units, desc, xlvl, nx, ny, 5
+            write(unit=output_unit) hdate, xfcst, map_source, local_field, units, desc, xlvl, nx, ny, 5
             write(unit=output_unit) startloc, startlat, startlon, dx/1000., dy/1000., xlonc, truelat1
      
          ! ?????????
@@ -158,22 +163,22 @@ module write_met_module
   
          ! Cylindrical equidistant
          if (iproj == PROJ_LATLON) then
-            write(unit=output_unit) hdate, xfcst, map_source, field, units, desc, xlvl, nx, ny, 0
+            write(unit=output_unit) hdate, xfcst, map_source, local_field, units, desc, xlvl, nx, ny, 0
             write(unit=output_unit) startloc, startlat, startlon, deltalat, deltalon
 
          ! Mercator
          else if (iproj == PROJ_MERC) then
-            write(unit=output_unit) hdate, xfcst, map_source, field, units, desc, xlvl, nx, ny, 1
+            write(unit=output_unit) hdate, xfcst, map_source, local_field, units, desc, xlvl, nx, ny, 1
             write(unit=output_unit) startloc, startlat, startlon, dx, dy, truelat1
 
          ! Lambert conformal
          else if (iproj == PROJ_LC) then
-            write(unit=output_unit) hdate, xfcst, map_source, field, units, desc, xlvl, nx, ny, 3
+            write(unit=output_unit) hdate, xfcst, map_source, local_field, units, desc, xlvl, nx, ny, 3
             write(unit=output_unit) startloc, startlat, startlon, dx/1000., dy/1000., xlonc, truelat1, truelat2
 
          ! Polar stereographic
          else if (iproj == PROJ_PS) then
-            write(unit=output_unit) hdate, xfcst, map_source, field, units, desc, xlvl, nx, ny, 5
+            write(unit=output_unit) hdate, xfcst, map_source, local_field, units, desc, xlvl, nx, ny, 5
             write(unit=output_unit) startloc, startlat, startlon, dx/1000., dy/1000., xlonc, truelat1
      
          ! ?????????

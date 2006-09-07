@@ -7,33 +7,28 @@
 
 PROGRAM mod_levs_prog
 
+   USE module_debug
+   USE read_met_module
+   USE write_met_module
+
    IMPLICIT NONE
 
    !  Intermediate input and output from same source.
 
    CHARACTER ( LEN =132 )            :: flnm, flnm2
 
-   INTEGER                           :: ifv
+   INTEGER :: istatus, iop, version, nx, ny, iproj
+   integer :: idum, ilev
+   REAL :: xfcst, xlvl, startlat, startlon, starti, startj, &
+           deltalat, deltalon, dx, dy, xlonc, truelat1, truelat2
+   REAL, POINTER, DIMENSION(:,:) :: slab
+   LOGICAL :: is_wind_earth_rel
 
    CHARACTER ( LEN = 24 )            :: hdate
    CHARACTER ( LEN =  9 )            :: field
    CHARACTER ( LEN = 25 )            :: units
    CHARACTER ( LEN = 46 )            :: desc
-
-   REAL                              :: level
-   REAL                              :: lat1, lon1
-   REAL                              :: deltalat, deltalon
-   REAL                              :: xfcst, dy, dx, lov, truelat1, truelat2
-
-   INTEGER                           :: idim, jdim
-   INTEGER                           :: llflag, ierr, iop
-   INTEGER                           :: grid_wind
-
-   CHARACTER ( LEN =  8 )            :: map_start
-   CHARACTER ( LEN = 32 )            :: source
-
-   REAL, ALLOCATABLE, DIMENSION(:,:) :: scr2d
-   REAL                              :: scr
+   CHARACTER ( LEN = 32 )            :: map_source
 
    !  The namelist has a pressure array that we want.
 
@@ -90,228 +85,70 @@ PROGRAM mod_levs_prog
       flnm2(1:4) = 'new_'
    END IF
 
-   !  These are the input and output files, respectively.
+   CALL set_debug_level(WARN)
 
-   OPEN ( UNIT   =  13           , &
-          FILE   =  flnm         , &
-          FORM   = 'UNFORMATTED' , &
-          STATUS = 'OLD'         , &
-          IOSTAT =  iop            )
+   CALL read_met_init(TRIM(flnm), .true., '0000-00-00_00', istatus)
 
-   IF ( iop .NE. 0) then
-      print *, 'File = ',TRIM(flnm)
-      print *, 'Status = ',iop
-      print *, 'Problem with input file, I can''t open it'
-      STOP 
-   END IF
+   IF ( istatus == 0 ) THEN
 
-   OPEN ( UNIT   =  14           , &
-          FILE   =  flnm2        , &
-          FORM   = 'UNFORMATTED' , &
-          STATUS = 'UNKNOWN'     , &
-          IOSTAT =  iop            )
+      CALL write_met_init(TRIM(flnm2), .true., '0000-00-00_00', istatus)
 
-   IF (iop .NE. 0) then
-      print *, 'File = ',TRIM(flnm2)
-      print *, 'Status = ',iop
-      print *, 'Problem with output file, I can''t open it'
-      STOP 
-   END IF
+      IF ( istatus == 0 ) THEN
 
-   !  Loop over all of the fields in the file.
+         CALL read_next_met_field(version, field, hdate, xfcst, xlvl, units, desc, &
+                          iproj, startlat, startlon, starti, startj, deltalat, &
+                             deltalon, dx, dy, xlonc, truelat1, truelat2, nx, ny, map_source, &
+                             slab, is_wind_earth_rel, istatus)
 
-   all_fields : DO
+         DO WHILE (istatus == 0)
+   
+   
+            keep_this_one = .FALSE.
+            DO l = 1 , max_pres_keep
+               IF ( xlvl .EQ. press_pa(l) ) THEN
+                  keep_this_one = .TRUE.
+                  EXIT
+               END IF
+            END DO 
 
-      !  The format version.
-
-      READ ( 13, IOSTAT=ierr ) ifv
-
-      IF ( ierr .NE. 0 ) THEN
-         EXIT all_fields
-      END IF
-
-
-      !  There are a few recognized format versions:
-      !     3 = MM5 pregrid  intermediate format
-      !     4 = SI  gribprep intermediate format
-      !     5 = WPS ungrib   intermediate format
-       
-      IF ( ifv .EQ. 3 ) THEN
-
-         READ ( 13 )  hdate, xfcst, field, units, desc, level,&
-              idim, jdim, llflag
-         
-         !  Is this a level that we want?
-
-         keep_this_one = .FALSE.
-         DO l = 1 , max_pres_keep
-            IF ( level .EQ. press_pa(l) ) THEN
-               keep_this_one = .TRUE.
-               EXIT
+            IF (keep_this_one) THEN
+               CALL write_next_met_field(version, field, hdate, xfcst, xlvl, units, desc, &
+                                      iproj, startlat, startlon, starti, startj, deltalat, &
+                                      deltalon, dx, dy, xlonc, truelat1, truelat2, nx, ny, map_source, &
+                                      slab, is_wind_earth_rel, istatus)
+            ELSE
+               CALL mprintf(.true.,STDOUT,'Deleting level %f Pa',f1=xlvl)
             END IF
-         END DO 
 
-         IF ( keep_this_one ) THEN
-            WRITE ( 14 ) ifv
-            WRITE ( 14 ) hdate, xfcst, field, units, desc, level,&
-                         idim, jdim, llflag
-else
-print *,'                   blowing off level ',level,' Pa'
-         END IF
+            CALL mprintf(.true.,STDOUT,'Processed %s at level %f for time %s', &
+                         s1=field, f1=xlvl, s2=hdate)
+            IF (ASSOCIATED(slab)) DEALLOCATE(slab)
+   
+            CALL read_next_met_field(version, field, hdate, xfcst, xlvl, units, desc, &
+                                iproj, startlat, startlon, starti, startj, deltalat, &
+                                deltalon, dx, dy, xlonc, truelat1, truelat2, nx, ny, map_source, &
+                                slab, is_wind_earth_rel, istatus)
+         END DO
 
-         SELECT CASE ( llflag )
-            CASE (0)
-               READ ( 13 )  lat1, lon1, dy, dx
-               IF ( keep_this_one ) THEN
-                  WRITE ( 14 ) lat1, lon1, dy, dx
-               END IF
-            CASE (1)
-               READ ( 13 )  lat1, lon1, dy, dx, truelat1
-               IF ( keep_this_one ) THEN
-                  WRITE ( 14 ) lat1, lon1, dy, dx, truelat1
-               END IF
-            CASE (3)
-               READ ( 13 )  lat1, lon1, dx, dy, lov, truelat1, truelat2
-               IF ( keep_this_one ) THEN
-                  WRITE ( 14 ) lat1, lon1, dx, dy, lov, truelat1, truelat2
-               END IF
-            CASE (5)
-               READ ( 13 )  lat1, lon1, dx, dy, lov, truelat1
-               IF ( keep_this_one ) THEN
-                  WRITE ( 14 ) lat1, lon1, dx, dy, lov, truelat1
-               END IF
-            CASE default
-               print *, 'Unknown flag for ifv = ',ifv,', llflag = ', llflag
-               STOP
-         END SELECT
-
-      ELSE IF ( ifv .EQ. 4) THEN
-
-         READ ( 13 )  hdate, xfcst, source, field, units, desc, level,&
-              idim, jdim, llflag
-         
-         !  Is this a level that we want?
-
-         keep_this_one = .FALSE.
-         DO l = 1 , max_pres_keep
-            IF ( level .EQ. press_pa(l) ) THEN
-               keep_this_one = .TRUE.
-               EXIT
-            END IF
-         END DO 
-
-         IF ( keep_this_one ) THEN
-            WRITE ( 14 ) ifv
-            WRITE ( 14 ) hdate, xfcst, source, field, units, desc, level,&
-                         idim, jdim, llflag
-else
-print *,'blowing off level ',level,' Pa'
-         END IF
-
-         SELECT CASE ( llflag )
-            CASE (0)
-               READ ( 13 )  map_start, lat1, lon1, dy, dx
-               IF ( keep_this_one ) THEN
-                  WRITE ( 14 ) map_start, lat1, lon1, dy, dx
-               END IF
-            CASE (1)
-               READ ( 13 )  map_start, lat1, lon1, dy, dx, truelat1
-               IF ( keep_this_one ) THEN
-                  WRITE ( 14 ) map_start, lat1, lon1, dy, dx, truelat1
-               END IF
-            CASE (3)
-               READ ( 13 )  map_start, lat1, lon1, dx, dy, lov, truelat1, truelat2
-               IF ( keep_this_one ) THEN
-                  WRITE ( 14 ) map_start, lat1, lon1, dx, dy, lov, truelat1, truelat2
-               END IF
-            CASE (5)
-               READ ( 13 )  map_start, lat1, lon1, dx, dy, lov, truelat1
-               IF ( keep_this_one ) THEN
-                  WRITE ( 14 ) map_start, lat1, lon1, dx, dy, lov, truelat1
-               END IF
-            CASE default
-               print *, 'Unknown flag for ifv = ',ifv,', llflag = ', llflag
-               STOP
-         END SELECT
-
-      ELSE IF ( ifv .EQ. 5) THEN
-
-         READ ( 13 )  hdate, xfcst, source, field, units, desc, level,&
-              idim, jdim, llflag
-         
-         !  Is this a level that we want?
-
-         keep_this_one = .FALSE.
-         DO l = 1 , max_pres_keep
-            IF ( level .EQ. press_pa(l) ) THEN
-               keep_this_one = .TRUE.
-               EXIT
-            END IF
-         END DO 
-
-         IF ( keep_this_one ) THEN
-            WRITE ( 14 ) ifv
-            WRITE ( 14 ) hdate, xfcst, source, field, units, desc, level,&
-                         idim, jdim, llflag
-else
-print *,'blowing off level ',level,' Pa'
-         END IF
-
-         SELECT CASE ( llflag )
-            CASE (0)
-               READ ( 13 )  map_start, lat1, lon1, dy, dx
-               IF ( keep_this_one ) THEN
-                  WRITE ( 14 ) map_start, lat1, lon1, dy, dx
-               END IF
-            CASE (1)
-               READ ( 13 )  map_start, lat1, lon1, dy, dx, truelat1
-               IF ( keep_this_one ) THEN
-                  WRITE ( 14 ) map_start, lat1, lon1, dy, dx, truelat1
-               END IF
-            CASE (3)
-               READ ( 13 )  map_start, lat1, lon1, dx, dy, lov, truelat1, truelat2
-               IF ( keep_this_one ) THEN
-                  WRITE ( 14 ) map_start, lat1, lon1, dx, dy, lov, truelat1, truelat2
-               END IF
-            CASE (5)
-               READ ( 13 )  map_start, lat1, lon1, dx, dy, lov, truelat1
-               IF ( keep_this_one ) THEN
-                  WRITE ( 14 ) map_start, lat1, lon1, dx, dy, lov, truelat1
-               END IF
-            CASE default
-               print *, 'Unknown flag for ifv = ',ifv,', llflag = ', llflag
-               STOP
-         END SELECT
-	 READ ( 13 ) grid_wind
-	 WRITE ( 14 ) grid_wind
+         CALL write_met_close()
 
       ELSE
-         print*, 'Unknown ifv: ', ifv
+
+         print *, 'File = ',TRIM(flnm2)
+         print *, 'Problem with output file, I can''t open it'
          STOP
+
       END IF
 
-      IF ( keep_this_one ) THEN
+      CALL read_met_close()
+ 
+   ELSE
 
-         !  Read, write and de-allocate.
+      print *, 'File = ',TRIM(flnm)
+      print *, 'Problem with input file, I can''t open it'
+      STOP
 
-         ALLOCATE ( scr2d ( idim , jdim ) )
-
-         READ ( 13 )  scr2d
-         WRITE ( 14 ) scr2d
-
-         DEALLOCATE ( scr2d )
-         print *, 'Processed ',field, level,' for time ',hdate
-      ELSE
-         READ ( 13 )  scr
-      END IF
-
-
-   END DO all_fields
-
-   !  We have processed all of the input data, close both files.
-
-   CLOSE ( 13 )
-   CLOSE ( 14 )
+   END IF
 
    print *,'SUCCESSFUL COMPLETION OF PROGRAM MOD_LEVS'
    STOP
