@@ -83,6 +83,7 @@ module gridinfo_module
       read(funit,metgrid)
       close(funit)
 
+! BUG: Better handle debug_level in module_debug
       if ( debug_level .gt. 100 ) then
          call set_debug_level(DEBUG)
       else
@@ -106,12 +107,9 @@ module gridinfo_module
       call mprintf(.true.,DEBUG,'  INTERVAL_SECONDS = %i',i1=interval_seconds)
       call mprintf(.true.,DEBUG,'  IO_FORM_GEOGRID  = %i',i1=io_form_geogrid)
       call mprintf(.true.,DEBUG,'  OPT_OUTPUT_FROM_GEOGRID_PATH = %s',s1=opt_output_from_geogrid_path)
-      if (debug_level .gt. 100) then
-         call mprintf(.true.,DEBUG,'  DEBUG_PRINT = .TRUE.')
-      else
-         call mprintf(.true.,DEBUG,'  DEBUG_PRINT = .FALSE.')
-      end if
+      call mprintf(.true.,DEBUG,'  DEBUG_LEVEL      = %i',i1=debug_level)
       call mprintf(.true.,DEBUG,'/')
+
       call mprintf(.true.,DEBUG,'&METGRID')
       call mprintf(.true.,DEBUG,'  FG_NAME               = %s',s1=fg_name(1))
       call mprintf(.true.,DEBUG,'  CONSTANTS_NAME        = %s',s1=constants_name(1))

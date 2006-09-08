@@ -1,11 +1,10 @@
-include $(DEV_TOP)/configure.wps
+include ../../configure.wps
 
 LIBTARGET	=	pgu
 EXE		=	ungrib.exe \
-			g1print.exe g2print.exe \
-			plotfmt.exe mod_levs.exe rd_intermediate.exe
+			g1print.exe g2print.exe
 
-OBJS1		=	module_datarray.o gridinfo.o new_storage.o filelist.o \
+OBJS1		=	table.o module_datarray.o gridinfo.o new_storage.o filelist.o \
 			ungrib.o output.o rrpr.o \
 			rd_grib1.o file_delete.o datint.o rd_grib2.o 
 
@@ -14,12 +13,12 @@ OBJS2		=	build_hdate.o geth_newdate.o geth_idts.o swap.o table.o \
 
 all:			lib$(LIBTARGET).a $(EXE)
 
-ungrib.exe:		$(OBJS1) ./libpgu.a
+ungrib.exe:		$(OBJS1) ./lib$(LIBTARGET).a
 			$(RM) $@
 			$(FC) -o $@ $(LDFLAGS) $(OBJS1) \
 				-L./ngl -lw3 -lg2_4 \
 				$(COMPRESSION_LIBS) \
-				-L. -lpgu
+				-L. -l$(LIBTARGET)
 
 lib$(LIBTARGET).a:	$(OBJS2)
 			$(RM) lib$(LIBTARGET).a
@@ -29,24 +28,9 @@ lib$(LIBTARGET).a:	$(OBJS2)
 g1print.exe:		g1print.o gribcode.o lib$(LIBTARGET).a
 			$(FC) -o $(@) $(LDFLAGS) g1print.o lib$(LIBTARGET).a
 
-plotfmt.exe:		plotfmt.o read_met_module.o lib$(LIBTARGET).a
-			$(FC) -o $(@) $(LDFLAGS) plotfmt.o read_met_module.o module_debug.o misc_definitions_module.o parallel_module.o mprintf.o \
-				lib$(LIBTARGET).a $(NCARG_LIBS) $(NCARG_LIBS2)
-
-plotfmt.o: 		plotfmt.F90 misc_definitions_module.o read_met_module.o
-			$(CPP) $(CPPFLAGS) -I. $< > $*.f
-			$(FC) $(FNGFLAGS) -c $*.f
-			$(RM) $*.f
-
-mod_levs.exe:		mod_levs.o module_debug.o read_met_module.o write_met_module.o
-			$(FC) -o $(@) $(LDFLAGS) mod_levs.o module_debug.o read_met_module.o write_met_module.o misc_definitions_module.o parallel_module.o mprintf.o
-
-rd_intermediate.exe:	rd_intermediate.o read_met_module.o module_debug.o
-			$(FC) -o $(@) $(LDFLAGS) rd_intermediate.o read_met_module.o module_debug.o misc_definitions_module.o parallel_module.o mprintf.o
-
 g2print.exe:		gridinfo.o g2print.o
 			$(FC) -o $(@) $(LDFLAGS) g2print.o \
-				-L. -lpgu \
+				-L. -l$(LIBTARGET) \
 				-L./ngl -lw3 -lg2_4 \
 				$(COMPRESSION_LIBS)
 
@@ -63,10 +47,6 @@ rd_grib2.o:		ngl/g2/gribmod.o table.o gridinfo.o ngl/g2/params.o new_storage.o \
 			$(RM) $*.f
 
 datint.o:		gridinfo.o new_storage.o datint.F90
-
-mod_levs.o:		module_debug.o read_met_module.o write_met_module.o mod_levs.F90
-
-rd_intermediate.o:	module_debug.o read_met_module.o rd_intermediate.F90
 
 new_storage.o:		gridinfo.o new_storage.F90
 

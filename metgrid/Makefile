@@ -31,7 +31,6 @@ all:
 		$(LN) src/$(TARGET) . ; \
 	fi
 
-
 clean:
 	if [ -e $(TARGET) ] ; then \
 		$(RM) $(TARGET) ; \
@@ -41,4 +40,4 @@ clean:
 	fi
 	( cd src ; $(MAKE) clean )
 
-superclean:	clean
+superclean: clean

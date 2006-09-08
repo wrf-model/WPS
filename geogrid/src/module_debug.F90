@@ -1,6 +1,15 @@
 module module_debug
 
+#ifdef _GEOGRID 
    use parallel_module
+#else
+#ifdef _METGRID
+   use parallel_module
+#else
+   integer, parameter :: IO_NODE = 0 
+   integer :: my_proc_id = 0 
+#endif
+#endif
 
    integer, parameter :: QUIET=-100, LOGFILE=-2, DEBUG=0, INFORM=1, WARN=2, ERROR=3, STDOUT=100
 

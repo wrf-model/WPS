@@ -10,18 +10,21 @@ endif
 
 set nonomatch
 
-set DIRS = ( geogrid ungrib metgrid )
+set DIRS = ( geogrid ungrib metgrid ungrib ungrib util util util util util)
+set EXES = ( geogrid ungrib metgrid g1print g2print plotfmt plotgrids mod_levs rd_intermediate avg_tsfc )
 
+set i = 1
 foreach dir ( $DIRS )
 	if ( -d $dir ) then 
-		( cd $dir ; make -i DEV_TOP="${DEV_TOP}" TARGET="${dir}.exe" clean )
+		( cd $dir ; make -i DEV_TOP="${DEV_TOP}" TARGET="$EXES[$i].exe" clean )
 	endif
-	/bin/rm -f ${dir}.exe >& /dev/null
+	/bin/rm -f $EXES[$i].exe
+	@ i ++
 end
 
-foreach execs ( plotfmt.exe plotgrids.exe g1print.exe g2print.exe mod_levs.exe rd_intermediate.exe avg_tsfc.exe )
-	/bin/rm -f $execs
-end
+#foreach execs ( plotfmt.exe plotgrids.exe g1print.exe g2print.exe mod_levs.exe rd_intermediate.exe avg_tsfc.exe )
+#	/bin/rm -f $execs
+#end
 
 #rm gmeta
 

@@ -26,8 +26,8 @@ else
 endif
 
 if      ( ( ${#argv} == 0 ) || ( $1 == util ) ) then
-	set names	=	( geogrid ungrib metgrid )
-	set NAMES	=	( GEOGRID UNGRIB METGRID )
+	set names	=	( geogrid ungrib metgrid g1print g2print plotfmt rd_intermediate plotgrids mod_levs avg_tsfc )
+	set NAMES	=	( GEOGRID UNGRIB METGRID GRIBUTIL GRIBUTIL UTIL UTIL UTIL UTIL UTIL )
 else if ( $1 == geogrid ) then
 	set names	=	( geogrid )
 	set NAMES	=	( GEOGRID )
@@ -43,31 +43,28 @@ endif
 
 set count = 1
 foreach f ( $names )
-	if ( $f == ungrib ) then
-		( cd ungrib ; make -i -r DEV_TOP="${DEV_TOP}" all )
-		if ( -e ${f}/src/${f}.exe ) then
-			ln -sf ${f}/src/${f}.exe .
-		endif
-	else if ( $f == metgrid ) then
-		( cd $f ; make -i -r WRF_DIR_PRE="${WRF_DIR_PRE}" DEV_TOP="${DEV_TOP}" TARGET="${f}.exe" CPP_TARGET="$NAMES[$count]" all )
-		if ( -e ${f}/src/${f}.exe ) then
-			ln -sf ${f}/src/${f}.exe .
-		endif
-		if ( -e ${f}/src/avg_tsfc.exe ) then
-			ln -sf ${f}/src/avg_tsfc.exe .
-		endif
-	else
-		( cd $f ; make -i -r WRF_DIR_PRE="${WRF_DIR_PRE}" DEV_TOP="${DEV_TOP}" TARGET="${f}.exe" CPP_TARGET="$NAMES[$count]" all )
-		if ( -e ${f}/src/${f}.exe ) then
-			ln -sf ${f}/src/${f}.exe .
-		endif
-	endif
-	@ count ++
+   if ("$NAMES[$count]" == "UTIL") then
+      ( cd util ; make -i -r WRF_DIR_PRE="${WRF_DIR_PRE}" DEV_TOP="${DEV_TOP}" TARGET="${f}.exe" CPP_TARGET="$NAMES[$count]" all )
+#      if ( -e util/src/${f}.exe ) then
+#         ln -sf util/src/${f}.exe .
+#      endif
+   else if ("$NAMES[$count]" == "GRIBUTIL") then
+      ( cd ungrib ; make -i -r WRF_DIR_PRE="${WRF_DIR_PRE}" DEV_TOP="${DEV_TOP}" TARGET="${f}.exe" CPP_TARGET="$NAMES[$count]" all )
+      if ( -e ungrib/src/${f}.exe ) then
+         ln -sf ungrib/src/${f}.exe .
+      endif
+   else
+      ( cd $f ; make -i -r WRF_DIR_PRE="${WRF_DIR_PRE}" DEV_TOP="${DEV_TOP}" TARGET="${f}.exe" CPP_TARGET="$NAMES[$count]" all )
+      if ( -e ${f}/src/${f}.exe ) then
+         ln -sf ${f}/src/${f}.exe .
+      endif
+   endif
+   @ count ++
 end
 
 if ( $1 == util ) then
-	if ( -e geogrid/src/plotgrids.exe ) then
-		ln -sf geogrid/src/plotgrids.exe .
+	if ( -e util/src/plotgrids.exe ) then
+		ln -sf util/src/plotgrids.exe .
 	endif
 	
 	if ( -e ungrib/src/g1print.exe ) then
@@ -78,16 +75,16 @@ if ( $1 == util ) then
 		ln -sf ungrib/src/g2print.exe .
 	endif
 	
-	if ( -e ungrib/src/plotfmt.exe ) then
-		ln -sf ungrib/src/plotfmt.exe .
+	if ( -e util/src/plotfmt.exe ) then
+		ln -sf util/src/plotfmt.exe .
 	endif
 	
-	if ( -e ungrib/src/mod_levs.exe ) then
-		ln -sf ungrib/src/mod_levs.exe .
+	if ( -e util/src/mod_levs.exe ) then
+		ln -sf util/src/mod_levs.exe .
 	endif
 	
-	if ( -e ungrib/src/rd_intermediate.exe ) then
-		ln -sf ungrib/src/rd_intermediate.exe .
+	if ( -e util/src/rd_intermediate.exe ) then
+		ln -sf util/src/rd_intermediate.exe .
 	endif
 endif
 

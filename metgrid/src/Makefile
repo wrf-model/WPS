@@ -9,7 +9,7 @@ all:
 	@echo " "
 	@echo " "
 
-metgrid.exe: $(OBJS) avg_tsfc.exe
+metgrid.exe: $(OBJS)
 	$(FC) $(LDFLAGS) -o $@ $(OBJS) \
 		$(WRF_DIR)/frame/pack_utils.o $(WRF_DIR)/frame/module_machine.o \
 		$(WRF_DIR)/frame/module_internal_header_util.o \
@@ -23,11 +23,6 @@ metgrid.exe: $(OBJS) avg_tsfc.exe
 		-L$(WRF_DIR)/external/io_int -lwrfio_int \
 		-L$(WRF_DIR)/external/io_netcdf -lwrfio_nf \
 		-L$(NETCDF)/lib -lnetcdf
-
-avg_tsfc.exe: avg_tsfc.o cio.o module_debug.o gridinfo_module.o read_met_module.o write_met_module.o module_date_pack.o misc_definitions_module.o
-	$(FC) $(LDFLAGS) -o $@ avg_tsfc.o cio.o module_debug.o gridinfo_module.o read_met_module.o write_met_module.o module_date_pack.o misc_definitions_module.o
-
-avg_tsfc.o: cio.o module_debug.o gridinfo_module.o read_met_module.o write_met_module.o module_date_pack.o misc_definitions_module.o
 
 bitarray_module.o: module_debug.o
 
@@ -84,7 +79,7 @@ wrf_debug.o: cio.o
 write_met_module.o: misc_definitions_module.o module_debug.o
 
 clean:
-	$(RM) $(OBJS) avg_tsfc.o *.mod
-	$(RM) metgrid.exe avg_tsfc.exe
+	$(RM) $(OBJS) *.mod
+	$(RM) metgrid.exe
 
 superclean:	clean
