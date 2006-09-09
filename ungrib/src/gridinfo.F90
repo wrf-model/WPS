@@ -29,10 +29,8 @@ module gridinfo
      real :: dy        ! grid-spacing in the Y direction (km or degrees)
                        ! 
 		       ! The following are WPS extensions (intermediate format version 5)
-     integer :: grid_wind     ! Winds are grid_relative (=1) or earth-realtive(=0)
-     integer :: num_ints
-     integer :: num_real
-     integer :: num_char
+     logical :: grid_wind     ! Winds are grid_relative (true) or earth-realtive(false)
+     real :: r_earth          ! Radius of a spherical earth
   end type mapinfo
 
   type (mapinfo) :: map

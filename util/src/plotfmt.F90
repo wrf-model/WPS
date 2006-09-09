@@ -11,7 +11,7 @@ program pltfmt
    INTEGER :: istatus, version, nx, ny, iproj
    integer :: idum, ilev
    REAL :: xfcst, xlvl, startlat, startlon, starti, startj, &
-           deltalat, deltalon, dx, dy, xlonc, truelat1, truelat2
+           deltalat, deltalon, dx, dy, xlonc, truelat1, truelat2, earth_radius
    REAL, POINTER, DIMENSION(:,:) :: slab
    LOGICAL :: is_wind_earth_rel
 
@@ -52,7 +52,8 @@ program pltfmt
 
       CALL  read_next_met_field(version, field, hdate, xfcst, xlvl, units, desc, &
                           iproj, startlat, startlon, starti, startj, deltalat, &
-                          deltalon, dx, dy, xlonc, truelat1, truelat2, nx, ny, map_source, &
+                          deltalon, dx, dy, xlonc, truelat1, truelat2, earth_radius, &
+                          nx, ny, map_source, &
                           slab, is_wind_earth_rel, istatus)
 
       DO WHILE (istatus == 0)
@@ -62,11 +63,11 @@ program pltfmt
          if (iproj == PROJ_LATLON) then
             call plt2d(slab, nx, ny, iproj, &
                        startlat, startlon, deltalon, deltalat, xlonc, truelat1, truelat2, &
-                       field, ilev, units, desc, map_source)
+                       field, ilev, units, version, desc, map_source)
          else
             call plt2d(slab, nx, ny, iproj, &
                        startlat, startlon, dx, dy, xlonc, truelat1, truelat2, &
-                       field, ilev, units, desc, map_source)
+                       field, ilev, units, version, desc, map_source)
          end if
 
 
@@ -74,7 +75,8 @@ program pltfmt
 
          CALL  read_next_met_field(version, field, hdate, xfcst, xlvl, units, desc, &
                              iproj, startlat, startlon, starti, startj, deltalat, &
-                             deltalon, dx, dy, xlonc, truelat1, truelat2, nx, ny, map_source, &
+                             deltalon, dx, dy, xlonc, truelat1, truelat2, earth_radius, &
+                             nx, ny, map_source, &
                              slab, is_wind_earth_rel, istatus)
       END DO
 
@@ -94,14 +96,14 @@ end program pltfmt
 
 subroutine plt2d(scr2d, ix, jx, llflag, &
      lat1, lon1, dx, dy, lov, truelat1, truelat2, &
-     field, ilev, units, Desc, source)
+     field, ilev, units, ifv, Desc, source)
 
   use misc_definitions_module
 
   implicit none
 
   integer :: llflag
-  integer :: ix, jx
+  integer :: ix, jx, ifv
   real, dimension(ix,jx) :: scr2d(ix,jx)
   real :: lat1, lon1, lov, truelat1, truelat2
   real :: dx, dy
@@ -110,6 +112,7 @@ subroutine plt2d(scr2d, ix, jx, llflag, &
   character(len=*) :: Desc
   character(len=*) :: source
   character(len=30) :: hunit
+  character(len=32) :: tmp32
 
   integer :: iproj, ierr
   real :: pl1, pl2, pl3, pl4, plon, plat, rota, phic
@@ -204,10 +207,17 @@ subroutine plt2d(scr2d, ix, jx, llflag, &
         hunit(ih:ih) = units(i:i)
      endif
   enddo
+  if ( ifv .le. 3 ) then
+    tmp32 = 'MM5 intermediate format'
+  else if ( ifv .eq. 4 ) then
+    tmp32 = 'SI intermediate format'
+  else if ( ifv .eq. 5 ) then
+    tmp32 = 'WPS intermediate format'
+  endif
   call pchiqu(0.1, xb-0.08, hunit, .015, 0.0, -1.0)
-  call pchiqu(0.1, xb-0.12, Desc, .012, 0.0, -1.0)
-  call pchiqu(0.6, xb-0.12, source, .012, 0.0, -1.0)
-
+  call pchiqu(0.1, xb-0.12, Desc, .013, 0.0, -1.0)
+  call pchiqu(0.6, xb-0.12, source, .013, 0.0, -1.0)
+  call pchiqu(0.1, xb-0.15, tmp32, .013, 0.0, -1.0)
 
   call set(xl,xr,xb,xt,1.,float(ix),1.,float(jx),ml)
 

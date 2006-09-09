@@ -5,35 +5,33 @@
 !    Read one record from the input GRIB2 file.  Based on the information in  !
 !    the GRIB2 header and the user-defined Vtable, decide whether the field in!
 !    the GRIB2 record is one to process or to skip.  If the field is one we   !
-!    want to keep, extract the data from the GRIB2 record, and pass the data  !
-!    back to the calling routine.                                             !
+!    want to keep, extract the data from the GRIB2 record, and store the data !
+!    in the ungrib memory structure.                                          !
 !                                                                             !
 ! Argument list:                                                              !
 !    Input:                                                                   !
-!       JUNIT   : "Unit Number" to open and read from.  Not really a Fortran  !
+!       junit   : "Unit Number" to open and read from.  Not really a Fortran  !
 !                 unit number, since we do not do Fortran I/O for the GRIB2   !
 !                 files.  Nor is it a UNIX File Descriptor returned from a C  !
 !                 OPEN statement.  It is really just an array index to the    !
 !                 array (IUARR) where the UNIX File Descriptor values are     !
 !                 stored.                                                     !
-!       GRIB2FILE: File name to open, if it is not already open.              !
-!       ALENGTH : Length of an array to hold the 2d slab read from the GRIB2  !
-!                 record.  This is a parameter in the main program.           !
-!       DEBUG_LEVEL  : Integer for various amounts of printout.               !
+!       gribflnm     : File name to open, if it is not already open.          !
+!       debug_level  : Integer for various amounts of printout.               !
 !                                                                             !
 !    Output:                                                                  !
 !                                                                             !
-!       HDATE    : The 19-character date of the field to process.             !
-!       IERR     : Error flag: 0 - no error on read from GRIB2 file.          !
+!       hdate        : The (up to)19-character date of the field to process.  !
+!       grib_edition : Version of the gribfile (1 or 2)                       !
+!       ireaderr     : Error flag: 0 - no error on read from GRIB2 file.      !
 !                              1 - Hit the end of the GRIB2 file.             !
 !                              2 - The file GRIBFLNM we tried to open does    !
 !                                  not exist.                                 !
 !                                                                             !
 !                                                                             !
-! Author: Paula McCaslin,                                                     !
-! NOAA/FSL                                                                    !
-! Sept 2004                                                                   !
+! Author: Paula McCaslin, NOAA/FSL,   Sept 2004                               !
 ! Code is based on code developed by Steve Gilbert NCEP & Kevin Manning NCAR  !
+! Adapted for WPS: Jim Bresch, NCAR/MMM. Sept 2006                            !
 !*****************************************************************************!
       
       SUBROUTINE rd_grib2(junit, gribflnm, hdate, 
@@ -232,6 +230,14 @@ C  SET ARGUMENTS
                map%source = 'unknown model from NCEP'
 	       write (6,*) 'iprocess = ',iprocess
              end if
+	   else if (icenter .eq. 57) then
+	     if (iprocess .eq. 87) then
+	       map%source = 'AFWA AGRMET'
+	     else
+	       map%source = 'AFWA'
+	     endif
+	   else if (icenter .eq. 98) then
+	     map%source = 'ECMWF'
            else
              map%source = 'unknown model and orig center'
            end if
@@ -243,6 +249,7 @@ C  SET ARGUMENTS
            ! module GRIDINFO.
 
            map%startloc = 'SWCORNER'
+	   map%grid_wind = .true.
 
            if (gfld%igdtnum.eq.0) then ! Lat/Lon grid aka Cylindrical Equidistant
               map%igrid = 0
@@ -253,7 +260,8 @@ C  SET ARGUMENTS
               map%lat1 = gfld%igdtmpl(12)
               map%lon1 = gfld%igdtmpl(13)
               write(tmp8,'(b8.8)') gfld%igdtmpl(14)
-              read(tmp8,'(4x,i1)') map%grid_wind
+	      if (tmp8(5:5) .eq. '0') map%grid_wind = .false.
+	      map%r_earth = earth_radius (gfld%igdtmpl(1))
 
               ! Scale dx/dy values to degrees, default range is 1e6.
               if (map%dx.gt.10000) then 
@@ -296,7 +304,8 @@ C  SET ARGUMENTS
               map%lat1 = gfld%igdtmpl(10) / scale_factor
               map%lon1 = gfld%igdtmpl(11) / scale_factor
               write(tmp8,'(b8.8)') gfld%igdtmpl(12)
-              read(tmp8,'(4x,i1)') map%grid_wind
+	      if (tmp8(5:5) .eq. '0') map%grid_wind = .false.
+	      map%r_earth = earth_radius (gfld%igdtmpl(1))
 
            elseif (gfld%igdtnum.eq.30) then ! Lambert Conformal Grid
               map%igrid = 3
@@ -310,7 +319,8 @@ C  SET ARGUMENTS
               map%lat1 = gfld%igdtmpl(10) / scale_factor
               map%lon1 = gfld%igdtmpl(11) / scale_factor
               write(tmp8,'(b8.8)') gfld%igdtmpl(12)
-              read(tmp8,'(4x,i1)') map%grid_wind
+	      if (tmp8(5:5) .eq. '0') map%grid_wind = .false.
+	      map%r_earth = earth_radius (gfld%igdtmpl(1))
 
            elseif(gfld%igdtnum.eq.40) then ! Gaussian Grid (we will call it lat/lon)
               map%igrid = 0
@@ -320,8 +330,9 @@ C  SET ARGUMENTS
               map%dy = gfld%igdtmpl(18)    ! N - # of parallels between pole and equator
               map%lat1 = gfld%igdtmpl(12)  ! La1 - lat of 1st grid point
               map%lon1 = gfld%igdtmpl(13)  ! Lo1 - lon of 1st grid point
-              write(tmp8,'(b8.8)') gfld%igdtmpl(14)
-              read(tmp8,'(4x,i1)') map%grid_wind   ! resolution/component flag
+              write(tmp8,'(b8.8)') gfld%igdtmpl(14)  ! resolution/component flag
+	      if (tmp8(5:5) .eq. '0') map%grid_wind = .false.
+	      map%r_earth = earth_radius (gfld%igdtmpl(1))
 
               ! Scale dx/dy values to degrees, default range is 1e6.
               if (map%dx.gt.10000) then 
@@ -768,7 +779,6 @@ C  SET ARGUMENTS
 	  write(tmp8,'("GRID  88")') 
 	endif
       else if (pnum .eq. 0) then
-	write(6,*) 'in pnum = 0'
         if (abs(map%dx - 1.) .lt. eps .and. map%nx .eq. 360) then
 	  write(tmp8,'("GRID   3")') 
         else if (abs(map%dx - 0.5) .lt. eps .and. map%nx .eq. 720) then
@@ -778,3 +788,18 @@ C  SET ARGUMENTS
       map%source(25:32) = tmp8
 !     write(6,*) 'map%source = ',map%source
       end subroutine ncep_grid_num
+!*****************************************************************************!
+
+      function earth_radius (icode)
+! Grib2 Code Table 3.2. Returns the spherical earth's radius in km.
+      real :: earth_radius
+      integer :: icode
+      if ( icode .eq. 0 ) then
+        earth_radius = 6367470. * .001
+      else if ( icode .eq. 6 ) then
+        earth_radius = 6371229. * .001
+      else
+        write(6,*) 'unknown earth radius for code ',icode
+	stop
+      endif
+      end function earth_radius

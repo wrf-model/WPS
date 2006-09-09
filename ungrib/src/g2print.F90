@@ -438,6 +438,14 @@ end program g2print
                map%source = 'unknown model from NCEP'
                write (6,*) 'unknown NCEP model, iprocess = ',iprocess
              end if
+           else if (icenter .eq. 57) then
+             if (iprocess .eq. 87) then
+               map%source = 'AFWA AGRMET'
+             else
+               map%source = 'AFWA'
+             endif
+           else if (icenter .eq. 98) then
+             map%source = 'ECMWF'
            else
              map%source = 'unknown model and orig center'
            end if

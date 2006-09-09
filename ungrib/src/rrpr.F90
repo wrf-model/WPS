@@ -7,7 +7,7 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_level, out_f
 ! Recent changes:                                                             !
 !                                                                             !
 !    2004-10-29:                                                              !
-!		- Sync rrpr.F WRFSI v2.0.1 with MM5 v3.5                      !
+!               - Sync rrpr.F WRFSI v2.0.1 with MM5 v3.5                      !
 !                 Added DATELEN: length of date strings to use for            !
 !                 our output file names.                                      !
 !                 Added MM5 interpolation from surrounding levels             !
@@ -143,22 +143,68 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_level, out_f
      rdloop: do 
         read (iunit, iostat=ierr) ifv
         if (ierr.ne.0) exit rdloop
-        read (iunit) hdate_output, xfcst, map%source, field, units, Desc, &
-             level, map%nx, map%ny, map%igrid
-        hdate = hdate_output(1:19)
-        if (map%igrid.eq.3) then ! lamcon
+        if ( ifv .eq. 5) then     ! WPS
+          read (iunit) hdate_output, xfcst, map%source, field, units, Desc, &
+               level, map%nx, map%ny, map%igrid
+          hdate = hdate_output(1:19)
+          select case (map%igrid)
+          case (0)
+             read (iunit) map%startloc, map%lat1, map%lon1, map%dy, map%dx, map%r_earth
+          case (3)
            read (iunit) map%startloc, map%lat1, map%lon1, map%dx, map%dy, map%lov, &
-                map%truelat1, map%truelat2
-        elseif (map%igrid.eq.5) then ! Polar Stereographic
-           read (iunit) map%startloc, map%lat1, map%lon1, map%dx, map%dy, map%lov, &
-                map%truelat1
-        elseif (map%igrid.eq.0)then ! lat/lon
-           read (iunit) map%startloc, map%lat1, map%lon1, map%dy, map%dx
-        elseif (map%igrid.eq.1)then ! Mercator
-           read (iunit) map%startloc, map%lat1, map%lon1, map%dy, map%dx, map%truelat1
+                map%truelat1, map%truelat2, map%r_earth
+          case (5)
+             read (iunit) map%startloc, map%lat1, map%lon1, map%dx, map%dy, map%lov, &
+                map%truelat1, map%r_earth
+          case (1)
+           read (iunit) map%startloc, map%lat1, map%lon1, map%dy, map%dx, &
+                map%truelat1, map%r_earth
+          case default
+             write(*,'("Unrecognized map%igrid: ", I20)') map%igrid
+             stop 'RRPR'
+          end select
+          read (iunit) map%grid_wind
+
+        else if ( ifv .eq. 4 ) then          ! SI
+          read (iunit) hdate_output, xfcst, map%source, field, units, desc, level, &
+                map%nx, map%ny, map%igrid
+          hdate = hdate_output(1:19)
+          select case (map%igrid)
+          case (0)
+             read(iunit) map%startloc, map%lat1, map%lon1, map%dy, map%dx
+          case (3)
+             read (iunit) map%startloc, map%lat1, map%lon1, map%dx, map%dy, &
+                map%lov, map%truelat1, map%truelat2
+          case (5)
+             read (iunit) map%startloc, map%lat1, map%lon1, map%dx, map%dy, &
+                map%lov, map%truelat1
+          case default
+             print*, 'Unrecognized map%igrid: ', map%igrid
+             stop "RRPR"
+          end select
+
+        else if ( ifv .eq. 3 ) then          ! MM5
+          read(iunit) hdate_output, xfcst, field, units, desc, level,&
+                map%nx, map%ny, map%igrid
+          hdate = hdate_output(1:19)
+          select case (map%igrid)
+          case (3)      ! lamcon
+            read (iunit) map%lat1, map%lon1, map%dx, map%dy, map%lov, &
+                    map%truelat1, map%truelat2
+           case (5)      ! Polar Stereographic
+              read (iunit) map%lat1, map%lon1, map%dx, map%dy, map%lov, &
+                   map%truelat1
+           case (0)      ! lat/lon
+              read (iunit) map%lat1, map%lon1, map%dy, map%dx
+           case (1)      ! Mercator
+              read (iunit) map%lat1, map%lon1, map%dy, map%dx, map%truelat1
+           case default
+              write(*,'("Unrecognized map%igrid: ", I20)') map%igrid
+             stop 'RRPR'
+           end select
         else
-           write(*,'("Unrecognized map%igrid: ", I20)') map%igrid
-           stop
+           write(6,*) 'unknown out_format, ifv =', ifv
+           stop 'RRPR'
         endif
 
         allocate(ptr2d(map%nx,map%ny))

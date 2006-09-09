@@ -51,7 +51,7 @@ module write_met_module
  
    subroutine write_next_met_field(version, field, hdate, xfcst, xlvl, units, desc, &
                           iproj, startlat, startlon, starti, startj, deltalat, &
-                          deltalon, dx, dy, xlonc, truelat1, truelat2, nx, ny, map_source, &
+                          deltalon, dx, dy, xlonc, truelat1, truelat2, earth_radius, nx, ny, map_source, &
                           slab, is_wind_earth_rel, istatus)
  
       implicit none
@@ -60,7 +60,7 @@ module write_met_module
       integer, intent(in) :: version, nx, ny, iproj
       integer, intent(out) :: istatus
       real, intent(in) :: xfcst, xlvl, startlat, startlon, starti, startj, &
-                           deltalat, deltalon, dx, dy, xlonc, truelat1, truelat2
+                           deltalat, deltalon, dx, dy, xlonc, truelat1, truelat2, earth_radius
       real, dimension(nx,ny) :: slab
       logical, intent(in) :: is_wind_earth_rel
       character (len=9), intent(in) :: field
@@ -164,22 +164,22 @@ module write_met_module
          ! Cylindrical equidistant
          if (iproj == PROJ_LATLON) then
             write(unit=output_unit) hdate, xfcst, map_source, local_field, units, desc, xlvl, nx, ny, 0
-            write(unit=output_unit) startloc, startlat, startlon, deltalat, deltalon
+            write(unit=output_unit) startloc, startlat, startlon, deltalat, deltalon, earth_radius
 
          ! Mercator
          else if (iproj == PROJ_MERC) then
             write(unit=output_unit) hdate, xfcst, map_source, local_field, units, desc, xlvl, nx, ny, 1
-            write(unit=output_unit) startloc, startlat, startlon, dx, dy, truelat1
+            write(unit=output_unit) startloc, startlat, startlon, dx, dy, truelat1, earth_radius
 
          ! Lambert conformal
          else if (iproj == PROJ_LC) then
             write(unit=output_unit) hdate, xfcst, map_source, local_field, units, desc, xlvl, nx, ny, 3
-            write(unit=output_unit) startloc, startlat, startlon, dx/1000., dy/1000., xlonc, truelat1, truelat2
+            write(unit=output_unit) startloc, startlat, startlon, dx/1000., dy/1000., xlonc, truelat1, truelat2, earth_radius
 
          ! Polar stereographic
          else if (iproj == PROJ_PS) then
             write(unit=output_unit) hdate, xfcst, map_source, local_field, units, desc, xlvl, nx, ny, 5
-            write(unit=output_unit) startloc, startlat, startlon, dx/1000., dy/1000., xlonc, truelat1
+            write(unit=output_unit) startloc, startlat, startlon, dx/1000., dy/1000., xlonc, truelat1, earth_radius
      
          ! ?????????
          else

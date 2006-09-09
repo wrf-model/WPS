@@ -51,7 +51,7 @@ module read_met_module
  
    subroutine read_next_met_field(version, field, hdate, xfcst, xlvl, units, desc, &
                           iproj, startlat, startlon, starti, startj, deltalat, &
-                          deltalon, dx, dy, xlonc, truelat1, truelat2, nx, ny, map_source, &
+                          deltalon, dx, dy, xlonc, truelat1, truelat2, earth_radius, nx, ny, map_source, &
                           slab, is_wind_earth_rel, istatus)
  
       implicit none
@@ -59,7 +59,7 @@ module read_met_module
       ! Arguments
       integer, intent(out) :: istatus, version, nx, ny, iproj
       real, intent(out) :: xfcst, xlvl, startlat, startlon, starti, startj, &
-                           deltalat, deltalon, dx, dy, xlonc, truelat1, truelat2
+                           deltalat, deltalon, dx, dy, xlonc, truelat1, truelat2, earth_radius
       real, pointer, dimension(:,:) :: slab
       logical, intent(out) :: is_wind_earth_rel
       character (len=9), intent(out) :: field
@@ -194,22 +194,22 @@ module read_met_module
          ! Cylindrical equidistant
          if (iproj == 0) then
             iproj = PROJ_LATLON
-            read(unit=input_unit,err=1001,end=1001) startloc, startlat, startlon, deltalat, deltalon
+            read(unit=input_unit,err=1001,end=1001) startloc, startlat, startlon, deltalat, deltalon, earth_radius
 
          ! Mercator
          else if (iproj == 1) then
             iproj = PROJ_MERC
-            read(unit=input_unit,err=1001,end=1001) startloc, startlat, startlon, dx, dy, truelat1
+            read(unit=input_unit,err=1001,end=1001) startloc, startlat, startlon, dx, dy, truelat1, earth_radius
 
          ! Lambert conformal
          else if (iproj == 3) then
             iproj = PROJ_LC
-            read(unit=input_unit,err=1001,end=1001) startloc, startlat, startlon, dx, dy, xlonc, truelat1, truelat2
+            read(unit=input_unit,err=1001,end=1001) startloc, startlat, startlon, dx, dy, xlonc, truelat1, truelat2, earth_radius
 
          ! Polar stereographic
          else if (iproj == 5) then
             iproj = PROJ_PS
-            read(unit=input_unit,err=1001,end=1001) startloc, startlat, startlon, dx, dy, xlonc, truelat1
+            read(unit=input_unit,err=1001,end=1001) startloc, startlat, startlon, dx, dy, xlonc, truelat1, earth_radius
      
          ! ?????????
          else

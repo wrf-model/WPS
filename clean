@@ -10,7 +10,7 @@ endif
 
 set nonomatch
 
-set DIRS = ( geogrid ungrib metgrid ungrib ungrib util util util util util)
+set DIRS = ( geogrid ungrib metgrid ungrib  ungrib   util     util      util        util        util    )
 set EXES = ( geogrid ungrib metgrid g1print g2print plotfmt plotgrids mod_levs rd_intermediate avg_tsfc )
 
 set i = 1
@@ -22,9 +22,11 @@ foreach dir ( $DIRS )
 	@ i ++
 end
 
-#foreach execs ( plotfmt.exe plotgrids.exe g1print.exe g2print.exe mod_levs.exe rd_intermediate.exe avg_tsfc.exe )
-#	/bin/rm -f $execs
-#end
+#	The nuclear option
+
+find . -name \*.exe -exec \rm {} \; 
+find . -name \*.o -exec \rm {} \; 
+find . -name \*.a -exec \rm {} \; 
 
 #rm gmeta
 

@@ -146,8 +146,6 @@ program gribscan
         call gribprint(2)
         call gribprint(3)
         call gribprint(4)
-        write(*,'(//,70("*"))')
-        if (idb) then
            if (sec2(4).eq.50) then
               ndat = (infogrid(1)+1)*(infogrid(2)+1)
            else
@@ -155,9 +153,21 @@ program gribscan
            endif
            allocate(datarray(ndat))
            call gribdata(datarray, ndat)
+	   fldmax = datarray(1)
+	   fldmin = datarray(1)
+	   do j = 1, ndat
+	     if (datarray(j).gt.fldmax) fldmax=datarray(j)
+	     if (datarray(j).lt.fldmin) fldmin=datarray(j)
+	   enddo
+	write(*,*) "  "
+	write(*,*) "  ",gc(sec1(7))," : "
+        write(*,'(5x,"Minimum Data Value ",t45,":",g14.5)') fldmin
+        write(*,'(5x,"Maximum Data Value ",t45,":",g14.5)') fldmax
+        write(*,'(//,70("*"))')
+        if (idb) then
            print*, 'Datarray = ', Datarray
-           deallocate(datarray)
         endif
+           deallocate(datarray)
      else
         CC = sec1(22)
         year = (cc-1)*100 + sec1(11)

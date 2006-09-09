@@ -73,63 +73,62 @@ subroutine datint(fuldates, nful, hstart, ntimes, interval, out_format)
                 status='old')
            call clear_storage
            READLOOP1 : do
-	      if ( out_format(1:2) .eq. 'SI' ) then
               read(10, end=44) ifv
-              read (10) jdate, xfcst, map%source, field, units, desc, level, map%nx, map%ny, map%igrid
-              if (map%igrid == 0) then
-                 read(10) map%startloc, map%lat1, map%lon1, map%dy, map%dx
-              elseif (map%igrid == 1) then
-                 read(10) map%startloc, map%lat1, map%lon1, map%dy, map%dx, map%truelat1
-              elseif (map%igrid == 3) then
-                 read (10) map%startloc, map%lat1, map%lon1, map%dx, map%dy, &
-                      map%lov, map%truelat1, map%truelat2
-              elseif (map%igrid == 5) then
-                 read (10) map%startloc, map%lat1, map%lon1, map%dx, map%dy, &
-                      map%lov, map%truelat1
-              else
-                 print*, 'Unrecognized map%igrid: ', map%igrid
-                 stop "STOP IN DATINT"
-              endif
-	      else if ( out_format(1:2) .eq. 'WP' ) then
-              read(10, end=44) ifv
-              read (10) jdate, xfcst, map%source, field, units, desc, level, map%nx, map%ny, map%igrid
-              if (map%igrid == 0) then
-                 read(10) map%startloc, map%lat1, map%lon1, map%dy, map%dx
-              elseif (map%igrid == 1) then
-                 read(10) map%startloc, map%lat1, map%lon1, map%dy, map%dx, map%truelat1
-              elseif (map%igrid == 3) then
-                 read (10) map%startloc, map%lat1, map%lon1, map%dx, map%dy, &
-                      map%lov, map%truelat1, map%truelat2
-              elseif (map%igrid == 5) then
-                 read (10) map%startloc, map%lat1, map%lon1, map%dx, map%dy, &
-                      map%lov, map%truelat1
-              else
-                 print*, 'Unrecognized map%igrid: ', map%igrid
-                 stop "STOP IN DATINT"
-              endif
-	      else if ( out_format(1:2) .eq. 'MM' ) then
-              read(10, end=44) ifv
-              read(10) jdate, xfcst, field, units, desc, level,&
-                   map%nx, map%ny, map%igrid
-              if (map%igrid.eq.3) then ! lamcon
-                 read (10) map%lat1, map%lon1, map%dx, map%dy, map%lov, &
-                      map%truelat1, map%truelat2
-              elseif (map%igrid.eq.5) then ! Polar Stereographic
-                 read (10) map%lat1, map%lon1, map%dx, map%dy, map%lov, &
-                      map%truelat1
-              elseif (map%igrid.eq.0)then ! lat/lon
-                 read (10) map%lat1, map%lon1, map%dy, map%dx
-              elseif (map%igrid.eq.1)then ! Mercator
-                 read (10) map%lat1, map%lon1, map%dy, map%dx, map%truelat1
-              else
-                 write(*,'("Unrecognized map%igrid: ", I20)') map%igrid
-                 stop 'DATINT'
-              endif
+	      if ( ifv .eq. 5) then     ! WPS
+                read (10) jdate, xfcst, map%source, field, units, desc, level, &
+	             map%nx, map%ny, map%igrid
+	        select case (map%igrid)
+                case (0)
+                   read(10) map%startloc, map%lat1, map%lon1, map%dy, map%dx, map%r_earth
+                case (3)
+                   read (10) map%startloc, map%lat1, map%lon1, map%dx, map%dy, &
+                        map%lov, map%truelat1, map%truelat2, map%r_earth
+                case (5)
+                   read (10) map%startloc, map%lat1, map%lon1, map%dx, map%dy, &
+                        map%lov, map%truelat1, map%r_earth
+                case default
+                   print*, 'Unrecognized map%igrid: ', map%igrid
+                   stop "STOP IN DATINT"
+                end select
+                read (10) map%grid_wind
+	      else if ( ifv .eq. 4 ) then          ! SI
+                read (10) jdate, xfcst, map%source, field, units, desc, level, &
+	              map%nx, map%ny, map%igrid
+	        select case (map%igrid)
+                case (0)
+                   read(10) map%startloc, map%lat1, map%lon1, map%dy, map%dx
+                case (3)
+                   read (10) map%startloc, map%lat1, map%lon1, map%dx, map%dy, &
+                        map%lov, map%truelat1, map%truelat2
+                case (5)
+                   read (10) map%startloc, map%lat1, map%lon1, map%dx, map%dy, &
+                        map%lov, map%truelat1
+                case default
+                   print*, 'Unrecognized map%igrid: ', map%igrid
+                   stop "STOP IN DATINT"
+                end select
+	      else if ( ifv .eq. 3 ) then          ! MM5
+                read(10) jdate, xfcst, field, units, desc, level,&
+                     map%nx, map%ny, map%igrid
+	        select case (map%igrid)
+	        case (3)      ! lamcon
+                   read (10) map%lat1, map%lon1, map%dx, map%dy, map%lov, &
+                        map%truelat1, map%truelat2
+	        case (5)      ! Polar Stereographic
+                   read (10) map%lat1, map%lon1, map%dx, map%dy, map%lov, &
+                        map%truelat1
+	        case (0)      ! lat/lon
+                   read (10) map%lat1, map%lon1, map%dy, map%dx
+	        case (1)      ! Mercator
+                   read (10) map%lat1, map%lon1, map%dy, map%dx, map%truelat1
+                case default
+                   write(*,'("Unrecognized map%igrid: ", I20)') map%igrid
+                   stop 'DATINT'
+                end select 
 	      else
-	        write(6,*) 'unknown out_format'
+	        write(6,*) 'unknown out_format, ifv =', ifv
 		stop 'datint'
               endif
-              read (10) map%grid_wind
               allocate(scr2d(map%nx, map%ny))
               read (10) scr2d
               call put_storage(nint(level), field, scr2d, map%nx, map%ny)
@@ -141,67 +140,65 @@ subroutine datint(fuldates, nful, hstart, ntimes, interval, out_format)
                 form = 'unformatted')
            open(11, file='FILE:'//hdate(1:datelen), status='new', form='unformatted')
            READLOOP2 : do
-	      if ( out_format(1:2) .eq. 'SI' ) then
               read (10,END=45) ifv
-              read (10) jdate, xfcst, map%source, field, units, desc, level, &
+              if ( ifv .eq. 5) then     ! WPS
+                read (10) jdate, xfcst, map%source, field, units, desc, level, &
                       map%nx, map%ny, map%igrid
-              if (map%igrid == 0) then
-                 read(10) map%startloc, map%lat1, map%lon1, map%dy, map%dx
-              elseif (map%igrid == 1) then
-                 read(10) map%startloc, map%lat1, map%lon1, map%dy, map%dx, map%truelat1
-              elseif (map%igrid == 3) then
-                 read (10) map%startloc, map%lat1, map%lon1, map%dx, map%dy, &
-                      map%lov, map%truelat1, map%truelat2
-              elseif (map%igrid == 5) then
-                 read (10) map%startloc, map%lat1, map%lon1, map%dx, map%dy, &
-                      map%lov, map%truelat1
-              else
-                 print*, 'Unrecognized map%igrid: ', map%igrid
-                 stop "STOP IN DATINT"
-              endif
-
-              else if ( out_format(1:2) .eq. 'WP' ) then
-              read (10,END=45) ifv
-              read (10) jdate, xfcst, map%source, field, units, desc, level, &
+	        select case (map%igrid)
+	        case (0)
+                   read(10) map%startloc, map%lat1, map%lon1, map%dy, map%dx, map%r_earth
+	        case (3)
+                   read (10) map%startloc, map%lat1, map%lon1, map%dx, map%dy, &
+                        map%lov, map%truelat1, map%truelat2, map%r_earth
+	        case (5)
+                   read (10) map%startloc, map%lat1, map%lon1, map%dx, map%dy, &
+                      map%lov, map%truelat1, map%r_earth
+                case default
+                   print*, 'Unrecognized map%igrid: ', map%igrid
+                   stop "STOP IN DATINT"
+                end select
+                read (10) map%grid_wind
+	      else if ( ifv .eq. 4 ) then          ! SI
+                read (10) jdate, xfcst, map%source, field, units, desc, level, &
                       map%nx, map%ny, map%igrid
-              if (map%igrid == 0) then
-                 read(10) map%startloc, map%lat1, map%lon1, map%dy, map%dx
-              elseif (map%igrid == 1) then
-                 read(10) map%startloc, map%lat1, map%lon1, map%dy, map%dx, map%truelat1
-              elseif (map%igrid == 3) then
-                 read (10) map%startloc, map%lat1, map%lon1, map%dx, map%dy, &
+	        select case (map%igrid)
+		case (0)
+                   read(10) map%startloc, map%lat1, map%lon1, map%dy, map%dx
+		case (1)
+                   read(10) map%startloc, map%lat1, map%lon1, map%dy, map%dx, map%truelat1
+		case (3)
+                   read (10) map%startloc, map%lat1, map%lon1, map%dx, map%dy, &
                       map%lov, map%truelat1, map%truelat2
-              elseif (map%igrid == 5) then
-                 read (10) map%startloc, map%lat1, map%lon1, map%dx, map%dy, &
+		case (5)
+                   read (10) map%startloc, map%lat1, map%lon1, map%dx, map%dy, &
                       map%lov, map%truelat1
-              else
-                 print*, 'Unrecognized map%igrid: ', map%igrid
-                 stop "STOP IN DATINT"
-              endif
-              read (10) map%grid_wind
+                case default
+                   print*, 'Unrecognized map%igrid: ', map%igrid
+                   stop "STOP IN DATINT"
+                end select
 
-              else if ( out_format(1:2) .eq. 'MM' ) then
-              read(10, end=45) ifv
-              read(10) jdate, xfcst, field, units, desc, level,&
-                   map%nx, map%ny, map%igrid
-              if (map%igrid.eq.3) then ! lamcon
-                 read (10) map%lat1, map%lon1, map%dx, map%dy, map%lov, &
-                      map%truelat1, map%truelat2
-              elseif (map%igrid.eq.5) then ! Polar Stereographic
-                 read (10) map%lat1, map%lon1, map%dx, map%dy, map%lov, &
+              else if ( ifv .eq. 3 ) then          ! MM5
+                read(10) jdate, xfcst, field, units, desc, level,&
+                     map%nx, map%ny, map%igrid
+	        select case (map%igrid)
+		case (3)    ! lamcon
+                   read (10) map%lat1, map%lon1, map%dx, map%dy, map%lov, &
+                        map%truelat1, map%truelat2
+	        case (5)    ! Polar Stereographic
+                   read (10) map%lat1, map%lon1, map%dx, map%dy, map%lov, &
                       map%truelat1
-              elseif (map%igrid.eq.0)then ! lat/lon
-                 read (10) map%lat1, map%lon1, map%dy, map%dx
-              elseif (map%igrid.eq.1)then ! Mercator
-                 read (10) map%lat1, map%lon1, map%dy, map%dx, map%truelat1
-              else
-                 write(*,'("Unrecognized map%igrid: ", I20)') map%igrid
-                 stop 'DATINT'
-              endif
+	        case (0)    ! lat/lon
+                   read (10) map%lat1, map%lon1, map%dy, map%dx
+	        case (1)    ! Mercator
+                   read (10) map%lat1, map%lon1, map%dy, map%dx, map%truelat1
+                case default
+                   write(*,'("Unrecognized map%igrid: ", I20)') map%igrid
+                   stop 'DATINT'
+                end select
 
               else
-                write(6,*) 'unknown out_format'
-                stop 'datint'
+                write(6,*) 'unknown out_format, ifv = ',ifv
+                stop 'datint 2'
               endif
 
               allocate(scr2d(map%nx, map%ny))
@@ -236,15 +233,17 @@ subroutine datint(fuldates, nful, hstart, ntimes, interval, out_format)
                  write(11) hdate_output, xfcst, map%source, field, units, desc, &
                       level, map%nx, map%ny, map%igrid
                  if (map%igrid == 0) then
-                    write(11) map%startloc, map%lat1, map%lon1, map%dy, map%dx
+                    write(11) map%startloc, map%lat1, map%lon1, map%dy, map%dx, &
+		              map%r_earth
                  elseif (map%igrid == 1) then
-                    write(11) map%startloc, map%lat1, map%lon1, map%dy, map%dx, map%truelat1
+                    write(11) map%startloc, map%lat1, map%lon1, map%dy, map%dx, &
+		              map%truelat1, map%r_earth
                  elseif (map%igrid == 3) then
                     write (11) map%startloc, map%lat1, map%lon1, map%dx, map%dy, &
-                         map%lov, map%truelat1, map%truelat2
+                         map%lov, map%truelat1, map%truelat2, map%r_earth
                  elseif (map%igrid == 5) then
                     write (11) map%startloc, map%lat1, map%lon1, map%dx, map%dy, &
-                         map%lov, map%truelat1
+                         map%lov, map%truelat1, map%r_earth
                  else
                     print*, 'Unrecognized map%igrid: ', map%igrid
                     stop "STOP IN DATINT"

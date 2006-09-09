@@ -156,9 +156,19 @@ SUBROUTINE rd_grib1(IUNIT, gribflnm, level, field, hdate,  &
     else
       map%source = 'unknown model from NCEP'
     end if
-!  grid numbers only set for NCEP models
+!  grid numbers only set for NCEP and AFWA models
     write(tmp8,'("GRID ",i3)') KSEC1(5)
     map%source(25:32) = tmp8
+  else if (icenter .eq. 57) then
+    if (iprocess .eq. 87) then
+      map%source = 'AFWA AGRMET'
+    else
+      map%source = 'AFWA'
+    endif
+    write(tmp8,'("GRID ",i3)') KSEC1(5)
+    map%source(25:32) = tmp8
+  else if (icenter .eq. 98) then
+      map%source = 'ECMWF'
   else
     map%source = 'unknown model and orig center'
   end if
@@ -302,6 +312,9 @@ SUBROUTINE rd_grib1(IUNIT, gribflnm, level, field, hdate,  &
 ! This stuff gets stored in the MAP variable, as defined in module GRIDINFO
 
   map%startloc = 'SWCORNER'
+  map%grid_wind = .true.
+! NCEP's grib1 messages say they use 6367.47, but they really use 6371.229. Hardcode it.
+  map%r_earth = 6371.229   
 
   if (ksec2(4).eq.0) then ! Lat/Lon grid
      map%igrid = 0
@@ -312,7 +325,7 @@ SUBROUTINE rd_grib1(IUNIT, gribflnm, level, field, hdate,  &
      map%lat1 = ginfo(3)
      map%lon1 = ginfo(4)
      write(tmp8,'(b8.8)') infogrid(5)
-     read(tmp8,'(4x,i1)') map%grid_wind
+     if (tmp8(5:5) .eq. '0') map%grid_wind = .false.
 
 !    print *, "CE map stuff", map%igrid, map%nx, map%ny, map%dx, &
 !    map%dy, map%lat1, map%lon1
@@ -329,7 +342,8 @@ SUBROUTINE rd_grib1(IUNIT, gribflnm, level, field, hdate,  &
      map%lat1 = ginfo(3)
      map%lon1 = ginfo(4)
      write(tmp8,'(b8.8)') infogrid(5)
-     read(tmp8,'(4x,i1)') map%grid_wind
+     if (tmp8(5:5) .eq. '0') map%grid_wind = .false.
+!    if (tmp8(2:2) .eq. '0') map%r_earth = 6367.47
          
   elseif(ksec2(4).eq.4) then ! Gaussian Grid; we will call it lat/lon
      map%igrid = 0
@@ -340,7 +354,7 @@ SUBROUTINE rd_grib1(IUNIT, gribflnm, level, field, hdate,  &
      map%lon1 = ginfo(4)
      map%lat1 = ginfo(3)
      write(tmp8,'(b8.8)') infogrid(5)
-     read(tmp8,'(4x,i1)') map%grid_wind
+     if (tmp8(5:5) .eq. '0') map%grid_wind = .false.
 
   elseif (ksec2(4).eq.5) then ! Polar-Stereographic Grid.
      map%igrid = 5
@@ -354,7 +368,7 @@ SUBROUTINE rd_grib1(IUNIT, gribflnm, level, field, hdate,  &
      map%lat1 = ginfo(3)
      map%lon1 = ginfo(4)
      write(tmp8,'(b8.8)') infogrid(5)
-     read(tmp8,'(4x,i1)') map%grid_wind
+     if (tmp8(5:5) .eq. '0') map%grid_wind = .false.
 
   else
      print*, 'Unknown ksec2(4): ', ksec2(4)

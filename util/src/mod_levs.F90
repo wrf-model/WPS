@@ -20,7 +20,7 @@ PROGRAM mod_levs_prog
    INTEGER :: istatus, iop, version, nx, ny, iproj
    integer :: idum, ilev
    REAL :: xfcst, xlvl, startlat, startlon, starti, startj, &
-           deltalat, deltalon, dx, dy, xlonc, truelat1, truelat2
+           deltalat, deltalon, dx, dy, xlonc, truelat1, truelat2, earth_radius
    REAL, POINTER, DIMENSION(:,:) :: slab
    LOGICAL :: is_wind_earth_rel
 
@@ -97,7 +97,8 @@ PROGRAM mod_levs_prog
 
          CALL read_next_met_field(version, field, hdate, xfcst, xlvl, units, desc, &
                           iproj, startlat, startlon, starti, startj, deltalat, &
-                             deltalon, dx, dy, xlonc, truelat1, truelat2, nx, ny, map_source, &
+                             deltalon, dx, dy, xlonc, truelat1, truelat2, earth_radius, &
+                             nx, ny, map_source, &
                              slab, is_wind_earth_rel, istatus)
 
          DO WHILE (istatus == 0)
@@ -114,7 +115,8 @@ PROGRAM mod_levs_prog
             IF (keep_this_one) THEN
                CALL write_next_met_field(version, field, hdate, xfcst, xlvl, units, desc, &
                                       iproj, startlat, startlon, starti, startj, deltalat, &
-                                      deltalon, dx, dy, xlonc, truelat1, truelat2, nx, ny, map_source, &
+                                      deltalon, dx, dy, xlonc, truelat1, truelat2, earth_radius, &
+                                      nx, ny, map_source, &
                                       slab, is_wind_earth_rel, istatus)
             ELSE
                CALL mprintf(.true.,STDOUT,'Deleting level %f Pa',f1=xlvl)
@@ -126,7 +128,8 @@ PROGRAM mod_levs_prog
    
             CALL read_next_met_field(version, field, hdate, xfcst, xlvl, units, desc, &
                                 iproj, startlat, startlon, starti, startj, deltalat, &
-                                deltalon, dx, dy, xlonc, truelat1, truelat2, nx, ny, map_source, &
+                                deltalon, dx, dy, xlonc, truelat1, truelat2, earth_radius, &
+                                nx, ny, map_source, &
                                 slab, is_wind_earth_rel, istatus)
          END DO
 

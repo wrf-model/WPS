@@ -11,7 +11,7 @@ program avg_tsfc
    ! Local variables
    integer :: idiff, n_times, t, istatus, fg_idx, discardtimes
    integer :: met_map_proj, version, nx, ny
-   real :: xfcst, xlvl, startlat, startlon, starti, startj, deltalat, deltalon
+   real :: xfcst, xlvl, startlat, startlon, starti, startj, deltalat, deltalon, earth_radius
    real :: met_dx, met_dy
    real :: met_cen_lon, met_truelat1, met_truelat2
    real, pointer, dimension(:,:) :: slab
@@ -67,7 +67,8 @@ write(6,*) 'Reading from '//trim(input_name), ' at time ', temp_date(1:13)
 
                call read_next_met_field(version, short_fieldnm, hdate, xfcst, xlvl, units, desc, &
                                    met_map_proj, startlat, startlon, starti, startj, deltalat, &
-                                   deltalon, met_dx, met_dy, met_cen_lon, met_truelat1, met_truelat2, nx, ny, &
+                                   deltalon, met_dx, met_dy, met_cen_lon, met_truelat1, met_truelat2, &
+                                   earth_radius, nx, ny, &
                                    map_src, slab, is_rotated, istatus)
 
                if (istatus == 0) then
@@ -103,7 +104,8 @@ stop
 ! BUG: Need to save all of these arguments from the TT field read
          call write_next_met_field(version, 'TAVGSFC  ', hdate, xfcst, 200100., units, desc, &
                              met_map_proj, startlat, startlon, starti, startj, deltalat, &
-                             deltalon, met_dx, met_dy, met_cen_lon, met_truelat1, met_truelat2, nx, ny, &
+                             deltalon, met_dx, met_dy, met_cen_lon, met_truelat1, met_truelat2, &
+                             earth_radius, nx, ny, &
                              map_src, mean, is_rotated, istatus)
          call write_met_close()
   

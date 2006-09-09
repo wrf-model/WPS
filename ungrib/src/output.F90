@@ -164,7 +164,7 @@ subroutine output(hdate, nlvl, maxlvl, plvl, interval, iflag, out_format, debug_
                write(6,*) 'out_format = ',out_format
             end if
 
-	    if (iflag .eq. 1 .or. out_format(1:2) .eq. 'SI') then
+	    if (out_format(1:2) .eq. 'SI') then
               if ( debug_level .gt. 100 ) then
                  write(6,*) 'writing in SI format'
               end if
@@ -188,9 +188,10 @@ subroutine output(hdate, nlvl, maxlvl, plvl, interval, iflag, out_format, debug_
                  stop
               endif
               write (iunit) scr2d
-	    else if (out_format(1:2) .eq. 'WP') then   ! currently identical to SI format
+	    else if (out_format(1:2) .eq. 'WP') then   
               if ( debug_level .gt. 100 ) then
                  write(6,*) 'writing in WPS format'
+		 write(6,*) 'iunit = ',iunit,' map%igrid = ',map%igrid
               end if
               write(iunit) 5
               hdate_output = hdate
@@ -198,15 +199,16 @@ subroutine output(hdate, nlvl, maxlvl, plvl, interval, iflag, out_format, debug_
                    Desc, level, map%nx, map%ny, map%igrid
               if (map%igrid.eq.3) then ! lamcon
                  write (iunit) map%startloc, map%lat1, map%lon1, map%dx, map%dy, &
-                      map%lov, map%truelat1, map%truelat2
+                      map%lov, map%truelat1, map%truelat2, map%r_earth
               elseif (map%igrid.eq.5) then ! Polar Stereographic
                  write (iunit) map%startloc, map%lat1, map%lon1, map%dx, map%dy, &
-                      map%lov, map%truelat1
+                      map%lov, map%truelat1, map%r_earth
               elseif (map%igrid.eq.0)then ! lat/lon
-                 write (iunit) map%startloc, map%lat1, map%lon1, map%dy, map%dx
+                 write (iunit) map%startloc, map%lat1, map%lon1, map%dy, map%dx, &
+		      map%r_earth
               elseif (map%igrid.eq.1)then ! Mercator
                  write (iunit) map%startloc, map%lat1, map%lon1, map%dy, map%dx, &
-                      map%truelat1
+                      map%truelat1, map%r_earth
               else
                  write(*,'("Unrecognized map%igrid: ", I20)') map%igrid
                  stop
