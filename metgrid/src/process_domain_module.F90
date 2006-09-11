@@ -791,7 +791,7 @@ module process_domain_module
                                                v_field%r_arr, v_field%modified_mask, &
                                                we_mem_s, sn_mem_s, &
                                                we_mem_e, sn_mem_e, &
-                                               xlon_v)
+                                               xlat_v, xlon_v)
                         end if
                      end if
    
@@ -858,7 +858,7 @@ module process_domain_module
                                    v_field%r_arr, v_field%valid_mask, &
                                    we_mem_s, sn_mem_s, &
                                    we_mem_e, sn_mem_e, &
-                                   xlon_v)
+                                   xlat_v, xlon_v)
             end if
 
          end do

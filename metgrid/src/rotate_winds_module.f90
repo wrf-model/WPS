@@ -98,7 +98,7 @@ module rotate_winds_module
 
       ! Local variables
       integer :: i, j, u_weight, v_weight
-      real :: u_map, v_map, xn, alpha, diff
+      real :: u_map, v_map, alpha, diff
       real, pointer, dimension(:,:) :: u_new, v_new, u_mult, v_mult
       logical :: do_last_col_u, do_last_row_u, do_last_col_v, do_last_row_v
 
@@ -295,13 +295,13 @@ module rotate_winds_module
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
    subroutine map_to_met_nmm(u, u_mask, v, v_mask, &
                              vs1, vs2, ve1, ve2, &
-                             xlon_v)
+                             xlat_v, xlon_v)
 
       implicit none
 
       ! Arguments
       integer, intent(in) :: vs1, vs2, ve1, ve2
-      real, pointer, dimension(:,:) :: u, v, xlon_v
+      real, pointer, dimension(:,:) :: u, v, xlat_v, xlon_v
       type (bitarray), intent(in) :: u_mask, v_mask
 
       call mprintf(.true.,LOGFILE,'Rotating map winds to earth winds.')
@@ -310,7 +310,7 @@ module rotate_winds_module
       call select_domain(SOURCE_PROJ)
       call metmap_xform_nmm(u, u_mask, v, v_mask, &
                             vs1, vs2, ve1, ve2, &
-                            xlon_v, 1)
+                            xlat_v, xlon_v, 1)
       call select_domain(orig_selected_projection)
 
    end subroutine map_to_met_nmm
@@ -323,13 +323,13 @@ module rotate_winds_module
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
    subroutine met_to_map_nmm(u, u_mask, v, v_mask, &
                              vs1, vs2, ve1, ve2, &
-                             xlon_v)
+                             xlat_v, xlon_v)
 
       implicit none
 
       ! Arguments
       integer, intent(in) :: vs1, vs2, ve1, ve2
-      real, pointer, dimension(:,:) :: u, v, xlon_v
+      real, pointer, dimension(:,:) :: u, v, xlat_v, xlon_v
       type (bitarray), intent(in) :: u_mask, v_mask
 
       call mprintf(.true.,LOGFILE,'Rotating earth winds to grid winds')
@@ -338,7 +338,7 @@ module rotate_winds_module
       call select_domain(1)
       call metmap_xform_nmm(u, u_mask, v, v_mask, &
                             vs1, vs2, ve1, ve2, &
-                            xlon_v, -1)
+                            xlat_v, xlon_v, -1)
       call select_domain(orig_selected_projection)
 
    end subroutine met_to_map_nmm
@@ -357,18 +357,20 @@ module rotate_winds_module
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
    subroutine metmap_xform_nmm(u, u_mask, v, v_mask, &
                                vs1, vs2, ve1, ve2, &
-                               xlon_v, idir)
+                               xlat_v, xlon_v, idir)
 
       implicit none
 
       ! Arguments
       integer, intent(in) :: vs1, vs2, ve1, ve2, idir
-      real, pointer, dimension(:,:) :: u, v, xlon_v
+      real, pointer, dimension(:,:) :: u, v, xlat_v, xlon_v
       type (bitarray), intent(in) :: u_mask, v_mask
 
       ! Local variables
       integer :: i, j
-      real :: u_map, v_map, xn, alpha, diff
+      real :: u_map, v_map
+      real :: phi0, lmbd0, big_denominator
+      real :: sin_phi0, cos_phi0, sin_lmbd0, cos_lmbd0, cos_alpha, sin_alpha
       real, pointer, dimension(:,:) :: u_new, v_new
 
 
@@ -376,76 +378,77 @@ module rotate_winds_module
       !   information about the projection and standard longitude.
       if (proj_stack(current_nest_number)%init) then
 
-         ! Create arrays to hold rotated winds
-         allocate(u_new(vs1:ve1, vs2:ve2))
-         allocate(v_new(vs1:ve1, vs2:ve2))
+! BUG: Need to add rotation code for other projection
+         if (proj_stack(current_nest_number)%code == PROJ_ROTLL) then
 
-         ! Rotate U field
-         do j=vs2,ve2
-            do i=vs1,ve1
-
-               diff = idir * (xlon_v(i,j) - proj_stack(current_nest_number)%stdlon)
-               if (diff > 180.) then
-                  diff = diff - 360.
-               else if (diff < -180.) then
-                  diff = diff + 360.
-               end if
-
-               ! Calculate the rotation angle, alpha, in radians
-               alpha = diff * rad_per_deg * proj_stack(current_nest_number)%hemi 
-              
-               if (bitarray_test(u_mask, i-vs1+1, j-vs2+1)) then
-                  u_map = u(i,j)
-                  if (bitarray_test(v_mask, i-vs1+1, j-vs2+1)) then
-                     v_map = v(i,j)
-                  else
-                     v_map = 0.
-                  end if
-                  
-                  u_new(i,j) = cos(alpha)*u_map + sin(alpha)*v_map
-               else
-                  u_new(i,j) = u(i,j)
-               end if
-
-            end do
-         end do
-
-         ! Rotate V field
-         do j=vs2,ve2
-            do i=vs1,ve1
-
-               diff = idir * (xlon_v(i,j) - proj_stack(current_nest_number)%stdlon)
-               if (diff > 180.) then
-                  diff = diff - 360.
-               else if (diff < -180.) then
-                  diff = diff + 360.
-               end if
-
-               ! Calculate the rotation angle, alpha, in radians
-               alpha = diff * rad_per_deg * proj_stack(current_nest_number)%hemi 
-              
-               if (bitarray_test(v_mask, i-vs1+1, j-vs2+1)) then
-                  v_map = v(i,j)
+            ! Create arrays to hold rotated winds
+            allocate(u_new(vs1:ve1, vs2:ve2))
+            allocate(v_new(vs1:ve1, vs2:ve2))
+   
+            phi0  = proj_stack(current_nest_number)%lat1 * rad_per_deg
+            lmbd0 = proj_stack(current_nest_number)%lon1 * rad_per_deg
+   
+            sin_phi0  = sin(phi0)
+            cos_phi0  = cos(phi0)
+   
+            sin_lmbd0 = sin(lmbd0)
+            cos_lmbd0 = cos(lmbd0)
+   
+            do j=vs2,ve2
+               do i=vs1,ve1
+   
+                  ! Calculate the sine and cosine of rotation angle
+                  big_denominator = cos(asin( &
+                                       cos_phi0 * sin(xlat_v(i,j)*rad_per_deg) - &
+                                       sin_phi0 * cos(xlat_v(i,j)*rad_per_deg) * cos(xlon_v(i,j)*rad_per_deg + lmbd0) &
+                                        )   )
+   
+                  cos_alpha = sin_phi0 * sin(xlon_v(i,j)*rad_per_deg + lmbd0)  /  &
+                                         big_denominator
+   
+                  sin_alpha = (cos_phi0 * cos(xlat_v(i,j)*rad_per_deg) + &
+                               sin_phi0 * sin(xlat_v(i,j)*rad_per_deg) * cos(xlon_v(i,j)*rad_per_deg + lmbd0))  /  &
+                                            big_denominator
+   
+                  ! Rotate U field
                   if (bitarray_test(u_mask, i-vs1+1, j-vs2+1)) then
                      u_map = u(i,j)
+                     if (bitarray_test(v_mask, i-vs1+1, j-vs2+1)) then
+                        v_map = v(i,j)
+                     else
+                        v_map = 0.
+                     end if
+                     
+                     u_new(i,j) = cos_alpha*u_map + idir*sin_alpha*v_map
                   else
-                     u_map = 0.
+                     u_new(i,j) = u(i,j)
                   end if
-                  
-                  v_new(i,j) = -sin(alpha)*u_map + cos(alpha)*v_map
-               else
-                  v_new(i,j) = v(i,j)
-               end if
-
+                       
+                  ! Rotate V field
+                  if (bitarray_test(v_mask, i-vs1+1, j-vs2+1)) then
+                     v_map = v(i,j)
+                     if (bitarray_test(u_mask, i-vs1+1, j-vs2+1)) then
+                        u_map = u(i,j)
+                     else
+                        u_map = 0.
+                     end if
+                     
+                     v_new(i,j) = -idir*sin_alpha*u_map + cos_alpha*v_map
+                  else
+                     v_new(i,j) = v(i,j)
+                  end if
+   
+               end do
             end do
-         end do
+   
+            ! Copy rotated winds back into argument arrays
+            u = u_new 
+            v = v_new 
+   
+            deallocate(u_new)
+            deallocate(v_new)
 
-         ! Copy rotated winds back into argument arrays
-         u = u_new 
-         v = v_new 
-
-         deallocate(u_new)
-         deallocate(v_new)
+         end if
 
       else
          call mprintf(.true.,ERROR,'In map_to_met(), uninitialized proj_info structure.')
