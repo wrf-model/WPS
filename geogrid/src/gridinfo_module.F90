@@ -122,15 +122,45 @@ module gridinfo_module
       call mprintf(.true.,DEBUG,'  WRF_CORE         = %s',s1=wrf_core)
       call mprintf(.true.,DEBUG,'  MAX_DOM          = %i',i1=max_dom)
       call mprintf(.true.,DEBUG,'  START_YEAR       = %i',i1=start_year(1))
+      do i=2,max_dom
+         call mprintf(.true.,DEBUG,'                   = %i',i1=start_year(i))
+      end do
       call mprintf(.true.,DEBUG,'  START_MONTH      = %i',i1=start_month(1))
+      do i=2,max_dom
+         call mprintf(.true.,DEBUG,'                   = %i',i1=start_month(i))
+      end do
       call mprintf(.true.,DEBUG,'  START_DAY        = %i',i1=start_day(1))
+      do i=2,max_dom
+         call mprintf(.true.,DEBUG,'                   = %i',i1=start_day(i))
+      end do
       call mprintf(.true.,DEBUG,'  START_HOUR       = %i',i1=start_hour(1))
-      call mprintf(.true.,DEBUG,'  END_YEAR         = %i',i1=start_year(1))
-      call mprintf(.true.,DEBUG,'  END_MONTH        = %i',i1=start_month(1))
-      call mprintf(.true.,DEBUG,'  END_DAY          = %i',i1=start_day(1))
-      call mprintf(.true.,DEBUG,'  END_HOUR         = %i',i1=start_hour(1))
+      do i=2,max_dom
+         call mprintf(.true.,DEBUG,'                   = %i',i1=start_hour(i))
+      end do
+      call mprintf(.true.,DEBUG,'  END_YEAR         = %i',i1=end_year(1))
+      do i=2,max_dom
+         call mprintf(.true.,DEBUG,'                   = %i',i1=end_year(i))
+      end do
+      call mprintf(.true.,DEBUG,'  END_MONTH        = %i',i1=end_month(1))
+      do i=2,max_dom
+         call mprintf(.true.,DEBUG,'                   = %i',i1=end_month(i))
+      end do
+      call mprintf(.true.,DEBUG,'  END_DAY          = %i',i1=end_day(1))
+      do i=2,max_dom
+         call mprintf(.true.,DEBUG,'                   = %i',i1=end_day(i))
+      end do
+      call mprintf(.true.,DEBUG,'  END_HOUR         = %i',i1=end_hour(1))
+      do i=2,max_dom
+         call mprintf(.true.,DEBUG,'                   = %i',i1=end_hour(i))
+      end do
       call mprintf(.true.,DEBUG,'  START_DATE       = %s',s1=start_date(1))
+      do i=2,max_dom
+         call mprintf(.true.,DEBUG,'                   = %s',s1=start_date(i))
+      end do
       call mprintf(.true.,DEBUG,'  END_DATE         = %s',s1=end_date(1))
+      do i=2,max_dom
+         call mprintf(.true.,DEBUG,'                   = %s',s1=end_date(i))
+      end do
       call mprintf(.true.,DEBUG,'  INTERVAL_SECONDS = %i',i1=interval_seconds)
       call mprintf(.true.,DEBUG,'  IO_FORM_GEOGRID  = %i',i1=io_form_geogrid)
       call mprintf(.true.,DEBUG,'  OPT_OUTPUT_FROM_GEOGRID_PATH = %s',s1=opt_output_from_geogrid_path)
@@ -139,14 +169,41 @@ module gridinfo_module
 
       call mprintf(.true.,DEBUG,'&GEOGRID')
       call mprintf(.true.,DEBUG,'  PARENT_ID         = %i',i1=parent_id(1))
+      do i=2,max_dom
+         call mprintf(.true.,DEBUG,'                    = %i',i1=parent_id(i))
+      end do
       call mprintf(.true.,DEBUG,'  PARENT_GRID_RATIO = %i',i1=parent_grid_ratio(1))
+      do i=2,max_dom
+         call mprintf(.true.,DEBUG,'                    = %i',i1=parent_grid_ratio(i))
+      end do
       call mprintf(.true.,DEBUG,'  I_PARENT_START    = %i',i1=i_parent_start(1))
+      do i=2,max_dom
+         call mprintf(.true.,DEBUG,'                    = %i',i1=i_parent_start(i))
+      end do
       call mprintf(.true.,DEBUG,'  J_PARENT_START    = %i',i1=j_parent_start(1))
+      do i=2,max_dom
+         call mprintf(.true.,DEBUG,'                    = %i',i1=j_parent_start(i))
+      end do
       call mprintf(.true.,DEBUG,'  S_WE              = %i',i1=s_we(1))
+      do i=2,max_dom
+         call mprintf(.true.,DEBUG,'                    = %i',i1=s_we(i))
+      end do
       call mprintf(.true.,DEBUG,'  E_WE              = %i',i1=e_we(1))
+      do i=2,max_dom
+         call mprintf(.true.,DEBUG,'                    = %i',i1=e_we(i))
+      end do
       call mprintf(.true.,DEBUG,'  S_SN              = %i',i1=s_sn(1))
+      do i=2,max_dom
+         call mprintf(.true.,DEBUG,'                    = %i',i1=s_sn(i))
+      end do
       call mprintf(.true.,DEBUG,'  E_SN              = %i',i1=e_sn(1))
+      do i=2,max_dom
+         call mprintf(.true.,DEBUG,'                    = %i',i1=e_sn(i))
+      end do
       call mprintf(.true.,DEBUG,'  GEOG_DATA_RES     = %s',s1=geog_data_res(1))
+      do i=2,max_dom
+         call mprintf(.true.,DEBUG,'                    = %s',s1=geog_data_res(i))
+      end do
       call mprintf(.true.,DEBUG,'  DX                = %f',f1=dx)
       call mprintf(.true.,DEBUG,'  DY                = %f',f1=dy)
       call mprintf(.true.,DEBUG,'  MAP_PROJ          = %s',s1=map_proj)

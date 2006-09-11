@@ -95,15 +95,45 @@ module gridinfo_module
       call mprintf(.true.,DEBUG,'  WRF_CORE         = %s',s1=wrf_core)
       call mprintf(.true.,DEBUG,'  MAX_DOM          = %i',i1=max_dom)
       call mprintf(.true.,DEBUG,'  START_YEAR       = %i',i1=start_year(1))
+      do i=2,max_dom
+         call mprintf(.true.,DEBUG,'                   = %i',i1=start_year(i))
+      end do
       call mprintf(.true.,DEBUG,'  START_MONTH      = %i',i1=start_month(1))
+      do i=2,max_dom
+         call mprintf(.true.,DEBUG,'                   = %i',i1=start_month(i))
+      end do
       call mprintf(.true.,DEBUG,'  START_DAY        = %i',i1=start_day(1))
+      do i=2,max_dom
+         call mprintf(.true.,DEBUG,'                   = %i',i1=start_day(i))
+      end do
       call mprintf(.true.,DEBUG,'  START_HOUR       = %i',i1=start_hour(1))
-      call mprintf(.true.,DEBUG,'  END_YEAR         = %i',i1=start_year(1))
-      call mprintf(.true.,DEBUG,'  END_MONTH        = %i',i1=start_month(1))
-      call mprintf(.true.,DEBUG,'  END_DAY          = %i',i1=start_day(1))
-      call mprintf(.true.,DEBUG,'  END_HOUR         = %i',i1=start_hour(1))
+      do i=2,max_dom
+         call mprintf(.true.,DEBUG,'                   = %i',i1=start_hour(i))
+      end do
+      call mprintf(.true.,DEBUG,'  END_YEAR         = %i',i1=end_year(1))
+      do i=2,max_dom
+         call mprintf(.true.,DEBUG,'                   = %i',i1=end_year(i))
+      end do
+      call mprintf(.true.,DEBUG,'  END_MONTH        = %i',i1=end_month(1))
+      do i=2,max_dom
+         call mprintf(.true.,DEBUG,'                   = %i',i1=end_month(i))
+      end do
+      call mprintf(.true.,DEBUG,'  END_DAY          = %i',i1=end_day(1))
+      do i=2,max_dom
+         call mprintf(.true.,DEBUG,'                   = %i',i1=end_day(i))
+      end do
+      call mprintf(.true.,DEBUG,'  END_HOUR         = %i',i1=end_hour(1))
+      do i=2,max_dom
+         call mprintf(.true.,DEBUG,'                   = %i',i1=end_hour(i))
+      end do
       call mprintf(.true.,DEBUG,'  START_DATE       = %s',s1=start_date(1))
+      do i=2,max_dom
+         call mprintf(.true.,DEBUG,'                   = %s',s1=start_date(i))
+      end do
       call mprintf(.true.,DEBUG,'  END_DATE         = %s',s1=end_date(1))
+      do i=2,max_dom
+         call mprintf(.true.,DEBUG,'                   = %s',s1=end_date(i))
+      end do
       call mprintf(.true.,DEBUG,'  INTERVAL_SECONDS = %i',i1=interval_seconds)
       call mprintf(.true.,DEBUG,'  IO_FORM_GEOGRID  = %i',i1=io_form_geogrid)
       call mprintf(.true.,DEBUG,'  OPT_OUTPUT_FROM_GEOGRID_PATH = %s',s1=opt_output_from_geogrid_path)
@@ -111,8 +141,30 @@ module gridinfo_module
       call mprintf(.true.,DEBUG,'/')
 
       call mprintf(.true.,DEBUG,'&METGRID')
-      call mprintf(.true.,DEBUG,'  FG_NAME               = %s',s1=fg_name(1))
-      call mprintf(.true.,DEBUG,'  CONSTANTS_NAME        = %s',s1=constants_name(1))
+      do i=1,max_dom
+         if (i == 1) then
+            if (fg_name(i) == '*') then
+               call mprintf(.true.,DEBUG,'  FG_NAME               = ')
+            else
+               call mprintf(.true.,DEBUG,'  FG_NAME               = %s',s1=fg_name(i))
+            end if
+         else
+            if (fg_name(i) == '*') exit
+            call mprintf(.true.,DEBUG,'                        = %s',s1=fg_name(i))
+         end if
+      end do
+      do i=1,max_dom
+         if (i == 1) then
+            if (constants_name(i) == '*') then
+               call mprintf(.true.,DEBUG,'  CONSTANTS_NAME        = ')
+            else
+               call mprintf(.true.,DEBUG,'  CONSTANTS_NAME        = %s',s1=constants_name(i))
+            end if
+         else
+            if (constants_name(i) == '*') exit
+            call mprintf(.true.,DEBUG,'                        = %s',s1=constants_name(i))
+         end if
+      end do
       call mprintf(.true.,DEBUG,'  IO_FORM_METGRID       = %i',i1=io_form_metgrid)
       call mprintf(.true.,DEBUG,'  OPT_OUTPUT_FROM_METGRID_PATH = %s',s1=opt_output_from_metgrid_path)
       call mprintf(.true.,DEBUG,'  OPT_METGRID_TBL_PATH  = %s',s1=opt_metgrid_tbl_path)
