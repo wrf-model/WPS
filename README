@@ -1,11 +1,20 @@
 Version - prerelease
 
 The WRF Pre-Processing System (WPS) is a collection
-of Fortran and C programs that provide data which is
+of Fortran and C programs that provides data which is
 input to the real.exe program.  There are three main
 programs and a number of auxillary programs that
 are part of WPS.  Both the ARW and NMM dynamical cores
 in WRF are supported by WPS.
+
+Please see
+http://www.mmm.ucar.edu/people/duda/files/wps.html
+which has source, static data, a sample data set, 
+presentations, a tutorial, example output -- just 
+about everything for new users of WPS.
+
+
+
 
 
 Main programs: geogrid.exe, ungrib.exe, metgrid.exe
@@ -42,7 +51,7 @@ metgrid
 
 
 
-PARALLELISM
+Parallelism
 
 The geogrid and metgrid programs may be run as
 distributed memory parallel jobs to reduce the 
@@ -53,14 +62,15 @@ layer (RSL or RSL_LITE).
 
 
 
-GRIB Edition 2
+Grib Edition 2
 
 The Grib Edition 2 compression requires three libraries
 external to the WPS source code: zlib, png, and jasper.
 It is recommended that users request support from their
 system administrators when installing these packages.
 Users can compile the code without these libraries by 
-not selecting the GRIB2 options in the build.
+selecting the "no GRIB2" options in the build.
+
 
 
 
@@ -79,10 +89,20 @@ Please see the web page for build the WPS executables
 on the http://www.mmm.ucar.edu/people/duda/files/wps.html 
 page.
 
+The configure option lists both "build Grib2" and
+"do not build Grib2" options.  It is suggested that
+the first builds be without the Grib Edition 2
+capability.
+
+The compile option "wps" builds only the main three
+WPS programs: geogrid, ungrib, and metgrid.  This is
+the suggested for the initial build so that NCAR
+Graphics libraries are not required.
 
 
 
-STATIC INPUT DATA
+
+Static Input Data
 
 The static input data is provided for users in a large
 tar file (250 MB to 350 MB, depending on whether bzip2
@@ -91,3 +111,21 @@ from the http://www.mmm.ucar.edu/people/duda/files/wps.html
 site.
 
 
+
+
+Meteorological Input Data
+
+The meteorological input data for WPS is the Grib
+Edition 1 or 2 data available from NCEP.  A test
+data set (Jan 2000, 24/12Z to 25/12Z) is available from
+the http://www.mmm.ucar.edu/people/duda/files/wps.html
+site.
+
+
+
+Sample Running of WPS and WRF
+
+A sample of the entire run of WPS and WRF for the
+Jan 2000 case is provided (both commands and
+output).  The stdout of each program (geogrid,
+ungrib, metgrid, real, and wrf) is also provided.
