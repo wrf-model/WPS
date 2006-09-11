@@ -12,7 +12,7 @@ else
 	setenv temp_netcdf 0
 endif
 
-set DEV_TOP = $PWD
+set DEV_TOP = `pwd`
 set first_char = `grep ^WRF_DIR configure.wps | awk '{print $3}' | cut -c -1`
 
 if ( "$first_char" == "/" ) then

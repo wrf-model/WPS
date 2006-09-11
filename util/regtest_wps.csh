@@ -18,7 +18,13 @@ set TOP_DIR = `pwd`
 #	WRFV2 build
 
 clear
-echo 1. starting WRFV2 build - takes about 7 minutes
+if ( `uname` == Linux ) then
+	echo 1. starting WRFV2 build - takes about 7 minutes
+else if ( `uname` == AIX ) then
+	echo 1. starting WRFV2 build - takes about 20 minutes
+else
+	echo 1. starting WRFV2 build
+endif
 echo "     start: " `date`
 pushd WRFV2 >& /dev/null
 
@@ -26,6 +32,8 @@ pushd WRFV2 >& /dev/null
 
 if ( `uname` == Linux ) then
 	echo 2 | ./configure >& /dev/null
+else if ( `uname` == AIX ) then
+	echo 9 | ./configure >& /dev/null
 else
 	echo need info on this `uname` arch
 	exit
@@ -55,16 +63,9 @@ echo 2. starting WPS build - takes about 1 minute
 echo "     start: " `date`
 pushd WPS >& /dev/null
 echo 2 | ./configure >& /dev/null
-./compile util >&! build.log
-if ( ( -e avg_tsfc.exe ) && \
-     ( -e g1print.exe ) && \
-     ( -e g2print.exe ) && \
-     ( -e geogrid.exe ) && \
+./compile wps >&! build.log
+if ( ( -e geogrid.exe ) && \
      ( -e metgrid.exe ) && \
-     ( -e mod_levs.exe ) && \
-     ( -e plotfmt.exe ) && \
-     ( -e plotgrids.exe ) && \
-     ( -e rd_intermediate.exe ) && \
      ( -e ungrib.exe ) ) then
 	echo "        WPS build OK"
 else
@@ -118,17 +119,11 @@ foreach test_num ( $all_tests )
 	if      ( -d /bouleau/users/duda/GEOG ) then
 	#	Michael is a no-op
 	else if ( -d /standalone/users/gill/DATA/GEOG ) then
-		sed -e '/geog_data_path/d' namelist.wps >! .foo
-		sed -e '/stand_lon/a\' \
-			-e ' geog_data_path = "/standalone/users/gill/DATA/GEOG"' .foo >! namelist.wps
+		echo ' geog_data_path = "/standalone/users/gill/DATA/GEOG"' >! foodir
 	else if ( -d /data3a/mp/gill/DATA/GEOG ) then
-		sed -e '/geog_data_path/d' namelist.wps >! .foo
-		sed -e '/stand_lon/a\' \
-			-e ' geog_data_path = "/data3a/mp/gill/DATA/GEOG"' .foo >! namelist.wps
+		echo ' geog_data_path = "/data3a/mp/gill/DATA/GEOG"' >! foodir
 	else if ( -d /mmm/users/gill/DATA/GEOG ) then
-		sed -e '/geog_data_path/d' namelist.wps >! .foo
-		sed -e '/stand_lon/a\' \
-			-e ' geog_data_path = "/mmm/users/gill/DATA/GEOG"' .foo >! namelist.wps
+		echo ' geog_data_path = "/mmm/users/gill/DATA/GEOG"' >! foodir
 	else
 		echo " "
 		echo " "
@@ -137,6 +132,8 @@ foreach test_num ( $all_tests )
 		echo " "
 		exit ( 4 ) 
 	endif
+	sed -e '/geog_data_path/d' namelist.wps >! .foo
+	sed -e '/stand_lon/r foodir' .foo >! namelist.wps
 
 	#	Clean up the ol temp file we made.
 
