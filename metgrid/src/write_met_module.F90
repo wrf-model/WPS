@@ -70,6 +70,7 @@ module write_met_module
       character (len=46), intent(in) :: desc
   
       ! Local variables
+      real :: local_dx, local_dy
       character (len=8) :: startloc
       character (len=9) :: local_field
   
@@ -81,6 +82,11 @@ module write_met_module
       local_field = field
       if (field == 'GHT      ') local_field = 'HGT      '
       if (field == 'SOIL_CAT ') local_field = 'SOILCAT  '
+
+#if (defined _GEOGRID) || (defined _METGRID)
+      local_dx = dx / 1000.
+      local_dy = dy / 1000.
+#endif
 
       ! PREGRID
       if (version == 3) then
@@ -98,12 +104,12 @@ module write_met_module
          ! Lambert conformal
          else if (iproj == PROJ_LC) then
             write(unit=output_unit) hdate, xfcst, local_field, units, desc, xlvl, nx, ny, 3
-            write(unit=output_unit) startlat, startlon, dx/1000., dy/1000., xlonc, truelat1, truelat2
+            write(unit=output_unit) startlat, startlon, dx, dy, xlonc, truelat1, truelat2
      
          ! Polar stereographic
          else if (iproj == PROJ_PS) then
             write(unit=output_unit) hdate, xfcst, local_field, units, desc, xlvl, nx, ny, 5
-            write(unit=output_unit) startlat, startlon, dx/1000., dy/1000., xlonc, truelat1
+            write(unit=output_unit) startlat, startlon, dx, dy, xlonc, truelat1
 
          ! ?????????
          else
@@ -122,6 +128,11 @@ module write_met_module
          else
             startloc='CENTER  '
          end if
+
+#if (defined _GEOGRID) || (defined _METGRID)
+      local_dx = dx / 1000.
+      local_dy = dy / 1000.
+#endif
   
          ! Cylindrical equidistant
          if (iproj == PROJ_LATLON) then
@@ -136,12 +147,12 @@ module write_met_module
          ! Lambert conformal
          else if (iproj == PROJ_LC) then
             write(unit=output_unit) hdate, xfcst, map_source, local_field, units, desc, xlvl, nx, ny, 3
-            write(unit=output_unit) startloc, startlat, startlon, dx/1000., dy/1000., xlonc, truelat1, truelat2
+            write(unit=output_unit) startloc, startlat, startlon, dx, dy, xlonc, truelat1, truelat2
 
          ! Polar stereographic
          else if (iproj == PROJ_PS) then
             write(unit=output_unit) hdate, xfcst, map_source, local_field, units, desc, xlvl, nx, ny, 5
-            write(unit=output_unit) startloc, startlat, startlon, dx/1000., dy/1000., xlonc, truelat1
+            write(unit=output_unit) startloc, startlat, startlon, dx, dy, xlonc, truelat1
      
          ! ?????????
          else
@@ -160,6 +171,11 @@ module write_met_module
          else
             startloc='CENTER  '
          end if
+
+#if (defined _GEOGRID) || (defined _METGRID)
+      local_dx = dx / 1000.
+      local_dy = dy / 1000.
+#endif
   
          ! Cylindrical equidistant
          if (iproj == PROJ_LATLON) then
@@ -174,12 +190,12 @@ module write_met_module
          ! Lambert conformal
          else if (iproj == PROJ_LC) then
             write(unit=output_unit) hdate, xfcst, map_source, local_field, units, desc, xlvl, nx, ny, 3
-            write(unit=output_unit) startloc, startlat, startlon, dx/1000., dy/1000., xlonc, truelat1, truelat2, earth_radius
+            write(unit=output_unit) startloc, startlat, startlon, dx, dy, xlonc, truelat1, truelat2, earth_radius
 
          ! Polar stereographic
          else if (iproj == PROJ_PS) then
             write(unit=output_unit) hdate, xfcst, map_source, local_field, units, desc, xlvl, nx, ny, 5
-            write(unit=output_unit) startloc, startlat, startlon, dx/1000., dy/1000., xlonc, truelat1, earth_radius
+            write(unit=output_unit) startloc, startlat, startlon, dx, dy, xlonc, truelat1, earth_radius
      
          ! ?????????
          else

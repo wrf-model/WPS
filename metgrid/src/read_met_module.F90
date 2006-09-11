@@ -113,11 +113,16 @@ module read_met_module
      
          end if
      
-         if (startlat < -90.) startlat = -90.
-         if (startlat > 90.) startlat = 90.
-
+#if (defined _GEOGRID) || (defined _METGRID)
          dx = dx * 1000.
          dy = dy * 1000.
+
+         if (xlonc > 180.) xlonc = xlonc - 360.
+         if (startlon > 180.) startlon = startlon - 360.
+  
+         if (startlat < -90.) startlat = -90.
+         if (startlat > 90.) startlat = 90.
+#endif
      
          is_wind_earth_rel = .false.
      
@@ -167,16 +172,18 @@ module read_met_module
             startj = 1.0
          end if
 
+#if (defined _GEOGRID) || (defined _METGRID)
          dx = dx * 1000.
          dy = dy * 1000.
 
          if (xlonc > 180.) xlonc = xlonc - 360.
          if (startlon > 180.) startlon = startlon - 360.
-         
-         is_wind_earth_rel = .false.
   
          if (startlat < -90.) startlat = -90.
          if (startlat > 90.) startlat = 90.
+#endif
+         
+         is_wind_earth_rel = .false.
       
          allocate(slab(nx, ny))
          read(unit=input_unit,err=1001,end=1001) slab
@@ -224,6 +231,7 @@ module read_met_module
             startj = 1.0
          end if
 
+#if (defined _GEOGRID) || (defined _METGRID)
          dx = dx * 1000.
          dy = dy * 1000.
 
@@ -232,6 +240,7 @@ module read_met_module
          
          if (startlat < -90.) startlat = -90.
          if (startlat > 90.) startlat = 90.
+#endif
  
          read(unit=input_unit,err=1001,end=1001) is_wind_earth_rel
       
