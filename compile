@@ -101,7 +101,7 @@ foreach f ( $names )
 	else if ("$NAMES[$count]" == "GRIBUTIL") then
 		( cd ungrib ; make -i -r WRF_DIR_PRE="${WRF_DIR_PRE}" DEV_TOP="${DEV_TOP}" TARGET="${f}.exe" CPP_TARGET="$NAMES[$count]" all )
 		if ( -e ungrib/src/${f}.exe ) then
-			ln -sf ungrib/src/${f}.exe util
+			( cd util ; ln -sf ../ungrib/src/${f}.exe . )
 		endif
 	else
 		( cd $f ; make -i -r WRF_DIR_PRE="${WRF_DIR_PRE}" DEV_TOP="${DEV_TOP}" TARGET="${f}.exe" CPP_TARGET="$NAMES[$count]" all )
