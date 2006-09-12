@@ -2469,7 +2469,8 @@ module source_data_module
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
    ! Name: get_source_resolution
    !
-   ! Purpose:
+   ! Purpose: Return dx and dx for the source data for field fieldnm at priority
+   !          level ilevel; src_dx and src_dy should be returned in degrees. 
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
    subroutine get_source_resolution(fieldnm, ilevel, src_dx, src_dy, istatus)
 
@@ -2492,6 +2493,10 @@ module source_data_module
                if (is_dx(idx) .and. is_dy(idx)) then
                   src_dx = source_dx(idx)
                   src_dy = source_dy(idx)
+                  if (source_proj(idx) /= PROJ_LATLON) then
+                     src_dx = src_dx / 111000.
+                     src_dy = src_dy / 111000.
+                  end if
                   istatus = 0
                   exit
                end if 

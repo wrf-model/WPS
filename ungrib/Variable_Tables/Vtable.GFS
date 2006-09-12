@@ -26,6 +26,6 @@ Param| Type |Level1|Level2| Name     |  Units  | Description                    
    7 |   1  |   0  |      | HGTT     | m       | Geopot height of sfc                    |  0  |  3  |  5  |   1 |
   11 |   1  |   0  |      | SKINTEMP | K       | Skin temperature (can use for SST also) |  0  |  0  |  0  |   1 |
   65 |   1  |   0  |      | SNOW     | kg m-2  | Water equivalent snow depth             |  0  |  1  | 13  |   1 |
- 224 |   1  |   0  |      | SOILCAT  | Tab4.213| Dominant soil type cat.(not in GFS file)|  2  |  3  |  0  |   1 |
+ 224 |   1  |   0  |      | SOIL_CAT | Tab4.213| Dominant soil type cat.(not in GFS file)|  2  |  3  |  0  |   1 |
  225 |   1  |   0  |      | VEGCAT   | Tab4.212| Dominant land use cat. (not in GFS file)|  2  |  0  | 198 |   1 |
 -----+------+------+------+----------+---------+-----------------------------------------+-----------------------+

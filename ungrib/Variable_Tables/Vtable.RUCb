@@ -30,7 +30,7 @@ Param| Type |Level1|Level2| Name     |  Units   | Description                   
   85 | 111  | 160  |      | SOILT160 | K        | Soil Temp  160 cm below ground          |  2  |  0  |  2  | 106 |
   85 | 111  | 300  |      | SOILT300 | K        | Soil Temp  300 cm below ground          |  2  |  0  |  2  | 106 |
  223 |   1  |   0  |      | CANWAT   | kg m-2   | Plant Canopy Surface Water              |  2  |  0  | 196 |   1 |
- 224 |   1  |   0  |      | SOILCAT  | Tab4.213 | Dominant soil type category             |  2  |  3  |  0  |   1 |
+ 224 |   1  |   0  |      | SOIL_CAT | Tab4.213 | Dominant soil type category             |  2  |  3  |  0  |   1 |
  225 |   1  |   0  |      | VEGCAT   | Tab4.212 | Dominant land use category              |  2  |  0  | 198 |   1 |
   11 |   1  |   0  |      | SKINTEMP | K        | Temperature at ground sfc (from s file) |  0  |  0  |  0  |   1 |
 -----+------+------+------+----------+----------+-----------------------------------------+-----------------------+

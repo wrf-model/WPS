@@ -83,7 +83,6 @@ module read_met_module
          map_source = ' '
 
          if (field == 'HGT      ') field = 'GHT      '
-         if (field == 'SOILCAT  ') field = 'SOIL_CAT '
 
          starti = 1.0
          startj = 1.0
@@ -137,7 +136,6 @@ module read_met_module
          read(unit=input_unit) hdate, xfcst, map_source, field, units, desc, xlvl, nx, ny, iproj
   
          if (field == 'HGT      ') field = 'GHT      '
-         if (field == 'SOILCAT  ') field = 'SOIL_CAT '
   
          ! Cylindrical equidistant
          if (iproj == 0) then
@@ -196,7 +194,6 @@ module read_met_module
          read(unit=input_unit) hdate, xfcst, map_source, field, units, desc, xlvl, nx, ny, iproj
   
          if (field == 'HGT      ') field = 'GHT      '
-         if (field == 'SOILCAT  ') field = 'SOIL_CAT '
   
          ! Cylindrical equidistant
          if (iproj == 0) then

@@ -81,7 +81,6 @@ module write_met_module
 
       local_field = field
       if (field == 'GHT      ') local_field = 'HGT      '
-      if (field == 'SOIL_CAT ') local_field = 'SOILCAT  '
 
 #if (defined _GEOGRID) || (defined _METGRID)
       local_dx = dx / 1000.
