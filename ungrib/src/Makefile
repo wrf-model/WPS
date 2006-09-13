@@ -13,7 +13,7 @@ OBJS2		=	build_hdate.o geth_newdate.o geth_idts.o swap.o table.o \
 
 all:			lib$(LIBTARGET).a $(EXE)
 
-ungrib.exe:		$(OBJS1) ./lib$(LIBTARGET).a
+ungrib.exe:		$(OBJS1) lib$(LIBTARGET).a
 			$(RM) $@
 			$(FC) -o $@ $(LDFLAGS) $(OBJS1) \
 				-L./ngl -lw3 -lg2_4 \
