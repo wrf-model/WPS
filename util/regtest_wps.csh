@@ -21,7 +21,7 @@ clear
 if ( `uname` == Linux ) then
 	echo 1. starting WRFV2 build - takes about 7 minutes
 else if ( `uname` == AIX ) then
-	echo 1. starting WRFV2 build - takes about 20 minutes
+	echo "1. starting WRFV2 build - takes 20 (bs) to 35 (bv) minutes"
 else
 	echo 1. starting WRFV2 build
 endif
