@@ -611,6 +611,10 @@ module process_domain_module
                             deltalat /= 0. .and. deltalon /= 0.) then
                            met_dx = abs(deltalon)
                            met_dy = abs(deltalat)
+                        else
+! BUG: Need to more correctly handle dx/dy in meters.
+                           met_dx = met_dx / 111000.  ! Convert meters to approximate degrees
+                           met_dy = met_dy / 111000.
                         end if
                         if (gridtype == 'C') then
                            if (threshold*max(met_dx,met_dy)*111. <= max(dom_dx,dom_dy)/1000.) &
