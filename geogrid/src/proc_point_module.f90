@@ -135,13 +135,7 @@ module proc_point_module
 
       call hash_insert(h_table, src_fname)
   
-      if (istatus /= 0) then
-         src_min_x = INVALID
-         src_min_y = INVALID
-         src_max_x = INVALID
-         src_max_y = INVALID
-         return
-      end if
+      if (istatus /= 0) return
   
       allocate(where_maps_to(src_min_x:src_max_x,src_min_y:src_max_y,2))
       do i=src_min_x,src_max_x
@@ -435,14 +429,14 @@ module proc_point_module
       integer :: field_idx, istatus, i, j, ilat, ilon
       integer, pointer, dimension(:,:,:) :: where_maps_to
       real :: rlat, rlon, rx, ry
-  
+
       rlat = xlat
       if (xlon >= 180.) then
          rlon = xlon - 360.
       else
          rlon = xlon
       end if
-  
+
       ! Assume source data is on unstaggered grid; specify M for istagger argument
       call get_data_tile(rlat, rlon, ilevel, fieldname, &
                          src_fname, src_array, src_min_x, src_max_x, src_min_y, &
@@ -768,10 +762,6 @@ module proc_point_module
          src_level = ilevel
    
          if (istatus /= 0) then
-            src_min_x = INVALID
-            src_max_x = INVALID
-            src_min_y = INVALID
-            src_max_y = INVALID
             get_point = msgval
             return
          end if

@@ -12,9 +12,11 @@ void read_binary_field(float * data, int * in_size, int * nitems, char * fname, 
    FILE * fp;
    unsigned char * c;
    int cnt, i, j, k;
+   char local_fname[1024];
  
-   fname[*len]='\0';
-   if (!(fp = fopen(fname,"rb")))
+   strncpy(local_fname,fname,*len);
+   local_fname[*len]='\0';
+   if (!(fp = fopen(local_fname,"rb")))
    {
       *status = 1;
       return;
@@ -57,12 +59,14 @@ void read_binary_field(float * data, int * in_size, int * nitems, char * fname, 
          {
             data[i] = (float)((c[2*i]<<8)|(c[2*i+1]));      
             if (data[i] >= 32768.) data[i] -= 65536.; 
+if (data[i] == 0.) data[i] = 0.01;
          }
       }
       else
       {
          for(i=(*nitems)-1; i>=0; i--)
             data[i] = (float)((c[2*i]<<8)|(c[2*i+1]));      
+if (data[i] == 0.) data[i] = 0.01;
       }
    }
  

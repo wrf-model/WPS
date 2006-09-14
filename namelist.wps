@@ -1,6 +1,6 @@
 &share
  wrf_core = 'ARW',
- max_dom = 1,
+ max_dom = 2,
  start_date = '2006-08-16_12:00:00','2006-08-16_12:00:00',
  end_date   = '2006-08-16_18:00:00','2006-08-16_12:00:00',
  interval_seconds = 21600

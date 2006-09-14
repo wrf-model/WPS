@@ -2278,11 +2278,6 @@ module source_data_module
       ! Local variables
       integer :: local_wordsize, sign_convention
   
-      start_x_dim = INVALID
-      start_y_dim = INVALID
-      end_x_dim = INVALID
-      end_y_dim = INVALID
-  
       call get_tile_fname(file_name, xlat, xlon, ilevel, field_name, istatus)
 
       if (index(file_name, 'OUTSIDE') /= 0) then
@@ -2305,6 +2300,11 @@ module source_data_module
                     local_wordsize, array, sign_convention, istatus)
   
       if (istatus /= 0) then
+         start_x_dim = INVALID
+         start_y_dim = INVALID
+         end_x_dim   = INVALID
+         end_y_dim   = INVALID
+
          call hash_insert(bad_files, file_name)
       end if
  
@@ -2455,9 +2455,11 @@ module source_data_module
       call lltoxy(xlat, xlon, rx, ry, M) 
       call select_domain(current_domain)
 
-      rx = real(source_tile_x(idx)) * real(floor((rx-0.5*source_dx(idx))/ real(source_tile_x(idx)))) + 1.0
-      ry = real(source_tile_y(idx)) * real(floor((ry-0.5*source_dy(idx))/ real(source_tile_y(idx)))) + 1.0
-  
+!      rx = real(source_tile_x(idx)) * real(floor((rx-0.5*source_dx(idx))/ real(source_tile_x(idx)))) + 1.0
+!      ry = real(source_tile_y(idx)) * real(floor((ry-0.5*source_dy(idx))/ real(source_tile_y(idx)))) + 1.0
+      rx = real(source_tile_x(idx)) * real(floor((rx-0.5) / real(source_tile_x(idx)))) + 1.0
+      ry = real(source_tile_y(idx)) * real(floor((ry-0.5) / real(source_tile_y(idx)))) + 1.0
+
       if (rx > 0. .and. ry > 0.) then
          write(test_fname, '(a,i5.5,a1,i5.5,a1,i5.5,a1,i5.5)') trim(source_path(idx)), &
                   nint(rx),'-',nint(rx)+source_tile_x(idx)-1,'.',nint(ry),'-',nint(ry)+source_tile_y(idx)-1
@@ -2469,8 +2471,7 @@ module source_data_module
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
    ! Name: get_source_resolution
    !
-   ! Purpose: Return dx and dx for the source data for field fieldnm at priority
-   !          level ilevel; src_dx and src_dy should be returned in degrees. 
+   ! Purpose:
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
    subroutine get_source_resolution(fieldnm, ilevel, src_dx, src_dy, istatus)
 
