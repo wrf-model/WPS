@@ -2364,10 +2364,10 @@ module source_data_module
       call lltoxy(xlat, xlon, rx, ry, M) 
       call select_domain(current_domain)
   
-      start_x_dim = source_tile_x(idx) * nint(real(floor((rx-0.5*source_dx(idx)) / real(source_tile_x(idx))))) + 1
+      start_x_dim = source_tile_x(idx) * nint(real(floor((rx-0.5) / real(source_tile_x(idx))))) + 1
       end_x_dim = start_x_dim + source_tile_x(idx) - 1
   
-      start_y_dim = source_tile_y(idx) * nint(real(floor((ry-0.5*source_dy(idx)) / real(source_tile_y(idx))))) + 1
+      start_y_dim = source_tile_y(idx) * nint(real(floor((ry-0.5) / real(source_tile_y(idx))))) + 1
       end_y_dim = start_y_dim + source_tile_y(idx) - 1
   
       if (is_tile_z_start(idx) .and. is_tile_z_end(idx)) then
