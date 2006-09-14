@@ -59,14 +59,12 @@ void read_binary_field(float * data, int * in_size, int * nitems, char * fname, 
          {
             data[i] = (float)((c[2*i]<<8)|(c[2*i+1]));      
             if (data[i] >= 32768.) data[i] -= 65536.; 
-if (data[i] == 0.) data[i] = 0.01;
          }
       }
       else
       {
          for(i=(*nitems)-1; i>=0; i--)
             data[i] = (float)((c[2*i]<<8)|(c[2*i+1]));      
-if (data[i] == 0.) data[i] = 0.01;
       }
    }
  
