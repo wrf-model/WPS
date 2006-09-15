@@ -226,6 +226,8 @@ C  SET ARGUMENTS
                map%source = 'NCEP RUC Model'
              elseif (iprocess.eq.140) then
                map%source = 'NCEP NARR'
+             elseif (iprocess.eq.44) then
+               map%source = 'NCEP SST Analysis'
              else
                map%source = 'unknown model from NCEP'
 	       write (6,*) 'iprocess = ',iprocess

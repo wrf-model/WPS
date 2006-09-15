@@ -153,6 +153,8 @@ SUBROUTINE rd_grib1(IUNIT, gribflnm, level, field, hdate,  &
       map%source = 'NCEP RUC Model'
     elseif (iprocess.eq.140) then
       map%source = 'NCEP NARR'
+    elseif (iprocess.eq.44) then
+      map%source = 'NCEP SST Analysis'
     else
       map%source = 'unknown model from NCEP'
     end if
