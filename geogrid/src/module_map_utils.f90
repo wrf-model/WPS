@@ -853,8 +853,8 @@ MODULE map_utils
   
       ! Find pole point
       arg = proj%cone*(deltalon1*rad_per_deg)
-      proj%polei = proj%knowni - proj%hemi * proj%rsw * SIN(arg)
-      proj%polej = proj%knownj + proj%rsw * COS(arg)  
+      proj%polei = proj%hemi*proj%knowni - proj%hemi * proj%rsw * SIN(arg)
+      proj%polej = proj%hemi*proj%knownj + proj%rsw * COS(arg)  
   
       RETURN
 
@@ -932,13 +932,8 @@ MODULE map_utils
   
       ! See if we are in the southern hemispere and flip the indices
       ! if we are. 
-      IF (proj%hemi .EQ. -1.) THEN 
-         inew = -i + 2.
-         jnew = -j + 2.
-      ELSE
-         inew = i
-         jnew = j
-      ENDIF
+      inew = proj%hemi * i
+      jnew = proj%hemi * j
   
       ! Compute radius**2 to i/j location
       xx = inew - proj%polei
@@ -1028,10 +1023,9 @@ MODULE map_utils
       ! (what we assume) which is different than the original NCEP
       ! algorithms which used the NE corner as the origin in the 
       ! southern hemisphere (left-hand vs. right-hand coordinate?)
-      IF (proj%hemi .EQ. -1.) THEN
-         i = 2. - i  
-         j = 2. - j
-      ENDIF
+      i = proj%hemi * i  
+      j = proj%hemi * j
+
       RETURN
    END SUBROUTINE llij_lc
 
