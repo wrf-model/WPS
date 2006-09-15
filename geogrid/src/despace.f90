@@ -23,7 +23,7 @@ subroutine despace(string)
       if (string(i:i) == '"' .or. string(i:i) == '''') iquoted = mod(iquoted+1,2)
   
       ! Check for non-space, non-tab character, or if we are inside quoted text
-      if ((string(i:i) /= ' ' .and. string(i:i) /= '\t') .or. iquoted == 1) then
+      if ((string(i:i) /= ' ' .and. string(i:i) /= achar(9)) .or. iquoted == 1) then
          string(j:j) = string(i:i)
          j = j + 1
       end if
