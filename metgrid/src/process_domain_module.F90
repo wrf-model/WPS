@@ -1047,6 +1047,7 @@ module process_domain_module
       use interp_module
       use interp_option_module
       use llxy_module
+      use misc_definitions_module
       use storage_module
 
       implicit none 
@@ -1062,11 +1063,12 @@ module process_domain_module
       type (bitarray), intent(inout) :: new_pts
 
       ! Local variables
-      integer :: i, j, idx, idxt, interp_mask_status, orig_selected_proj
+      integer :: i, j, idx, idxt, orig_selected_proj, interp_mask_status, &
+                 interp_land_mask_status, interp_water_mask_status
       integer, pointer, dimension(:) :: interp_array
       real :: rx, ry, temp
       real, pointer, dimension(:,:) :: data_count
-      type (fg_input) :: mask_field
+      type (fg_input) :: mask_field, mask_water_field, mask_land_field
 
       ! Find index into fieldname, interp_method, masked, and fill_missing
       !   of the current field
@@ -1097,6 +1099,9 @@ module process_domain_module
       end if
 
       interp_mask_status = 1
+      interp_land_mask_status = 1
+      interp_water_mask_status = 1
+
       if (interp_mask(idx) /= ' ') then
          mask_field%header%version = 1
          mask_field%header%forecast_hour = 0.
@@ -1107,8 +1112,29 @@ module process_domain_module
          call storage_get_field(mask_field, interp_mask_status)
 
       end if 
+      if (interp_land_mask(idx) /= ' ') then
+         mask_land_field%header%version = 1
+         mask_land_field%header%forecast_hour = 0.
+         mask_land_field%header%field = trim(interp_land_mask(idx))//'.mask'
+         mask_land_field%header%vertical_coord = 'none'
+         mask_land_field%header%vertical_level = 1
+
+         call storage_get_field(mask_land_field, interp_land_mask_status)
+
+      end if 
+      if (interp_water_mask(idx) /= ' ') then
+         mask_water_field%header%version = 1
+         mask_water_field%header%forecast_hour = 0.
+         mask_water_field%header%field = trim(interp_water_mask(idx))//'.mask'
+         mask_water_field%header%vertical_coord = 'none'
+         mask_water_field%header%vertical_level = 1
+
+         call storage_get_field(mask_water_field, interp_water_mask_status)
+
+      end if 
 
       interp_array => interp_array_from_string(interp_method(idx))
+
    
       !
       ! Interpolate using average_gcell interpolation method
@@ -1135,109 +1161,72 @@ module process_domain_module
                                             !   no need to worry about -1s in data
          end if
 
-         if (present(landmask)) then
-            orig_selected_proj = iget_selected_domain()
-            call select_domain(SOURCE_PROJ)
-            do j=sm2,em2
-               do i=sm1,em1
+         orig_selected_proj = iget_selected_domain()
+         call select_domain(SOURCE_PROJ)
+         do j=sm2,em2
+            do i=sm1,em1
+
+               if (present(landmask)) then
+
                   if (landmask(i,j) /= masked(idx)) then
                      if (data_count(i,j) > 0.) then
                         field%r_arr(i,j) = field%r_arr(i,j) / data_count(i,j)
                      else
-                        call lltoxy(xlat(i,j), xlon(i,j), rx, ry, istagger) 
+
                         if (interp_mask_status == 0) then
-                           temp = interp_sequence(rx, ry, 1, slab, 1, nx, 1, ny, 1, 1, missing_value(idx), &
-                                                  interp_array, 1, interp_mask_val(idx), mask_field%r_arr)
+                           temp = interp_to_latlon(xlat(i,j), xlon(i,j), istagger, interp_array, slab, nx, ny, &
+                                                   missing_value(idx), mask_val=interp_mask_val(idx), mask_field=mask_field%r_arr)
                         else
-                           temp = interp_sequence(rx, ry, 1, slab, 1, nx, 1, ny, 1, 1, missing_value(idx), &
-                                                  interp_array, 1)
+                           temp = interp_to_latlon(xlat(i,j), xlon(i,j), istagger, interp_array, slab, nx, ny, &
+                                                   missing_value(idx))
                         end if
-
-                        if (temp == missing_value(idx)) then
-
-                           ! Try a lon in the range 0. to 360.; all lons in the xlon 
-                           !    array should be in the range -180. to 180.
-                           if (xlon(i,j) < 0.) then
-                              call lltoxy(xlat(i,j), xlon(i,j)+360., rx, ry, istagger) 
-                              if (interp_mask_status == 0) then
-                                 temp = interp_sequence(rx, ry, 1, slab, 1, nx, 1, ny, 1, 1, missing_value(idx), &
-                                                        interp_array, 1, interp_mask_val(idx), mask_field%r_arr)
-                              else
-                                 temp = interp_sequence(rx, ry, 1, slab, 1, nx, 1, ny, 1, 1, missing_value(idx), &
-                                                        interp_array, 1)
-                              end if
-
-                              if (temp /= missing_value(idx)) then
-                                 field%r_arr(i,j) = temp
-                                 call bitarray_set(new_pts, i-sm1+1, j-sm2+1)
-                              end if
-                           end if
-
-                        else
+   
+                        if (temp /= missing_value(idx)) then
                            field%r_arr(i,j) = temp
                            call bitarray_set(new_pts, i-sm1+1, j-sm2+1)
                         end if
+
                      end if
                   else
                      field%r_arr(i,j) = fill_missing(idx)
                   end if
+
                   if (.not. bitarray_test(new_pts, i-sm1+1, j-sm2+1) .and. &
                       .not. bitarray_test(field%valid_mask, i-sm1+1, j-sm2+1)) then
                      field%r_arr(i,j) = fill_missing(idx)
                   end if
-               end do
-            end do
-            call select_domain(orig_selected_proj) 
-         else
-            orig_selected_proj = iget_selected_domain()
-            call select_domain(SOURCE_PROJ)
-            do j=sm2,em2
-               do i=sm1,em1
+
+               else
+
                   if (data_count(i,j) > 0.) then
                      field%r_arr(i,j) = field%r_arr(i,j) / data_count(i,j)
                   else
-                     call lltoxy(xlat(i,j), xlon(i,j), rx, ry, istagger) 
+
                      if (interp_mask_status == 0) then
-                        temp = interp_sequence(rx, ry, 1, slab, 1, nx, 1, ny, 1, 1, missing_value(idx), &
-                                               interp_array, 1, interp_mask_val(idx), mask_field%r_arr)
+                        temp = interp_to_latlon(xlat(i,j), xlon(i,j), istagger, interp_array, slab, nx, ny, &
+                                                missing_value(idx), mask_val=interp_mask_val(idx), mask_field=mask_field%r_arr)
                      else
-                        temp = interp_sequence(rx, ry, 1, slab, 1, nx, 1, ny, 1, 1, missing_value(idx), &
-                                               interp_array, 1)
+                        temp = interp_to_latlon(xlat(i,j), xlon(i,j), istagger, interp_array, slab, nx, ny, &
+                                                missing_value(idx))
                      end if
 
-                     if (temp == missing_value(idx)) then
-
-                        ! Try a lon in the range 0. to 360.; all lons in the xlon 
-                        !    array should be in the range -180. to 180.
-                        if (xlon(i,j) < 0.) then
-                           call lltoxy(xlat(i,j), xlon(i,j)+360., rx, ry, istagger) 
-                           if (interp_mask_status == 0) then
-                              temp = interp_sequence(rx, ry, 1, slab, 1, nx, 1, ny, 1, 1, missing_value(idx), &
-                                                     interp_array, 1, interp_mask_val(idx), mask_field%r_arr)
-                           else
-                              temp = interp_sequence(rx, ry, 1, slab, 1, nx, 1, ny, 1, 1, missing_value(idx), &
-                                                     interp_array, 1)
-                           end if
-
-                           if (temp /= missing_value(idx)) then
-                              field%r_arr(i,j) = temp
-                              call bitarray_set(new_pts, i-sm1+1, j-sm2+1)
-                           end if
-                        end if
-
-                     else
+                     if (temp /= missing_value(idx)) then
                         field%r_arr(i,j) = temp
                         call bitarray_set(new_pts, i-sm1+1, j-sm2+1)
                      end if
+
                   end if
+
                   if (.not. bitarray_test(new_pts, i-sm1+1, j-sm2+1) .and. &
                       .not. bitarray_test(field%valid_mask, i-sm1+1, j-sm2+1)) then
                      field%r_arr(i,j) = fill_missing(idx)
                   end if
-               end do
+
+               end if
+
             end do
-            call select_domain(orig_selected_proj) 
-         end if
+         end do
+         call select_domain(orig_selected_proj) 
          deallocate(data_count)
 
       !
@@ -1250,86 +1239,67 @@ module process_domain_module
          do j=sm2,em2
             do i=sm1,em1
                if (present(landmask)) then
-                  if (landmask(i,j) /= masked(idx)) then
-                     call lltoxy(xlat(i,j), xlon(i,j), rx, ry, istagger) 
-                     if (interp_mask_status == 0) then
-                        temp = interp_sequence(rx, ry, 1, slab, 1, nx, 1, ny, 1, 1, missing_value(idx), &
-                                               interp_array, 1, interp_mask_val(idx), mask_field%r_arr)
-                     else
-                        temp = interp_sequence(rx, ry, 1, slab, 1, nx, 1, ny, 1, 1, missing_value(idx), &
-                                               interp_array, 1)
-                     end if
 
-                     if (temp == missing_value(idx)) then
+                  if (masked(idx) == MASKED_BOTH) then
 
-                        ! Try a lon in the range 0. to 360.; all lons in the xlon 
-                        !    array should be in the range -180. to 180.
-                        if (xlon(i,j) < 0.) then
-                           call lltoxy(xlat(i,j), xlon(i,j)+360., rx, ry, istagger) 
-                           if (interp_mask_status == 0) then
-                              temp = interp_sequence(rx, ry, 1, slab, 1, nx, 1, ny, 1, 1, missing_value(idx), &
-                                                     interp_array, 1, interp_mask_val(idx), mask_field%r_arr)
-                           else
-                              temp = interp_sequence(rx, ry, 1, slab, 1, nx, 1, ny, 1, 1, missing_value(idx), &
-                                                     interp_array, 1)
-                           end if
+                     if (landmask(i,j) == 0) then  ! WATER POINT
 
-                           if (temp /= missing_value(idx)) then
-                              field%r_arr(i,j) = temp
-                              call bitarray_set(new_pts, i-sm1+1, j-sm2+1)
-                           end if
-                        end if
-
-                     else
-                        field%r_arr(i,j) = temp
-                        call bitarray_set(new_pts, i-sm1+1, j-sm2+1)
-                     end if
-                  else
-                     field%r_arr(i,j) = fill_missing(idx)
-                  end if
-                  if (.not. bitarray_test(new_pts, i-sm1+1, j-sm2+1) .and. &
-                      .not. bitarray_test(field%valid_mask, i-sm1+1, j-sm2+1)) then
-                     field%r_arr(i,j) = fill_missing(idx)
-                  end if
-               else
-                  call lltoxy(xlat(i,j), xlon(i,j), rx, ry, istagger) 
-                  if (interp_mask_status == 0) then
-                     temp = interp_sequence(rx, ry, 1, slab, 1, nx, 1, ny, 1, 1, missing_value(idx), &
-                                            interp_array, 1, interp_mask_val(idx), mask_field%r_arr)
-                  else
-                     temp = interp_sequence(rx, ry, 1, slab, 1, nx, 1, ny, 1, 1, missing_value(idx), &
-                                            interp_array, 1)
-                  end if
-                  
-                  if (temp == missing_value(idx)) then
-
-                     ! Try a lon in the range 0. to 360.; all lons in the xlon 
-                     !    array should be in the range -180. to 180.
-                     if (xlon(i,j) < 0.) then
-                        call lltoxy(xlat(i,j), xlon(i,j)+360., rx, ry, istagger) 
-                        if (interp_mask_status == 0) then
-                           temp = interp_sequence(rx, ry, 1, slab, 1, nx, 1, ny, 1, 1, missing_value(idx), &
-                                                  interp_array, 1, interp_mask_val(idx), mask_field%r_arr)
+                        if (interp_land_mask_status == 0) then
+                           temp = interp_to_latlon(xlat(i,j), xlon(i,j), istagger, interp_array, slab, nx, ny, &
+                                                   missing_value(idx), mask_val=interp_land_mask_val(idx), mask_field=mask_land_field%r_arr)
                         else
-                           temp = interp_sequence(rx, ry, 1, slab, 1, nx, 1, ny, 1, 1, missing_value(idx), &
-                                                  interp_array, 1)
+                           temp = interp_to_latlon(xlat(i,j), xlon(i,j), istagger, interp_array, slab, nx, ny, &
+                                                   missing_value(idx))
                         end if
+   
+                     else if (landmask(i,j) == 1) then  ! LAND POINT
 
-                        if (temp /= missing_value(idx)) then
-                           field%r_arr(i,j) = temp
-                           call bitarray_set(new_pts, i-sm1+1, j-sm2+1)
+                        if (interp_water_mask_status == 0) then
+                           temp = interp_to_latlon(xlat(i,j), xlon(i,j), istagger, interp_array, slab, nx, ny, &
+                                                   missing_value(idx), mask_val=interp_water_mask_val(idx), mask_field=mask_water_field%r_arr)
+                        else
+                           temp = interp_to_latlon(xlat(i,j), xlon(i,j), istagger, interp_array, slab, nx, ny, &
+                                                   missing_value(idx))
                         end if
+   
+                     end if
+
+                  else if (landmask(i,j) /= masked(idx)) then
+
+                     if (interp_mask_status == 0) then
+                        temp = interp_to_latlon(xlat(i,j), xlon(i,j), istagger, interp_array, slab, nx, ny, &
+                                                missing_value(idx), mask_val=interp_mask_val(idx), mask_field=mask_field%r_arr)
+                     else
+                        temp = interp_to_latlon(xlat(i,j), xlon(i,j), istagger, interp_array, slab, nx, ny, &
+                                                missing_value(idx))
                      end if
 
                   else
-                     field%r_arr(i,j) = temp
-                     call bitarray_set(new_pts, i-sm1+1, j-sm2+1)
+                     temp = missing_value(idx)
                   end if
-                  if (.not. bitarray_test(new_pts, i-sm1+1, j-sm2+1) .and. &
-                      .not. bitarray_test(field%valid_mask, i-sm1+1, j-sm2+1)) then
-                     field%r_arr(i,j) = fill_missing(idx)
+
+               else
+
+                  if (interp_mask_status == 0) then
+                     temp = interp_to_latlon(xlat(i,j), xlon(i,j), istagger, interp_array, slab, nx, ny, &
+                                             missing_value(idx), mask_val=interp_mask_val(idx), mask_field=mask_field%r_arr)
+                  else
+                     temp = interp_to_latlon(xlat(i,j), xlon(i,j), istagger, interp_array, slab, nx, ny, &
+                                             missing_value(idx))
                   end if
+
                end if
+
+               if (temp /= missing_value(idx)) then
+                  field%r_arr(i,j) = temp
+                  call bitarray_set(new_pts, i-sm1+1, j-sm2+1)
+               end if
+
+               if (.not. bitarray_test(new_pts, i-sm1+1, j-sm2+1) .and. &
+                   .not. bitarray_test(field%valid_mask, i-sm1+1, j-sm2+1)) then
+                  field%r_arr(i,j) = fill_missing(idx)
+               end if
+
             end do
          end do
          call select_domain(orig_selected_proj) 
@@ -1339,9 +1309,71 @@ module process_domain_module
 
    end subroutine interp_met_field
 
+
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   ! Name: interp_to_latlon
+   ! 
+   ! Purpose:
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   function interp_to_latlon(rlat, rlon, istagger, interp_method_list, slab, nx, ny, source_missing_value, mask_field, mask_val)
+
+      use interp_module
+      use llxy_module
+
+      implicit none
+
+      ! Arguments
+      integer, intent(in) :: nx, ny, istagger
+      integer, pointer, dimension(:) :: interp_method_list
+      real, intent(in) :: rlat, rlon, source_missing_value
+      real, pointer, dimension(:,:) :: slab
+      real, intent(in), optional :: mask_val
+      real, pointer, dimension(:,:), optional :: mask_field
+
+      ! Return value
+      real :: interp_to_latlon
+     
+      ! Local variables
+      real :: rx, ry
+
+      interp_to_latlon = source_missing_value
+   
+      call lltoxy(rlat, rlon, rx, ry, istagger) 
+      if (present(mask_field) .and. present(mask_val)) then
+         interp_to_latlon = interp_sequence(rx, ry, 1, slab, 1, nx, 1, ny, 1, 1, source_missing_value, &
+                                interp_method_list, 1, mask_val, mask_field)
+      else
+         interp_to_latlon = interp_sequence(rx, ry, 1, slab, 1, nx, 1, ny, 1, 1, source_missing_value, &
+                                interp_method_list, 1)
+      end if
+
+      if (interp_to_latlon == source_missing_value) then
+
+         ! Try a lon in the range 0. to 360.; all lons in the xlon 
+         !    array should be in the range -180. to 180.
+         if (rlon < 0.) then
+            call lltoxy(rlat, rlon+360., rx, ry, istagger) 
+            if (present(mask_field) .and. present(mask_val)) then
+               interp_to_latlon = interp_sequence(rx, ry, 1, slab, 1, nx, 1, ny, 1, 1, source_missing_value, &
+                                      interp_method_list, 1, mask_val, mask_field)
+            else
+               interp_to_latlon = interp_sequence(rx, ry, 1, slab, 1, nx, 1, ny, 1, 1, source_missing_value, &
+                                      interp_method_list, 1)
+            end if
+
+         end if
+
+      end if
+
+      return
+
+   end function interp_to_latlon
+
   
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
    ! Name: get_bottom_top_dim
+   ! 
+   ! Purpose:
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
    subroutine get_bottom_top_dim(bottom_top_dim)
 

@@ -9,6 +9,11 @@ module misc_definitions_module
 
    real, parameter :: NAN=1.E20
 
+   real, parameter :: NOT_MASKED   = -2.,  &
+                      MASKED_BOTH  = -1.,  &
+                      MASKED_WATER =  0.,  &
+                      MASKED_LAND  =  1.
+
    integer, parameter :: OUTSIDE_DOMAIN=1E8, NOT_PROCESSED=1E9, INVALID=1E9
 
    integer, parameter :: SIXTEEN_POINT=1, FOUR_POINT=2, N_NEIGHBOR=3, &

@@ -9,10 +9,12 @@ module interp_option_module
 
    integer :: num_entries
    integer, pointer, dimension(:) :: output_stagger
-   real, pointer, dimension(:) :: masked, fill_missing, missing_value, interp_mask_val
+   real, pointer, dimension(:) :: masked, fill_missing, missing_value, &
+                    interp_mask_val, interp_land_mask_val, interp_water_mask_val
    logical, pointer, dimension(:) :: output_this_field, is_u_field, is_v_field, is_derived_field
    character (len=128), pointer, dimension(:) :: fieldname, interp_method, v_interp_method, &
-                  interp_mask, flag_in_output, from_input, z_dim_name, level_template
+                    interp_mask, interp_land_mask, interp_water_mask, &
+                    flag_in_output, from_input, z_dim_name, level_template
    type (list), pointer, dimension(:) :: fill_lev_list
    type (list) :: flag_in_output_list
 
@@ -82,7 +84,11 @@ module interp_option_module
       allocate(missing_value(num_entries))
       allocate(fill_lev_list(num_entries))
       allocate(interp_mask(num_entries))
+      allocate(interp_land_mask(num_entries))
+      allocate(interp_water_mask(num_entries))
       allocate(interp_mask_val(num_entries))
+      allocate(interp_land_mask_val(num_entries))
+      allocate(interp_water_mask_val(num_entries))
       allocate(level_template(num_entries))
       allocate(flag_in_output(num_entries))
       allocate(from_input(num_entries))
@@ -103,12 +109,16 @@ module interp_option_module
          z_dim_name(i) = 'num_metgrid_levels'
          interp_method(i) = 'nearest_neighbor'
          v_interp_method(i) = 'linear_log_p'
-         masked(i) = -1.
+         masked(i) = NOT_MASKED
          fill_missing(i) = NAN
          missing_value(i) = NAN
          call list_init(fill_lev_list(i))
          interp_mask(i) = ' '
+         interp_land_mask(i) = ' '
+         interp_water_mask(i) = ' '
          interp_mask_val(i) = NAN
+         interp_land_mask_val(i) = NAN
+         interp_water_mask_val(i) = NAN
          level_template(i) = ' '
          if (gridtype == 'C') then
             output_stagger(i) = M
@@ -288,12 +298,54 @@ module interp_option_module
                            read(buffer(idx+p1+1:idx+p2-1),*,err=1000) interp_mask_val(i)
                         end if
       
+                     else if (index('interp_land_mask',trim(buffer(1:idx-1))) /= 0 .and. &
+                         len_trim('interp_land_mask') == len_trim(buffer(1:idx-1))) then
+                        ispace = idx+1
+                        do while ((ispace < eos) .and. (buffer(ispace:ispace) /= ' '))
+                           ispace = ispace + 1
+                        end do
+                        p1 = index(buffer(idx+1:ispace-1),'(')
+                        p2 = index(buffer(idx+1:ispace-1),')')
+                        if (p1 == 0 .or. p2 == 0) then
+                           call mprintf(.true.,WARN, &
+                                        'Problem in specifying interp_land_mask flag. Setting masked flag to 0.')
+                           interp_land_mask(i) = ' '
+                           interp_land_mask(i)(1:ispace-idx) = buffer(idx+1:ispace-1)
+                           interp_land_mask_val(i) = 0
+                        else 
+                           interp_land_mask(i) = ' '
+                           interp_land_mask(i)(1:p1) = buffer(idx+1:idx+p1-1)
+                           read(buffer(idx+p1+1:idx+p2-1),*,err=1000) interp_land_mask_val(i)
+                        end if
+      
+                     else if (index('interp_water_mask',trim(buffer(1:idx-1))) /= 0 .and. &
+                         len_trim('interp_water_mask') == len_trim(buffer(1:idx-1))) then
+                        ispace = idx+1
+                        do while ((ispace < eos) .and. (buffer(ispace:ispace) /= ' '))
+                           ispace = ispace + 1
+                        end do
+                        p1 = index(buffer(idx+1:ispace-1),'(')
+                        p2 = index(buffer(idx+1:ispace-1),')')
+                        if (p1 == 0 .or. p2 == 0) then
+                           call mprintf(.true.,WARN, &
+                                        'Problem in specifying interp_water_mask flag. Setting masked flag to 0.')
+                           interp_water_mask(i) = ' '
+                           interp_water_mask(i)(1:ispace-idx) = buffer(idx+1:ispace-1)
+                           interp_water_mask_val(i) = 0
+                        else 
+                           interp_water_mask(i) = ' '
+                           interp_water_mask(i)(1:p1) = buffer(idx+1:idx+p1-1)
+                           read(buffer(idx+p1+1:idx+p2-1),*,err=1000) interp_water_mask_val(i)
+                        end if
+      
                      else if (index('masked',trim(buffer(1:idx-1))) /= 0 .and. &
                          len_trim('masked') == len_trim(buffer(1:idx-1))) then
                         if (index('water',trim(buffer(idx+1:eos-1))) /= 0) then
-                           masked(i) = 0.
+                           masked(i) = MASKED_WATER
                         else if (index('land',trim(buffer(idx+1:eos-1))) /= 0) then
-                           masked(i) = 1.
+                           masked(i) = MASKED_LAND
+                        else if (index('both',trim(buffer(idx+1:eos-1))) /= 0) then
+                           masked(i) = MASKED_BOTH
                         end if
            
                      else if (index('flag_in_output',trim(buffer(1:idx-1))) /= 0 .and. &
@@ -333,14 +385,7 @@ module interp_option_module
                         end if
                         write(fill_string,'(a)') trim(fill_string(ispace+1:128))
                         fill_string(128-ispace:128) = ' '
-!                        if (list_search(fill_lev_list(i), ckey=lev_string, cvalue=fill_string)) then
-!                           call mprintf(.true.,WARN, &
-!                                        'In entry %i of METGRID.TBL, multiple fields are specified '// &
-!                                        'to fill level %s. %s will be used.', &
-!                                        i1=i, s1=trim(lev_string), s2=trim(fill_string))
-!                        else
-                           call list_insert(fill_lev_list(i), ckey=lev_string, cvalue=fill_string)
-!                        end if
+                        call list_insert(fill_lev_list(i), ckey=lev_string, cvalue=fill_string)
        
                      else
                         call mprintf(.true.,WARN, 'In METGRID.TBL, unrecognized option %s in entry %i.', s1=buffer(1:idx-1), i1=idx)
@@ -404,7 +449,7 @@ module interp_option_module
                call mprintf(.true.,ERROR,'In entry %i of METGRID.TBL, HH is not a valid output staggering for ARW.',i1=i)
             end if
 
-            if (masked(i) /= -1. .and. output_stagger(i) /= M) then
+            if (masked(i) /= NOT_MASKED .and. output_stagger(i) /= M) then
                call mprintf(.true.,ERROR,'In entry %i of METGRID.TBL, staggered output field '// &
                             'cannot use the ''masked'' option.',i1=i)
             end if
@@ -426,7 +471,7 @@ module interp_option_module
                call mprintf(.true.,ERROR,'In entry %i of METGRID.TBL, V is not a valid output staggering for NMM.',i1=i)
             end if
 
-            if (masked(i) /= -1. .and. output_stagger(i) /= HH) then
+            if (masked(i) /= NOT_MASKED .and. output_stagger(i) /= HH) then
                call mprintf(.true.,ERROR,'In entry %i of METGRID.TBL, staggered output field '// &
                             'cannot use the ''masked'' option.',i1=i)
             end if
@@ -615,7 +660,11 @@ module interp_option_module
       end do 
       deallocate(fill_lev_list)
       deallocate(interp_mask)
+      deallocate(interp_land_mask)
+      deallocate(interp_water_mask)
       deallocate(interp_mask_val)
+      deallocate(interp_land_mask_val)
+      deallocate(interp_water_mask_val)
       deallocate(level_template)
       deallocate(flag_in_output)
       deallocate(output_stagger)

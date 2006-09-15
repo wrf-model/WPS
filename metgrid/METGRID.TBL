@@ -1,4 +1,70 @@
 ========================================
+name=ST
+	z_dim_name=num_st_levels
+        derived=yes
+# IF
+        fill_lev = 1 : ST000010(200100)
+        fill_lev = 2 : ST010040(200100)
+        fill_lev = 3 : ST040100(200100)
+        fill_lev = 4 : ST100200(200100)
+# ELSE IF
+        fill_lev = 1 : ST000010(200100)
+        fill_lev = 2 : ST010200(200100)
+# ELSE
+        fill_lev = 1 : ST000007(200100)
+        fill_lev = 2 : ST007028(200100)
+        fill_lev = 3 : ST028100(200100)
+        fill_lev = 4 : ST100255(200100)
+========================================
+name=SM
+        z_dim_name=num_sm_levels
+        derived=yes
+# IF
+        fill_lev = 1 : SM000010(200100)
+        fill_lev = 2 : SM010040(200100)
+        fill_lev = 3 : SM040100(200100)
+        fill_lev = 4 : SM100200(200100)
+# ELSE IF
+        fill_lev = 1 : SM000010(200100)
+        fill_lev = 2 : SM010200(200100)
+# ELSE
+        fill_lev = 1 : SM000007(200100)
+        fill_lev = 2 : SM007028(200100)
+        fill_lev = 3 : SM028100(200100)
+        fill_lev = 4 : SM100255(200100)
+========================================
+name=SW
+        z_dim_name=num_sw_levels
+        derived=yes
+# IF
+        fill_lev = 1 : SW000010(200100)
+        fill_lev = 2 : SW010040(200100)
+        fill_lev = 3 : SW040100(200100)
+        fill_lev = 4 : SW100200(200100)
+# ELSE IF
+        fill_lev = 1 : SW000010(200100)
+        fill_lev = 2 : SW010200(200100)
+========================================
+name=SOILM
+        z_dim_name=num_soilm_levels
+        derived=yes
+        fill_lev = 1 : SOILM000(200100)      
+        fill_lev = 2 : SOILM005(200100)      
+        fill_lev = 3 : SOILM020(200100)      
+        fill_lev = 4 : SOILM040(200100)      
+        fill_lev = 5 : SOILM160(200100)      
+        fill_lev = 6 : SOILM300(200100)      
+========================================
+name=SOILT
+        z_dim_name=num_soilt_levels
+        derived=yes
+        fill_lev = 1 : SOILT000(200100)      
+        fill_lev = 2 : SOILT005(200100)      
+        fill_lev = 3 : SOILT020(200100)      
+        fill_lev = 4 : SOILT040(200100)      
+        fill_lev = 5 : SOILT160(200100)      
+        fill_lev = 6 : SOILT300(200100)      
+========================================
 name=P
         z_dim_name=num_metgrid_levels
         derived=yes
@@ -29,7 +95,10 @@ name=SNOW
         fill_missing=0.
 ========================================
 name=SKINTEMP
-        interp_option=four_pt+average_4pt
+        interp_option=sixteen_pt+four_pt+wt_average_4pt+wt_average_16pt+search
+        masked=both
+        interp_land_mask  = LANDSEA(1)
+        interp_water_mask = LANDSEA(0)
         fill_missing=0.
 ========================================
 name=PSFC
@@ -307,7 +376,7 @@ name=TAVGSFC
         flag_in_output=FLAG_TAVGSFC
 ========================================
 name=TT
-        interp_option=four_pt
+        interp_option=four_pt+average_4pt
         fill_missing=0.
 ========================================
 name=UU
@@ -377,6 +446,10 @@ name=GHT
         interp_option=sixteen_pt+four_pt+average_4pt
         fill_missing=0.
         fill_lev=200100:HGT_M(1)
+========================================
+name=HGTT
+        output=no
+        interp_option=nearest_neighbor
 ========================================
 name=WEASD
         interp_option=four_pt+average_4pt
