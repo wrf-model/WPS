@@ -1,0 +1,5 @@
+#
+setenv share DATE=2006081612
+setenv geogrid New_Zealand
+setenv ungrib SI
+setenv metgrid FILE
