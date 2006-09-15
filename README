@@ -78,7 +78,7 @@ Building WPS
 
 Similar to the WRF package, WPS uses a two-step:
 ./configure
-./compile
+./compile wps
 build mechanism, which directs the unix make underneath.
 If the user is on a recognized architecture, the
 configure script will display a list of available
@@ -98,6 +98,80 @@ The compile option "wps" builds only the main three
 WPS programs: geogrid, ungrib, and metgrid.  This is
 the suggested for the initial build so that NCAR
 Graphics libraries are not required.
+
+To build the utility programs, then the command
+is:
+./compile util
+The utility programs are located in the WPS/util
+directory:
+
+avg_tsfc.exe
+------------
+purpose: computes a daily mean of the surface air 
+temperature, reads the namelist.wps file
+
+usage:
+./avg_tsfc.exe
+
+
+g1print.exe
+-----------
+purpose: read a Grib Edition 1 file, output 
+information to build a Vtable
+
+usage:
+./g1print.exe GRIB1_file
+
+
+g2print.exe
+-----------
+purpose: read a Grib Edition 2 file, output
+information to build a Vtable
+
+usage:
+./g2print.exe GRIB2_file
+
+
+mod_levs.exe
+------------
+purpose: reduce levels in a intermediate file
+so that different Grib sources may be used
+for the initial and lateral boundary time periods
+
+usage:
+./mod_levs.exe OLD_intermetdiate:date_string \
+               NEW_intermetdiate:date_string
+Processes a single file at a time, uses the 
+pressure levels defined in the namelist.wps file.
+
+plotfmt.exe
+-----------
+purpose: generate NCAR Graphics metacode 2d
+horizontal plots of each field and level in the
+intermediate file
+
+usage:
+./plotfmt.exe intermediate_file:date_string
+
+
+plotgrids.exe
+-------------
+purpose: generate an NCEAR Graphics metacode
+plot of the domain locations, one frame with
+all of the domain locations plotted, reads the
+namelist.wps file to get the domain information
+
+usage:
+./plotgrids.exe
+
+
+rd_intermediate.exe
+-------------------
+purpose: read an intermediate file and print
+the information to the screen
+
+usage:
+./rd_intermediate.exe intermediate_file:date_string
 
 
 
