@@ -11,7 +11,7 @@ module interp_option_module
    integer, pointer, dimension(:) :: output_stagger
    real, pointer, dimension(:) :: masked, fill_missing, missing_value, &
                     interp_mask_val, interp_land_mask_val, interp_water_mask_val
-   logical, pointer, dimension(:) :: output_this_field, is_u_field, is_v_field, is_derived_field
+   logical, pointer, dimension(:) :: output_this_field, is_u_field, is_v_field, is_derived_field, is_mandatory
    character (len=128), pointer, dimension(:) :: fieldname, interp_method, v_interp_method, &
                     interp_mask, interp_land_mask, interp_water_mask, &
                     flag_in_output, from_input, z_dim_name, level_template
@@ -98,6 +98,7 @@ module interp_option_module
       allocate(is_u_field(num_entries))
       allocate(is_v_field(num_entries))
       allocate(is_derived_field(num_entries))
+      allocate(is_mandatory(num_entries))
    
       !
       ! Set default values
@@ -129,6 +130,7 @@ module interp_option_module
          is_u_field(i) = .false.
          is_v_field(i) = .false.
          is_derived_field(i) = .false.
+         is_mandatory(i) = .false.
       end do
       call list_init(flag_in_output_list)
    
@@ -250,6 +252,14 @@ module interp_option_module
                            is_derived_field(i) = .true.
                         else if (index('no',trim(buffer(idx+1:eos-1))) /= 0) then
                            is_derived_field(i) = .false.
+                        end if
+       
+                     else if (index('mandatory',trim(buffer(1:idx-1))) /= 0 .and. &
+                         len_trim('mandatory') == len_trim(buffer(1:idx-1))) then
+                        if (index('yes',trim(buffer(idx+1:eos-1))) /= 0) then
+                           is_mandatory(i) = .true.
+                        else if (index('no',trim(buffer(idx+1:eos-1))) /= 0) then
+                           is_mandatory(i) = .false.
                         end if
        
                      else if (index('interp_option',trim(buffer(1:idx-1))) /= 0 .and. &
@@ -672,6 +682,7 @@ module interp_option_module
       deallocate(is_u_field)
       deallocate(is_v_field)
       deallocate(is_derived_field)
+      deallocate(is_mandatory)
       call list_destroy(flag_in_output_list)
 
    end subroutine interp_option_destroy

@@ -68,6 +68,7 @@ name=SOILT
 name=P
         z_dim_name=num_metgrid_levels
         derived=yes
+        mandatory=yes    # MUST HAVE THIS FIELD
         fill_lev=all:PRESSURE
         fill_lev=200100:PSFC(200100)
         fill_lev=all:vertical_index; level_template=TT
@@ -376,16 +377,19 @@ name=TAVGSFC
         flag_in_output=FLAG_TAVGSFC
 ========================================
 name=TT
+        mandatory=yes    # MUST HAVE THIS FIELD
         interp_option=four_pt+average_4pt
         fill_missing=0.
 ========================================
 name=UU
+        mandatory=yes    # MUST HAVE THIS FIELD
         interp_option=sixteen_pt+four_pt+average_4pt
         is_u_field=yes
         output_stagger=U
         fill_missing=0.
 ========================================
 name=VV
+        mandatory=yes    # MUST HAVE THIS FIELD
         interp_option=sixteen_pt+four_pt+average_4pt
         is_v_field=yes
         output_stagger=V

@@ -495,6 +495,7 @@ module process_domain_module
       integer, pointer, dimension(:) :: u_levels, v_levels
       real, pointer, dimension(:,:) :: slab, data_count
       real, pointer, dimension(:,:,:) :: real_array
+      logical, pointer, dimension(:) :: got_this_field
       character (len=3) :: memorder
       character (len=9) :: short_fieldnm
       character (len=24) :: hdate
@@ -504,6 +505,11 @@ module process_domain_module
       character (len=128) :: cname, title, input_name
       character (len=128), dimension(3) :: dimnames
       type (fg_input) :: field, u_field, v_field
+
+      allocate(got_this_field(num_entries))
+      do i=1,num_entries
+         got_this_field(i) = .false.
+      end do
 
       ! For this time, we need to process all first-guess filename roots. When we 
       !   hit a root containing a '*', we assume we have hit the end of the list
@@ -577,10 +583,14 @@ module process_domain_module
                   do idx=1,num_entries
                      if ((index(fieldname(idx), trim(short_fieldnm)) /= 0) .and. &
                          (len_trim(fieldname(idx)) == len_trim(short_fieldnm))) then
+
+                        got_this_field(idx) = .true.
+
                         if (index(input_name,trim(from_input(idx))) /= 0 .or. &
                            (from_input(idx) == '*' .and. idxt == num_entries + 1)) then
                            idxt = idx
                         end if
+
                      end if
                   end do
                   idx = idxt
@@ -873,7 +883,7 @@ module process_domain_module
       end if
 
       if (do_const_processing) return
-       
+
       !
       ! Now that we have all degribbed fields, we build a 3-d pressure field, and fill in any 
       !   missing levels in the other 3-d fields 
@@ -884,8 +894,19 @@ module process_domain_module
       call mprintf(.true.,LOGFILE,'Creating derived fields.')
       call create_derived_fields(gridtype, hdate, xfcst, &
                                  we_mem_s, we_mem_e, sn_mem_s, sn_mem_e, &
-                                 we_mem_stag_s, we_mem_stag_e, sn_mem_stag_s, sn_mem_stag_e)
+                                 we_mem_stag_s, we_mem_stag_e, sn_mem_stag_s, sn_mem_stag_e, &
+                                 got_this_field)
 
+      !
+      ! Check that every mandatory field was found in input data
+      !
+      do i=1,num_entries
+         if (is_mandatory(i) .and. .not. got_this_field(i)) then
+            call mprintf(.true.,ERROR,'The mandatory field %s was not found in any input data.',s1=fieldname(i))
+         end if
+      end do
+      deallocate(got_this_field)
+       
       !
       ! All of the processing is now done for this time period for this domain;
       !   now we simply output every field from the storage module.
@@ -929,11 +950,11 @@ module process_domain_module
             call write_field(sm1, em1, sm2, em2, sm3, em3, &
                              cname, temp_date, real_array)
             deallocate(real_array)
-   
+
          end if
    
       end do
-    
+
       call mprintf(.true.,LOGFILE,'Closing output file.')
       call output_close()
 
@@ -1775,7 +1796,8 @@ module process_domain_module
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
    subroutine create_derived_fields(arg_gridtype, hdate, xfcst, &
                                  we_mem_s, we_mem_e, sn_mem_s, sn_mem_e, &
-                                 we_mem_stag_s, we_mem_stag_e, sn_mem_stag_s, sn_mem_stag_e)
+                                 we_mem_stag_s, we_mem_stag_e, sn_mem_stag_s, sn_mem_stag_e, &
+                                 created_this_field)
 
       use interp_option_module
       use list_module
@@ -1788,6 +1810,7 @@ module process_domain_module
       integer, intent(in) :: we_mem_s, we_mem_e, sn_mem_s, sn_mem_e, &
                              we_mem_stag_s, we_mem_stag_e, sn_mem_stag_s, sn_mem_stag_e
       real, intent(in) :: xfcst 
+      logical, dimension(:), intent(inout) :: created_this_field 
       character (len=1), intent(in) :: arg_gridtype 
       character (len=24), intent(in) :: hdate 
 
@@ -1823,6 +1846,8 @@ module process_domain_module
       !
       do idx=1,num_entries
          if (is_derived_field(idx)) then
+
+            created_this_field(idx) = .true.
 
             call mprintf(.true.,INFORM,'Going to create the field %s',s1=fieldname(idx))
             filled_all_lev = .false.
