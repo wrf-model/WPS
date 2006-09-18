@@ -130,11 +130,6 @@ subroutine plt2d(scr2d, ix, jx, llflag, &
   case (PROJ_LATLON)
      pl1 = lat1
      pl2 = lon1
-     if(abs(abs(dx)-0.083).lt.0.001) then
-        dx = 0.083333333 * sign(1.0,dx)
-        dy = 0.083333333 * sign(1.0,dy)
-        print *,'new dx,dy for SST =',dx,dy
-     endif
      call fmtxyll(float(ix), float(jx), pl3, pl4, 'CE', pl1, pl2, &
           plon, truelat1, truelat2, dx, dy)
      plon = (pl2 + pl4) / 2.

@@ -328,6 +328,12 @@ SUBROUTINE rd_grib1(IUNIT, gribflnm, level, field, hdate,  &
      map%lon1 = ginfo(4)
      write(tmp8,'(b8.8)') infogrid(5)
      if (tmp8(5:5) .eq. '0') map%grid_wind = .false.
+     if (icenter .eq. 7 .and. KSEC1(5) .eq. 173 ) then  ! correction for ncep grid 173
+       map%lat1 = 89.958333
+       map%lon1 = 0.041667
+       map%dx = 0.083333333 * sign(1.0,map%dx)
+       map%dy = 0.083333333 * sign(1.0,map%dy)
+     endif
 
 !    print *, "CE map stuff", map%igrid, map%nx, map%ny, map%dx, &
 !    map%dy, map%lat1, map%lon1
