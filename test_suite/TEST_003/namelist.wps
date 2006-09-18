@@ -21,11 +21,11 @@
  dx = 30000,
  dy = 30000,
  map_proj = 'lambert',
- ref_lat   = -27.8 
- ref_lon   = 132.0
+ ref_lat   = -38.0 
+ ref_lon   = 176.0
  truelat1  = -30.0,
  truelat2  = -60.0,
- stand_lon = 132.0
+ stand_lon = 176.0
  geog_data_path = '/standalone/users/gill/DATA/GEOG'
 /
  geog_data_path = '/data3a/mp/gill/DATA/GEOG'
