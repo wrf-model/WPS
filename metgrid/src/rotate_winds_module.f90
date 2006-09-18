@@ -368,7 +368,7 @@ module rotate_winds_module
 
       ! Local variables
       integer :: i, j
-      real :: u_map, v_map
+      real :: u_map, v_map, diff, alpha
       real :: phi0, lmbd0, big_denominator
       real :: sin_phi0, cos_phi0, sin_lmbd0, cos_lmbd0, cos_alpha, sin_alpha
       real, pointer, dimension(:,:) :: u_new, v_new
@@ -378,13 +378,12 @@ module rotate_winds_module
       !   information about the projection and standard longitude.
       if (proj_stack(current_nest_number)%init) then
 
-! BUG: Need to add rotation code for other projection
          if (proj_stack(current_nest_number)%code == PROJ_ROTLL) then
-
+   
             ! Create arrays to hold rotated winds
             allocate(u_new(vs1:ve1, vs2:ve2))
             allocate(v_new(vs1:ve1, vs2:ve2))
-   
+
             phi0  = proj_stack(current_nest_number)%lat1 * rad_per_deg
             lmbd0 = proj_stack(current_nest_number)%lon1 * rad_per_deg
    
@@ -440,7 +439,67 @@ module rotate_winds_module
    
                end do
             end do
+
+            ! Copy rotated winds back into argument arrays
+            u = u_new 
+            v = v_new 
    
+            deallocate(u_new)
+            deallocate(v_new)
+   
+         ! Only rotate winds for Lambert conformal or polar stereographic
+         else if ((proj_stack(current_nest_number)%code == PROJ_LC) .or. (proj_stack(current_nest_number)%code == PROJ_PS)) then
+            ! Create arrays to hold rotated winds
+            allocate(u_new(vs1:ve1, vs2:ve2))
+            allocate(v_new(vs1:ve1, vs2:ve2))
+
+            do j=vs2,ve2
+               do i=vs1,ve1
+
+                  diff = idir * (xlon_v(i,j) - proj_stack(current_nest_number)%stdlon)
+                  if (diff > 180.) then
+                     diff = diff - 360.
+                  else if (diff < -180.) then
+                     diff = diff + 360.
+                  end if
+
+                  if (proj_stack(current_nest_number)%code == PROJ_LC) then
+                     alpha = diff * proj_stack(current_nest_number)%cone * rad_per_deg * proj_stack(current_nest_number)%hemi 
+                  else
+                     alpha = diff * rad_per_deg * proj_stack(current_nest_number)%hemi 
+                  end if
+
+                  ! Rotate U field
+                  if (bitarray_test(u_mask, i-vs1+1, j-vs2+1)) then
+                     u_map = u(i,j)
+                     if (bitarray_test(v_mask, i-vs1+1, j-vs2+1)) then
+                        v_map = v(i,j)
+                     else
+                        v_map = 0.
+                     end if
+                     
+                     u_new(i,j) = cos(alpha)*u_map + idir*sin(alpha)*v_map
+                  else
+                     u_new(i,j) = u(i,j)
+                  end if
+                       
+                  ! Rotate V field
+                  if (bitarray_test(v_mask, i-vs1+1, j-vs2+1)) then
+                     v_map = v(i,j)
+                     if (bitarray_test(u_mask, i-vs1+1, j-vs2+1)) then
+                        u_map = u(i,j)
+                     else
+                        u_map = 0.
+                     end if
+                     
+                     v_new(i,j) = -idir*sin(alpha)*u_map + cos(alpha)*v_map
+                  else
+                     v_new(i,j) = v(i,j)
+                  end if
+
+               end do
+            end do
+
             ! Copy rotated winds back into argument arrays
             u = u_new 
             v = v_new 
