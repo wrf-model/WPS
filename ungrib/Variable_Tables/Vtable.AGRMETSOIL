@@ -1,4 +1,4 @@
-GRIB | Level| Level| Level| REGRID   |  REGRID  | REGRID                                      |
+GRIB | Level| Level| Level| metgrid  |  metgrid | metgrid                                     |
 Code | Code |   1  |   2  | Name     |  Units   | Description                                 |
 -----+------+------+------+----------+----------+---------------------------------------------+
  201 | 112  |   0  |  10  | SOILM010 | fraction | Soil Moisture of 0-10 cm ground layer       |
