@@ -48,7 +48,7 @@ misc_definitions_module.o:
 
 module_debug.o: parallel_module.o
 
-module_map_utils.o: constants_module.o misc_definitions_module.o
+module_map_utils.o: constants_module.o misc_definitions_module.o module_debug.o
 
 output_module.o: gridinfo_module.o llxy_module.o misc_definitions_module.o module_debug.o parallel_module.o source_data_module.o
 

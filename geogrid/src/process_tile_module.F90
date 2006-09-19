@@ -593,7 +593,6 @@ module process_tile_module
                            ! Only need to examine k=1
                            if (field(i,j,1) == msg_fill_val) then
                               call mprintf(.true.,ERROR,' Missing value encountered in output field. Quitting.')
-                              stop
                            end if
                         end do
                      end do
@@ -714,7 +713,6 @@ module process_tile_module
                            ! Only need to examine k=1
                            if (field(i,j,1) == msg_fill_val) then
                               call mprintf(.true.,ERROR,' Missing value encountered in output field. Quitting.')
-                              stop
                            end if
                         end do
                      end do

@@ -499,7 +499,7 @@ module source_data_module
       ! Check the user specifications for gross errors
       if ( .not. check_data_specification() ) then
          call datalist_destroy()
-         stop
+         call mprintf(.true.,ERROR,'Errors were found in either index files or GEOGRID.TBL.')
       end if
   
       call hash_init(bad_files)

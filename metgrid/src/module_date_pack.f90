@@ -11,6 +11,8 @@ MODULE date_pack
 !  3. split_date_char ( date , century_year , month , day , hour , minute , second )
 !  Given the date, return the integer components.
 
+use module_debug
+
 CONTAINS
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -213,13 +215,11 @@ CONTAINS
       END IF
       
       IF (.not. npass) THEN
-         PRINT*, 'Screwy NDATE: ', ndate(1:nlen)
-         STOP 'ndate_2'
+         call mprintf(.true.,ERROR,'Screwy NDATE: %s',s1=ndate(1:nlen))
       END IF
       
       IF (.not. opass) THEN
-         PRINT*, 'Screwy ODATE: ', odate(1:olen)
-         STOP 'odate_1'
+         call mprintf(.true.,ERROR,'Screwy ODATE: %s',s1=odate(1:olen))
       END IF
       
       !  Date Checks are completed.  Continue.
@@ -423,8 +423,7 @@ CONTAINS
       
       
       IF (.not.opass) THEN
-         WRITE(*,*) 'GETH_NEWDATE: Crazy ODATE: ', odate(1:olen), olen
-         STOP 'odate_3'
+         call mprintf(.true.,ERROR,'GETH_NEWDATE: Crazy ODATE: %s %i',s1=odate(1:olen),i1=olen)
       END IF
       
       !  Date Checks are completed.  Continue.
@@ -469,10 +468,7 @@ CONTAINS
          nsec   = 0
          nfrac  = 0
       ELSE
-         WRITE(*,'(''GETH_NEWDATE: Strange length for ODATE: '', i3)') &
-              olen
-         WRITE(*,*) odate(1:olen)
-         STOP 'odate_4'
+         call mprintf(.true.,ERROR,'GETH_NEWDATE: Strange length for ODATE: %i',i1=olen)
       END IF
       
       IF (idt.GE.0) THEN

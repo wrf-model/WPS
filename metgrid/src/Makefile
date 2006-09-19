@@ -52,11 +52,11 @@ minheap_module.o: datatype_module.o
 
 misc_definitions_module.o:
 
-module_date_pack.o:
+module_date_pack.o: module_debug.o
 
 module_debug.o: parallel_module.o
 
-module_map_utils.o: constants_module.o misc_definitions_module.o
+module_map_utils.o: constants_module.o misc_definitions_module.o module_debug.o
 
 module_mergesort.o:
 

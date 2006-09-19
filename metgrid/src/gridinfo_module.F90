@@ -224,20 +224,17 @@ module gridinfo_module
           io_form_geogrid /= GRIB1 .and. & 
 #endif
           .true. ) then
-         write(6,*) ' '
-         write(6,*) 'Error: No valid value for io_form_geogrid was specified in the namelist.'
-         write(6,*) '       Valid io_form_geogrid values are:'
+         call mprintf(.true.,WARN,'Valid io_form_geogrid values are:')
 #ifdef IO_BINARY
-         write(6,*) '       ',BINARY,' (=BINARY)'
+         call mprintf(.true.,WARN,'       %i (=BINARY)',i1=BINARY)
 #endif
 #ifdef IO_NETCDF
-         write(6,*) '       ',NETCDF,' (=NETCDF)'
+         call mprintf(.true.,WARN,'       %i (=NETCDF)',i1=NETCDF)
 #endif
 #ifdef IO_GRIB1
-         write(6,*) '       ',GRIB1,' (=GRIB1)'
+         call mprintf(.true.,WARN,'       %i (=GRIB1)',i1=GRIB1)
 #endif
-         write(6,*) ' '
-         stop
+         call mprintf(.true.,ERROR,'No valid value for io_form_geogrid was specified in the namelist.')
       end if
       io_form_input = io_form_geogrid
   
@@ -253,20 +250,17 @@ module gridinfo_module
           io_form_metgrid /= GRIB1 .and. &
 #endif
           .true. ) then
-         write(6,*) ' '
-         write(6,*) 'Error: No valid value for io_form_metgrid was specified in the namelist.'
-         write(6,*) '       Valid io_form_metgrid values are:'
+         call mprintf(.true.,WARN,'Valid io_form_metgrid values are:')
 #ifdef IO_BINARY
-         write(6,*) '       ',BINARY,' (=BINARY)'
+         call mprintf(.true.,WARN,'       %i (=BINARY)',i1=BINARY)
 #endif
 #ifdef IO_NETCDF
-         write(6,*) '       ',NETCDF,' (=NETCDF)'
+         call mprintf(.true.,WARN,'       %i (=NETCDF)',i1=NETCDF)
 #endif
 #ifdef IO_GRIB1
-         write(6,*) '       ',GRIB1,' (=GRIB1)'
+         call mprintf(.true.,WARN,'       %i (=GRIB1)',i1=GRIB1)
 #endif
-         write(6,*) ' '
-         stop
+         call mprintf(.true.,ERROR,'No valid value for io_form_metgrid was specified in the namelist.')
       end if
       io_form_output = io_form_metgrid
   

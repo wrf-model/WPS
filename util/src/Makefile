@@ -18,7 +18,7 @@ rd_intermediate.exe: rd_intermediate.o read_met_module.o module_debug.o
 rd_intermediate.o: module_debug.o read_met_module.o rd_intermediate.F90
 
 plotgrids.exe: plotgrids.o
-	$(SFC) -o $(@) $(LDFLAGS) module_map_utils.o constants_module.o misc_definitions_module.o \
+	$(SFC) -o $(@) $(LDFLAGS) module_map_utils.o module_debug.o cio.o constants_module.o misc_definitions_module.o \
 		plotgrids.o $(NCARG_LIBS) $(NCARG_LIBS2)
 
 plotgrids.o: plotgrids.f90 module_map_utils.o
@@ -51,7 +51,7 @@ mod_levs.exe: mod_levs.o module_debug.o read_met_module.o write_met_module.o
 
 mod_levs.o: module_debug.o read_met_module.o write_met_module.o mod_levs.F90
 
-module_map_utils.o: misc_definitions_module.o constants_module.o module_map_utils.f90
+module_map_utils.o: module_map_utils.f90 misc_definitions_module.o constants_module.o module_debug.o
 
 cio.o: cio.c
 
