@@ -120,7 +120,10 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_level, out_f
   TIMELOOP : do ntime = 1, ntimes
      idts = (ntime-1) * interval
      call geth_newdate(hdate, hstart, idts)
-     print*, 'hstart, hdate = ', hstart,' ', hdate, idts
+     if ( debug_level .gt. 100 ) then
+     write(6,*) 'RRPR: hstart = ', hstart,' hdate = ', hdate, &
+         ' idts = ', idts
+     endif
 
 ! Loop over the output file dates, and do stuff if the file date matches
 ! the requested time we are working on now.

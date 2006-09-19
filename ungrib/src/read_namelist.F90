@@ -158,7 +158,7 @@ subroutine read_namelist(hstart, hend, delta_time, ntimes,&
 
   ntimes = idts/interval_seconds + 1
 
-  print*, 'HSTART, HEND = ', hstart//'    '//hend
+  write(6,*) 'Start_date = ', hstart, '     End_date = ', hend
 
   if (debug_level.gt.0) then
      write(*,'(//)')

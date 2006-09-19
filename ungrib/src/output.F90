@@ -58,7 +58,7 @@ subroutine output(hdate, nlvl, maxlvl, plvl, interval, iflag, out_format, debug_
  
   call get_plvls(plvl, maxlvl, nlvl)
 
-  if ( debug_level .gt. 100 ) then
+  if ( debug_level .ge. 0 ) then
   write(*,119) hdate(1:10), hdate(12:19)
 119 format(/,79('#'),//,'Inventory for date = ', A10,1x,A8,/)
 
@@ -78,26 +78,30 @@ subroutine output(hdate, nlvl, maxlvl, plvl, interval, iflag, out_format, debug_
         cycle KLOOP
      endif
      ilev = nint(plvl(k))
-     if ( debug_level .gt. 100 ) then
+     if ( debug_level .ge. 0 ) then
      write(*, advance='NO', FMT='(F6.1)') plvl(k)/100.
      end if
      MLOOP : do m = 1, maxvar
         do n = 1, m-1
            if (namvar(m).eq.namvar(n)) cycle MLOOP
         enddo
-        if ( debug_level .gt. 100 ) then
+        if ( debug_level .ge. 0 ) then
         if (is_there(ilev,namvar(m))) then
            write(*, advance='NO', FMT='("  X      ")')
         else
-           write(*, advance='NO', FMT='("         ")')
+	   if ( plvl(k).gt.200000 ) then
+             write(*, advance='NO', FMT='("  O      ")')
+	   else
+             write(*, advance='NO', FMT='("         ")')
+	   endif
         endif
         endif
      enddo MLOOP
-     if ( debug_level .gt. 100 ) then
+     if ( debug_level .ge. 0 ) then
      write(*,advance='YES', fmt='(1x)')
      endif
   enddo KLOOP
-  if ( debug_level .gt. 100 ) then
+  if ( debug_level .ge. 0 ) then
   write(*,FMT='(79("-"))')
   endif
   

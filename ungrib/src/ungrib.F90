@@ -19,29 +19,16 @@
 !    Subroutine DATINT                                                        !
 !    Subroutine FILE_DELETE                                                   !
 !                                                                             !
-! Kevin W. Manning                                                            !
-! NCAR/MMM                                                                    !
-! Summer 1998, and continuing                                                 !
-! SDG                                                                         !
+! Kevin W. Manning, NCAR/MMM  - original 'pregrid' code, 1998-2001            !
+! Jim Bresch, Michael Duda, Dave Gill, NCAR/MMM - adapted for WPS, 2006       !
 !                                                                             !
 !*****************************************************************************!
 !                                                                             !
-! Recent changes:                                                             !
-!   2001-02-14:  Allow output file names to have date stamps out to minutes   !
-!                or seconds, if the user requests a time interval (in         !
-!                seconds) that is not evenly divisible into hours.  For this  !
-!                routine (pregrid_grib.F), this simply involves passing       !
-!                the interval to routines output.F, rrpr.F, datint.F,         !
-!                file_delete.F                                                !
-!                                                                             !
-!   2000-08-31:  Allow the program to recognize SKINTEMP as something to be   !
-!                used as a sea-surface temperature.                           !
-!                                                                             !
 !*****************************************************************************!
 !                                                                             !
-! This program reads GRIB-formatted data and puts it into the REGRID format   !
-! for passing data to program "regridder".  This format is described in file  !
-! "REGRID/pregrid/Doc/Format".                                                !
+! This program reads GRIB-formatted data and puts it into intermediate format !
+! for passing data to a horizontal interpolation program. The intermediate    !
+! format can be for WPS, SI, or MM5.                                          !
 !                                                                             !
 ! The program tries to read from files called "GRIBFILE.AAA", "GRIBFILE.AAB", !
 ! "GRIBFILE.AAC", ... "GRIBFILE.ABA", "GRIBFILE.ABB", ... "GRIBFILE.ZZZ" until!
@@ -95,13 +82,15 @@ program ungrib
   integer :: vtable_columns
 
 
+  write(6,*) 'Begin ungrib'
 ! -----------------
 ! Read the namelist, and return the information we want:
 
   call read_namelist(hstart, hend, interval, ntimes, &
        ordered_by_date, debug_level, out_format)
 
-  write(*,*) 'Interval value:', interval
+  write(6,'(1x,a,i8,a8,f10.6,1x,a)') 'Interval value:', interval, &
+    ' sec  ( ',  float(interval)/3600., ' hours )'
 
 ! -----------------
 ! Determine GRIB Edition number
@@ -111,7 +100,7 @@ program ungrib
   if (grib_version.eq.2) then
      vtable_columns=11 
 #if defined (USE_PNG) && (USE_JPEG2000)
-     write(6,*) 'Linked in png and jpeg for Grib Edition 2'
+     write(6,*) 'Linked in png and jpeg libraries for Grib Edition 2'
 #else
      write(6,*) ' '
      write(6,*) '***********************************************'
@@ -126,7 +115,7 @@ program ungrib
   else
      vtable_columns=7 
   endif
-  print *,'Reading Grib Edition ',grib_version
+  write(6,'(1x,a,i4)') 'Reading Grib Edition ',grib_version
 
 ! -----------------
 ! Read the "Vtable" file, and put the information contained therein into 
