@@ -175,8 +175,8 @@ module output_module
       end if
 
       if (nprocs > 1 .and. do_tiled_output) then
-         write(output_fname(len_trim(output_fname)+1:len_trim(output_fname)+6), '(a2,i4.4)') &
-              '.p', my_proc_id 
+         write(output_fname(len_trim(output_fname)+1:len_trim(output_fname)+5), '(a1,i4.4)') &
+              '_', my_proc_id 
       end if
 #endif
   
@@ -221,8 +221,8 @@ module output_module
       end if
 
       if (nprocs > 1 .and. do_tiled_output) then
-         write(output_fname(len_trim(output_fname)+1:len_trim(output_fname)+6), '(a2,i4.4)') &
-              '.p', my_proc_id 
+         write(output_fname(len_trim(output_fname)+1:len_trim(output_fname)+5), '(a1,i4.4)') &
+              '_', my_proc_id 
       end if
 #endif
       end if

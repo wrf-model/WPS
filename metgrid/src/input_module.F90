@@ -83,8 +83,8 @@ module input_module
          end if
 
          if (nprocs > 1 .and. do_tiled_input) then
-            write(input_fname(len_trim(input_fname)+1:len_trim(input_fname)+6), '(a2,i4.4)') &
-                            '.p', my_proc_id
+            write(input_fname(len_trim(input_fname)+1:len_trim(input_fname)+5), '(a1,i4.4)') &
+                            '_', my_proc_id
          end if
      
          istatus = 0

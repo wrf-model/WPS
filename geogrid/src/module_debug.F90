@@ -195,7 +195,15 @@ module module_debug
          if (level /= STDOUT) &
             call cio_prints(1,ctemp,iend-istart+2)
 
-         if (level == ERROR) stop
+         if (level == ERROR) then
+#ifdef _GEOGRID 
+            call parallel_abort()
+#endif
+#ifdef _METGRID 
+            call parallel_abort()
+#endif
+            stop
+         end if
 
       end if
 

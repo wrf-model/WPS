@@ -44,36 +44,38 @@ module parallel_module
       integer :: mpi_ierr
       integer, dimension(2) :: dims, coords
       integer :: rectangle, myleft, myright, mytop, mybottom
+      integer :: mini, m, n
       logical, dimension(2) :: periods
   
       ! Find out our rank and the total number of processors
       call MPI_Init(mpi_ierr)
       call MPI_Comm_rank(MPI_COMM_WORLD, mpi_rank, mpi_ierr)
       call MPI_Comm_size(MPI_COMM_WORLD, mpi_size, mpi_ierr)
+
       comm = MPI_COMM_WORLD
-  
-      ! Find a reasonable number of processors to use in the x and y directions
-      dims(1) = 0
-      dims(2) = 0
-      call MPI_Dims_create(mpi_size, 2, dims, mpi_ierr)
-      periods(1) = .false.
-      periods(2) = .false.
-  
-      ! Create an MPI Cartesian mesh
-      call MPI_Cart_create(MPI_COMM_WORLD, 2, dims, periods, .false., rectangle, mpi_ierr)
-      call MPI_Cart_shift(rectangle, 0, 1, myleft, myright, mpi_ierr)
-      call MPI_Cart_shift(rectangle, 1, 1, mybottom, mytop, mpi_ierr)
-      call MPI_Cart_coords(rectangle, mpi_rank, 2, coords, mpi_ierr)
-  
-      ! Set module variables based on the Cartesian mesh and our location in it
-      comm = rectangle
-      my_proc_id = mpi_rank
+
       nprocs = mpi_size
-      my_x = coords(1)
-      my_y = coords(2)
-      nproc_x = dims(1)
-      nproc_y = dims(2)
-  
+      my_proc_id = mpi_rank
+
+      ! Code from RSL to get number of procs in m and n directions
+      mini = 2*nprocs
+      nproc_x = 1
+      nproc_y = nprocs
+      do m = 1, nprocs
+        if ( mod( nprocs, m ) == 0 ) then
+          n = nprocs / m
+          if ( abs(m-n) < mini  ) then
+            mini = abs(m-n)
+            nproc_x = m
+            nproc_y = n
+          end if
+        end if
+      end do
+
+      ! Calculate which patch current processor will work on
+      my_x = mod(mpi_rank,nproc_x) 
+      my_y = mpi_rank / nproc_x
+
 #else
       comm = 0
       my_proc_id = IO_NODE
@@ -111,17 +113,39 @@ module parallel_module
   
       ! Local variables
 #ifdef _MPI
-      integer :: i, ix, iy
+      integer :: i, j, ix, iy, px, py
       integer, dimension(2) :: buffer
       integer :: mpi_ierr
       integer, dimension(MPI_STATUS_SIZE) :: mpi_stat
   
+      !
       ! Determine starting and ending grid points in x and y direction that we will work on
-      my_minx = 1. + real(my_x) * (real(idim) / real(nproc_x))
-      my_maxx = real(my_x+1) * (real(idim) / real(nproc_x))
-      my_miny = 1. + real(my_y) * (real(jdim) / real(nproc_y))
-      my_maxy = real(my_y+1) * (real(jdim) / real(nproc_y))
-  
+      !
+      ! NOTE:
+      ! For now, copy code from RSL_LITE's module_dm.F until build mechanism to link 
+      ! WRF and WPS code is worked out more.
+      ! Eventually, it would probably be best to use module_dm code without copying
+      !
+      my_minx = -1
+      j = 1
+      do i = 1, idim
+         call task_for_point(i, j, 1, idim, 1, jdim, nproc_x, nproc_y, px, py)
+         if ( px == my_x ) then
+            my_maxx = i
+            if ( my_minx == -1 ) my_minx = i
+         end if
+      end do
+
+      my_miny = -1
+      i = 1
+      do j = 1, jdim
+         call task_for_point(i, j, 1, idim, 1, jdim, nproc_x, nproc_y, px, py)
+         if ( py == my_y ) then
+            my_maxy = j
+            if ( my_miny == -1 ) my_miny = j
+         end if
+      end do
+
       ! Create space to hold information about which other processors are 
       !   working on which parts of the domain
       allocate(processors(0:nproc_x-1, 0:nproc_y-1))
@@ -183,6 +207,61 @@ module parallel_module
 #endif
  
    end subroutine parallel_get_tile_dims
+
+
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   ! Copied from RSL_LITE's task_for_point.c until a good way can be found to
+   !    get the build mechanism to use the original code in RSL_LITE.
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   subroutine task_for_point(i_p, j_p, ids_p, ide_p, jds_p, jde_p, npx, npy, px, py)
+
+      implicit none
+
+      ! Arguments
+      integer :: i_p, j_p, ids_p, ide_p, jds_p, jde_p, npx, npy, px, py
+
+      ! Local variables
+      integer :: a, b, rem, idim, jdim, i, j, ids, jds, ide, jde
+
+      i = i_p - 1
+      j = j_p - 1
+      ids = ids_p - 1
+      jds = jds_p - 1
+      ide = ide_p - 1
+      jde = jde_p - 1
+
+      idim = ide-ids+1
+      jdim = jde-jds+1
+
+      i = max(i,ids)
+      i = min(i,ide)
+      rem = mod(idim, npx)
+      a = ( rem / 2 ) * ( (idim / npx) + 1 )
+      b = a + ( npx - rem ) * ( idim / npx )
+      if ( i-ids < a ) then
+         px = (i-ids) / ( (idim / npx) + 1 )
+      else if ( i-ids < b ) then
+         px = ( a / ( (idim / npx) + 1 ) ) + (i-a-ids) / ( ( b - a ) / ( npx - rem ) ) 
+      else 
+         px = ( a / ( (idim / npx) + 1 ) ) + (b-a-ids) / ( ( b - a ) / ( npx - rem ) ) + &
+                                             (i-b-ids) / ( ( idim / npx ) + 1 ) 
+      end if
+
+      j = max(j,jds)
+      j = min(j,jde)
+      rem = mod(jdim, npy)
+      a = ( rem / 2 ) * ( (jdim / npy) + 1 )
+      b = a + ( npy - rem ) * ( jdim / npy )
+      if ( j-jds < a ) then
+         py = (j-jds) / ( (jdim / npy) + 1 )
+      else if ( j-jds < b ) then
+         py = ( a / ( (jdim / npy) + 1 ) ) + (j-a-jds) / ( ( b - a ) / ( npy - rem ) )
+      else
+         py = ( a / ( (jdim / npy) + 1 ) ) + (b-a-jds) / ( ( b - a ) / ( npy - rem ) ) + &
+                                             (j-b-jds) / ( ( jdim / npy ) + 1 )
+      end if
+
+   end subroutine task_for_point
  
  
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -931,5 +1010,28 @@ module parallel_module
       if (associated(proc_maxy)) deallocate(proc_maxy)
  
    end subroutine parallel_finish
+
+
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   ! Name: parallel_abort
+   !
+   ! Purpose: Terminate everything
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   subroutine parallel_abort()
+
+      implicit none
+
+      ! Arguments
+
+      ! Local variables
+#ifdef _MPI
+      integer :: mpi_ierr, mpi_errcode
+
+      call MPI_Abort(MPI_COMM_WORLD, mpi_errcode, mpi_ierr)
+#endif
+
+      stop
+
+   end subroutine parallel_abort
  
 end module parallel_module
