@@ -17,14 +17,14 @@ program metgrid
    integer :: n
    logical :: extra_row, extra_col
 
-   call mprintf(.true.,LOGFILE,' *** Starting program metgrid.exe *** ')
-
    !
    ! Do general setup
    !
 
    ! Initialize parallel stuff
    call parallel_start()
+
+   call mprintf(.true.,LOGFILE,' *** Starting program metgrid.exe *** ')
 
    ! Having determined which processor we are, and where our patch is located
    !   in the domain, we can determine if U or V staggered fields will have one 

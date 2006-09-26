@@ -15,6 +15,8 @@ module module_debug
 
    integer :: the_debug_level = DEBUG
 
+   logical :: have_set_logname = .false.
+
    contains
 
    subroutine set_debug_level(ilev)
@@ -55,7 +57,29 @@ module module_debug
       character (len=128) :: sa
       character (len=1024) :: ctemp
 
-      if (my_proc_id /= IO_NODE) return
+      if (.not. have_set_logname) then
+         write(ctemp,'(a)') 'logfile.log'
+         call cio_set_log_filename(ctemp,len_trim(ctemp))
+#ifdef _GEOGRID
+         if (nprocs == 1) then
+            write(ctemp,'(a)') 'geogrid.log'
+            call cio_set_log_filename(ctemp,len_trim(ctemp))
+         else
+            write(ctemp,'(a,i4.4)') 'geogrid.log.',my_proc_id
+            call cio_set_log_filename(ctemp,len_trim(ctemp))
+         end if
+#endif
+#ifdef _METGRID
+         if (nprocs == 1) then
+            write(ctemp,'(a)') 'metgrid.log'
+            call cio_set_log_filename(ctemp,len_trim(ctemp))
+         else
+            write(ctemp,'(a,i4.4)') 'metgrid.log.',my_proc_id
+            call cio_set_log_filename(ctemp,len_trim(ctemp))
+         end if
+#endif
+         have_set_logname = .true.
+      end if
 
       idxi = 1
       idxf = 1
@@ -63,7 +87,11 @@ module module_debug
       istart = 1
       iend = len_trim(fmtstring)
 
+#if (defined _GEOGRID) || (defined _METGRID)
+      if (assertion .and. .not. (level == STDOUT .and. my_proc_id /= IO_NODE)) then
+#else
       if (assertion) then
+#endif
 
          if (level /= STDOUT) then 
             call date_and_time(date=cur_date,time=cur_time)
