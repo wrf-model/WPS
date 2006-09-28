@@ -47,7 +47,7 @@ module process_tile_module
       integer :: start_mem_i, end_mem_i, start_mem_j, end_mem_j, end_mem_stag_i, end_mem_stag_j
       integer :: sm1, em1, sm2, em2
       integer :: istagger
-      real :: sum, dominant, scale_factor, msg_fill_val
+      real :: sum, dominant, scale_factor, msg_fill_val, topo_flag_val, mass_flag
       real, dimension(16) :: corner_lats, corner_lons
       real, pointer, dimension(:,:) :: xlat_array,   xlon_array, &
                                        xlat_array_u, xlon_array_u, &
@@ -66,6 +66,7 @@ module process_tile_module
    
       datestr = '0000-00-00_00:00:00'
       field_count = 0
+      mass_flag=1.0
     
       ! The following pertains primarily to the C grid
       ! Determine whether only (n-1)th rows/columns should be computed for variables
@@ -454,13 +455,25 @@ module process_tile_module
             ! Finally, we may be asked to smooth the fractional field
             call get_smooth_option(landmask_name, smth_opt, smth_passes, istatus)
             if (istatus == 0) then
-               if (smth_opt == ONETWOONE) then
-                  call one_two_one(field, start_mem_i, end_mem_i, start_mem_j, end_mem_j, &
-                                   min_category, max_category, smth_passes, msg_fill_val)
-               else if (smth_opt == SMTHDESMTH) then
-                  call smth_desmth(field, start_mem_i, end_mem_i, start_mem_j, end_mem_j, &
-                                   min_category, max_category, smth_passes, msg_fill_val)
+
+               if (grid_type == 'C') then
+                  if (smth_opt == ONETWOONE) then
+                     call one_two_one(field, start_mem_i, end_mem_i, start_mem_j, end_mem_j, &
+                                      min_category, max_category, smth_passes, msg_fill_val)
+                  else if (smth_opt == SMTHDESMTH) then
+                     call smth_desmth(field, start_mem_i, end_mem_i, start_mem_j, end_mem_j, &
+                                      min_category, max_category, smth_passes, msg_fill_val)
+                  end if
+               else if (grid_type == 'E') then
+                  if (smth_opt == ONETWOONE) then
+                     call one_two_one_egrid(field, start_mem_i, end_mem_i, start_mem_j, end_mem_j, &
+                                      min_category, max_category, smth_passes, msg_fill_val, 1.0)
+                  else if (smth_opt == SMTHDESMTH) then
+                     call smth_desmth_egrid(field, start_mem_i, end_mem_i, start_mem_j, end_mem_j, &
+                                      min_category, max_category, smth_passes, msg_fill_val, 1.0)
+                  end if
                end if
+
             end if
       
             call write_field(start_mem_i, end_mem_i, start_mem_j, end_mem_j, &
@@ -615,15 +628,40 @@ module process_tile_module
                   ! We may be asked to smooth the fractional field
                   call get_smooth_option(fieldname, smth_opt, smth_passes, istatus)
                   if (istatus == 0) then
-                     if (smth_opt == ONETWOONE) then
-                        call one_two_one(field, sm1, em1, sm2, em2, &
-                                         min_level, max_level, smth_passes, msg_fill_val)
-                     else if (smth_opt == SMTHDESMTH) then
-                        call smth_desmth(field, sm1, em1, sm2, em2, &
-                                         min_level, max_level, smth_passes, msg_fill_val)
+
+                     if (grid_type == 'C') then
+                        if (smth_opt == ONETWOONE) then
+                           call one_two_one(field, sm1, em1, sm2, em2, &
+                                            min_level, max_level, smth_passes, msg_fill_val)
+                        else if (smth_opt == SMTHDESMTH) then
+                           call smth_desmth(field, sm1, em1, sm2, em2, &
+                                            min_level, max_level, smth_passes, msg_fill_val)
+                       end if
+  
+                     else if (grid_type == 'E') then
+  	
+                        if (trim(fieldname) == 'HGT_M' ) then
+                           topo_flag_val=1.0
+                           mass_flag=1.0
+                        else if (trim(fieldname) == 'HGT_V') then
+                           topo_flag_val=1.0
+                           mass_flag=0.0
+                        else
+                           topo_flag_val=0.0
+                        end if
+  
+                        if (smth_opt == ONETWOONE) then
+                           call one_two_one_egrid(field, sm1, em1, sm2, em2, &
+                                            min_level, max_level, smth_passes, topo_flag_val, mass_flag)
+                        else if (smth_opt == SMTHDESMTH) then
+                           call smth_desmth_egrid(field, sm1, em1, sm2, em2, &
+                                            min_level, max_level, smth_passes, topo_flag_val, mass_flag)
+                        end if
+  
                      end if
+
                   end if
-        
+
                   call write_field(sm1, em1, sm2, em2, &
                                    min_level, max_level, trim(fieldname), datestr, real_array=field)
         
@@ -724,12 +762,22 @@ module process_tile_module
                      ! Finally, we may be asked to smooth the fractional field
                      call get_smooth_option(fieldname, smth_opt, smth_passes, istatus)
                      if (istatus == 0) then
-                        if (smth_opt == ONETWOONE) then
-                           call one_two_one(field, sm1, em1, sm2, em2, &
-                                          min_category, max_category, smth_passes, msg_fill_val)
-                        else if (smth_opt == SMTHDESMTH) then
-                           call smth_desmth(field, sm1, em1, sm2, em2, &
-                                          min_category, max_category, smth_passes, msg_fill_val)
+                        if (grid_type == 'C') then
+                           if (smth_opt == ONETWOONE) then
+                              call one_two_one(field, sm1, em1, sm2, em2, &
+                                             min_category, max_category, smth_passes, msg_fill_val)
+                           else if (smth_opt == SMTHDESMTH) then
+                              call smth_desmth(field, sm1, em1, sm2, em2, &
+                                             min_category, max_category, smth_passes, msg_fill_val)
+                           end if
+                        else if (grid_type == 'E') then
+                           if (smth_opt == ONETWOONE) then
+                              call one_two_one_egrid(field, sm1, em1, sm2, em2, &
+                                             min_category, max_category, smth_passes, msg_fill_val, 1.0)
+                           else if (smth_opt == SMTHDESMTH) then
+                              call smth_desmth_egrid(field, sm1, em1, sm2, em2, &
+                                             min_category, max_category, smth_passes, msg_fill_val, 1.0)
+                           end if
                         end if
                      end if
          
@@ -1266,7 +1314,7 @@ module process_tile_module
       integer, intent(in) :: which_domain, start_mem_i, start_mem_j, end_mem_i, &
                              end_mem_j, stagger
       real, dimension(start_mem_i:end_mem_i, start_mem_j:end_mem_j), intent(out) :: xlat_arr, xlon_arr
-    
+
       ! Local variables
       integer :: i, j
     
@@ -1276,7 +1324,7 @@ module process_tile_module
                         xlat_arr(i,j), xlon_arr(i,j), stagger)
          end do
       end do
-   
+
    end subroutine get_lat_lon_fields
    
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

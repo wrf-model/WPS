@@ -1172,27 +1172,27 @@ MODULE map_utils
       TYPE (proj_info), INTENT(IN) :: proj
       
       ! Local variables
-      REAL :: dphd,dlmd !Grid increments, degrees
-      INTEGER :: ii,imt,jj,jmt,k,krows,ncol,nrow
-      REAL :: glatd  !Geographic latitude, positive north
-      REAL :: glond  !Geographic longitude, positive west
-      REAL :: col,d1,d2,d2r,dlm,dlm1,dlm2,dph,glat,glon,    &
+      REAL(KIND=HIGH) :: dphd,dlmd !Grid increments, degrees
+      INTEGER :: ii,imt,jj,jmt,k,krows,ncol,nrow,iri
+      REAL(KIND=HIGH) :: glatd  !Geographic latitude, positive north
+      REAL(KIND=HIGH) :: glond  !Geographic longitude, positive west
+      REAL(KIND=HIGH) :: col,d1,d2,d2r,dlm,dlm1,dlm2,dph,glat,glon,    &
               pi,r2d,row,tlat,tlat1,tlat2,              &
               tlon,tlon1,tlon2,tph0,tlm0,x,y,z
-    
+
       glatd = lat
       glond = -lon
   
       dphd = proj%phi/REAL((proj%jydim-1)/2)
       dlmd = proj%lambda/REAL(proj%ixdim-1)
-  
+	
       pi = ACOS(-1.0)
       d2r = pi/180.
       r2d = 1./d2r
   
       imt = 2*proj%ixdim-1
       jmt = proj%jydim/2+1
-  
+
       glat = glatd*d2r
       glon = glond*d2r
       dph = dphd*d2r
@@ -1205,27 +1205,31 @@ MODULE map_utils
       z = COS(tph0)*SIN(glat)-SIN(tph0)*COS(glat)*COS(glon-tlm0)
       tlat = r2d*ATAN(z/SQRT(x*x+y*y))
       tlon = r2d*ATAN(y/x)
-  
+	
       row = tlat/dphd+jmt
       col = tlon/dlmd+proj%ixdim
-      nrow = INT(row)
-      ncol = INT(col)
+
+      nrow = NINT(row)
+      ncol = NINT(col)
+
       tlat = tlat*d2r
       tlon = tlon*d2r
   
       IF (proj%stagger == HH) THEN
   
-         IF ((MOD(nrow,2) == 1 .AND. MOD(ncol,2) == 1) .OR. &
+         IF ((abs(MOD(nrow,2)) == 1 .AND. abs(MOD(ncol,2)) == 1) .OR. &
              (MOD(nrow,2) == 0 .AND. MOD(ncol,2) == 0)) THEN
+
             tlat1 = (nrow-jmt)*dph
             tlat2 = tlat1+dph
             tlon1 = (ncol-proj%ixdim)*dlm
             tlon2 = tlon1+dlm
+
             dlm1 = tlon-tlon1
             dlm2 = tlon-tlon2
             d1 = ACOS(COS(tlat)*COS(tlat1)*COS(dlm1)+SIN(tlat)*SIN(tlat1))
             d2 = ACOS(COS(tlat)*COS(tlat2)*COS(dlm2)+SIN(tlat)*SIN(tlat2))
-    
+
             IF (d1 > d2) THEN
                nrow = nrow+1
                ncol = ncol+1
@@ -1240,7 +1244,7 @@ MODULE map_utils
             dlm2 = tlon-tlon2
             d1 = ACOS(COS(tlat)*COS(tlat1)*COS(dlm1)+SIN(tlat)*SIN(tlat1))
             d2 = ACOS(COS(tlat)*COS(tlat2)*COS(dlm2)+SIN(tlat)*SIN(tlat2))
-    
+
             IF (d1 < d2) THEN
                nrow = nrow+1
             ELSE
@@ -1250,8 +1254,8 @@ MODULE map_utils
   
       ELSE IF (proj%stagger == VV) THEN
   
-         IF ((MOD(nrow,2) == 0 .AND. MOD(ncol,2) == 1) .OR. &
-             (MOD(nrow,2) == 1 .AND. MOD(ncol,2) == 0)) THEN
+         IF ((MOD(nrow,2) == 0 .AND. abs(MOD(ncol,2)) == 1) .OR. &
+             (abs(MOD(nrow,2)) == 1 .AND. MOD(ncol,2) == 0)) THEN
             tlat1 = (nrow-jmt)*dph
             tlat2 = tlat1+dph
             tlon1 = (ncol-proj%ixdim)*dlm
@@ -1284,31 +1288,22 @@ MODULE map_utils
          END IF
       END IF
   
+
+!!! Added next line as a Kludge - not yet understood why needed
+	if (ncol .le. 0) ncol=ncol-1
+
       jj = nrow
       ii = ncol/2
+
       IF (proj%stagger == HH) THEN
-         IF (MOD(jj,2) == 1) ii = ii+1
-         krows = ((nrow-1)/2)*imt
-         IF (MOD(nrow,2) == 1) THEN
-            k = krows+(ncol+1)/2
-         ELSE
-            k = krows+proj%ixdim+ncol/2
-         END IF
-  
+         IF (abs(MOD(jj,2)) == 1) ii = ii+1
       ELSE IF (proj%stagger == VV) THEN
          IF (MOD(jj,2) == 0) ii=ii+1
-   
-         krows = ((nrow-1)/2)*imt
-         IF (MOD(nrow,2) == 1) THEN
-            k = krows+ncol/2
-         ELSE
-            k = krows+proj%ixdim-1+(ncol+1)/2
-         END IF
       END IF
-  
+
       i = REAL(ii)
       j = REAL(jj)
-   
+
    END SUBROUTINE llij_rotlatlon
 
 
@@ -1325,7 +1320,7 @@ MODULE map_utils
       INTEGER :: ih,jh
       INTEGER :: midcol,midrow,ncol,iadd1,iadd2,imt,jh2,knrow,krem,kv,nrow
       REAL :: dphd,dlmd !Grid increments, degrees
-      REAL :: arg1,arg2,d2r,fctr,glatr,glatd,glond,pi, &
+      REAL(KIND=HIGH) :: arg1,arg2,d2r,fctr,glatr,glatd,glond,pi, &
               r2d,tlatd,tlond,tlatr,tlonr,tlm0,tph0
   
       ih = NINT(i)
@@ -1342,38 +1337,20 @@ MODULE map_utils
      
       midrow = (proj%jydim+1)/2
       midcol = proj%ixdim
-     
-      IF (proj%stagger == HH) THEN
-         ncol = 2*ih-1+MOD(jh+1,2)
+
+!      IF (proj%stagger == HH) THEN
+
+!!!         ncol = 2*ih-1+MOD(jh+1,2)
+         ncol = 2*ih-1+abs(MOD(jh+1,2))
          tlatd = (jh-midrow)*dphd
          tlond = (ncol-midcol)*dlmd
-      ELSE IF (proj%stagger == VV) THEN
-         imt = 2*proj%ixdim-1
-         jh2 = jh/2
-         iadd1 = 0
-         iadd2 = 0
-     
-         IF (2*jh2 == jh) THEN
-            iadd1 = -1
-            iadd2 = proj%ixdim-1
-         END IF
-     
-         kv = (jh2+iadd1)*imt+iadd2+ih
-     
-         nrow = 2*((kv-1)/imt)
-         knrow = imt*nrow/2
-         krem = kv-knrow
-   
-         IF (krem <= proj%ixdim-1) THEN
-            nrow = nrow+1
-            ncol = 2*krem
-         ELSE
-            nrow = nrow+2
-            ncol = 2*(krem-proj%ixdim)+1
-         END IF
-         tlatd = (nrow-(proj%jydim+1)/2)*dphd
-         tlond = (ncol-proj%ixdim)*dlmd
-      END IF
+       IF (proj%stagger == VV) THEN
+          if (mod(jh,2) .eq. 0) then
+             tlond = tlond - DLMD
+          else
+             tlond = tlond + DLMD
+          end if
+       END IF
     
       tlatr = tlatd*d2r
       tlonr = tlond*d2r
