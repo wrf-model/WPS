@@ -77,9 +77,9 @@ module output_module
 #include "wrf_status_codes.h"
   
       ! Local variables
-      integer :: i, istatus, comm_1, comm_2
+      integer :: i, istatus, save_domain, comm_1, comm_2
       integer :: sp1, ep1, sp2, ep2, ep1_stag, ep2_stag
-      real :: dx, dy, moad_cen_lat
+      real :: dx, dy, cen_lat, cen_lon, moad_cen_lat
       character (len=128) :: coption, output_fname
       logical :: supports_training, supports_3d_fields
   
@@ -331,7 +331,22 @@ module output_module
       if (grid_type == 'C') then
          dx = proj_stack(nest_number)%dx
          dy = proj_stack(nest_number)%dx
-         moad_cen_lat = proj_stack(1)%lat1
+
+         save_domain = iget_selected_domain()
+
+         ! Note: In the following, we use ixdim/2 rather than (ixdim+1)/2 because
+         !       the i/j coordinates given to xytoll must be with respect to the
+         !       mass grid, and ixdim and jydim are the full grid dimensions.
+
+         ! Get MOAD_CEN_LAT
+         call select_domain(1)
+         call xytoll(real(ixdim(1))/2.,real(jydim(1))/2., moad_cen_lat, cen_lon, M)
+
+         ! Get CEN_LAT and CEN_LON for this nest
+         call select_domain(nest_number)
+         call xytoll(real(ixdim(nest_number))/2.,real(jydim(nest_number))/2., cen_lat, cen_lon, M)
+
+         call select_domain(save_domain)
       else if (grid_type == 'E') then
          dx = dxkm
          dy = dykm
@@ -344,8 +359,8 @@ module output_module
                               iproj_type, 16, 24, nest_number, parent_id(nest_number), &
                               nint(parent_ll_x(nest_number)), nint(parent_ll_y(nest_number)), &
                               nint(parent_ur_x(nest_number)), nint(parent_ur_y(nest_number)), &
-                              dx, dy, proj_stack(nest_number)%lat1, moad_cen_lat, &
-                              proj_stack(nest_number)%lon1, stand_lon, truelat1, truelat2, &
+                              dx, dy, cen_lat, moad_cen_lat, &
+                              cen_lon, stand_lon, truelat1, truelat2, &
                               parent_grid_ratio(nest_number), corner_lats, corner_lons)
 #endif
  

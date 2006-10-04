@@ -31,8 +31,6 @@ module rotate_winds_module
       real, pointer, dimension(:,:) :: u, v, xlon_u, xlon_v
       type (bitarray), intent(in) :: u_mask, v_mask
 
-      call mprintf(.true.,LOGFILE,'Rotating map winds to earth winds.')
-
       orig_selected_projection = iget_selected_domain()
       call select_domain(SOURCE_PROJ)
       call metmap_xform(u, u_mask, v, v_mask, &
@@ -60,8 +58,6 @@ module rotate_winds_module
       integer, intent(in) :: us1, us2, ue1, ue2, vs1, vs2, ve1, ve2
       real, pointer, dimension(:,:) :: u, v, xlon_u, xlon_v
       type (bitarray), intent(in) :: u_mask, v_mask
-
-      call mprintf(.true.,LOGFILE,'Rotating earth winds to grid winds')
 
       orig_selected_projection = iget_selected_domain()
       call select_domain(1)
@@ -108,6 +104,8 @@ module rotate_winds_module
 
          ! Only rotate winds for Lambert conformal or polar stereographic
          if ((proj_stack(current_nest_number)%code == PROJ_LC) .or. (proj_stack(current_nest_number)%code == PROJ_PS)) then
+            call mprintf((idir ==  1),LOGFILE,'Rotating map winds to earth winds.')
+            call mprintf((idir == -1),LOGFILE,'Rotating earth winds to grid winds')
 
             allocate(u_mult(us1:ue1,us2:ue2))
             allocate(v_mult(vs1:ve1,vs2:ve2))
@@ -304,8 +302,6 @@ module rotate_winds_module
       real, pointer, dimension(:,:) :: u, v, xlat_v, xlon_v
       type (bitarray), intent(in) :: u_mask, v_mask
 
-      call mprintf(.true.,LOGFILE,'Rotating map winds to earth winds.')
-
       orig_selected_projection = iget_selected_domain()
       call select_domain(SOURCE_PROJ)
       call metmap_xform_nmm(u, u_mask, v, v_mask, &
@@ -331,8 +327,6 @@ module rotate_winds_module
       integer, intent(in) :: vs1, vs2, ve1, ve2
       real, pointer, dimension(:,:) :: u, v, xlat_v, xlon_v
       type (bitarray), intent(in) :: u_mask, v_mask
-
-      call mprintf(.true.,LOGFILE,'Rotating earth winds to grid winds')
 
       orig_selected_projection = iget_selected_domain()
       call select_domain(1)
@@ -379,6 +373,9 @@ module rotate_winds_module
       if (proj_stack(current_nest_number)%init) then
 
          if (proj_stack(current_nest_number)%code == PROJ_ROTLL) then
+
+            call mprintf((idir ==  1),LOGFILE,'Rotating map winds to earth winds.')
+            call mprintf((idir == -1),LOGFILE,'Rotating earth winds to grid winds')
    
             ! Create arrays to hold rotated winds
             allocate(u_new(vs1:ve1, vs2:ve2))
@@ -449,6 +446,10 @@ module rotate_winds_module
    
          ! Only rotate winds for Lambert conformal or polar stereographic
          else if ((proj_stack(current_nest_number)%code == PROJ_LC) .or. (proj_stack(current_nest_number)%code == PROJ_PS)) then
+
+            call mprintf((idir ==  1),LOGFILE,'Rotating map winds to earth winds.')
+            call mprintf((idir == -1),LOGFILE,'Rotating earth winds to grid winds')
+
             ! Create arrays to hold rotated winds
             allocate(u_new(vs1:ve1, vs2:ve2))
             allocate(v_new(vs1:ve1, vs2:ve2))
