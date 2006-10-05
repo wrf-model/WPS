@@ -1,4 +1,6 @@
+#include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 #ifdef _UNDERSCORE
 #define cio_set_log_filename cio_set_log_filename_
