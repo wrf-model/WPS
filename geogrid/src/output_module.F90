@@ -1037,7 +1037,7 @@ module output_module
          call ext_put_dom_ti_integer_scalar('ISWATER', 16)
          call ext_put_dom_ti_integer_scalar('ISICE', 24)
          call ext_put_dom_ti_integer_scalar('ISURBAN', 1)
-         call ext_put_dom_ti_integer_scalar('ISOILWATER', 0)
+         call ext_put_dom_ti_integer_scalar('ISOILWATER', 14)
          call ext_put_dom_ti_integer_scalar('grid_id', grid_id)
          call ext_put_dom_ti_integer_scalar('parent_id', parent_id)
          call ext_put_dom_ti_integer_scalar('i_parent_start', i_parent_start)
