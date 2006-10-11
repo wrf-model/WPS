@@ -15,7 +15,7 @@ all:
 	( cd src ; \
 	$(MAKE) $(TARGET) \
 		WRF_DIR="$(WRF_DIR_PRE)$(WRF_DIR)" \
-		FC="$(FC)" \
+		FC="$(SFC)" \
 		CC="$(CC)" \
 		CPP="$(CPP)" \
 		FFLAGS="$(FFLAGS)" \
