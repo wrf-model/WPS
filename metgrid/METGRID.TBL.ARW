@@ -104,6 +104,8 @@ name=SKINTEMP
 ========================================
 name=PSFC
         interp_option=sixteen_pt+four_pt+average_4pt
+        fill_lev=200100:const(200100.)
+        flag_in_output=FLAG_PSFC
 ========================================
 name=VEGCAT
         interp_option=nearest_neighbor
@@ -444,7 +446,7 @@ name=VPTMP
 name=PRESSURE
         interp_option=sixteen_pt+four_pt+average_4pt
         fill_missing=0.
-        fill_lev=200100:const(200100.)
+        fill_lev=200100:PSFC(200100)
 ========================================
 name=GHT
         interp_option=sixteen_pt+four_pt+average_4pt
@@ -462,6 +464,5 @@ name=WEASD
 ========================================
 name=SOILHGT
         interp_option=four_pt+average_4pt
-        masked=water 
-        fill_missing=0.
+        flag_in_output=FLAG_SOILHGT
 ========================================
