@@ -700,7 +700,7 @@ C  SET ARGUMENTS
          iofst=iofst+8
          call gbyte(cgrib,grib_edition,iofst,8)   ! GRIB edition number
 
-!        print *, 'ungrib - grib edition num',  grib_edition
+         print *, 'ungrib - grib edition num',  grib_edition
          call summary()
          CALL BACLOSE(junit,IOS)
          ireaderr=1
