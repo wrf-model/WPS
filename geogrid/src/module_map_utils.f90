@@ -307,10 +307,12 @@ MODULE map_utils
       ELSE IF ( proj_code == PROJ_LATLON ) THEN
          IF ( .NOT.PRESENT(latinc) .OR. &
               .NOT.PRESENT(loninc) .OR. &
+              .NOT.PRESENT(knowni) .OR. &
+              .NOT.PRESENT(knownj) .OR. &
               .NOT.PRESENT(lat1) .OR. &
               .NOT.PRESENT(lon1) ) THEN
             PRINT '(A,I2)', 'The following are mandatory parameters for projection code : ', proj_code
-            PRINT '(A)', ' latinc, loninc, lat1, lon1'
+            PRINT '(A)', ' latinc, loninc, knowni, knownj, lat1, lon1'
             call mprintf(.true.,ERROR,'MAP_INIT')
          END IF
       ELSE IF ( proj_code == PROJ_GAUSS ) THEN
@@ -1123,10 +1125,11 @@ MODULE map_utils
       deltalon = lon - proj%lon1      
       
       ! Compute i/j
-      i = deltalon/proj%loninc - 0.5
-      i = AMOD(i + 360./proj%loninc, 360./proj%loninc) + 1.
-      i = AMOD(i + 360./proj%loninc, 360./proj%loninc) + 0.5
-      j = deltalat/proj%latinc + 1.
+      i = deltalon/proj%loninc
+      j = deltalat/proj%latinc
+
+      i = i + proj%knowni
+      j = j + proj%knownj
   
       RETURN
 
@@ -1143,16 +1146,17 @@ MODULE map_utils
       REAL, INTENT(OUT)            :: lat
       REAL, INTENT(OUT)            :: lon
   
-      REAL                         :: i_work
+      REAL                         :: i_work, j_work
       REAL                         :: deltalat
       REAL                         :: deltalon
       REAL                         :: lon360
   
-      i_work = AMOD(i + 360./proj%loninc, 360./proj%loninc)
-  
+      i_work = i - proj%knowni
+      j_work = j - proj%knownj
+
       ! Compute deltalat and deltalon 
-      deltalat = (j-1.)*proj%latinc
-      deltalon = (i_work-1.)*proj%loninc
+      deltalat = j_work*proj%latinc
+      deltalon = i_work*proj%loninc
   
       lat = proj%lat1 + deltalat
       lon = proj%lon1 + deltalon

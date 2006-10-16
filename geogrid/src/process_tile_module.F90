@@ -922,7 +922,7 @@ module process_tile_module
       !   of that data on a stack. The projection will be on the top of the stack (and hence will be 
       !   the "active" projection) once all higher-priority levels have been processed
       call push_source_projection(user_iproj, user_stand_lon, user_truelat1, user_truelat2, &
-                               user_dxkm, user_dykm, user_dxkm, user_dxkm, user_known_x, user_known_y, &
+                               user_dxkm, user_dykm, user_dykm, user_dxkm, user_known_x, user_known_y, &
                                user_known_lat, user_known_lon)
     
       ! Before proceeding with processing for this level, though, process for the next highest priority level

@@ -2550,63 +2550,63 @@ module source_data_module
                if (is_known_x(idx)) then
                   known_x = source_known_x(idx) 
                else
-                  known_x = 1 
+                  known_x = 1. 
                   call mprintf(.true., ERROR, &
                                'In GEOGRID.TBL, no specification for known_x in entry %i.',i1=idx)
                end if
                if (is_known_y(idx)) then
                   known_y =  source_known_y(idx)
                else
-                  known_y = 1 
+                  known_y = 1. 
                   call mprintf(.true., ERROR, &
                                'In GEOGRID.TBL, no specification for known_y in entry %i.',i1=idx)
                end if
                if (is_known_lat(idx)) then
                   known_lat = source_known_lat(idx)
                else
-                  known_lat = 1 
+                  known_lat = 1.
                   call mprintf(.true., ERROR, &
                                'In GEOGRID.TBL, no specification for known_lat in entry %i.',i1=idx)
                end if
                if (is_known_lon(idx)) then
                   known_lon = source_known_lon(idx)
                else
-                  known_lon = 1 
+                  known_lon = 1.
                   call mprintf(.true., ERROR, &
                                'In GEOGRID.TBL, no specification for known_lon in entry %i.',i1=idx)
                end if
                if (is_truelat1(idx)) then
                   truelat1 = source_truelat1(idx)
                else if (is_proj(idx) .and. source_proj(idx) /= PROJ_LATLON) then
-                  truelat1 = 1 
+                  truelat1 = 1.
                   call mprintf(.true., WARN, &
                                'In GEOGRID.TBL, no specification for truelat1 in entry %i.',i1=idx)
                end if
                if (is_truelat2(idx)) then
                   truelat2 = source_truelat2(idx)
                else if (is_proj(idx) .and. source_proj(idx) /= PROJ_LATLON) then
-                  truelat2 = 1 
+                  truelat2 = 1.
                   call mprintf(.true., WARN, &
                                'In GEOGRID.TBL, no specification for truelat2 in entry %i.',i1=idx)
                end if
                if (is_stdlon(idx)) then
                   stand_lon = source_stdlon(idx)
                else if (is_proj(idx) .and. source_proj(idx) /= PROJ_LATLON) then
-                  stand_lon = 1 
+                  stand_lon = 1.
                   call mprintf(.true., WARN, &
                                'In GEOGRID.TBL, no specification for stdlon in entry %i.',i1=idx)
                end if
                if (is_dx(idx)) then
                   dxkm = source_dx(idx)
                else
-                  dxkm = 1 
+                  dxkm = 1. 
                   call mprintf(.true., ERROR, &
                                'In GEOGRID.TBL, no specification for dx in entry %i.',i1=idx)
                end if
                if (is_dy(idx)) then
                   dykm = source_dy(idx)
                else
-                  dykm = 1 
+                  dykm = 1. 
                   call mprintf(.true., ERROR, &
                                'In GEOGRID.TBL, no specification for dy in entry %i.',i1=idx)
                end if

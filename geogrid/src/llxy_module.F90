@@ -58,6 +58,8 @@ module llxy_module
          call map_set(iprojection, proj_stack(SOURCE_PROJ), &
                       lat1=user_known_lat, &
                       lon1=user_known_lon, &
+                      knowni=user_known_x, &
+                      knownj=user_known_y, &
                       latinc=user_dlat, &
                       loninc=user_dlon)
   

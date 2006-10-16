@@ -473,6 +473,7 @@ module process_domain_module
                  sn_mem_s, sn_mem_e, sn_mem_stag_s, sn_mem_stag_e, &
                  is_water, is_ice, grid_id, parent_id, i_parent_start, j_parent_start, &
                  i_parent_end, j_parent_end, parent_grid_ratio
+! BUG: Should we be passing these around as pointers, or just declare them as arrays?
       real, pointer, dimension(:,:) :: landmask
       real, intent(in) :: dom_dx, dom_dy, cen_lat, moad_cen_lat, cen_lon, stand_lon, truelat1, truelat2
       real, dimension(16), intent(in) :: corner_lats, corner_lons
@@ -480,20 +481,22 @@ module process_domain_module
       logical, intent(in) :: extra_row, extra_col
       character (len=19), intent(in) :: temp_date
       character (len=128), pointer, dimension(:) :: output_flags
+
+! BUG: Move this constant to misc_definitions_module?
+integer, parameter :: BDR_WIDTH = 3
    
       ! Local variables
       integer :: istatus, iqstatus, fg_idx, idx, idxt, i, j, bottom_top_dim, &
                  sm1, em1, em1_stag, sm2, em2, em2_stag, sm3, em3, &
                  sp1, ep1, ep1_stag, sp2, ep2, ep2_stag, sp3, ep3, &
                  sd1, ed1, sd2, ed2, sd3, ed3, met_map_proj, &
-                 version, nx, ny, &
-                 u_idx
+                 version, nx, ny, u_idx, bdr_wdth
       real :: rx, ry, xfcst, xlvl, startlat, startlon, starti, startj, deltalat, deltalon, earth_radius
       real :: threshold, met_dx, met_dy
       real :: met_cen_lon, met_truelat1, met_truelat2
       logical :: is_wind_earth_rel, do_gcell_interp
       integer, pointer, dimension(:) :: u_levels, v_levels
-      real, pointer, dimension(:,:) :: slab, data_count
+      real, pointer, dimension(:,:) :: slab, data_count, halo_slab
       real, pointer, dimension(:,:,:) :: real_array
       logical, pointer, dimension(:) :: got_this_field
       character (len=3) :: memorder
@@ -546,6 +549,22 @@ module process_domain_module
                                    map_src, slab, is_wind_earth_rel, istatus)
       
                if (istatus == 0) then
+
+                  ! Do a simple check to see whether this is a global lat/lon dataset
+                  if (met_map_proj == PROJ_LATLON .and. &
+                      nx * deltalon == 360.) then
+                     bdr_wdth = BDR_WIDTH
+                     allocate(halo_slab(1-BDR_WIDTH:nx+BDR_WIDTH,1:ny))
+                     halo_slab(1:nx,              1:ny) = slab(1:nx,              1:ny)
+                     halo_slab(1-BDR_WIDTH:0,     1:ny) = slab(nx-BDR_WIDTH+1:nx, 1:ny)
+                     halo_slab(nx+1:nx+BDR_WIDTH, 1:ny) = slab(1:BDR_WIDTH,       1:ny)
+                     deallocate(slab)
+                  else
+                     bdr_wdth = 0
+                     halo_slab => slab
+                     nullify(slab)
+                  end if
+
                   call mprintf(.true.,LOGFILE,'Processing %s at level %f.',s1=short_fieldnm,f1=xlvl)               
    
                   call push_source_projection(met_map_proj, met_cen_lon, met_truelat1, &
@@ -661,7 +680,7 @@ module process_domain_module
    
                      call interp_met_field(input_name, short_fieldnm, U, &
                                   field, xlat_u, xlon_u, we_mem_stag_s, we_mem_stag_e, sn_mem_s, sn_mem_e, &
-                                  slab, nx, ny, do_gcell_interp, field%modified_mask)
+                                  halo_slab, 1-bdr_wdth, nx+bdr_wdth, 1, ny, bdr_wdth, do_gcell_interp, field%modified_mask)
    
                   ! Interpolate to V staggering
                   else if (output_stagger(idx) == V) then
@@ -688,7 +707,7 @@ module process_domain_module
    
                      call interp_met_field(input_name, short_fieldnm, V, &
                                   field, xlat_v, xlon_v, we_mem_s, we_mem_e, sn_mem_stag_s, sn_mem_stag_e, &
-                                  slab, nx, ny, do_gcell_interp, field%modified_mask)
+                                  halo_slab, 1-bdr_wdth, nx+bdr_wdth, 1, ny, bdr_wdth, do_gcell_interp, field%modified_mask)
              
                   ! Interpolate to VV staggering
                   else if (output_stagger(idx) == VV) then
@@ -718,7 +737,7 @@ module process_domain_module
    
                      call interp_met_field(input_name, short_fieldnm, VV, &
                                   field, xlat_v, xlon_v, we_mem_s, we_mem_e, sn_mem_s, sn_mem_e, &
-                                  slab, nx, ny, do_gcell_interp, field%modified_mask)
+                                  halo_slab, 1-bdr_wdth, nx+bdr_wdth, 1, ny, bdr_wdth, do_gcell_interp, field%modified_mask)
    
                   ! All other fields interpolated to M staggering for C grid, H staggering for E grid
                   else
@@ -743,19 +762,19 @@ module process_domain_module
                      if (gridtype == 'C') then
                         call interp_met_field(input_name, short_fieldnm, M, &
                                      field, xlat, xlon, we_mem_s, we_mem_e, sn_mem_s, sn_mem_e, &
-                                     slab, nx, ny, do_gcell_interp, field%modified_mask, landmask)
+                                     halo_slab, 1-bdr_wdth, nx+bdr_wdth, 1, ny, bdr_wdth, do_gcell_interp, field%modified_mask, landmask)
    
                      else if (gridtype == 'E') then
                         call interp_met_field(input_name, short_fieldnm, HH, &
                                      field, xlat, xlon, we_mem_s, we_mem_e, sn_mem_s, sn_mem_e, &
-                                     slab, nx, ny, do_gcell_interp, field%modified_mask, landmask)
+                                     halo_slab, 1-bdr_wdth, nx+bdr_wdth, 1, ny, bdr_wdth, do_gcell_interp, field%modified_mask, landmask)
                      end if
    
                   end if
    
                   call bitarray_merge(field%valid_mask, field%modified_mask)
       
-                  deallocate(slab)
+                  deallocate(halo_slab)
                                
                   ! Store the interpolated field
                   call storage_put_field(field)
@@ -964,6 +983,11 @@ module process_domain_module
    end subroutine process_single_met_time
 
 
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   ! Name: get_interp_masks
+   !
+   ! Purpose:
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
    subroutine get_interp_masks(fg_prefix, is_constants, fg_date)
 
       use interp_option_module
@@ -975,6 +999,9 @@ module process_domain_module
       ! Arguments
       logical, intent(in) :: is_constants
       character (len=*), intent(in) :: fg_prefix, fg_date
+
+! BUG: Move this constant to misc_definitions_module?
+integer, parameter :: BDR_WIDTH = 3
 
       ! Local variables
       integer :: i, istatus, version, nx, ny, iproj
@@ -1031,8 +1058,19 @@ module process_domain_module
                   mask_field%header%is_wind_earth_rel = .false.
                   mask_field%header%array_has_missing_values = .false.
                   mask_field%map%stagger = M
-                  allocate(mask_field%r_arr(1:nx,1:ny))
-                  mask_field%r_arr = slab
+
+                  ! Do a simple check to see whether this is a global lat/lon dataset
+                  if (iproj == PROJ_LATLON .and. &
+                      nx * deltalon == 360.) then
+                     allocate(mask_field%r_arr(1-BDR_WIDTH:nx+BDR_WIDTH,1:ny))
+                     mask_field%r_arr(1:nx,              1:ny) = slab(1:nx,              1:ny)
+                     mask_field%r_arr(1-BDR_WIDTH:0,     1:ny) = slab(nx-BDR_WIDTH+1:nx, 1:ny)
+                     mask_field%r_arr(nx+1:nx+BDR_WIDTH, 1:ny) = slab(1:BDR_WIDTH,       1:ny)
+                  else
+                     allocate(mask_field%r_arr(1:nx,1:ny))
+                     mask_field%r_arr = slab
+                  end if
+
                   nullify(mask_field%valid_mask)
                   nullify(mask_field%modified_mask)
      
@@ -1061,7 +1099,7 @@ module process_domain_module
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
    subroutine interp_met_field(input_name, short_fieldnm, istagger, &
                                field, xlat, xlon, sm1, em1, sm2, em2, &
-                               slab, nx, ny, do_gcell_interp, &
+                               slab, minx, maxx, miny, maxy, bdr, do_gcell_interp, &
                                new_pts, landmask)
 
       use bitarray_module
@@ -1074,9 +1112,10 @@ module process_domain_module
       implicit none 
 
       ! Arguments
-      integer, intent(in) :: istagger, sm1, em1, sm2, em2, nx, ny
-      real, pointer, dimension(:,:), optional :: landmask
-      real, pointer, dimension(:,:) :: slab, xlat, xlon
+      integer, intent(in) :: istagger, sm1, em1, sm2, em2, minx, maxx, miny, maxy, bdr
+      real, dimension(minx:maxx,miny:maxy) :: slab
+      real, dimension(sm1:em1,sm2:em2) :: xlat, xlon
+      real, dimension(sm1:em1,sm2:em2), optional :: landmask
       logical, intent(in) :: do_gcell_interp
       character (len=9), intent(in) :: short_fieldnm
       character (len=128), intent(in) :: input_name
@@ -1166,14 +1205,14 @@ module process_domain_module
 
          if (interp_mask_status == 0) then
             call accum_continuous(slab, &
-                         1, nx, 1, ny, 1, 1, &
+                         minx+bdr, maxx-bdr, miny, maxy, 1, 1, &
                          field%r_arr, data_count, &
                          sm1, em1, sm2, em2, 1, 1, &
                          istagger, &
                          new_pts, NAN, interp_mask_val(idx), mask_field%r_arr)
          else
             call accum_continuous(slab, &
-                         1, nx, 1, ny, 1, 1, &
+                         minx+bdr, maxx-bdr, miny, maxy, 1, 1, &
                          field%r_arr, data_count, &
                          sm1, em1, sm2, em2, 1, 1, &
                          istagger, &
@@ -1195,10 +1234,10 @@ module process_domain_module
                      else
 
                         if (interp_mask_status == 0) then
-                           temp = interp_to_latlon(xlat(i,j), xlon(i,j), istagger, interp_array, slab, nx, ny, &
+                           temp = interp_to_latlon(xlat(i,j), xlon(i,j), istagger, interp_array, slab, minx, maxx, miny, maxy, bdr, &
                                                    missing_value(idx), mask_val=interp_mask_val(idx), mask_field=mask_field%r_arr)
                         else
-                           temp = interp_to_latlon(xlat(i,j), xlon(i,j), istagger, interp_array, slab, nx, ny, &
+                           temp = interp_to_latlon(xlat(i,j), xlon(i,j), istagger, interp_array, slab, minx, maxx, miny, maxy, bdr, &
                                                    missing_value(idx))
                         end if
    
@@ -1224,10 +1263,10 @@ module process_domain_module
                   else
 
                      if (interp_mask_status == 0) then
-                        temp = interp_to_latlon(xlat(i,j), xlon(i,j), istagger, interp_array, slab, nx, ny, &
+                        temp = interp_to_latlon(xlat(i,j), xlon(i,j), istagger, interp_array, slab, minx, maxx, miny, maxy, bdr, &
                                                 missing_value(idx), mask_val=interp_mask_val(idx), mask_field=mask_field%r_arr)
                      else
-                        temp = interp_to_latlon(xlat(i,j), xlon(i,j), istagger, interp_array, slab, nx, ny, &
+                        temp = interp_to_latlon(xlat(i,j), xlon(i,j), istagger, interp_array, slab, minx, maxx, miny, maxy, bdr, &
                                                 missing_value(idx))
                      end if
 
@@ -1266,20 +1305,20 @@ module process_domain_module
                      if (landmask(i,j) == 0) then  ! WATER POINT
 
                         if (interp_land_mask_status == 0) then
-                           temp = interp_to_latlon(xlat(i,j), xlon(i,j), istagger, interp_array, slab, nx, ny, &
+                           temp = interp_to_latlon(xlat(i,j), xlon(i,j), istagger, interp_array, slab, minx, maxx, miny, maxy, bdr, &
                                                    missing_value(idx), mask_val=interp_land_mask_val(idx), mask_field=mask_land_field%r_arr)
                         else
-                           temp = interp_to_latlon(xlat(i,j), xlon(i,j), istagger, interp_array, slab, nx, ny, &
+                           temp = interp_to_latlon(xlat(i,j), xlon(i,j), istagger, interp_array, slab, minx, maxx, miny, maxy, bdr, &
                                                    missing_value(idx))
                         end if
    
                      else if (landmask(i,j) == 1) then  ! LAND POINT
 
                         if (interp_water_mask_status == 0) then
-                           temp = interp_to_latlon(xlat(i,j), xlon(i,j), istagger, interp_array, slab, nx, ny, &
+                           temp = interp_to_latlon(xlat(i,j), xlon(i,j), istagger, interp_array, slab, minx, maxx, miny, maxy, bdr, &
                                                    missing_value(idx), mask_val=interp_water_mask_val(idx), mask_field=mask_water_field%r_arr)
                         else
-                           temp = interp_to_latlon(xlat(i,j), xlon(i,j), istagger, interp_array, slab, nx, ny, &
+                           temp = interp_to_latlon(xlat(i,j), xlon(i,j), istagger, interp_array, slab, minx, maxx, miny, maxy, bdr, &
                                                    missing_value(idx))
                         end if
    
@@ -1288,10 +1327,10 @@ module process_domain_module
                   else if (landmask(i,j) /= masked(idx)) then
 
                      if (interp_mask_status == 0) then
-                        temp = interp_to_latlon(xlat(i,j), xlon(i,j), istagger, interp_array, slab, nx, ny, &
+                        temp = interp_to_latlon(xlat(i,j), xlon(i,j), istagger, interp_array, slab, minx, maxx, miny, maxy, bdr, &
                                                 missing_value(idx), mask_val=interp_mask_val(idx), mask_field=mask_field%r_arr)
                      else
-                        temp = interp_to_latlon(xlat(i,j), xlon(i,j), istagger, interp_array, slab, nx, ny, &
+                        temp = interp_to_latlon(xlat(i,j), xlon(i,j), istagger, interp_array, slab, minx, maxx, miny, maxy, bdr, &
                                                 missing_value(idx))
                      end if
 
@@ -1302,10 +1341,10 @@ module process_domain_module
                else
 
                   if (interp_mask_status == 0) then
-                     temp = interp_to_latlon(xlat(i,j), xlon(i,j), istagger, interp_array, slab, nx, ny, &
+                     temp = interp_to_latlon(xlat(i,j), xlon(i,j), istagger, interp_array, slab, minx, maxx, miny, maxy, bdr, &
                                              missing_value(idx), mask_val=interp_mask_val(idx), mask_field=mask_field%r_arr)
                   else
-                     temp = interp_to_latlon(xlat(i,j), xlon(i,j), istagger, interp_array, slab, nx, ny, &
+                     temp = interp_to_latlon(xlat(i,j), xlon(i,j), istagger, interp_array, slab, minx, maxx, miny, maxy, bdr, &
                                              missing_value(idx))
                   end if
 
@@ -1336,7 +1375,7 @@ module process_domain_module
    ! 
    ! Purpose:
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-   function interp_to_latlon(rlat, rlon, istagger, interp_method_list, slab, nx, ny, source_missing_value, mask_field, mask_val)
+   function interp_to_latlon(rlat, rlon, istagger, interp_method_list, slab, minx, maxx, miny, maxy, bdr, source_missing_value, mask_field, mask_val)
 
       use interp_module
       use llxy_module
@@ -1344,12 +1383,12 @@ module process_domain_module
       implicit none
 
       ! Arguments
-      integer, intent(in) :: nx, ny, istagger
+      integer, intent(in) :: minx, maxx, miny, maxy, bdr, istagger
       integer, pointer, dimension(:) :: interp_method_list
       real, intent(in) :: rlat, rlon, source_missing_value
-      real, pointer, dimension(:,:) :: slab
+      real, dimension(minx:maxx,miny:maxy) :: slab
       real, intent(in), optional :: mask_val
-      real, pointer, dimension(:,:), optional :: mask_field
+      real, dimension(minx:maxx,miny:maxy), optional :: mask_field
 
       ! Return value
       real :: interp_to_latlon
@@ -1360,12 +1399,16 @@ module process_domain_module
       interp_to_latlon = source_missing_value
    
       call lltoxy(rlat, rlon, rx, ry, istagger) 
-      if (present(mask_field) .and. present(mask_val)) then
-         interp_to_latlon = interp_sequence(rx, ry, 1, slab, 1, nx, 1, ny, 1, 1, source_missing_value, &
-                                interp_method_list, 1, mask_val, mask_field)
+      if (rx >= minx+bdr-0.5 .and. rx <= maxx-bdr+0.5) then
+         if (present(mask_field) .and. present(mask_val)) then
+            interp_to_latlon = interp_sequence(rx, ry, 1, slab, minx, maxx, miny, maxy, 1, 1, source_missing_value, &
+                                   interp_method_list, 1, mask_val, mask_field)
+         else
+            interp_to_latlon = interp_sequence(rx, ry, 1, slab, minx, maxx, miny, maxy, 1, 1, source_missing_value, &
+                                   interp_method_list, 1)
+         end if
       else
-         interp_to_latlon = interp_sequence(rx, ry, 1, slab, 1, nx, 1, ny, 1, 1, source_missing_value, &
-                                interp_method_list, 1)
+         interp_to_latlon = source_missing_value 
       end if
 
       if (interp_to_latlon == source_missing_value) then
@@ -1374,12 +1417,18 @@ module process_domain_module
          !    array should be in the range -180. to 180.
          if (rlon < 0.) then
             call lltoxy(rlat, rlon+360., rx, ry, istagger) 
-            if (present(mask_field) .and. present(mask_val)) then
-               interp_to_latlon = interp_sequence(rx, ry, 1, slab, 1, nx, 1, ny, 1, 1, source_missing_value, &
-                                      interp_method_list, 1, mask_val, mask_field)
+            if (rx >= minx+bdr-0.5 .and. rx <= maxx-bdr+0.5) then
+               if (present(mask_field) .and. present(mask_val)) then
+                  interp_to_latlon = interp_sequence(rx, ry, 1, slab, minx, maxx, miny, maxy, &
+                                         1, 1, source_missing_value, &
+                                         interp_method_list, 1, mask_val, mask_field)
+               else
+                  interp_to_latlon = interp_sequence(rx, ry, 1, slab, minx, maxx, miny, maxy, &
+                                         1, 1, source_missing_value, &
+                                         interp_method_list, 1)
+               end if
             else
-               interp_to_latlon = interp_sequence(rx, ry, 1, slab, 1, nx, 1, ny, 1, 1, source_missing_value, &
-                                      interp_method_list, 1)
+               interp_to_latlon = source_missing_value 
             end if
 
          end if
