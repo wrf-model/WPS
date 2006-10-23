@@ -65,7 +65,7 @@ name=SOILT
         fill_lev = 5 : SOILT160(200100)      
         fill_lev = 6 : SOILT300(200100)      
 ========================================
-name=P
+name=PRES
         z_dim_name=num_metgrid_levels
         derived=yes
         mandatory=yes    # MUST HAVE THIS FIELD
