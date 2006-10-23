@@ -378,10 +378,16 @@ name=TAVGSFC
         fill_lev=200100:TT(200100)
         flag_in_output=FLAG_TAVGSFC
 ========================================
+name=T ; output_name=TT  # If we get T, use entry from TT and
+                         #   write the field out as TT
+========================================
 name=TT
         mandatory=yes    # MUST HAVE THIS FIELD
         interp_option=four_pt+average_4pt
         fill_missing=0.
+========================================
+name=U ; output_name=UU  # If we get U, use entry from UU and
+                         #   write the field out as UU
 ========================================
 name=UU
         mandatory=yes    # MUST HAVE THIS FIELD
@@ -389,6 +395,9 @@ name=UU
         is_u_field=yes
         output_stagger=U
         fill_missing=0.
+========================================
+name=V ; output_name=VV  # If we get V, use entry from VV and
+                         #   write the field out as VV
 ========================================
 name=VV
         mandatory=yes    # MUST HAVE THIS FIELD

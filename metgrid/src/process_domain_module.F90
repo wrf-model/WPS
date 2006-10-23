@@ -549,6 +549,47 @@ integer, parameter :: BDR_WIDTH = 3
                                    map_src, slab, is_wind_earth_rel, istatus)
       
                if (istatus == 0) then
+      
+                  ! Find index into fieldname, interp_method, masked, and fill_missing
+                  !   of the current field
+                  idxt = num_entries + 1
+                  do idx=1,num_entries
+                     if ((index(fieldname(idx), trim(short_fieldnm)) /= 0) .and. &
+                         (len_trim(fieldname(idx)) == len_trim(short_fieldnm))) then
+
+                        got_this_field(idx) = .true.
+
+                        if (index(input_name,trim(from_input(idx))) /= 0 .or. &
+                           (from_input(idx) == '*' .and. idxt == num_entries + 1)) then
+                           idxt = idx
+                        end if
+
+                     end if
+                  end do
+                  idx = idxt
+                  if (idx > num_entries) idx = num_entries ! The last entry is a default
+
+                  ! Do we need to rename this field?
+                  if (output_name(idx) /= ' ') then
+                     short_fieldnm = output_name(idx)(1:9)
+
+                     idxt = num_entries + 1
+                     do idx=1,num_entries
+                        if ((index(fieldname(idx), trim(short_fieldnm)) /= 0) .and. &
+                            (len_trim(fieldname(idx)) == len_trim(short_fieldnm))) then
+   
+                           got_this_field(idx) = .true.
+   
+                           if (index(input_name,trim(from_input(idx))) /= 0 .or. &
+                              (from_input(idx) == '*' .and. idxt == num_entries + 1)) then
+                              idxt = idx
+                           end if
+   
+                        end if
+                     end do
+                     idx = idxt
+                     if (idx > num_entries) idx = num_entries ! The last entry is a default
+                  end if
 
                   ! Do a simple check to see whether this is a global lat/lon dataset
                   if (met_map_proj == PROJ_LATLON .and. &
@@ -595,25 +636,6 @@ integer, parameter :: BDR_WIDTH = 3
                   nullify(field%r_arr)
                   nullify(field%valid_mask)
                   nullify(field%modified_mask)
-      
-                  ! Find index into fieldname, interp_method, masked, and fill_missing
-                  !   of the current field
-                  idxt = num_entries + 1
-                  do idx=1,num_entries
-                     if ((index(fieldname(idx), trim(short_fieldnm)) /= 0) .and. &
-                         (len_trim(fieldname(idx)) == len_trim(short_fieldnm))) then
-
-                        got_this_field(idx) = .true.
-
-                        if (index(input_name,trim(from_input(idx))) /= 0 .or. &
-                           (from_input(idx) == '*' .and. idxt == num_entries + 1)) then
-                           idxt = idx
-                        end if
-
-                     end if
-                  end do
-                  idx = idxt
-                  if (idx > num_entries) idx = num_entries ! The last entry is a default
 
                   if (output_this_field(idx) .and. flag_in_output(idx) /= ' ') then
                      output_flags(idx) = flag_in_output(idx)
@@ -1004,7 +1026,7 @@ integer, parameter :: BDR_WIDTH = 3
 integer, parameter :: BDR_WIDTH = 3
 
       ! Local variables
-      integer :: i, istatus, version, nx, ny, iproj
+      integer :: i, istatus, version, nx, ny, iproj, idx, idxt
       real :: xfcst, xlvl, startlat, startlon, starti, startj, &
               deltalat, deltalon, dx, dy, xlonc, truelat1, truelat2, &
               earth_radius
@@ -1030,6 +1052,42 @@ integer, parameter :: BDR_WIDTH = 3
                              slab, is_wind_earth_rel, istatus)
 
          if (istatus == 0) then
+
+            ! Find out which METGRID.TBL entry goes with this field
+            idxt = num_entries + 1
+            do idx=1,num_entries
+               if ((index(fieldname(idx), trim(field)) /= 0) .and. &
+                   (len_trim(fieldname(idx)) == len_trim(field))) then
+
+                  if (index(fg_prefix,trim(from_input(idx))) /= 0 .or. &
+                     (from_input(idx) == '*' .and. idxt == num_entries + 1)) then
+                     idxt = idx
+                  end if
+
+               end if
+            end do
+            idx = idxt
+            if (idx > num_entries) idx = num_entries ! The last entry is a default
+
+            ! Do we need to rename this field?
+            if (output_name(idx) /= ' ') then
+               field = output_name(idx)(1:9)
+
+               idxt = num_entries + 1
+               do idx=1,num_entries
+                  if ((index(fieldname(idx), trim(field)) /= 0) .and. &
+                      (len_trim(fieldname(idx)) == len_trim(field))) then
+
+                     if (index(fg_prefix,trim(from_input(idx))) /= 0 .or. &
+                        (from_input(idx) == '*' .and. idxt == num_entries + 1)) then
+                        idxt = idx
+                     end if
+
+                  end if
+               end do
+               idx = idxt
+               if (idx > num_entries) idx = num_entries ! The last entry is a default
+            end if
 
             do i=1,num_entries
                if (interp_mask(i) /= ' ' .and. (trim(interp_mask(i)) == trim(field))) then

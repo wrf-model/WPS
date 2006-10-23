@@ -14,7 +14,7 @@ module interp_option_module
    logical, pointer, dimension(:) :: output_this_field, is_u_field, is_v_field, is_derived_field, is_mandatory
    character (len=128), pointer, dimension(:) :: fieldname, interp_method, v_interp_method, &
                     interp_mask, interp_land_mask, interp_water_mask, &
-                    flag_in_output, from_input, z_dim_name, level_template
+                    flag_in_output, output_name, from_input, z_dim_name, level_template
    type (list), pointer, dimension(:) :: fill_lev_list
    type (list) :: flag_in_output_list
 
@@ -91,6 +91,7 @@ module interp_option_module
       allocate(interp_water_mask_val(num_entries))
       allocate(level_template(num_entries))
       allocate(flag_in_output(num_entries))
+      allocate(output_name(num_entries))
       allocate(from_input(num_entries))
       allocate(z_dim_name(num_entries))
       allocate(output_stagger(num_entries))
@@ -106,6 +107,7 @@ module interp_option_module
       do i=1,num_entries
          fieldname(i) = ' '
          flag_in_output(i) = ' '
+         output_name(i) = ' '
          from_input(i) = '*'
          z_dim_name(i) = 'num_metgrid_levels'
          interp_method(i) = 'nearest_neighbor'
@@ -370,6 +372,15 @@ module interp_option_module
                            write(flag_val,'(i1)') 1
                            call list_insert(flag_in_output_list, ckey=flag_string, cvalue=flag_val)
                         end if
+
+                     else if (index('output_name',trim(buffer(1:idx-1))) /= 0 .and. &
+                         len_trim('output_name') == len_trim(buffer(1:idx-1))) then
+                        ispace = idx+1
+                        do while ((ispace < eos) .and. (buffer(ispace:ispace) /= ' '))
+                           ispace = ispace + 1
+                        end do
+                        output_name(i) = ' '
+                        output_name(i)(1:ispace-idx) = buffer(idx+1:ispace-1)
            
                      else if (index('fill_missing',trim(buffer(1:idx-1))) /= 0 .and. &
                          len_trim('fill_missing') == len_trim(buffer(1:idx-1))) then
@@ -677,6 +688,7 @@ module interp_option_module
       deallocate(interp_water_mask_val)
       deallocate(level_template)
       deallocate(flag_in_output)
+      deallocate(output_name)
       deallocate(output_stagger)
       deallocate(output_this_field)
       deallocate(is_u_field)
