@@ -610,7 +610,7 @@ integer, parameter :: BDR_WIDTH = 3
    
                   call push_source_projection(met_map_proj, met_cen_lon, met_truelat1, &
                                     met_truelat2, met_dx, met_dy, deltalat, deltalon, starti, startj, &
-                                    startlat, startlon)
+                                    startlat, startlon, earth_radius=earth_radius*1000.)
       
                   ! Initialize fg_input structure to store the field
                   field%header%version = 1
@@ -810,7 +810,7 @@ integer, parameter :: BDR_WIDTH = 3
    
             call push_source_projection(met_map_proj, met_cen_lon, met_truelat1, &
                               met_truelat2, met_dx, met_dy, deltalat, deltalon, starti, startj, &
-                              startlat, startlon)
+                              startlat, startlon, earth_radius=earth_radius*1000.)
       
             !
             ! If necessary, rotate winds to earth-relative for this fg source

@@ -170,6 +170,7 @@ MODULE map_utils
       REAL             :: rebydx   ! Earth radius divided by dx
       REAL             :: knowni   ! X-location of known lat/lon
       REAL             :: knownj   ! Y-location of known lat/lon
+      REAL             :: re_m     ! Radius of spherical earth, meters
       LOGICAL          :: init     ! Flag to indicate if this struct is 
                                    !  ready for use
       LOGICAL          :: wrap     ! For Gaussian -- flag to indicate wrapping 
@@ -209,6 +210,7 @@ MODULE map_utils
       proj%rsw      = -999.9
       proj%knowni   = -999.9
       proj%knownj   = -999.9
+      proj%re_m     = EARTH_RADIUS_M
       proj%init     = .FALSE.
       proj%wrap     = .FALSE.
       nullify(proj%gauss_lat)
@@ -218,7 +220,7 @@ MODULE map_utils
 
    SUBROUTINE map_set(proj_code, proj, lat1, lon1, knowni, knownj, dx, latinc, &
                       loninc, stdlon, truelat1, truelat2, nlat, ixdim, jydim, &
-                      stagger, phi, lambda)
+                      stagger, phi, lambda, r_earth)
       ! Given a partially filled proj_info structure, this routine computes
       ! polei, polej, rsw, and cone (if LC projection) to complete the 
       ! structure.  This allows us to eliminate redundant calculations when
@@ -249,6 +251,7 @@ MODULE map_utils
       REAL, INTENT(IN), OPTIONAL        :: knownj
       REAL, INTENT(IN), OPTIONAL        :: phi
       REAL, INTENT(IN), OPTIONAL        :: lambda
+      REAL, INTENT(IN), OPTIONAL        :: r_earth
       TYPE(proj_info), INTENT(OUT)      :: proj
 
       INTEGER :: iter
@@ -417,6 +420,7 @@ MODULE map_utils
       IF ( PRESENT(stagger) )  proj%stagger  = stagger
       IF ( PRESENT(phi) )      proj%phi      = phi
       IF ( PRESENT(lambda) )   proj%lambda   = lambda
+      IF ( PRESENT(r_earth) )  proj%re_m     = r_earth
   
       IF ( PRESENT(dx) ) THEN 
          IF ( (proj_code == PROJ_LC) .OR. (proj_code == PROJ_PS) .OR. &
@@ -427,7 +431,7 @@ MODULE map_utils
             ELSE
                proj%hemi = 1.0
             ENDIF
-            proj%rebydx = earth_radius_m / dx
+            proj%rebydx = proj%re_m / dx
          ENDIF
       ENDIF
 
@@ -441,8 +445,8 @@ MODULE map_utils
    
          CASE(PROJ_LC)
             IF (ABS(proj%truelat2) .GT. 90.) THEN
-               PRINT '(A)', 'Second true latitude not set, assuming a tangent'
-               PRINT '(A,F10.3)', 'projection at truelat1: ', proj%truelat1
+!               PRINT '(A)', 'Second true latitude not set, assuming a tangent'
+!               PRINT '(A,F10.3)', 'projection at truelat1: ', proj%truelat1
                proj%truelat2=proj%truelat1
             ENDIF
             CALL set_lc(proj)
@@ -1045,7 +1049,7 @@ MODULE map_utils
       !  Preliminary variables
   
       clain = COS(rad_per_deg*proj%truelat1)
-      proj%dlon = proj%dx / (earth_radius_m * clain)
+      proj%dlon = proj%dx / (proj%re_m * clain)
   
       ! Compute distance from equator to origin, and store in the 
       ! proj%rsw tag.

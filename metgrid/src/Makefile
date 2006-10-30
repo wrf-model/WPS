@@ -68,7 +68,7 @@ process_domain_module.o: module_date_pack.o bitarray_module.o despace.o gridinfo
 
 queue_module.o: module_debug.o
 
-read_met_module.o: misc_definitions_module.o module_debug.o
+read_met_module.o: constants_module.o misc_definitions_module.o module_debug.o
 
 rotate_winds_module.o: bitarray_module.o constants_module.o llxy_module.o misc_definitions_module.o module_debug.o
 

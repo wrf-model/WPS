@@ -37,7 +37,7 @@ module llxy_module
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
    subroutine push_source_projection(iprojection, user_stand_lon, user_truelat1, user_truelat2, &
                                   user_dxkm, user_dykm, user_dlat, user_dlon, user_known_x, &
-                                  user_known_y, user_known_lat, user_known_lon)
+                                  user_known_y, user_known_lat, user_known_lon, earth_radius)
  
       implicit none
   
@@ -46,14 +46,15 @@ module llxy_module
       real, intent(in) :: user_stand_lon, user_truelat1, user_truelat2, user_dxkm, user_dykm, &
                           user_dlat, user_dlon, &
                           user_known_x, user_known_y, user_known_lat, user_known_lon
-  
+      real, intent(in), optional :: earth_radius
+
       SOURCE_PROJ = SOURCE_PROJ-1
       if (SOURCE_PROJ < -MAX_SOURCE_LEVELS) then
          call mprintf(.true.,ERROR,'In push_user_projection(), too many levels of user projections.')
       end if
   
       call map_init(proj_stack(SOURCE_PROJ))
-  
+
       if (iprojection == PROJ_LATLON) then
          call map_set(iprojection, proj_stack(SOURCE_PROJ), &
                       lat1=user_known_lat, &
@@ -61,7 +62,8 @@ module llxy_module
                       knowni=user_known_x, &
                       knownj=user_known_y, &
                       latinc=user_dlat, &
-                      loninc=user_dlon)
+                      loninc=user_dlon, &
+                      r_earth=earth_radius)
   
       else if (iprojection == PROJ_MERC) then
          call map_set(iprojection, proj_stack(SOURCE_PROJ), &
@@ -70,7 +72,8 @@ module llxy_module
                       lon1=user_known_lon, &
                       knowni=user_known_x, &
                       knownj=user_known_y, &
-                      dx=user_dxkm)
+                      dx=user_dxkm, &
+                      r_earth=earth_radius)
   
       else if (iprojection == PROJ_LC) then
          call map_set(iprojection, proj_stack(SOURCE_PROJ), &
@@ -81,7 +84,8 @@ module llxy_module
                       lon1=user_known_lon, &
                       knowni=user_known_x, &
                       knownj=user_known_y, &
-                      dx=user_dxkm)
+                      dx=user_dxkm, &
+                      r_earth=earth_radius)
   
       else if (iprojection == PROJ_PS) then
          call map_set(iprojection, proj_stack(SOURCE_PROJ), &
@@ -91,7 +95,8 @@ module llxy_module
                       lon1=user_known_lon, &
                       knowni=user_known_x, &
                       knownj=user_known_y, &
-                      dx=user_dxkm)
+                      dx=user_dxkm, &
+                      r_earth=earth_radius)
 
       else if (iprojection == PROJ_PS_WGS84) then
          call map_set(iprojection, proj_stack(SOURCE_PROJ), &
@@ -101,7 +106,8 @@ module llxy_module
                       lon1=user_known_lon, &
                       knowni=user_known_x, &
                       knownj=user_known_y, &
-                      dx=user_dxkm)
+                      dx=user_dxkm, &
+                      r_earth=earth_radius)
   
       else if (iprojection == PROJ_GAUSS) then
   ! BUG: Implement this projection.
@@ -140,7 +146,7 @@ module llxy_module
    subroutine set_domain_projection(iprojection, user_stand_lon, user_truelat1, user_truelat2, &
                                   user_dxkm, user_dykm, user_dlat, user_dlon, &
                                   user_xdim, user_ydim, user_known_x, &
-                                  user_known_y, user_known_lat, user_known_lon)
+                                  user_known_y, user_known_lat, user_known_lon, earth_radius)
  
       implicit none
   
@@ -150,6 +156,7 @@ module llxy_module
       real, intent(in) :: user_stand_lon, user_truelat1, user_truelat2, &
                           user_dxkm, user_dykm, user_dlat, user_dlon, &
                           user_known_x, user_known_y, user_known_lat, user_known_lon
+      real, intent(in), optional :: earth_radius
   
       current_nest_number = 1
 
@@ -160,7 +167,8 @@ module llxy_module
                       lat1=user_known_lat, &
                       lon1=user_known_lon, &
                       latinc=user_dlat, &
-                      loninc=user_dlon)
+                      loninc=user_dlon, &
+                      r_earth=earth_radius)
   
       else if (iprojection == PROJ_MERC) then
          call map_set(iprojection, proj_stack(current_nest_number), &
@@ -169,7 +177,8 @@ module llxy_module
                       lon1=user_known_lon, &
                       knowni=user_known_x, &
                       knownj=user_known_y, &
-                      dx=user_dxkm)
+                      dx=user_dxkm, &
+                      r_earth=earth_radius)
   
       else if (iprojection == PROJ_LC) then
          call map_set(iprojection, proj_stack(current_nest_number), &
@@ -180,7 +189,8 @@ module llxy_module
                       lon1=user_known_lon, &
                       knowni=user_known_x, &
                       knownj=user_known_y, &
-                      dx=user_dxkm)
+                      dx=user_dxkm, &
+                      r_earth=earth_radius)
   
       else if (iprojection == PROJ_PS) then
          call map_set(iprojection, proj_stack(current_nest_number), &
@@ -190,7 +200,8 @@ module llxy_module
                       lon1=user_known_lon, &
                       knowni=user_known_x, &
                       knownj=user_known_y, &
-                      dx=user_dxkm)
+                      dx=user_dxkm, &
+                      r_earth=earth_radius)
 
       else if (iprojection == PROJ_PS_WGS84) then
          call map_set(iprojection, proj_stack(current_nest_number), &
@@ -213,7 +224,8 @@ module llxy_module
                       lambda=user_dlon, &
                       lat1=user_known_lat, &
                       lon1=user_known_lon, &
-                      stagger=HH)
+                      stagger=HH, &
+                      r_earth=earth_radius)
   
       end if
      
@@ -488,6 +500,11 @@ module llxy_module
    end function iget_selected_domain 
  
  
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
+   ! Name: lltoxy
+   !
+   ! Purpose:
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
    subroutine lltoxy(xlat, xlon, x, y, stagger)
  
       implicit none
@@ -516,6 +533,11 @@ module llxy_module
    end subroutine lltoxy
  
  
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
+   ! Name: lltoxy
+   !
+   ! Purpose:
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
    subroutine xytoll(x, y, xlat, xlon, stagger)
  
       implicit none

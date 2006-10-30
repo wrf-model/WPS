@@ -1,5 +1,6 @@
 module read_met_module
 
+   use constants_module
    use module_debug
    use misc_definitions_module
 
@@ -109,9 +110,13 @@ module read_met_module
 
          ! ?????????
          else
+            call mprintf(.true.,ERROR,'Unrecognized projection code %i when reading from %s', &
+                         i1=iproj, s1=filename)
      
          end if
      
+         earth_radius = EARTH_RADIUS_M / 1000.
+
 #if (defined _GEOGRID) || (defined _METGRID)
          dx = dx * 1000.
          dy = dy * 1000.
@@ -159,6 +164,8 @@ module read_met_module
      
          ! ?????????
          else
+            call mprintf(.true.,ERROR,'Unrecognized projection code %i when reading from %s', &
+                         i1=iproj, s1=filename)
      
          end if
   
@@ -169,6 +176,8 @@ module read_met_module
             starti = 1.0
             startj = 1.0
          end if
+
+         earth_radius = EARTH_RADIUS_M / 1000.
 
 #if (defined _GEOGRID) || (defined _METGRID)
          dx = dx * 1000.
@@ -217,6 +226,8 @@ module read_met_module
      
          ! ?????????
          else
+            call mprintf(.true.,ERROR,'Unrecognized projection code %i when reading from %s', &
+                         i1=iproj, s1=filename)
      
          end if
   

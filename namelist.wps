@@ -39,7 +39,7 @@
  geog_data_path = '/bouleau2/duda/geog'
 
 &ungrib
- out_format = 'SI'
+ out_format = 'WPS'
 /
 
 &metgrid
