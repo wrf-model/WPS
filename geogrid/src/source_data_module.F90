@@ -320,12 +320,18 @@ module source_data_module
                   end if
      
                else if (index('smooth_option',trim(buffer(1:idx-1))) /= 0) then
-                  if (index('1-2-1',trim(buffer(idx+1:eos-1))) /= 0) then
+                  if ((index('1-2-1',trim(buffer(idx+1:eos-1))) /= 0) .and. &
+                      (len_trim(buffer(idx+1:eos-1)) == len('1-2-1'))) then
                      is_smooth_option(i) = .true.
                      source_smooth_option(i) = ONETWOONE
-                  else if (index('smth-desmth',trim(buffer(idx+1:eos-1))) /= 0) then
+                  else if ((index('smth-desmth',trim(buffer(idx+1:eos-1))) /= 0) .and. & 
+                      (len_trim(buffer(idx+1:eos-1)) == len('smth-desmth'))) then
                      is_smooth_option(i) = .true.
                      source_smooth_option(i) = SMTHDESMTH
+                  else if ((index('smth-desmth_special',trim(buffer(idx+1:eos-1))) /= 0) .and. &
+                      (len_trim(buffer(idx+1:eos-1)) == len('smth-desmth_special'))) then
+                     is_smooth_option(i) = .true.
+                     source_smooth_option(i) = SMTHDESMTH_SPECIAL
                   end if
      
                else if (index('smooth_passes',trim(buffer(1:idx-1))) /= 0) then

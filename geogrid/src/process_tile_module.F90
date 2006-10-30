@@ -463,6 +463,9 @@ module process_tile_module
                   else if (smth_opt == SMTHDESMTH) then
                      call smth_desmth(field, start_mem_i, end_mem_i, start_mem_j, end_mem_j, &
                                       min_category, max_category, smth_passes, msg_fill_val)
+                  else if (smth_opt == SMTHDESMTH_SPECIAL) then
+                     call smth_desmth_special(field, start_mem_i, end_mem_i, start_mem_j, end_mem_j, &
+                                      min_category, max_category, smth_passes, msg_fill_val)
                   end if
                else if (grid_type == 'E') then
                   if (smth_opt == ONETWOONE) then
@@ -636,6 +639,9 @@ module process_tile_module
                         else if (smth_opt == SMTHDESMTH) then
                            call smth_desmth(field, sm1, em1, sm2, em2, &
                                             min_level, max_level, smth_passes, msg_fill_val)
+                        else if (smth_opt == SMTHDESMTH_SPECIAL) then
+                           call smth_desmth_special(field, sm1, em1, sm2, em2, &
+                                            min_level, max_level, smth_passes, msg_fill_val)
                        end if
   
                      else if (grid_type == 'E') then
@@ -768,6 +774,9 @@ module process_tile_module
                                              min_category, max_category, smth_passes, msg_fill_val)
                            else if (smth_opt == SMTHDESMTH) then
                               call smth_desmth(field, sm1, em1, sm2, em2, &
+                                             min_category, max_category, smth_passes, msg_fill_val)
+                           else if (smth_opt == SMTHDESMTH_SPECIAL) then
+                              call smth_desmth_special(field, sm1, em1, sm2, em2, &
                                              min_category, max_category, smth_passes, msg_fill_val)
                            end if
                         else if (grid_type == 'E') then
