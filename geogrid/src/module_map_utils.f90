@@ -1372,6 +1372,9 @@ MODULE map_utils
      
       lat = glatd
       lon = -glond
+
+      IF (lon .GT. +180.) lon = lon - 360.
+      IF (lon .LT. -180.) lon = lon + 360.
    
    END SUBROUTINE ijll_rotlatlon
 
