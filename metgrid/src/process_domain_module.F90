@@ -378,19 +378,27 @@ module process_domain_module
              field%header%vertical_coord = dimnames(3) 
              field%header%vertical_level = k
              field%header%array_order = memorder
-             field%header%dim1(1) = sp1 - HALO_WIDTH*lh_mult
-             field%header%dim1(2) = ep1 + HALO_WIDTH*rh_mult
-             field%header%dim2(1) = sp2 - HALO_WIDTH*bh_mult
-             field%header%dim2(2) = ep2 + HALO_WIDTH*th_mult
              field%header%is_wind_earth_rel = .false.
              field%header%array_has_missing_values = .false.
              if (gridtype == 'C') then
                 if (trim(stagger) == 'M') then
                    field%map%stagger = M
+                   field%header%dim1(1) = we_patch_s
+                   field%header%dim1(2) = we_patch_e
+                   field%header%dim2(1) = sn_patch_s
+                   field%header%dim2(2) = sn_patch_e
                 else if (trim(stagger) == 'U') then
                    field%map%stagger = U
+                   field%header%dim1(1) = we_patch_stag_s
+                   field%header%dim1(2) = we_patch_stag_e
+                   field%header%dim2(1) = sn_patch_s
+                   field%header%dim2(2) = sn_patch_e
                 else if (trim(stagger) == 'V') then
                    field%map%stagger = V
+                   field%header%dim1(1) = we_patch_s
+                   field%header%dim1(2) = we_patch_e
+                   field%header%dim2(1) = sn_patch_stag_s
+                   field%header%dim2(2) = sn_patch_stag_e
                 end if
              else if (gridtype == 'E') then
                 if (trim(stagger) == 'M') then
@@ -398,21 +406,62 @@ module process_domain_module
                 else if (trim(stagger) == 'V') then
                    field%map%stagger = VV
                 end if
+                field%header%dim1(1) = we_patch_s
+                field%header%dim1(2) = we_patch_e
+                field%header%dim2(1) = sn_patch_s
+                field%header%dim2(2) = sn_patch_e
              end if
             
-             allocate(field%r_arr(sp1-HALO_WIDTH*lh_mult:ep1+HALO_WIDTH*rh_mult,&
-                                  sp2-HALO_WIDTH*bh_mult:ep2+HALO_WIDTH*th_mult))
-             field%r_arr(sp1:ep1,sp2:ep2) = real_array(:,:,k)
-
              allocate(field%valid_mask)
-             call bitarray_create(field%valid_mask, &
-                                  (ep1+HALO_WIDTH*rh_mult)-(sp1-HALO_WIDTH*lh_mult)+1, &
-                                  (ep2+HALO_WIDTH*th_mult)-(sp2-HALO_WIDTH*bh_mult)+1)
-             do j=1,ep2-sp2+1
-                do i=1,ep1-sp1+1
-                   call bitarray_set(field%valid_mask, i, j)     
+             if (field%map%stagger == M  .or. & 
+                 field%map%stagger == HH .or. &
+                 field%map%stagger == VV) then
+                allocate(field%r_arr(we_mem_s:we_mem_e,&
+                                     sn_mem_s:sn_mem_e))
+                field%r_arr(we_patch_s:we_patch_e,sn_patch_s:sn_patch_e) = real_array(sp1:ep1,sp2:ep2,k)
+                call exchange_halo_r(field%r_arr, &
+                           we_mem_s, we_mem_e, sn_mem_s, sn_mem_e, 1, 1, &
+                           we_patch_s, we_patch_e, sn_patch_s, sn_patch_e, 1, 1)
+                call bitarray_create(field%valid_mask, &
+                                     (we_mem_e-we_mem_s)+1, &
+                                     (sn_mem_e-sn_mem_s)+1)
+                do j=1,(sn_mem_e-sn_mem_s)+1
+                   do i=1,(we_mem_e-we_mem_s)+1
+                      call bitarray_set(field%valid_mask, i, j)     
+                   end do
                 end do
-             end do
+             else if (field%map%stagger == U) then
+                allocate(field%r_arr(we_mem_stag_s:we_mem_stag_e,&
+                                     sn_mem_s:sn_mem_e))
+                field%r_arr(we_patch_stag_s:we_patch_stag_e,sn_patch_s:sn_patch_e) = real_array(sp1:ep1,sp2:ep2,k)
+                call exchange_halo_r(field%r_arr, &
+                           we_mem_stag_s, we_mem_stag_e, sn_mem_s, sn_mem_e, 1, 1, &
+                           we_patch_stag_s, we_patch_stag_e, sn_patch_s, sn_patch_e, 1, 1)
+                call bitarray_create(field%valid_mask, &
+                                     (we_mem_stag_e-we_mem_stag_s)+1, &
+                                     (sn_mem_e-sn_mem_s)+1)
+                do j=1,(sn_mem_e-sn_mem_s)+1
+                   do i=1,(we_mem_stag_e-we_mem_stag_s)+1
+                      call bitarray_set(field%valid_mask, i, j)     
+                   end do
+                end do
+             else if (field%map%stagger == V) then
+                allocate(field%r_arr(we_mem_s:we_mem_e,&
+                                     sn_mem_stag_s:sn_mem_stag_e))
+                field%r_arr(we_patch_s:we_patch_e,sn_patch_stag_s:sn_patch_stag_e) = real_array(sp1:ep1,sp2:ep2,k)
+                call exchange_halo_r(field%r_arr, &
+                           we_mem_s, we_mem_e, sn_mem_stag_s, sn_mem_stag_e, 1, 1, &
+                           we_patch_s, we_patch_e, sn_patch_stag_s, sn_patch_stag_e, 1, 1)
+                call bitarray_create(field%valid_mask, &
+                                     (we_mem_e-we_mem_s)+1, &
+                                     (sn_mem_stag_e-sn_mem_stag_s)+1)
+                do j=1,(sn_mem_stag_e-sn_mem_stag_s)+1
+                   do i=1,(we_mem_e-we_mem_s)+1
+                      call bitarray_set(field%valid_mask, i, j)     
+                   end do
+                end do
+             end if
+
              nullify(field%modified_mask)
      
              call storage_put_field(field)
