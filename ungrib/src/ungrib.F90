@@ -360,10 +360,14 @@ program ungrib
 
 ! And Now we are done:
 
-   print*,'!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
-!  print*,'!  Successful completion of ungrib.   !'
-   print*,"!  We're hauling gear at Bandimere.   !"
-   print*,'!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
+!   print*,'!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
+!   print*,"!  We're hauling gear at Bandimere.   !"
+!   print*,'!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
+
+   print*,'!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
+   print*,'!  Successful completion of ungrib.         !'
+   print*,'!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
+
 
 
 contains
