@@ -276,7 +276,7 @@ module rotate_winds_module
          end if
 
       else
-         call mprintf(.true.,ERROR,'In map_to_met(), uninitialized proj_info structure.')
+         call mprintf(.true.,ERROR,'In metmap_xform(), uninitialized proj_info structure.')
       end if
  
    end subroutine metmap_xform
@@ -287,7 +287,7 @@ module rotate_winds_module
    !
 
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
-   ! Name: map_to_met                                                             !
+   ! Name: map_to_met_nmm                                                         !
    !                                                                              !
    ! Purpose: Rotate grid-relative winds to Earth-relative winds                  !
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
@@ -313,7 +313,7 @@ module rotate_winds_module
 
    
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
-   ! Name: met_to_map                                                             !
+   ! Name: met_to_map_nmm                                                         !
    !                                                                              !
    ! Purpose: Rotate Earth-relative winds to grid-relative winds                  !
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
@@ -337,18 +337,16 @@ module rotate_winds_module
 
    end subroutine met_to_map_nmm
 
-   
-   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
-   ! Name: metmap_xform                                                           !
+
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   ! Name: metmap_xform_nmm                                                       !
    !                                                                              !
-   ! Purpose: Do the actual work of rotating winds for C grid.                    !
+   ! Purpose: Do the actual work of rotating winds for E grid.                    !
    !          If idir= 1, rotate grid-relative winds to Earth-relative winds      !
    !          If idir=-1, rotate Earth-relative winds to grid-relative winds      !
    !                                                                              !
    ! ASSUMPTIONS: 1) MEMORY ORDER IS XY.                                          !
-   !              2) U ARRAY HAS ONE MORE COLUMN THAN THE V ARRAY, AND V ARRAY    !
-   !                 HAS ONE MORE ROW THAN U ARRAY.                               !
-   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
    subroutine metmap_xform_nmm(u, u_mask, v, v_mask, &
                                vs1, vs2, ve1, ve2, &
                                xlat_v, xlon_v, idir)
@@ -363,8 +361,8 @@ module rotate_winds_module
       ! Local variables
       integer :: i, j
       real :: u_map, v_map, diff, alpha
-      real :: phi0, lmbd0, big_denominator
-      real :: sin_phi0, cos_phi0, sin_lmbd0, cos_lmbd0, cos_alpha, sin_alpha
+      real :: phi0, lmbd0, big_denominator, relm, rlat_v,rlon_v, clontemp
+      real :: sin_phi0, cos_phi0,  cos_alpha, sin_alpha
       real, pointer, dimension(:,:) :: u_new, v_new
 
 
@@ -382,28 +380,34 @@ module rotate_winds_module
             allocate(v_new(vs1:ve1, vs2:ve2))
 
             phi0  = proj_stack(current_nest_number)%lat1 * rad_per_deg
-            lmbd0 = proj_stack(current_nest_number)%lon1 * rad_per_deg
-   
+
+            clontemp= -proj_stack(current_nest_number)%lon1
+            if (clontemp .lt. 0.) then
+               lmbd0 = (clontemp + 360.) * rad_per_deg
+            else
+               lmbd0 = (clontemp) * rad_per_deg
+            endif
+
             sin_phi0  = sin(phi0)
             cos_phi0  = cos(phi0)
-   
-            sin_lmbd0 = sin(lmbd0)
-            cos_lmbd0 = cos(lmbd0)
-   
+
             do j=vs2,ve2
                do i=vs1,ve1
-   
+
                   ! Calculate the sine and cosine of rotation angle
+                  rlat_v = xlat_v(i,j) * rad_per_deg
+                  rlon_v = xlon_v(i,j) * rad_per_deg
+                  relm = rlon_v - lmbd0
                   big_denominator = cos(asin( &
-                                       cos_phi0 * sin(xlat_v(i,j)*rad_per_deg) - &
-                                       sin_phi0 * cos(xlat_v(i,j)*rad_per_deg) * cos(xlon_v(i,j)*rad_per_deg + lmbd0) &
+                                       cos_phi0 * sin(rlat_v) - &
+                                       sin_phi0 * cos(rlat_v) * cos(relm) &
                                         )   )
-   
-                  cos_alpha = sin_phi0 * sin(xlon_v(i,j)*rad_per_deg + lmbd0)  /  &
+
+                  sin_alpha = sin_phi0 * sin(relm)  /  &
                                          big_denominator
-   
-                  sin_alpha = (cos_phi0 * cos(xlat_v(i,j)*rad_per_deg) + &
-                               sin_phi0 * sin(xlat_v(i,j)*rad_per_deg) * cos(xlon_v(i,j)*rad_per_deg + lmbd0))  /  &
+
+                  cos_alpha = (cos_phi0 * cos(rlat_v) + &
+                               sin_phi0 * sin(rlat_v) * cos(relm))  /  &
                                             big_denominator
    
                   ! Rotate U field
@@ -464,8 +468,10 @@ module rotate_winds_module
                      diff = diff + 360.
                   end if
 
+                  ! Calculate the rotation angle, alpha, in radians
                   if (proj_stack(current_nest_number)%code == PROJ_LC) then
-                     alpha = diff * proj_stack(current_nest_number)%cone * rad_per_deg * proj_stack(current_nest_number)%hemi 
+                     alpha = diff * proj_stack(current_nest_number)%cone * &
+                             rad_per_deg * proj_stack(current_nest_number)%hemi
                   else
                      alpha = diff * rad_per_deg * proj_stack(current_nest_number)%hemi 
                   end if
@@ -511,7 +517,7 @@ module rotate_winds_module
          end if
 
       else
-         call mprintf(.true.,ERROR,'In map_to_met(), uninitialized proj_info structure.')
+         call mprintf(.true.,ERROR,'In metmap_xform_nmm(), uninitialized proj_info structure.')
       end if
 
    end subroutine metmap_xform_nmm
