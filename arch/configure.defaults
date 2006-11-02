@@ -23,10 +23,10 @@ ARFLAGS		=
 ###########################################################
 #ARCH	AIX	serial
 #
-COMPRESSION_LIBS	=	-L/mmm/users/gill/WPS_LIBS/local/lib -lz \
+COMPRESSION_LIBS	=	-L/contrib/zlib/lib -lz \
 				-L/contrib/jasper/lib -ljasper \
 				-L/contrib/libpng/lib -lpng
-COMPRESSION_INC		=	-I/mmm/users/gill/WPS_LIBS/local/include \
+COMPRESSION_INC		=	-I/contrib/zlib/include \
 				-I/contrib/jasper/include \
 				-I/contrib/libpng/include
 NCARG_LIBS		=
@@ -70,10 +70,10 @@ ARFLAGS		=
 ###########################################################
 #ARCH	AIX	DM parallel
 #
-COMPRESSION_LIBS	=	-L/mmm/users/gill/WPS_LIBS/local/lib -lz \
+COMPRESSION_LIBS	=	-L/contrib/zlib/lib -lz \
 				-L/contrib/jasper/lib -ljasper \
 				-L/contrib/libpng/lib -lpng
-COMPRESSION_INC		=	-I/mmm/users/gill/WPS_LIBS/local/include \
+COMPRESSION_INC		=	-I/contrib/zlib/include \
 				-I/contrib/jasper/include \
 				-I/contrib/libpng/include
 NCARG_LIBS		=
@@ -353,6 +353,12 @@ NCARG_LIBS2	=	-L${PGI}/linux86-64/5.2/lib -lpgftnrtl -lpgc \
 ###########################################################
 #ARCH    PC Linux x86_64 (IA64 and Opteron), PGI compiler 5.2 or higher, serial
 #
+COMPRESSION_LIBS	=	-L/contrib/zlib/lib -lz \
+				-L/contrib/jasper/lib -ljasper \
+				-L/contrib/libpng/lib -lpng
+COMPRESSION_INC		=	-I/contrib/zlib/include \
+				-I/contrib/jasper/include \
+				-I/contrib/libpng/include
 FC		=	pgf90
 SFC		=	pgf90
 FFLAGS		=	-Mfree -byteswapio -O
@@ -390,6 +396,12 @@ NCARG_LIBS2	=	-L${PGI}/linux86-64/5.2/lib -lpgftnrtl -lpgc \
 ###########################################################
 #ARCH    PC Linux x86_64 (IA64 and Opteron), PGI compiler 5.2 or higher, DM parallel
 #
+COMPRESSION_LIBS	=	-L/contrib/zlib/lib -lz \
+				-L/contrib/jasper/lib -ljasper \
+				-L/contrib/libpng/lib -lpng
+COMPRESSION_INC		=	-I/contrib/zlib/include \
+				-I/contrib/jasper/include \
+				-I/contrib/libpng/include
 FC		=	mpif90 -f90=pgf90
 SFC		=	pgf90
 FFLAGS		=	-Mfree -byteswapio -O
@@ -463,6 +475,12 @@ CPPFLAGS	=	-DSGI -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -DBIT32
 ###########################################################
 #ARCH	SGI 64 bit IRIX64	serial
 #
+COMPRESSION_LIBS	=	-L/contrib/zlib/lib -lz \
+				-L/contrib/jasper/lib -ljasper \
+				-L/contrib/libpng/lib -lpng
+COMPRESSION_INC		=	-I/contrib/zlib/include \
+				-I/contrib/jasper/include \
+				-I/contrib/libpng/include
 FC		=	f90
 SFC		=	f90
 FFLAGS		=	-freeform -64
