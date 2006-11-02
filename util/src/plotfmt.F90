@@ -176,6 +176,9 @@ subroutine plt2d(scr2d, ix, jx, llflag, &
           plon, truelat1, truelat2, dx, dy)
      iproj=1
      print*, pl1, pl2, pl3, pl4
+  case default
+     print*,'Unsupported map projection ',llflag,' in input'
+     stop
   end select
 
   call supmap(iproj,plat,plon,rota,pl1,pl2,pl3,pl4,2,30,4,0,ierr)

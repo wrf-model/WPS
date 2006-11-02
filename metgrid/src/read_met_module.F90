@@ -219,6 +219,11 @@ module read_met_module
             iproj = PROJ_LC
             read(unit=input_unit,err=1001,end=1001) startloc, startlat, startlon, dx, dy, xlonc, truelat1, truelat2, earth_radius
 
+         ! Gaussian
+         else if (iproj == 4) then
+            iproj = PROJ_GAUSS
+            read(unit=input_unit,err=1001,end=1001) startloc, startlat, startlon, deltalat, deltalon, earth_radius
+
          ! Polar stereographic
          else if (iproj == 5) then
             iproj = PROJ_PS

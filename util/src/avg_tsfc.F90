@@ -4,6 +4,7 @@ program avg_tsfc
    use gridinfo_module
    use read_met_module
    use write_met_module
+   use misc_definitions_module
    use module_debug
 
    implicit none
@@ -26,6 +27,8 @@ program avg_tsfc
    character (len=128) :: input_name
 
    call get_namelist_params()
+
+   call set_debug_level(WARN)
 
    ! Compute number of times that we will process
    call geth_idts(end_date(1), start_date(1), idiff)
@@ -58,7 +61,7 @@ program avg_tsfc
          call read_met_init(trim(input_name), .false., temp_date(1:13), istatus)
 
          if (istatus == 0) then
-write(6,*) 'Reading from '//trim(input_name), ' at time ', temp_date(1:13)
+            call mprintf(.true.,STDOUT,'Reading from %s at time %s', s1=input_name, s2=temp_date(1:13))
 
             ! Process all fields and levels from the current file; read_next_met_field()
             !   will return a non-zero status when there are no more fields to be read.
@@ -91,8 +94,7 @@ write(6,*) 'Reading from '//trim(input_name), ' at time ', temp_date(1:13)
             call read_met_close()
 
          else
-write(6,*) 'Problem opening '//trim(input_name), ' at time ', temp_date(1:13)
-stop
+            call mprintf(.true.,ERROR,'Problem opening %s at time %s', s1=input_name, s2=temp_date(1:13))
          end if
 
       end do 

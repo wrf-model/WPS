@@ -110,7 +110,12 @@ module llxy_module
                       r_earth=earth_radius)
   
       else if (iprojection == PROJ_GAUSS) then
-  ! BUG: Implement this projection.
+         call map_set(iprojection, proj_stack(SOURCE_PROJ), &
+                      lat1=user_known_lat, &
+                      lon1=user_known_lon, &
+                      nlat=nint(user_dlat), &
+                      loninc=user_dlon, &
+                      r_earth=earth_radius)
   
       else if (iprojection == PROJ_ROTLL) then
   ! BUG: Implement this projection.
@@ -214,7 +219,12 @@ module llxy_module
                       dx=user_dxkm)
   
       else if (iprojection == PROJ_GAUSS) then
-  ! BUG: Implement this projection.
+         call map_set(iprojection, proj_stack(current_nest_number), &
+                      lat1=user_known_lat, &
+                      lon1=user_known_lon, &
+                      nlat=nint(user_dlat), &
+                      loninc=user_dlon, &
+                      r_earth=earth_radius)
   
       else if (iprojection == PROJ_ROTLL) then
          call map_set(iprojection, proj_stack(current_nest_number), &
@@ -255,8 +265,8 @@ module llxy_module
          call map_set(iproj_type, proj_stack(1), &
                       lat1=known_lat, &
                       lon1=known_lon, &
-                      latinc=dxkm, &
-                      loninc=dykm)
+                      latinc=dykm, &
+                      loninc=dxkm)
    
       else if (iproj_type == PROJ_MERC) then
          call map_set(iproj_type, proj_stack(1), &
@@ -299,7 +309,11 @@ module llxy_module
                       dx=dxkm)
   
       else if (iproj_type == PROJ_GAUSS) then
-  ! BUG: Implement this projection.
+         call map_set(iproj_type, proj_stack(current_nest_number), &
+                      lat1=known_lat, &
+                      lon1=known_lon, &
+                      nlat=nint(dykm), &
+                      loninc=dxkm)
   
       else if (iproj_type == PROJ_ROTLL) then
          call map_set(iproj_type, proj_stack(1), &
@@ -330,8 +344,8 @@ module llxy_module
             call map_set(iproj_type, proj_stack(i), &
                          lat1=temp_known_lat, &
                          lon1=temp_known_lon, &
-                         latinc=temp_dxkm, &
-                         loninc=temp_dykm)
+                         latinc=temp_dykm, &
+                         loninc=temp_dxkm)
    
          else if (iproj_type == PROJ_MERC) then
             call map_set(iproj_type, proj_stack(i), &
@@ -374,7 +388,11 @@ module llxy_module
                          dx=temp_dxkm)
    
          else if (iproj_type == PROJ_GAUSS) then
-   ! BUG: Implement this projection.
+            call map_set(iproj_type, proj_stack(current_nest_number), &
+                         lat1=temp_known_lat, &
+                         lon1=temp_known_lon, &
+                         nlat=nint(temp_dykm), &
+                         loninc=temp_dxkm)
    
          else if (iproj_type == PROJ_ROTLL) then
    ! BUG: Implement this projection.

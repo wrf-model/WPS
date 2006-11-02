@@ -151,7 +151,7 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_level, out_f
                level, map%nx, map%ny, map%igrid
           hdate = hdate_output(1:19)
           select case (map%igrid)
-          case (0)
+          case (0, 4)
              read (iunit) map%startloc, map%lat1, map%lon1, map%dy, map%dx, map%r_earth
           case (3)
            read (iunit) map%startloc, map%lat1, map%lon1, map%dx, map%dy, map%lov, &
@@ -173,7 +173,7 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_level, out_f
                 map%nx, map%ny, map%igrid
           hdate = hdate_output(1:19)
           select case (map%igrid)
-          case (0)
+          case (0, 4)
              read(iunit) map%startloc, map%lat1, map%lon1, map%dy, map%dx
           case (3)
              read (iunit) map%startloc, map%lat1, map%lon1, map%dx, map%dy, &
@@ -197,7 +197,7 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_level, out_f
            case (5)      ! Polar Stereographic
               read (iunit) map%lat1, map%lon1, map%dx, map%dy, map%lov, &
                    map%truelat1
-           case (0)      ! lat/lon
+           case (0, 4)      ! lat/lon
               read (iunit) map%lat1, map%lon1, map%dy, map%dx
            case (1)      ! Mercator
               read (iunit) map%lat1, map%lon1, map%dy, map%dx, map%truelat1

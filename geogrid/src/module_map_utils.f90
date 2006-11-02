@@ -322,10 +322,9 @@ MODULE map_utils
          IF ( .NOT.PRESENT(nlat) .OR. &
               .NOT.PRESENT(lat1) .OR. &
               .NOT.PRESENT(lon1) .OR. &
-              .NOT.PRESENT(ixdim) .OR. &
               .NOT.PRESENT(loninc) ) THEN
             PRINT '(A,I2)', 'The following are mandatory parameters for projection code : ', proj_code
-            PRINT '(A)', ' nlat, lat1, lon1, ixdim, loninc'
+            PRINT '(A)', ' nlat, lat1, lon1, loninc'
             call mprintf(.true.,ERROR,'MAP_INIT')
          END IF
       ELSE IF ( proj_code == PROJ_ROTLL ) THEN
@@ -1635,21 +1634,21 @@ MODULE map_utils
       !  Since this is a global data set, we need to be concerned about wrapping the
       !  fields around the globe.
  
-      IF      ( ( proj%loninc .GT. 0 ) .AND. &
-                ( FLOOR((lon-proj%lon1)/proj%loninc) + 1 .GE. proj%ixdim ) .AND. &
-                ( lon + proj%loninc .GE. proj%lon1 + 360 ) ) THEN
-! BUG: We may need to set proj%wrap, but proj is intent(in)
-! WHAT IS THIS USED FOR?
-!        proj%wrap = .TRUE.
-         i = proj%ixdim
-      ELSE IF ( ( proj%loninc .LT. 0 ) .AND. &
-                ( FLOOR((lon-proj%lon1)/proj%loninc) + 1 .GE. proj%ixdim ) .AND. &
-                ( lon + proj%loninc .LE. proj%lon1 - 360 ) ) THEN
- ! BUG: We may need to set proj%wrap, but proj is intent(in)
- ! WHAT IS THIS USED FOR?
- !        proj%wrap = .TRUE.
-         i = proj%ixdim
-      END IF
+!      IF      ( ( proj%loninc .GT. 0 ) .AND. &
+!                ( FLOOR((lon-proj%lon1)/proj%loninc) + 1 .GE. proj%ixdim ) .AND. &
+!                ( lon + proj%loninc .GE. proj%lon1 + 360 ) ) THEN
+!! BUG: We may need to set proj%wrap, but proj is intent(in)
+!! WHAT IS THIS USED FOR?
+!!        proj%wrap = .TRUE.
+!         i = proj%ixdim
+!      ELSE IF ( ( proj%loninc .LT. 0 ) .AND. &
+!                ( FLOOR((lon-proj%lon1)/proj%loninc) + 1 .GE. proj%ixdim ) .AND. &
+!                ( lon + proj%loninc .LE. proj%lon1 - 360 ) ) THEN
+! ! BUG: We may need to set proj%wrap, but proj is intent(in)
+! ! WHAT IS THIS USED FOR?
+! !        proj%wrap = .TRUE.
+!         i = proj%ixdim
+!      END IF
  
       !  Yet another quicky test, can we find bounding values?  If not, then we may be
       !  dealing with putting data to a polar projection, so just give them them maximal
@@ -1691,7 +1690,7 @@ MODULE map_utils
                ( proj%gauss_lat(n_low) - proj%gauss_lat(n_low+1) )
  
       END IF
- 
+
    END SUBROUTINE llij_gauss 
   
 END MODULE map_utils

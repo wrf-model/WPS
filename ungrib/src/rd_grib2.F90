@@ -325,7 +325,7 @@ C  SET ARGUMENTS
 	      map%r_earth = earth_radius (gfld%igdtmpl(1))
 
            elseif(gfld%igdtnum.eq.40) then ! Gaussian Grid (we will call it lat/lon)
-              map%igrid = 0
+              map%igrid = 4
               map%nx = gfld%igdtmpl(8)     ! Ni - # of points along a parallel
               map%ny = gfld%igdtmpl(9)     ! Nj - # of points along meridian
               map%dx = gfld%igdtmpl(17)    ! Di - i direction increment
@@ -352,8 +352,8 @@ C  SET ARGUMENTS
                  map%lon1 = map%lon1/scale_factor
               endif
               if ( debug_level .gt. 2 ) then
-           print *,'Gaussian Grid: Dx,Dy,lat,lon',map%dx,map%dy,
-     &       map%lat1,map%lon1
+           print *,'Gaussian Grid: Dx,Dy,lat,lon,nlats',map%dx,map%dy,
+     &       map%lat1,map%lon1,nint(map%dy)
               end if
 
            else

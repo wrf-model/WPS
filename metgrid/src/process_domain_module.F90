@@ -593,8 +593,8 @@ integer, parameter :: BDR_WIDTH = 3
       
                call read_next_met_field(version, short_fieldnm, hdate, xfcst, xlvl, units, desc, &
                                    met_map_proj, startlat, startlon, starti, startj, deltalat, &
-                                   deltalon, met_dx, met_dy, met_cen_lon, met_truelat1, met_truelat2, &
-                                   earth_radius, nx, ny, &
+                                   deltalon, met_dx, met_dy, met_cen_lon, &
+                                   met_truelat1, met_truelat2, earth_radius, nx, ny, &
                                    map_src, slab, is_wind_earth_rel, istatus)
       
                if (istatus == 0) then
@@ -1096,8 +1096,8 @@ integer, parameter :: BDR_WIDTH = 3
    
          call read_next_met_field(version, field, hdate, xfcst, xlvl, units, desc, &
                              iproj, startlat, startlon, starti, startj, deltalat, &
-                             deltalon, dx, dy, xlonc, truelat1, truelat2, earth_radius, &
-                             nx, ny, map_source, &
+                             deltalon, dx, dy, xlonc, truelat1, truelat2, &
+                             earth_radius, nx, ny, map_source, &
                              slab, is_wind_earth_rel, istatus)
 
          if (istatus == 0) then

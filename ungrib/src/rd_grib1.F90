@@ -353,12 +353,13 @@ SUBROUTINE rd_grib1(IUNIT, gribflnm, level, field, hdate,  &
      if (tmp8(5:5) .eq. '0') map%grid_wind = .false.
 !    if (tmp8(2:2) .eq. '0') map%r_earth = 6367.47
          
-  elseif(ksec2(4).eq.4) then ! Gaussian Grid; we will call it lat/lon
-     map%igrid = 0
+  elseif(ksec2(4).eq.4) then ! Gaussian Grid
+     map%igrid = 4
      map%nx = infogrid(1)
      map%ny = infogrid(2)
      map%dx = ginfo(8)
-     map%dy = ginfo(19)
+!    map%dy = ginfo(19)
+     map%dy = real (infogrid(9))
      map%lon1 = ginfo(4)
      map%lat1 = ginfo(3)
      write(tmp8,'(b8.8)') infogrid(5)

@@ -50,8 +50,8 @@ module write_met_module
  
  
    subroutine write_next_met_field(version, field, hdate, xfcst, xlvl, units, desc, &
-                          iproj, startlat, startlon, starti, startj, deltalat, &
-                          deltalon, dx, dy, xlonc, truelat1, truelat2, earth_radius, nx, ny, map_source, &
+                          iproj, startlat, startlon, starti, startj, deltalat, deltalon, &
+                          dx, dy, xlonc, truelat1, truelat2, earth_radius, nx, ny, map_source, &
                           slab, is_wind_earth_rel, istatus)
  
       implicit none
@@ -112,6 +112,7 @@ module write_met_module
 
          ! ?????????
          else
+            call mprintf(.true.,ERROR,'Unrecognized projection code %i when reading from %s.', i1=iproj,s1=met_out_filename)
      
          end if
      
@@ -155,6 +156,7 @@ module write_met_module
      
          ! ?????????
          else
+            call mprintf(.true.,ERROR,'Unrecognized projection code %i when reading from %s.', i1=iproj,s1=met_out_filename)
      
          end if
   
@@ -191,6 +193,11 @@ module write_met_module
             write(unit=output_unit) hdate, xfcst, map_source, local_field, units, desc, xlvl, nx, ny, 3
             write(unit=output_unit) startloc, startlat, startlon, dx, dy, xlonc, truelat1, truelat2, earth_radius
 
+         ! Gaussian
+         else if (iproj == PROJ_GAUSS) then
+            write(unit=output_unit) hdate, xfcst, map_source, local_field, units, desc, xlvl, nx, ny, 4
+            write(unit=output_unit) startloc, startlat, startlon, deltalat, deltalon, earth_radius
+
          ! Polar stereographic
          else if (iproj == PROJ_PS) then
             write(unit=output_unit) hdate, xfcst, map_source, local_field, units, desc, xlvl, nx, ny, 5
@@ -198,6 +205,7 @@ module write_met_module
      
          ! ?????????
          else
+            call mprintf(.true.,ERROR,'Unrecognized projection code %i when reading from %s.', i1=iproj,s1=met_out_filename)
      
          end if
   

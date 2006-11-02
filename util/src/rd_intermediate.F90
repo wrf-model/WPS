@@ -1,6 +1,7 @@
 PROGRAM rd_intermediate
 
    USE module_debug
+   USE misc_definitions_module
    USE read_met_module
 
    IMPLICIT NONE
@@ -55,27 +56,31 @@ PROGRAM rd_intermediate
          CALL mprintf(.true.,STDOUT, 'IPROJ = %i', i1=iproj) 
 
          SELECT CASE ( iproj )
-            CASE (0)
+            CASE (PROJ_LATLON)
                CALL mprintf(.true.,STDOUT,'  REF_X, REF_Y = %f, %f', f1=starti, f2=startj)
                CALL mprintf(.true.,STDOUT,'  REF_LAT, REF_LON = %f, %f', f1=startlat, f2=startlon)
-               CALL mprintf(.true.,STDOUT,'  DX, DY = %f, %f', f1=deltalat, f2=deltalon)
-            CASE (1)
+               CALL mprintf(.true.,STDOUT,'  DLAT, DLON = %f, %f', f1=deltalat, f2=deltalon)
+            CASE (PROJ_MERC)
                CALL mprintf(.true.,STDOUT,'  REF_X, REF_Y = %f, %f', f1=starti, f2=startj)
                CALL mprintf(.true.,STDOUT,'  REF_LAT, REF_LON = %f, %f', f1=startlat, f2=startlon)
                CALL mprintf(.true.,STDOUT,'  DX, DY = %f, %f', f1=dx, f2=dy)
                CALL mprintf(.true.,STDOUT,'  TRUELAT1 = %f', f1=truelat1)
-            CASE (3)
+            CASE (PROJ_LC)
                CALL mprintf(.true.,STDOUT,'  REF_X, REF_Y = %f, %f', f1=starti, f2=startj)
                CALL mprintf(.true.,STDOUT,'  REF_LAT, REF_LON = %f, %f', f1=startlat, f2=startlon)
                CALL mprintf(.true.,STDOUT,'  DX, DY = %f, %f', f1=dx, f2=dy)
-               CALL mprintf(.true.,STDOUT,'  LOV = %f', f1=xlonc)
+               CALL mprintf(.true.,STDOUT,'  STAND_LON = %f', f1=xlonc)
                CALL mprintf(.true.,STDOUT,'  TRUELAT1 = %f', f1=truelat1)
                CALL mprintf(.true.,STDOUT,'  TRUELAT2 = %f', f1=truelat2)
-            CASE (5)
+            CASE (PROJ_GAUSS)
+               CALL mprintf(.true.,STDOUT,'  REF_X, REF_Y = %f, %f', f1=starti, f2=startj)
+               CALL mprintf(.true.,STDOUT,'  REF_LAT, REF_LON = %f, %f', f1=startlat, f2=startlon)
+               CALL mprintf(.true.,STDOUT,'  NLATS, DLON = %f, %f', f1=dy, f2=deltalon)
+            CASE (PROJ_PS)
                CALL mprintf(.true.,STDOUT,'  REF_X, REF_Y = %f, %f', f1=starti, f2=startj)
                CALL mprintf(.true.,STDOUT,'  REF_LAT, REF_LON = %f, %f', f1=startlat, f2=startlon)
                CALL mprintf(.true.,STDOUT,'  DX, DY = %f, %f', f1=dx, f2=dy)
-               CALL mprintf(.true.,STDOUT,'  LOV = %f', f1=xlonc)
+               CALL mprintf(.true.,STDOUT,'  STAND_LON = %f', f1=xlonc)
                CALL mprintf(.true.,STDOUT,'  TRUELAT1 = %f', f1=truelat1)
             CASE default
                CALL mprintf(.true.,ERROR, '  Unknown iproj %i for version %i', i1=iproj, i2=version)

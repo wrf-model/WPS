@@ -78,7 +78,7 @@ subroutine datint(fuldates, nful, hstart, ntimes, interval, out_format)
                 read (10) jdate, xfcst, map%source, field, units, desc, level, &
 	             map%nx, map%ny, map%igrid
 	        select case (map%igrid)
-                case (0)
+                case (0, 4)
                    read(10) map%startloc, map%lat1, map%lon1, map%dy, map%dx, map%r_earth
                 case (3)
                    read (10) map%startloc, map%lat1, map%lon1, map%dx, map%dy, &
@@ -95,7 +95,7 @@ subroutine datint(fuldates, nful, hstart, ntimes, interval, out_format)
                 read (10) jdate, xfcst, map%source, field, units, desc, level, &
 	              map%nx, map%ny, map%igrid
 	        select case (map%igrid)
-                case (0)
+                case (0, 4)
                    read(10) map%startloc, map%lat1, map%lon1, map%dy, map%dx
                 case (3)
                    read (10) map%startloc, map%lat1, map%lon1, map%dx, map%dy, &
@@ -117,7 +117,7 @@ subroutine datint(fuldates, nful, hstart, ntimes, interval, out_format)
 	        case (5)      ! Polar Stereographic
                    read (10) map%lat1, map%lon1, map%dx, map%dy, map%lov, &
                         map%truelat1
-	        case (0)      ! lat/lon
+	        case (0, 4)      ! lat/lon
                    read (10) map%lat1, map%lon1, map%dy, map%dx
 	        case (1)      ! Mercator
                    read (10) map%lat1, map%lon1, map%dy, map%dx, map%truelat1
@@ -145,7 +145,7 @@ subroutine datint(fuldates, nful, hstart, ntimes, interval, out_format)
                 read (10) jdate, xfcst, map%source, field, units, desc, level, &
                       map%nx, map%ny, map%igrid
 	        select case (map%igrid)
-	        case (0)
+	        case (0, 4)
                    read(10) map%startloc, map%lat1, map%lon1, map%dy, map%dx, map%r_earth
 	        case (3)
                    read (10) map%startloc, map%lat1, map%lon1, map%dx, map%dy, &
@@ -162,7 +162,7 @@ subroutine datint(fuldates, nful, hstart, ntimes, interval, out_format)
                 read (10) jdate, xfcst, map%source, field, units, desc, level, &
                       map%nx, map%ny, map%igrid
 	        select case (map%igrid)
-		case (0)
+		case (0, 4)
                    read(10) map%startloc, map%lat1, map%lon1, map%dy, map%dx
 		case (1)
                    read(10) map%startloc, map%lat1, map%lon1, map%dy, map%dx, map%truelat1
@@ -187,7 +187,7 @@ subroutine datint(fuldates, nful, hstart, ntimes, interval, out_format)
 	        case (5)    ! Polar Stereographic
                    read (10) map%lat1, map%lon1, map%dx, map%dy, map%lov, &
                       map%truelat1
-	        case (0)    ! lat/lon
+	        case (0, 4)    ! lat/lon
                    read (10) map%lat1, map%lon1, map%dy, map%dx
 	        case (1)    ! Mercator
                    read (10) map%lat1, map%lon1, map%dy, map%dx, map%truelat1
@@ -213,7 +213,7 @@ subroutine datint(fuldates, nful, hstart, ntimes, interval, out_format)
                  write(11) ifv
                  write(11) hdate_output, xfcst, map%source, field, units, desc, &
                       level, map%nx, map%ny, map%igrid
-                 if (map%igrid == 0) then
+                 if (map%igrid == 0 .or. map%igrid == 4) then
                     write(11) map%startloc, map%lat1, map%lon1, map%dy, map%dx
                  elseif (map%igrid == 1) then
                     write(11) map%startloc, map%lat1, map%lon1, map%dy, map%dx, map%truelat1
@@ -232,7 +232,7 @@ subroutine datint(fuldates, nful, hstart, ntimes, interval, out_format)
                  write(11) ifv
                  write(11) hdate_output, xfcst, map%source, field, units, desc, &
                       level, map%nx, map%ny, map%igrid
-                 if (map%igrid == 0) then
+                 if (map%igrid == 0 .or. map%igrid == 4) then
                     write(11) map%startloc, map%lat1, map%lon1, map%dy, map%dx, &
 		              map%r_earth
                  elseif (map%igrid == 1) then
@@ -254,13 +254,13 @@ subroutine datint(fuldates, nful, hstart, ntimes, interval, out_format)
                  write (11) ifv
                  write (11) hdate_output, xfcst, field, units, Desc, level,&
                    map%nx, map%ny, map%igrid
-                 if (map%igrid.eq.3) then ! lamcon
+                 if (map%igrid .eq. 3) then ! lamcon
                    write (11) map%lat1, map%lon1, map%dx, map%dy, map%lov, &
                       map%truelat1, map%truelat2
-                 elseif (map%igrid.eq.5) then ! Polar Stereographic
+                 elseif (map%igrid .eq. 5) then ! Polar Stereographic
                    write (11) map%lat1, map%lon1, map%dx, map%dy, map%lov, &
                       map%truelat1
-                 elseif (map%igrid.eq.0)then ! lat/lon
+                 elseif (map%igrid .eq. 0 .or. map%igrid .eq. 4)then ! lat/lon
                    write (11) map%lat1, map%lon1, map%dy, map%dx
                  elseif (map%igrid.eq.1)then ! Mercator
                    write (11) map%lat1, map%lon1, map%dy, map%dx, map%truelat1
