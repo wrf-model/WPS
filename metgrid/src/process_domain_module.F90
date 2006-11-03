@@ -1491,7 +1491,7 @@ integer, parameter :: BDR_WIDTH = 3
 
       ! Arguments
       integer, intent(in) :: minx, maxx, miny, maxy, bdr, istagger
-      integer, pointer, dimension(:) :: interp_method_list
+      integer, dimension(:), intent(in) :: interp_method_list
       real, intent(in) :: rlat, rlon, source_missing_value
       real, dimension(minx:maxx,miny:maxy) :: slab
       real, intent(in), optional :: mask_val
