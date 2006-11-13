@@ -6,7 +6,7 @@ name = HGT_M
         dest_type = continuous
         df_dx=SLPX
         df_dy=SLPY
-        smooth_option = 1-2-1; smooth_passes=1
+        smooth_option = smth-desmth_special; smooth_passes=1
         fill_missing=0.
         interp_option =     30s:average_gcell(4.0)+four_pt+average_4pt
         interp_option =      2m:four_pt
@@ -28,7 +28,7 @@ name = HGT_U
         interp_option =      5m:four_pt
         interp_option =     10m:four_pt
         interp_option = default:four_pt
-        smooth_option = 1-2-1; smooth_passes=1
+        smooth_option = smth-desmth_special; smooth_passes=1
         fill_missing=0.
         rel_path=     30s:topo_30s/
         rel_path=      2m:topo_2m/
@@ -45,7 +45,7 @@ name = HGT_V
         interp_option =      5m:four_pt
         interp_option =     10m:four_pt
         interp_option = default:four_pt
-        smooth_option = 1-2-1; smooth_passes=1
+        smooth_option = smth-desmth_special; smooth_passes=1
         fill_missing=0.
         rel_path=     30s:topo_30s/
         rel_path=      2m:topo_2m/

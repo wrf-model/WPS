@@ -103,7 +103,7 @@ name=SKINTEMP
         fill_missing=0.
 ========================================
 name=PSFC
-        interp_option=sixteen_pt+four_pt+average_4pt
+        interp_option=four_pt+average_4pt
 ========================================
 name=VEGCAT
         interp_option=nearest_neighbor
