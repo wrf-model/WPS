@@ -74,48 +74,58 @@ module process_tile_module
       !   have only (n-1)th rows/columns computed, or we end up with (n-k) 
       !   rows/columns when there are k patches in the y/x direction
       if (extra_col) then
-         start_patch_i = dummy_start_patch_i   ! The seemingly pointless renaming of start
-         end_patch_i = dummy_end_patch_i - 1   !   naming convention with modified end_patch variables, 
-         end_patch_stag_i = dummy_end_patch_i  !   variables is so that we can maintain consistent
-                                               !   which are marked as intent(in)
-         start_mem_i = start_patch_i - HALO_WIDTH
-         end_mem_i = end_patch_i + HALO_WIDTH
+         start_patch_i    = dummy_start_patch_i    ! The seemingly pointless renaming of start
+         end_patch_i      = dummy_end_patch_i - 1  !   naming convention with modified end_patch variables, 
+         end_patch_stag_i = dummy_end_patch_i      !   variables is so that we can maintain consistent
+                                                   !   which are marked as intent(in)
+         start_mem_i    = start_patch_i - HALO_WIDTH
+         end_mem_i      = end_patch_i + HALO_WIDTH
          end_mem_stag_i = end_patch_stag_i + HALO_WIDTH
       else                                     
-         start_patch_i = dummy_start_patch_i
-         end_patch_i = dummy_end_patch_i
+         start_patch_i    = dummy_start_patch_i
+         end_patch_i      = dummy_end_patch_i
          end_patch_stag_i = dummy_end_patch_i
 
-         start_mem_i = start_patch_i - HALO_WIDTH
-         end_mem_i = end_patch_i + HALO_WIDTH
+         start_mem_i    = start_patch_i - HALO_WIDTH
+         end_mem_i      = end_patch_i + HALO_WIDTH
          end_mem_stag_i = end_patch_stag_i + HALO_WIDTH
       end if
     
       if (extra_row) then
-         start_patch_j = dummy_start_patch_j
-         end_patch_j = dummy_end_patch_j - 1
+         start_patch_j    = dummy_start_patch_j
+         end_patch_j      = dummy_end_patch_j - 1
          end_patch_stag_j = dummy_end_patch_j
 
-         start_mem_j = start_patch_j - HALO_WIDTH
-         end_mem_j = end_patch_j + HALO_WIDTH
+         start_mem_j    = start_patch_j - HALO_WIDTH
+         end_mem_j      = end_patch_j + HALO_WIDTH
          end_mem_stag_j = end_patch_stag_j + HALO_WIDTH
       else
-         start_patch_j = dummy_start_patch_j
-         end_patch_j = dummy_end_patch_j
+         start_patch_j    = dummy_start_patch_j
+         end_patch_j      = dummy_end_patch_j
          end_patch_stag_j = dummy_end_patch_j
 
-         start_mem_j = start_patch_j - HALO_WIDTH
-         end_mem_j = end_patch_j + HALO_WIDTH
+         start_mem_j    = start_patch_j - HALO_WIDTH
+         end_mem_j      = end_patch_j + HALO_WIDTH
          end_mem_stag_j = end_patch_stag_j + HALO_WIDTH
       end if
 
       start_dom_i = dummy_start_dom_i
-      end_dom_i = dummy_end_dom_i - 1
-      end_dom_stag_i = dummy_end_dom_i
+      if (grid_type == 'C') then
+         end_dom_i      = dummy_end_dom_i - 1
+         end_dom_stag_i = dummy_end_dom_i
+      else if (grid_type == 'E') then
+         end_dom_i      = dummy_end_dom_i
+         end_dom_stag_i = dummy_end_dom_i
+      end if
 
       start_dom_j = dummy_start_dom_j
-      end_dom_j = dummy_end_dom_j - 1
-      end_dom_stag_j = dummy_end_dom_j
+      if (grid_type == 'C') then
+         end_dom_j      = dummy_end_dom_j - 1
+         end_dom_stag_j = dummy_end_dom_j
+      else if (grid_type == 'E') then
+         end_dom_j      = dummy_end_dom_j
+         end_dom_stag_j = dummy_end_dom_j
+      end if
     
       ! Allocate arrays to hold all lat/lon fields; these will persist for the duration of
       !   the process_tile routine

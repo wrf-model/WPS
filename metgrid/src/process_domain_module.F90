@@ -213,8 +213,13 @@ module process_domain_module
 
       we_dom_s = 1
       sn_dom_s = 1
-      we_dom_e = west_east_dim   - 1
-      sn_dom_e = south_north_dim - 1
+      if (grid_type(1:1) == 'C') then
+         we_dom_e = west_east_dim   - 1
+         sn_dom_e = south_north_dim - 1
+      else if (grid_type(1:1) == 'E') then
+         we_dom_e = west_east_dim 
+         sn_dom_e = south_north_dim
+      end if
      
       ! Given the full dimensions of this domain, find out the range of indices 
       !   that will be worked on by this processor. This information is given by 

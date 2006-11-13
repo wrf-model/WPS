@@ -29,15 +29,20 @@ program metgrid
    ! Having determined which processor we are, and where our patch is located
    !   in the domain, we can determine if U or V staggered fields will have one 
    !   more row or column than the M staggered fields
-   if (my_x == nproc_x-1) then
-      extra_col = .true.
-   else
-      extra_col = .false.
-   end if
+   if (gridtype == 'C') then
+      if (my_x == nproc_x-1) then
+         extra_col = .true.
+      else
+         extra_col = .false.
+      end if
 
-   if (my_y == nproc_y-1) then
-      extra_row = .true.
-   else
+      if (my_y == nproc_y-1) then
+         extra_row = .true.
+      else
+         extra_row = .false.
+      end if
+   else if (gridtype == 'E') then
+      extra_col = .false.
       extra_row = .false.
    end if
 
