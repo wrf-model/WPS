@@ -207,12 +207,13 @@ module smooth_module
 
    end subroutine smth_desmth_special
 
+
    !
    ! Smoothing routines for E-grid, contributed by Matthew Pyle
    !
 
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-   ! Name: one_two_one
+   ! Name: one_two_one_egrid
    !
    ! Purpose: Apply the 1-2-1 smoother from the MM5 program TERRAIN 
    !   (found in smth121.F) to array.
@@ -233,7 +234,7 @@ module smooth_module
       real, pointer, dimension(:,:,:) :: scratch
       integer :: ihe(start_y:end_y),ihw(start_y:end_y),istart(start_y:end_y)
 
-      allocate(scratch(start_x:end_x, start_y+1:end_y-1, start_z:end_z))
+      allocate(scratch(start_x:end_x, start_y:end_y, start_z:end_z))
 
       do iy=start_y,end_y
          if (hflag == 1.0) then
@@ -263,6 +264,12 @@ module smooth_module
       end do
 
       do ipass=1,npass
+
+         do iy=start_y,end_y
+            do ix=start_x,end_x
+               scratch(ix,iy,1) = array(ix,iy,1) ! for points used in 2nd computation but not defined in 1st computation
+            end do
+         end do
 
          ! SW-NE direction
          do iy=start_y+1,end_y-1
@@ -318,9 +325,8 @@ module smooth_module
       integer :: ix, iy, iz, ipass
       real, pointer, dimension(:,:,:) :: scratch
       integer :: ihe(start_y:end_y),ihw(start_y:end_y),istart(start_y:end_y)
-      real:: hold(start_x:end_x, start_y:end_y, start_z:end_z),sumchange
       real, parameter:: cenwgt = 1.52
-      real, parameter:: endwgt = 0.26
+      real, parameter:: endwgt = 0.13
 
       allocate(scratch(start_x:end_x, start_y:end_y, start_z:end_z))
 
@@ -359,68 +365,36 @@ module smooth_module
 
          do iy=start_y,end_y
             do ix=start_x,end_x
-               hold(ix,iy,1) = array(ix,iy,1)
-               scratch(ix,iy,1) = array(ix,iy,1) ! for points used in 2nd computation but not defined in 1st computation
+               scratch(ix,iy,1) = array(ix,iy,1) 
             end do
          end do
 
-         ! SW-NE direction
-         do iy=start_y+1,end_y-1
+       do iy=start_y+1,end_y-1
             do ix=istart(iy),end_x-1
                do iz=start_z,end_z
                   if ( (msgval == 1.0 .and. array(ix,iy,iz) /= 0.) .or. msgval /= 1.0) then
                      scratch(ix,iy,iz) = 0.50*array(ix,iy,iz)+ &
-                                      0.25*(array(ix+ihw(iy),iy-1,iz)+array(ix+ihe(iy),iy+1,iz))
+                                      0.125*(array(ix+ihw(iy),iy-1,iz)+array(ix+ihe(iy),iy+1,iz)+ &
+                                             array(ix+ihw(iy),iy+1,iz)+array(ix+ihe(iy),iy-1,iz))
                   end if
                end do
             end do
          end do
 
-         ! NW-SE direction
-         do iy=start_y+1,end_y-1
-            do ix=istart(iy),end_x-1
-               do iz=start_z,end_z
-                  if ( (msgval == 1.0 .and. array(ix,iy,iz) /= 0.) .or. msgval /= 1.0) then
-                     array(ix,iy,iz) = 0.50*scratch(ix,iy,iz)+ &
-                                    0.25*(scratch(ix+ihe(iy),iy-1,iz)+scratch(ix+ihw(iy),iy+1,iz))
-                  end if
-               end do
-             end do
-          end do
 
          !
          ! Desmoothing pass
          !
 
-         ! SW-NE direction
-         do iy=start_y+1,end_y-1
+         do iy=start_y+2,end_y-2
             do ix=istart(iy),end_x-1
                do iz=start_z,end_z
-                  if ( (msgval == 1.0 .and. array(ix,iy,iz) /= 0.) .or. msgval /= 1.0) then
-                     scratch(ix,iy,iz) = cenwgt*array(ix,iy,iz) - &
-                                      endwgt*(array(ix+ihw(iy),iy-1,iz)+array(ix+ihe(iy),iy+1,iz))
-                  end if
-               end do
-            end do
-         end do
-
-         ! NW-SE direction
-         do iy=start_y+1,end_y-1
-            do ix=istart(iy),end_x-1
-               do iz=start_z,end_z
-                  if ( (msgval == 1.0 .and. array(ix,iy,iz) /= 0.) .or. msgval /= 1.0) then
+                  if ( (msgval == 1.0 .and. scratch(ix,iy,iz) /= 0.) .or. msgval /= 1.0) then
                      array(ix,iy,iz) = cenwgt*scratch(ix,iy,iz) - &
-                                   endwgt*(scratch(ix+ihe(iy),iy-1,iz)+scratch(ix+ihw(iy),iy+1,iz))
+                                      endwgt*(scratch(ix+ihw(iy),iy-1,iz)+scratch(ix+ihe(iy),iy+1,iz) + &
+                                              scratch(ix+ihw(iy),iy+1,iz)+scratch(ix+ihe(iy),iy-1,iz))
                   end if
                end do
-            end do
-         end do
-
-        sumchange = 0.
-
-         do iy=start_y+1,end_y-1
-            do ix=istart(iy),end_x-1
-               sumchange = sumchange + abs(array(ix,iy,1) - hold(ix,iy,1))
             end do
          end do
 
