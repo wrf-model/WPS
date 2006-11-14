@@ -53,7 +53,7 @@ module read_met_module
    subroutine read_next_met_field(version, field, hdate, xfcst, xlvl, units, desc, &
                           iproj, startlat, startlon, starti, startj, deltalat, &
                           deltalon, dx, dy, xlonc, truelat1, truelat2, earth_radius, nx, ny, map_source, &
-                          slab, is_wind_earth_rel, istatus)
+                          slab, is_wind_grid_rel, istatus)
  
       implicit none
   
@@ -62,7 +62,7 @@ module read_met_module
       real, intent(out) :: xfcst, xlvl, startlat, startlon, starti, startj, &
                            deltalat, deltalon, dx, dy, xlonc, truelat1, truelat2, earth_radius
       real, pointer, dimension(:,:) :: slab
-      logical, intent(out) :: is_wind_earth_rel
+      logical, intent(out) :: is_wind_grid_rel
       character (len=9), intent(out) :: field
       character (len=24), intent(out) :: hdate
       character (len=25), intent(out) :: units
@@ -128,7 +128,7 @@ module read_met_module
          if (startlat > 90.) startlat = 90.
 #endif
      
-         is_wind_earth_rel = .false.
+         is_wind_grid_rel = .true.
      
          allocate(slab(nx, ny))
          read(unit=input_unit,err=1001,end=1001) slab
@@ -190,7 +190,7 @@ module read_met_module
          if (startlat > 90.) startlat = 90.
 #endif
          
-         is_wind_earth_rel = .false.
+         is_wind_grid_rel = .true.
       
          allocate(slab(nx, ny))
          read(unit=input_unit,err=1001,end=1001) slab
@@ -255,7 +255,7 @@ module read_met_module
          if (startlat > 90.) startlat = 90.
 #endif
  
-         read(unit=input_unit,err=1001,end=1001) is_wind_earth_rel
+         read(unit=input_unit,err=1001,end=1001) is_wind_grid_rel
       
          allocate(slab(nx, ny))
          read(unit=input_unit,err=1001,end=1001) slab

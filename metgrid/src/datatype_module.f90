@@ -34,7 +34,7 @@ module datatype_module
       character (len=32) :: array_order
       integer, dimension(2) :: dim1, dim2
 
-      logical :: is_wind_earth_rel
+      logical :: is_wind_grid_rel
       logical :: array_has_missing_values
    end type header_info
 

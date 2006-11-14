@@ -383,7 +383,7 @@ module process_domain_module
              field%header%vertical_coord = dimnames(3) 
              field%header%vertical_level = k
              field%header%array_order = memorder
-             field%header%is_wind_earth_rel = .false.
+             field%header%is_wind_grid_rel = .true.
              field%header%array_has_missing_values = .false.
              if (gridtype == 'C') then
                 if (trim(stagger) == 'M') then
@@ -548,7 +548,7 @@ integer, parameter :: BDR_WIDTH = 3
       real :: rx, ry, xfcst, xlvl, startlat, startlon, starti, startj, deltalat, deltalon, earth_radius
       real :: threshold, met_dx, met_dy
       real :: met_cen_lon, met_truelat1, met_truelat2
-      logical :: is_wind_earth_rel, do_gcell_interp
+      logical :: is_wind_grid_rel, do_gcell_interp
       integer, pointer, dimension(:) :: u_levels, v_levels
       real, pointer, dimension(:,:) :: slab, data_count, halo_slab
       real, pointer, dimension(:,:,:) :: real_array
@@ -600,7 +600,7 @@ integer, parameter :: BDR_WIDTH = 3
                                    met_map_proj, startlat, startlon, starti, startj, deltalat, &
                                    deltalon, met_dx, met_dy, met_cen_lon, &
                                    met_truelat1, met_truelat2, earth_radius, nx, ny, &
-                                   map_src, slab, is_wind_earth_rel, istatus)
+                                   map_src, slab, is_wind_grid_rel, istatus)
       
                if (istatus == 0) then
       
@@ -685,7 +685,7 @@ integer, parameter :: BDR_WIDTH = 3
                   call get_z_dim_name(short_fieldnm,field%header%vertical_coord)
                   field%header%vertical_level = nint(xlvl) 
                   field%header%array_order = 'XY ' 
-                  field%header%is_wind_earth_rel = is_wind_earth_rel 
+                  field%header%is_wind_grid_rel = is_wind_grid_rel 
                   field%header%array_has_missing_values = .false.
                   nullify(field%r_arr)
                   nullify(field%valid_mask)
@@ -886,7 +886,7 @@ integer, parameter :: BDR_WIDTH = 3
      
 ! BUG: Need to consider that E grid doesn't have u_s and u_e, since no U staggering.
 ! BUG: Perhaps we need entirely separate map rotation routines for E staggering, where U and V are colocated.
-                     if (.not. u_field%header%is_wind_earth_rel) then
+                     if (u_field%header%is_wind_grid_rel) then
                         if (gridtype == 'C') then
                            call map_to_met(u_field%r_arr, u_field%modified_mask, &
                                            v_field%r_arr, v_field%modified_mask, &
@@ -1085,7 +1085,7 @@ integer, parameter :: BDR_WIDTH = 3
               deltalat, deltalon, dx, dy, xlonc, truelat1, truelat2, &
               earth_radius
       real, pointer, dimension(:,:) :: slab
-      logical :: is_wind_earth_rel
+      logical :: is_wind_grid_rel
       character (len=9) :: field
       character (len=24) :: hdate
       character (len=25) :: units
@@ -1103,7 +1103,7 @@ integer, parameter :: BDR_WIDTH = 3
                              iproj, startlat, startlon, starti, startj, deltalat, &
                              deltalon, dx, dy, xlonc, truelat1, truelat2, &
                              earth_radius, nx, ny, map_source, &
-                             slab, is_wind_earth_rel, istatus)
+                             slab, is_wind_grid_rel, istatus)
 
          if (istatus == 0) then
 
@@ -1167,7 +1167,7 @@ integer, parameter :: BDR_WIDTH = 3
                   mask_field%header%dim1(2) = nx
                   mask_field%header%dim2(1) = 1
                   mask_field%header%dim2(2) = ny
-                  mask_field%header%is_wind_earth_rel = .false.
+                  mask_field%header%is_wind_grid_rel = .true.
                   mask_field%header%array_has_missing_values = .false.
                   mask_field%map%stagger = M
 
@@ -1996,7 +1996,7 @@ integer, parameter :: BDR_WIDTH = 3
       field%header%description = ' '
       field%header%vertical_level = 0
       field%header%array_order = 'XY ' 
-      field%header%is_wind_earth_rel = .true.
+      field%header%is_wind_grid_rel = .true.
       field%header%array_has_missing_values = .false.
       nullify(field%r_arr)
       nullify(field%valid_mask)

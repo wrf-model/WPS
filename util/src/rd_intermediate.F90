@@ -13,7 +13,7 @@ PROGRAM rd_intermediate
            deltalat, deltalon, dx, dy, xlonc, truelat1, truelat2, &
            earth_radius
    REAL, POINTER, DIMENSION(:,:) :: slab
-   LOGICAL :: is_wind_earth_rel
+   LOGICAL :: is_wind_grid_rel
 
    CHARACTER ( LEN =132 )            :: flnm
 
@@ -42,7 +42,7 @@ PROGRAM rd_intermediate
                           iproj, startlat, startlon, starti, startj, deltalat, &
                           deltalon, dx, dy, xlonc, truelat1, truelat2, earth_radius, &
                           nx, ny, map_source, &
-                          slab, is_wind_earth_rel, istatus)
+                          slab, is_wind_grid_rel, istatus)
 
       DO WHILE (istatus == 0)
 
@@ -94,7 +94,7 @@ PROGRAM rd_intermediate
                              iproj, startlat, startlon, starti, startj, deltalat, &
                              deltalon, dx, dy, xlonc, truelat1, truelat2, earth_radius, &
                              nx, ny, map_source, &
-                             slab, is_wind_earth_rel, istatus)
+                             slab, is_wind_grid_rel, istatus)
       END DO
 
       CALL read_met_close()

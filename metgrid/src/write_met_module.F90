@@ -52,7 +52,7 @@ module write_met_module
    subroutine write_next_met_field(version, field, hdate, xfcst, xlvl, units, desc, &
                           iproj, startlat, startlon, starti, startj, deltalat, deltalon, &
                           dx, dy, xlonc, truelat1, truelat2, earth_radius, nx, ny, map_source, &
-                          slab, is_wind_earth_rel, istatus)
+                          slab, is_wind_grid_rel, istatus)
  
       implicit none
   
@@ -62,7 +62,7 @@ module write_met_module
       real, intent(in) :: xfcst, xlvl, startlat, startlon, starti, startj, &
                            deltalat, deltalon, dx, dy, xlonc, truelat1, truelat2, earth_radius
       real, dimension(nx,ny) :: slab
-      logical, intent(in) :: is_wind_earth_rel
+      logical, intent(in) :: is_wind_grid_rel
       character (len=9), intent(in) :: field
       character (len=24), intent(in) :: hdate
       character (len=25), intent(in) :: units
@@ -209,7 +209,7 @@ module write_met_module
      
          end if
   
-         write(unit=output_unit) is_wind_earth_rel
+         write(unit=output_unit) is_wind_grid_rel
 
          write(unit=output_unit) slab
       

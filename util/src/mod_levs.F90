@@ -23,7 +23,7 @@ PROGRAM mod_levs_prog
    REAL :: xfcst, xlvl, startlat, startlon, starti, startj, &
            deltalat, deltalon, dx, dy, xlonc, truelat1, truelat2, earth_radius
    REAL, POINTER, DIMENSION(:,:) :: slab
-   LOGICAL :: is_wind_earth_rel
+   LOGICAL :: is_wind_grid_rel
 
    CHARACTER ( LEN = 24 )            :: hdate
    CHARACTER ( LEN =  9 )            :: field
@@ -100,7 +100,7 @@ PROGRAM mod_levs_prog
                            iproj, startlat, startlon, starti, startj, deltalat, &
                            deltalon, dx, dy, xlonc, truelat1, truelat2, earth_radius, &
                            nx, ny, map_source, &
-                           slab, is_wind_earth_rel, istatus)
+                           slab, is_wind_grid_rel, istatus)
 
          DO WHILE (istatus == 0)
    
@@ -118,7 +118,7 @@ PROGRAM mod_levs_prog
                                       iproj, startlat, startlon, starti, startj, deltalat, &
                                       deltalon, dx, dy, xlonc, truelat1, truelat2, earth_radius, &
                                       nx, ny, map_source, &
-                                      slab, is_wind_earth_rel, istatus)
+                                      slab, is_wind_grid_rel, istatus)
             ELSE
                CALL mprintf(.true.,STDOUT,'Deleting level %f Pa',f1=xlvl)
             END IF
@@ -131,7 +131,7 @@ PROGRAM mod_levs_prog
                                 iproj, startlat, startlon, starti, startj, deltalat, &
                                 deltalon, dx, dy, xlonc, truelat1, truelat2, earth_radius, &
                                 nx, ny, map_source, &
-                                slab, is_wind_earth_rel, istatus)
+                                slab, is_wind_grid_rel, istatus)
          END DO
 
          CALL write_met_close()
