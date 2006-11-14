@@ -26,9 +26,12 @@ program metgrid
 
    call mprintf(.true.,LOGFILE,' *** Starting program metgrid.exe *** ')
 
-   ! Having determined which processor we are, and where our patch is located
-   !   in the domain, we can determine if U or V staggered fields will have one 
-   !   more row or column than the M staggered fields
+   ! Get info about how many nests there are to process, etc.
+   call get_namelist_params()
+
+   ! Having determined which processor we are, which grid type we are, and where 
+   !   our patch is located in the domain, we can determine if U or V staggered 
+   !   fields will have one more row or column than the M staggered fields
    if (gridtype == 'C') then
       if (my_x == nproc_x-1) then
          extra_col = .true.
@@ -45,9 +48,6 @@ program metgrid
       extra_col = .false.
       extra_row = .false.
    end if
-
-   ! Get info about how many nests there are to process, etc.
-   call get_namelist_params()
 
    ! Get info about which interpolators should be used with each field
    call  read_interp_table()
