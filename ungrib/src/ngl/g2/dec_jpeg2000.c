@@ -26,7 +26,7 @@
    #define SUB_NAME dec_jpeg2000_
 #endif
 
-   int SUB_NAME(char *injpc,g2int *bufsize,g2int *outfld)
+   int SUB_NAME(char *injpc, int *bufsize, int *outfld)
 /*$$$  SUBPROGRAM DOCUMENTATION BLOCK
 *                .      .    .                                       .
 * SUBPROGRAM:    dec_jpeg2000      Decodes JPEG2000 code stream
@@ -41,7 +41,7 @@
 * PROGRAM HISTORY LOG:
 * 2002-12-02  Gilbert
 *
-* USAGE:     int dec_jpeg2000(char *injpc,g2int *bufsize,g2int *outfld)
+* USAGE:     int dec_jpeg2000(char *injpc, int *bufsize, int *outfld)
 *
 *   INPUT ARGUMENTS:
 *      injpc - Input JPEG2000 code stream.
@@ -69,7 +69,7 @@
 {
 #ifdef USE_JPEG2000
     int ier;
-    g2int i,j,k,n;
+    int i,j,k,n;
     jas_image_t *image=0;
     jas_stream_t *jpcstream,*istream;
     jas_image_cmpt_t cmpt,*pcmpt;
