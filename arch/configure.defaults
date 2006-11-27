@@ -23,9 +23,9 @@ ARFLAGS		=
 ###########################################################
 #ARCH	AIX	serial
 #
-COMPRESSION_LIBS	=	-L/contrib/zlib/lib -lz \
-				-L/contrib/jasper/lib -ljasper \
-				-L/contrib/libpng/lib -lpng
+COMPRESSION_LIBS	=	-L/contrib/jasper/lib -ljasper \
+				-L/contrib/libpng/lib -lpng \
+				-L/contrib/zlib/lib -lz
 COMPRESSION_INC		=	-I/contrib/zlib/include \
 				-I/contrib/jasper/include \
 				-I/contrib/libpng/include
@@ -70,9 +70,9 @@ ARFLAGS		=
 ###########################################################
 #ARCH	AIX	DM parallel
 #
-COMPRESSION_LIBS	=	-L/contrib/zlib/lib -lz \
-				-L/contrib/jasper/lib -ljasper \
-				-L/contrib/libpng/lib -lpng
+COMPRESSION_LIBS	=	-L/contrib/jasper/lib -ljasper \
+				-L/contrib/libpng/lib -lpng \
+				-L/contrib/zlib/lib -lz
 COMPRESSION_INC		=	-I/contrib/zlib/include \
 				-I/contrib/jasper/include \
 				-I/contrib/libpng/include
