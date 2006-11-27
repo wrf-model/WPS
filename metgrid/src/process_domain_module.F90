@@ -990,7 +990,7 @@ integer, parameter :: BDR_WIDTH = 3
       call create_derived_fields(gridtype, hdate, xfcst, &
                                  we_mem_s, we_mem_e, sn_mem_s, sn_mem_e, &
                                  we_mem_stag_s, we_mem_stag_e, sn_mem_stag_s, sn_mem_stag_e, &
-                                 got_this_field)
+                                 got_this_field, output_flags)
 
       !
       ! Check that every mandatory field was found in input data
@@ -1958,7 +1958,7 @@ integer, parameter :: BDR_WIDTH = 3
    subroutine create_derived_fields(arg_gridtype, hdate, xfcst, &
                                  we_mem_s, we_mem_e, sn_mem_s, sn_mem_e, &
                                  we_mem_stag_s, we_mem_stag_e, sn_mem_stag_s, sn_mem_stag_e, &
-                                 created_this_field)
+                                 created_this_field, output_flags)
 
       use interp_option_module
       use list_module
@@ -1974,6 +1974,7 @@ integer, parameter :: BDR_WIDTH = 3
       logical, dimension(:), intent(inout) :: created_this_field 
       character (len=1), intent(in) :: arg_gridtype 
       character (len=24), intent(in) :: hdate 
+      character (len=128), dimension(:), intent(inout) :: output_flags
 
       ! Local variables
       integer :: idx, i, j, istatus, isrclevel
@@ -2072,7 +2073,7 @@ integer, parameter :: BDR_WIDTH = 3
                         call storage_get_levels(query_field, all_list)
                         if (associated(all_list)) then
                            do j=1,size(all_list)
-                              call create_level(field, real(all_list(j)), rfillconst=rfillconst)
+                              call create_level(field, real(all_list(j)), idx, output_flags, rfillconst=rfillconst)
                            end do
                            deallocate(all_list)
                         end if
@@ -2085,7 +2086,7 @@ integer, parameter :: BDR_WIDTH = 3
                         call storage_get_levels(query_field, all_list)
                         if (associated(all_list)) then
                            do j=1,size(all_list)
-                              call create_level(field, real(all_list(j)), rfillconst=real(all_list(j)))
+                              call create_level(field, real(all_list(j)), idx, output_flags, rfillconst=real(all_list(j)))
                            end do
                            deallocate(all_list)
                         end if
@@ -2097,7 +2098,8 @@ integer, parameter :: BDR_WIDTH = 3
                         call storage_get_levels(query_field, all_list)
                         if (associated(all_list)) then
                            do j=1,size(all_list)
-                              call create_level(field, real(all_list(j)), asrcname=keys(i)%cvalue, rsrclevel=real(all_list(j)))
+                              call create_level(field, real(all_list(j)), idx, output_flags, &
+                                                asrcname=keys(i)%cvalue, rsrclevel=real(all_list(j)))
                            end do
                            deallocate(all_list)
 
@@ -2121,13 +2123,14 @@ integer, parameter :: BDR_WIDTH = 3
                   ! See if we are filling this level with a constant
                   call get_constant_fill_lev(keys(i)%cvalue, rfillconst, istatus)
                   if (istatus == 0) then
-                     call create_level(field, rlevel, rfillconst=rfillconst)
+                     call create_level(field, rlevel, idx, output_flags, rfillconst=rfillconst)
 
                   ! Otherwise, we are filling from another level
                   else
                      call get_fill_src_level(keys(i)%cvalue, asrcname, isrclevel)
                      rsrclevel = real(isrclevel)
-                     call create_level(field, rlevel, asrcname=asrcname, rsrclevel=rsrclevel)
+                     call create_level(field, rlevel, idx, output_flags, &
+                                       asrcname=asrcname, rsrclevel=rsrclevel)
                      
                   end if
                end if
@@ -2147,15 +2150,19 @@ integer, parameter :: BDR_WIDTH = 3
    !
    ! Purpose: 
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
-   subroutine create_level(field_template, rlevel, rfillconst, asrcname, rsrclevel)
+   subroutine create_level(field_template, rlevel, idx, output_flags, &
+                           rfillconst, asrcname, rsrclevel)
 
       use storage_module
+      use interp_option_module
 
       implicit none
 
       ! Arguments
       type (fg_input), intent(inout) :: field_template
       real, intent(in) :: rlevel
+      integer, intent(in) :: idx
+      character (len=128), dimension(:), intent(inout) :: output_flags
       real, intent(in), optional :: rfillconst, rsrclevel
       character (len=128), intent(in), optional :: asrcname
        
@@ -2222,6 +2229,10 @@ integer, parameter :: BDR_WIDTH = 3
 
          call storage_put_field(field_template)
 
+         if (output_this_field(idx) .and. flag_in_output(idx) /= ' ') then
+            output_flags(idx) = flag_in_output(idx)
+         end if
+
       !
       ! Handle source field and source level case
       !
@@ -2264,6 +2275,10 @@ integer, parameter :: BDR_WIDTH = 3
             end do
 
             call storage_put_field(field_template)
+
+            if (output_this_field(idx) .and. flag_in_output(idx) /= ' ') then
+               output_flags(idx) = flag_in_output(idx)
+            end if
 
          else
             call mprintf(.true.,INFORM,'Couldn''t find %s at level %f to fill level %f of %s.', &
