@@ -198,8 +198,8 @@ foreach test_num ( $all_tests )
 		echo "           ungrib.exe share=${share} ungrib=$ungrib source=$data_source"
 		echo "              start: " `date`
 		ungrib.exe >&! ungrib.print.share=${share}.ungrib=${ungrib}.source=$data_source
-#		grep -i success ungrib.print.share=${share}.ungrib=$ungrib.source=$data_source >& /dev/null
-		grep -i Bandimere ungrib.print.share=${share}.ungrib=$ungrib.source=$data_source >& /dev/null
+		grep -i success ungrib.print.share=${share}.ungrib=$ungrib.source=$data_source >& /dev/null
+#		grep -i Bandimere ungrib.print.share=${share}.ungrib=$ungrib.source=$data_source >& /dev/null
 		set ok = $status
 		if ( $ok != 0 ) then
 			echo " "
