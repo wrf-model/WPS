@@ -494,6 +494,22 @@ CPP		=	/lib/cpp -C -P
 CPPFLAGS	=	-DSGI -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -DBIT32
 
 ###########################################################
+#ARCH	SGI Altix 4700 Linux ia64, Intel compiler     DM parallel
+#
+FC              =       ifort -lmpi
+SFC             =       ifort
+FFLAGS          =       -FR -convert big_endian
+F77FLAGS        =       -convert big_endian
+FNGFLAGS        =       $(FFLAGS)
+LDFLAGS         =
+CC              =       icc -lmpi
+SCC             =       gcc
+CFLAGS          =       -w
+CPP             =       /lib/cpp -C -P -traditional
+CPPFLAGS        =       -D_UNDERSCORE -DBYTESWAP -DLINUX -DIO_NETCDF -
+DIO_BINARY -DIO_GRIB1 -D_MPI -DBIT32
+
+###########################################################
 #ARCH	Sun SunOS	serial, NO GRIB2
 #
 COMPRESSION_LIBS	=
