@@ -458,6 +458,7 @@ name=PRESSURE
 name=GHT
         interp_option=sixteen_pt+four_pt+average_4pt
         fill_missing=0.
+        fill_lev=200100:SOILHGT(200100)
         fill_lev=200100:HGT_M(1)
 ========================================
 name=HGTT
