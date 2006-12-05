@@ -91,9 +91,9 @@ set count = 0
 #	Loop over all of the tests
 
 if ( ${#argv} == 0 ) then
-	set all_tests = `ls -1 test_suite`
+	set all_tests = ( `ls -1 test_suite` )
 else	
-	set all_tests = $*
+	set all_tests = ( $* )
 endif
 foreach test_num ( $all_tests ) 
 
