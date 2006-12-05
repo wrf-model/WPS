@@ -122,8 +122,8 @@ foreach test_num ( $all_tests )
 		echo ' geog_data_path = "/standalone/users/gill/DATA/GEOG"' >! foodir
 	else if ( -d /data3a/mp/gill/DATA/GEOG ) then
 		echo ' geog_data_path = "/data3a/mp/gill/DATA/GEOG"' >! foodir
-	else if ( -d /mmm/users/gill/DATA/GEOG ) then
-		echo ' geog_data_path = "/mmm/users/gill/DATA/GEOG"' >! foodir
+	else if ( -d /mmm/users/wrfhelp/WPS_GEOG ) then
+		echo ' geog_data_path = "/mmm/users/wrfhelp/WPS_GEOG"' >! foodir
 	else
 		echo " "
 		echo " "
