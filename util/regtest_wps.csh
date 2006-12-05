@@ -240,6 +240,73 @@ foreach test_num ( $all_tests )
 		mv FILE* TEMPORARY_STORAGE/${test_num}.source=${data_source}
 		mv met_* TEMPORARY_STORAGE/${test_num}.source=${data_source}
 
+		#	## Run the real/wrf combo on this data generated. ##
+
+		#	Get to the WRF dir, just up and over a bit.
+
+		pushd ../WRFV2/test/em_real >& /dev/null
+
+			#	We need the data we just made from metgrid to be the input for real.
+	
+			ln -sf ../../../WPS/TEMPORARY_STORAGE/${test_num}.source=${data_source}/met_* .
+	
+			#	Manufacture the namelist.  A template is in the data dir, just edit the 
+			#	number of metgrid levels.
+	
+			cp $datadir/$test_num/namelist.input namelist.input.template
+			set NUM_METGRID_LEVELS = `ncdump -h met_em.d02.* | grep -i num_metgrid_levels | grep = | awk '{print $3}'`
+			m4 -DNUM_METGRID_LEVELS=${NUM_METGRID_LEVELS} namelist.input.template >! namelist.input
+	
+			#	The real portion.
+	
+			echo "           real.exe share=${share} metgrid=${metgrid} source=$data_source"
+			echo "              start: " `date`
+			real.exe >&! real.print.share=${share}.metgrid=${metgrid}.source=$data_source
+			grep -i success real.print.share=${share}.metgrid=${metgrid}.source=$data_source >& /dev/null
+			set ok = $status
+			if ( $ok != 0 ) then
+				echo " "
+				echo " "
+				echo "Failed to run real.exe"
+				echo " "
+				echo " "
+				exit ( 8 ) 
+			endif
+			echo "              end:   " `date`
+	
+			#	The wrf portion.
+	
+			echo "           wrf.exe share=${share} metgrid=${metgrid} source=$data_source"
+			echo "              start: " `date`
+			wrf.exe >&! wrf.print.share=${share}.metgrid=${metgrid}.source=$data_source
+			grep -i success wrf.print.share=${share}.metgrid=${metgrid}.source=$data_source >& /dev/null
+			set ok = $status
+			if ( $ok != 0 ) then
+				echo " "
+				echo " "
+				echo "Failed to run wrf.exe"
+				echo " "
+				echo " "
+				exit ( 9 ) 
+			endif
+			echo "              end:   " `date`
+
+			#	Save the model IC, BC and forecast data.
+
+			if ( ! -d TEMPORARY_STORAGE ) then
+				mkdir TEMPORARY_STORAGE
+			endif
+			if ( -d TEMPORARY_STORAGE/${test_num}.source=${data_source} ) then
+				rm -rf TEMPORARY_STORAGE/${test_num}.source=${data_source}
+			endif
+			mkdir TEMPORARY_STORAGE/${test_num}.source=${data_source}
+			mv wrfi* wrfb* wrfo* namelist.input TEMPORARY_STORAGE/${test_num}.source=${data_source}
+			rm met_*
+
+		#	Get back out to the WPS dir.
+
+		popd >& /dev/null
+
 	end
 
 	#	Save the static data for this location.
