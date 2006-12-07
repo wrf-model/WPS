@@ -761,13 +761,13 @@ MODULE map_utils
       tc = sqrt(((1.0-sin(h*proj%truelat1*rad_per_deg))/(1.0+sin(h*proj%truelat1*rad_per_deg)))* &
                 (((1.0+E_WGS84*sin(h*proj%truelat1*rad_per_deg))/(1.0-E_WGS84*sin(h*proj%truelat1*rad_per_deg)))**E_WGS84 ))
 
-      t = sqrt(((1.0-sin(h*lat*rad_per_deg))/(1.0+sin(h*lat*rad_per_deg)))* &
+      t = sqrt(((1.0-sin(h*lat*rad_per_deg))/(1.0+sin(h*lat*rad_per_deg))) * &
                (((1.0+E_WGS84*sin(h*lat*rad_per_deg))/(1.0-E_WGS84*sin(h*lat*rad_per_deg)))**E_WGS84))
 
       ! Find the x/y location of the requested lat/lon with respect to the pole of the projection
-      rho = h * (A_WGS84 / proj%dx) * mc * t / tc
-      i = rho * sin((h*lon - h*proj%stdlon)*rad_per_deg)
-      j = -rho * cos((h*lon - h*proj%stdlon)*rad_per_deg)
+      rho = (A_WGS84 / proj%dx) * mc * t / tc
+      i = h *  rho * sin((h*lon - h*proj%stdlon)*rad_per_deg)
+      j = h * -rho * cos((h*lon - h*proj%stdlon)*rad_per_deg)
 
       ! Get i/j relative to reference i/j
       i = proj%knowni + (i - proj%polei)
@@ -794,29 +794,30 @@ MODULE map_utils
       TYPE (proj_info), INTENT(IN)        :: proj
 
       ! Local variables
-      integer :: iter
-      real :: h, mc, tc, t, rho, lat_old, x, y
+      real :: h, mc, tc, t, rho, x, y
+      real :: chi, a, b, c, d
 
       h = proj%hemi
       x = (i - proj%knowni + proj%polei)
       y = (j - proj%knownj + proj%polej)
 
       mc = cos(h*proj%truelat1*rad_per_deg)/sqrt(1.0-(E_WGS84*sin(h*proj%truelat1*rad_per_deg))**2.0)
-      tc = sqrt(((1.0-sin(h*proj%truelat1*rad_per_deg))/(1.0+sin(h*proj%truelat1*rad_per_deg)))* &
+      tc = sqrt(((1.0-sin(h*proj%truelat1*rad_per_deg))/(1.0+sin(h*proj%truelat1*rad_per_deg))) * &
                 (((1.0+E_WGS84*sin(h*proj%truelat1*rad_per_deg))/(1.0-E_WGS84*sin(h*proj%truelat1*rad_per_deg)))**E_WGS84 ))
 
-      rho = sqrt(x*x + y*y)*proj%dx
+      rho = sqrt((x*proj%dx)**2.0 + (y*proj%dx)**2.0)
       t = rho * tc / (A_WGS84 * mc) 
 
       lon = h*proj%stdlon + h*atan2(h*x,h*(-y))
-      iter = 1
-      lat = h*(PI/2.0 - 2.0 * atan(t))
-      lat_old = lat + 1.0
-      do while (iter < 20 .and. abs(lat_old - lat) < 0.0001)
-         lat_old = lat
-         lat = PI/2.0 - 2.0 * atan(t * ((1.0-E_WGS84*sin(lat*rad_per_deg))/(1.0+E_WGS84*sin(lat*rad_per_deg))**(E_WGS84/2.0)))
-         iter = iter + 1 
-      end do
+
+      chi = PI/2.0-2.0*atan(t)
+      a = 1./2.*E_WGS84**2. + 5./24.*E_WGS84**4. +  1./40.*E_WGS84**6.  +    73./2016.*E_WGS84**8.
+      b =                     7./24.*E_WGS84**4. + 29./120.*E_WGS84**6. + 54113./40320.*E_WGS84**8.
+      c =                                           7./30.*E_WGS84**6.  +    81./280.*E_WGS84**8.
+      d =                                                                  4279./20160.*E_WGS84**8.
+
+      lat = chi + sin(2.*chi)*(a + cos(2.*chi)*(b + cos(2.*chi)*(c + d*cos(2.*chi))))
+      lat = h * lat
 
       lat = lat*deg_per_rad
       lon = lon*deg_per_rad
