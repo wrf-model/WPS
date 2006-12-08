@@ -29,7 +29,7 @@ module source_data_module
                   source_tile_z, source_tile_z_start, source_tile_z_end, source_tile_bdr, &
                   source_category_min, source_category_max, source_landmask_water, &
                   source_landmask_land, source_smooth_option, &
-                  source_smooth_passes, source_output_stagger
+                  source_smooth_passes, source_output_stagger, source_row_order
    real, pointer, dimension(:) :: source_dx, source_dy, source_known_x, source_known_y, &
                   source_known_lat, source_known_lon, source_masked, source_truelat1, source_truelat2, &
                   source_stdlon, source_scale_factor, source_missing_value, source_fill_missing
@@ -45,7 +45,8 @@ module source_data_module
                   is_scale_factor, is_fieldname, is_path, is_dominant_category, &
                   is_dominant_only, is_dfdx, is_dfdy, is_z_dim_name, &
                   is_smooth_option, is_smooth_passes, is_signed, is_missing_value, &
-                  is_fill_missing, is_halt_missing, is_output_stagger, is_units, is_descr
+                  is_fill_missing, is_halt_missing, is_output_stagger, is_row_order, &
+                  is_units, is_descr
    type (list), pointer, dimension(:) :: source_res_path, source_interp_option
    type (hashtable) :: bad_files   ! Track which files produce errors when we try to open them
    type (hashtable) :: duplicate_fnames  ! Remember which output fields we have returned 
@@ -148,6 +149,7 @@ module source_data_module
       allocate(source_landmask_land(num_entries))
       allocate(source_masked(num_entries))
       allocate(source_output_stagger(num_entries))
+      allocate(source_row_order(num_entries))
       allocate(source_dominant_category(num_entries))
       allocate(source_dominant_only(num_entries))
       allocate(source_dfdx(num_entries))
@@ -196,6 +198,7 @@ module source_data_module
       allocate(is_masked(num_entries))
       allocate(is_halt_missing(num_entries))
       allocate(is_output_stagger(num_entries))
+      allocate(is_row_order(num_entries))
       allocate(is_dominant_category(num_entries))
       allocate(is_dominant_only(num_entries))
       allocate(is_dfdx(num_entries))
@@ -544,6 +547,7 @@ module source_data_module
   
       do idx=1,num_entries
          is_wordsize(idx) = .false.
+         is_row_order(idx) = .false.
          is_fieldtype(idx) = .false.
          is_proj(idx) = .false.
          is_dx(idx) = .false.
@@ -737,6 +741,15 @@ module source_data_module
                   else if (index('wordsize',trim(buffer(1:i-1))) /= 0) then
                      is_wordsize(idx) = .true.
                      read(buffer(i+1:eos-1),'(i10)') source_wordsize(idx)
+        
+                  else if (index('row_order',trim(buffer(1:i-1))) /= 0) then
+                     if (index('bottom_top',trim(buffer(i+1:eos-1))) /= 0) then
+                        is_row_order(idx) = .true.
+                        source_row_order(idx) = BOTTOM_TOP
+                     else if (index('top_bottom',trim(buffer(i+1:eos-1))) /= 0) then
+                        is_row_order(idx) = .true.
+                        source_row_order(idx) = TOP_BOTTOM
+                     end if
           
                   else if (index('tile_x',trim(buffer(1:i-1))) /= 0) then
                      is_tile_x(idx) = .true.
@@ -848,6 +861,7 @@ module source_data_module
          deallocate(source_landmask_land)
          deallocate(source_masked)
          deallocate(source_output_stagger)
+         deallocate(source_row_order)
          deallocate(source_dominant_category)
          deallocate(source_dominant_only)
          deallocate(source_dfdx)
@@ -896,6 +910,7 @@ module source_data_module
          deallocate(is_masked)
          deallocate(is_halt_missing)
          deallocate(is_output_stagger)
+         deallocate(is_row_order)
          deallocate(is_dominant_category)
          deallocate(is_dominant_only)
          deallocate(is_dfdx)
@@ -2282,7 +2297,7 @@ module source_data_module
       character (len=256), intent(out) :: file_name
   
       ! Local variables
-      integer :: local_wordsize, sign_convention
+      integer :: local_wordsize, sign_convention, irow_order
   
       call get_tile_fname(file_name, xlat, xlon, ilevel, field_name, istatus)
 
@@ -2301,9 +2316,12 @@ module source_data_module
       if (associated(array)) deallocate(array)
       allocate(array(start_x_dim:end_x_dim,start_y_dim:end_y_dim,start_z_dim:end_z_dim))
   
+      call get_row_order(field_name, ilevel, irow_order, istatus)
+      if (istatus /= 0) irow_order = BOTTOM_TOP
+  
       call read_dem(29, file_name, end_x_dim-start_x_dim+1, &
                     end_y_dim-start_y_dim+1, end_z_dim-start_z_dim+1, &
-                    local_wordsize, array, sign_convention, istatus)
+                    local_wordsize, array, sign_convention, irow_order, istatus)
   
       if (istatus /= 0) then
          start_x_dim = INVALID
@@ -2315,6 +2333,38 @@ module source_data_module
       end if
  
    end subroutine get_data_tile
+
+
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   ! Name: get_row_order
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   subroutine get_row_order(fieldnm, ilevel, irow_order, istatus)
+
+      implicit none
+
+      ! Arguments
+      integer, intent(in) :: ilevel
+      character (len=128), intent(in) :: fieldnm
+      integer, intent(out) :: irow_order, istatus
+
+      ! Local variables
+      integer :: idx
+
+      istatus = 1
+      do idx=1,num_entries
+         if ((index(source_fieldname(idx),trim(fieldnm)) /= 0) .and. &
+             (len_trim(source_fieldname(idx)) == len_trim(fieldnm))) then
+            if (ilevel == source_priority(idx)) then
+               if (is_row_order(idx)) then
+                  irow_order = source_row_order(idx)
+                  istatus = 0
+                  exit
+               end if
+            end if
+         end if
+      end do
+
+   end subroutine get_row_order
   
  
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -2974,22 +3024,38 @@ module source_data_module
    ! NOTE: This routine adapted from a routine of the same name in the 
    !       original FSL WRF SI.
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
-   subroutine read_dem(unit_no, unit_name, nn1, nn2, nn3, i1, datarr, sign_convention, istat)
+   subroutine read_dem(unit_no, unit_name, nn1, nn2, nn3, i1, datarr, sign_convention, &
+                       row_order, istat)
  
       implicit none
   
       ! Arguments
-      integer, intent(in) :: unit_no, nn1, nn2, nn3, i1, sign_convention
+      integer, intent(in) :: unit_no, nn1, nn2, nn3, i1, sign_convention, row_order
       integer, intent(out) :: istat
       real, dimension(nn1,nn2,nn3), intent(out) :: datarr
       character (len=*), intent(in) :: unit_name
   
       ! Local variables
       integer :: strlen, countx, county, countz
+      integer :: j, k
+      real, allocatable, dimension(:) :: temprow
   
       call s_len(unit_name,strlen)
   
       call read_binary_field(datarr,i1,nn1*nn2*nn3,unit_name,strlen,sign_convention,istat)
+
+      if (row_order == TOP_BOTTOM) then
+         allocate(temprow(nn1))
+         do k=1,nn3
+            do j=1,nn2 
+               if (nn2-j+1 <= j) exit               
+               temprow(1:nn1) = datarr(1:nn1,j,k)
+               datarr(1:nn1,j,k) = datarr(1:nn1,nn2-j+1,k)
+               datarr(1:nn1,nn2-j+1,k) = temprow(1:nn1)
+            end do
+         end do
+         deallocate(temprow)
+      end if
  
    end subroutine read_dem
  

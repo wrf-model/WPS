@@ -20,6 +20,8 @@ module misc_definitions_module
                          AVERAGE4=4, AVERAGE16=5, W_AVERAGE4=6, W_AVERAGE16=7, &
                          SEARCH=8
 
+   integer, parameter :: BOTTOM_TOP=1, TOP_BOTTOM=2
+
    integer, parameter :: CONTINUOUS=0, CATEGORICAL=1, SP_CONTINUOUS=2
 
    integer, parameter :: M=1, U=2, V=3, HH=4, VV=5
