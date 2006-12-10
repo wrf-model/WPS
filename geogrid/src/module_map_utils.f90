@@ -767,7 +767,7 @@ MODULE map_utils
       ! Find the x/y location of the requested lat/lon with respect to the pole of the projection
       rho = (A_WGS84 / proj%dx) * mc * t / tc
       i = h *  rho * sin((h*lon - h*proj%stdlon)*rad_per_deg)
-      j = h * -rho * cos((h*lon - h*proj%stdlon)*rad_per_deg)
+      j = h *(-rho)* cos((h*lon - h*proj%stdlon)*rad_per_deg)
 
       ! Get i/j relative to reference i/j
       i = proj%knowni + (i - proj%polei)
