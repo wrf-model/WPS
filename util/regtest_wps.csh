@@ -14,6 +14,8 @@ if ( ( ! -d WPS ) || ( ! -d WRFV2 ) ) then
 endif
 
 set TOP_DIR = `pwd`
+set PLOTS_ONLY = TRUE
+set PLOTS_ONLY = FALSE
 
 #	WRFV2 build
 
@@ -41,8 +43,7 @@ endif
 
 ./compile em_real >&! build.log
 if ( ( -e main/wrf.exe ) && \
-     ( -e main/real.exe ) && \
-     ( -e main/ndown.exe ) ) then
+     ( -e main/real.exe ) ) then
 	echo "        WRFV2 build OK"
 else
 	echo " "
@@ -139,23 +140,25 @@ foreach test_num ( $all_tests )
 
 	rm .foo
 
-	#	Echo what is happening for each program, also there is
-	#	start/ending couplet so that approx timings are possible.
-
-	echo "        geogrid.exe share=${share} geogrid=$geogrid"
-	echo "           start: " `date`
-	geogrid.exe >&! geogrid.print.share=${share}.geogrid=$geogrid
-	grep -i success geogrid.print.share=${share}.geogrid=$geogrid >& /dev/null
-	set ok = $status
-	if ( $ok != 0 ) then
-		echo " "
-		echo " "
-		echo "Failed to run geogrid.exe"
-		echo " "
-		echo " "
-		exit ( 5 ) 
+	if ( $PLOTS_ONLY == FALSE ) then
+		#	Echo what is happening for each program, also there is
+		#	start/ending couplet so that approx timings are possible.
+	
+		echo "        geogrid.exe share=${share} geogrid=$geogrid"
+		echo "           start: " `date`
+		geogrid.exe >&! geogrid.print.share=${share}.geogrid=$geogrid
+		grep -i success geogrid.print.share=${share}.geogrid=$geogrid >& /dev/null
+		set ok = $status
+		if ( $ok != 0 ) then
+			echo " "
+			echo " "
+			echo "Failed to run geogrid.exe"
+			echo " "
+			echo " "
+			exit ( 5 ) 
+		endif
+		echo "           end:   " `date`
 	endif
-	echo "           end:   " `date`
 
 	#	Now we slide over to the ungrib and metgrid programs.  We need to get the
 	#	location of the met data.  This is not a nml var, but an argument
@@ -186,6 +189,14 @@ foreach test_num ( $all_tests )
 
 	foreach data_source ( $source )
 
+		#	The sources are just directories in the TEST_001, etc dirs.  Also
+		#	in there is a namelist file.  That is not a valid source of data,
+		#	so we skip it an move on.
+
+		if ( ( $data_source == namelist.input ) || ( $data_source == rip_test.in ) ) then
+			goto skipped_namelist_as_a_directory
+		endif
+
 		#	The incremented counter, to keep track of which data source
 		#	we are running, and so that we are using the right Vtable.
 
@@ -193,106 +204,45 @@ foreach test_num ( $all_tests )
 		cp ungrib/Variable_Tables/Vtable.$Vtable Vtable
 		./link_grib.csh $datadir/$test_num/$data_source/*
 
-		#	Run ungrib, the grib decoder.
-		
-		echo "           ungrib.exe share=${share} ungrib=$ungrib source=$data_source"
-		echo "              start: " `date`
-		ungrib.exe >&! ungrib.print.share=${share}.ungrib=${ungrib}.source=$data_source
-		grep -i success ungrib.print.share=${share}.ungrib=$ungrib.source=$data_source >& /dev/null
-#		grep -i Bandimere ungrib.print.share=${share}.ungrib=$ungrib.source=$data_source >& /dev/null
-		set ok = $status
-		if ( $ok != 0 ) then
-			echo " "
-			echo " "
-			echo "Failed to run ungrib.exe"
-			echo " "
-			echo " "
-			exit ( 6 ) 
-		endif
-		echo "              end:   " `date`
+		if ( $PLOTS_ONLY == FALSE ) then
 
-		#	Now with the geogrid and ungrib progs done, we can move to metgrid.
-
-		echo "           metgrid.exe share=${share} metgrid=${metgrid} source=$data_source"
-		echo "              start: " `date`
-		metgrid.exe >&! metgrid.print.share=${share}.metgrid=${metgrid}.source=$data_source
-		grep -i success metgrid.print.share=${share}.metgrid=${metgrid}.source=$data_source >& /dev/null
-		set ok = $status
-		if ( $ok != 0 ) then
-			echo " "
-			echo " "
-			echo "Failed to run metgrid.exe"
-			echo " "
-			echo " "
-			exit ( 7 ) 
-		endif
-		echo "              end:   " `date`
-
-		#	Save the data.
-
-		if ( ! -d TEMPORARY_STORAGE ) then
-			mkdir TEMPORARY_STORAGE
-		endif
-		if ( -d TEMPORARY_STORAGE/${test_num}.source=${data_source} ) then
-			rm -rf TEMPORARY_STORAGE/${test_num}.source=${data_source}
-		endif
-		mkdir TEMPORARY_STORAGE/${test_num}.source=${data_source}
-		mv FILE* TEMPORARY_STORAGE/${test_num}.source=${data_source}
-		mv met_* TEMPORARY_STORAGE/${test_num}.source=${data_source}
-
-		#	## Run the real/wrf combo on this data generated. ##
-
-		#	Get to the WRF dir, just up and over a bit.
-
-		pushd ../WRFV2/test/em_real >& /dev/null
-
-			#	We need the data we just made from metgrid to be the input for real.
-	
-			ln -sf ../../../WPS/TEMPORARY_STORAGE/${test_num}.source=${data_source}/met_* .
-	
-			#	Manufacture the namelist.  A template is in the data dir, just edit the 
-			#	number of metgrid levels.
-	
-			cp $datadir/$test_num/namelist.input namelist.input.template
-			set NUM_METGRID_LEVELS = `ncdump -h met_em.d02.* | grep -i num_metgrid_levels | grep = | awk '{print $3}'`
-			m4 -DNUM_METGRID_LEVELS=${NUM_METGRID_LEVELS} namelist.input.template >! namelist.input
-	
-			#	The real portion.
-	
-			echo "           real.exe share=${share} metgrid=${metgrid} source=$data_source"
+			#	Run ungrib, the grib decoder.
+			
+			echo "           ungrib.exe share=${share} ungrib=$ungrib source=$data_source"
 			echo "              start: " `date`
-			real.exe >&! real.print.share=${share}.metgrid=${metgrid}.source=$data_source
-			grep -i success real.print.share=${share}.metgrid=${metgrid}.source=$data_source >& /dev/null
+			ungrib.exe >&! ungrib.print.share=${share}.ungrib=${ungrib}.source=$data_source
+			grep -i success ungrib.print.share=${share}.ungrib=$ungrib.source=$data_source >& /dev/null
+	#		grep -i Bandimere ungrib.print.share=${share}.ungrib=$ungrib.source=$data_source >& /dev/null
 			set ok = $status
 			if ( $ok != 0 ) then
 				echo " "
 				echo " "
-				echo "Failed to run real.exe"
+				echo "Failed to run ungrib.exe"
 				echo " "
 				echo " "
-				exit ( 8 ) 
+				exit ( 6 ) 
 			endif
 			echo "              end:   " `date`
 	
-			#	The wrf portion.
+			#	Now with the geogrid and ungrib progs done, we can move to metgrid.
 	
-			echo "           wrf.exe share=${share} metgrid=${metgrid} source=$data_source"
+			echo "           metgrid.exe share=${share} metgrid=${metgrid} source=$data_source"
 			echo "              start: " `date`
-			wrf.exe >&! wrf.print.share=${share}.metgrid=${metgrid}.source=$data_source
-			grep -i success wrf.print.share=${share}.metgrid=${metgrid}.source=$data_source >& /dev/null
+			metgrid.exe >&! metgrid.print.share=${share}.metgrid=${metgrid}.source=$data_source
+			grep -i success metgrid.print.share=${share}.metgrid=${metgrid}.source=$data_source >& /dev/null
 			set ok = $status
 			if ( $ok != 0 ) then
 				echo " "
 				echo " "
-				echo "Failed to run wrf.exe"
+				echo "Failed to run metgrid.exe"
 				echo " "
 				echo " "
-				exit ( 9 ) 
+				exit ( 7 ) 
 			endif
 			echo "              end:   " `date`
-
-			#	Save the model IC, BC and forecast data.
-
+	
+			#	Save the data.
+	
 			if ( ! -d TEMPORARY_STORAGE ) then
 				mkdir TEMPORARY_STORAGE
 			endif
@@ -300,22 +250,181 @@ foreach test_num ( $all_tests )
 				rm -rf TEMPORARY_STORAGE/${test_num}.source=${data_source}
 			endif
 			mkdir TEMPORARY_STORAGE/${test_num}.source=${data_source}
-			mv wrfi* wrfb* wrfo* namelist.input TEMPORARY_STORAGE/${test_num}.source=${data_source}
-			rm met_*
+			mv FILE* TEMPORARY_STORAGE/${test_num}.source=${data_source}
+			mv met_* TEMPORARY_STORAGE/${test_num}.source=${data_source}
+	
+			#	## Run the real/wrf combo on this data generated. ##
+	
+			#	Get to the WRF dir, just up and over a bit.
+	
+			pushd ../WRFV2/test/em_real >& /dev/null
+	
+				#	We need the data we just made from metgrid to be the input for real.
+		
+				ln -sf ../../../WPS/TEMPORARY_STORAGE/${test_num}.source=${data_source}/met_* .
+		
+				#	Manufacture the namelist.  A template is in the data dir, just edit the 
+				#	number of metgrid levels.
+		
+				cp $datadir/$test_num/namelist.input namelist.input.template
+				set NUM_METGRID_LEVELS = `ncdump -h met_em.d02.* | grep -i num_metgrid_levels | grep = | awk '{print $3}'`
+				m4 -DNUM_METGRID_LEVELS=${NUM_METGRID_LEVELS} namelist.input.template >! namelist.input
+		
+				#	The real portion.
+		
+				echo "           real.exe share=${share} metgrid=${metgrid} source=$data_source"
+				echo "              start: " `date`
+				real.exe >&! real.print.share=${share}.metgrid=${metgrid}.source=$data_source
+				grep -i success real.print.share=${share}.metgrid=${metgrid}.source=$data_source >& /dev/null
+				set ok = $status
+				if ( $ok != 0 ) then
+					echo " "
+					echo " "
+					echo "Failed to run real.exe"
+					echo " "
+					echo " "
+					exit ( 8 ) 
+				endif
+				echo "              end:   " `date`
+		
+				#	The wrf portion.
+		
+				echo "           wrf.exe share=${share} metgrid=${metgrid} source=$data_source"
+				echo "              start: " `date`
+				wrf.exe >&! wrf.print.share=${share}.metgrid=${metgrid}.source=$data_source
+				grep -i success wrf.print.share=${share}.metgrid=${metgrid}.source=$data_source >& /dev/null
+				set ok = $status
+				if ( $ok != 0 ) then
+					echo " "
+					echo " "
+					echo "Failed to run wrf.exe"
+					echo " "
+					echo " "
+					exit ( 9 ) 
+				endif
+				echo "              end:   " `date`
+	
+				#	Save the model IC, BC and forecast data.
+	
+				if ( ! -d TEMPORARY_STORAGE ) then
+					mkdir TEMPORARY_STORAGE
+				endif
+				if ( -d TEMPORARY_STORAGE/${test_num}.source=${data_source} ) then
+					rm -rf TEMPORARY_STORAGE/${test_num}.source=${data_source}
+				endif
+				mkdir TEMPORARY_STORAGE/${test_num}.source=${data_source}
+				mv wrfi* wrfb* wrfo* namelist.input TEMPORARY_STORAGE/${test_num}.source=${data_source}
+				rm met_*
+	
+			#	Get back out to the WPS dir.
+	
+			popd >& /dev/null
 
-		#	Get back out to the WPS dir.
+		endif
+
+#######
+
+		pushd ../WRFV2/test/em_real >& /dev/null
+		
+		#	Handle the plots with RIP.
+		
+		echo "           ripdp_wrf and rip share=${share} metgrid=${metgrid} source=$data_source"
+		echo "              start: " `date`
+		if ( ! -d RIP ) then
+			mkdir RIP
+		endif
+		rm -rf RIP/${test_num}_${data_source}* >& /dev/null
+		ripdp_wrf RIP/${test_num}_${data_source} \
+		          all \
+		          TEMPORARY_STORAGE/${test_num}.source=${data_source}/wrfo* >&! \
+		          ripdp_wrf.print.share=${share}.metgrid=${metgrid}.source=$data_source
+		grep -i vladimir ripdp_wrf.print.share=${share}.metgrid=${metgrid}.source=$data_source >& /dev/null
+		set ok = $status
+		if ( $ok != 0 ) then
+			echo " "
+			echo " "
+			echo "Failed to run ripdp_wrf"
+			echo " "
+			echo " "
+			exit ( 10 ) 
+		endif
+
+		#	... and RIP.
+
+		cp ${datadir}/${test_num}/rip_test.in test.in
+		rip RIP/${test_num}_${data_source} test.in >&! \
+		          rip.print.share=${share}.metgrid=${metgrid}.source=$data_source
+		grep -i vladimir rip.print.share=${share}.metgrid=${metgrid}.source=$data_source >& /dev/null
+		set ok = $status
+		if ( $ok != 0 ) then
+			echo " "
+			echo " "
+			echo "Failed to run rip"
+			echo " "
+			echo " "
+			exit ( 11 ) 
+		endif
+
+		#	Split plots into CGM pieces.
+
+		if ( -e med.info ) then
+			rm med.info
+		endif
+		touch med.info
+
+		set NUM_FRAMES = 12
+		set count = 0
+
+		echo "read test.cgm" >> med.info
+		while ( $count < $NUM_FRAMES ) 
+			@ count ++
+			if ( $count < 10 ) then
+				set index = 0$count
+			else
+				set index =  $count
+			endif
+			echo "${index} , ${index} w plot${index}.cgm" >> med.info
+		end
+		echo "quit" >> med.info
+
+		#	Run med to split frames.
+
+		med -f med.info >& /dev/null
+
+		#	Convert to a more traditional form, we like gif right now.
+
+		set count = 0
+		while ( $count < $NUM_FRAMES ) 
+			@ count ++
+			if ( $count < 10 ) then
+				set index = 0$count
+			else
+				set index =  $count
+			endif
+			ctrans -d sun plot${index}.cgm > plot${index}.ras
+			convert plot${index}.ras ${test_num}_${data_source}_${index}.gif
+		end
+
+		mv test.cgm plot*.cgm plot*.ras *.gif \
+		TEMPORARY_STORAGE/${test_num}.source=${data_source}
+		rm med.info
 
 		popd >& /dev/null
+#########
+
+		skipped_namelist_as_a_directory:
 
 	end
 
 	#	Save the static data for this location.
 
-	if ( -d TEMPORARY_STORAGE/${test_num}.location ) then
-		rm -rf TEMPORARY_STORAGE/${test_num}.location
+	if ( $PLOTS_ONLY == FALSE ) then
+		if ( -d TEMPORARY_STORAGE/${test_num}.location ) then
+			rm -rf TEMPORARY_STORAGE/${test_num}.location
+		endif
+		mkdir TEMPORARY_STORAGE/${test_num}.location
+		mv geo_* TEMPORARY_STORAGE/${test_num}.location
 	endif
-	mkdir TEMPORARY_STORAGE/${test_num}.location
-	mv geo_* TEMPORARY_STORAGE/${test_num}.location
 end
 echo "     end:   " `date`
 popd >& /dev/null
