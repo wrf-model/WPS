@@ -106,7 +106,14 @@ module process_domain_module
    
          call geth_newdate(valid_date, trim(start_date(n)), t*interval_seconds)
          temp_date = ' '
-         write(temp_date,'(a19)') valid_date(1:10)//'_'//valid_date(12:19)
+
+         if (mod(interval_seconds,3600) == 0) then
+            write(temp_date,'(a13)') valid_date(1:10)//'_'//valid_date(12:13)
+         else if (mod(interval_seconds,60) == 0) then
+            write(temp_date,'(a16)') valid_date(1:10)//'_'//valid_date(12:16)
+         else
+            write(temp_date,'(a19)') valid_date(1:10)//'_'//valid_date(12:19)
+         end if
    
          call mprintf(.true.,STDOUT, ' Processing %s', s1=trim(temp_date))
          call mprintf(.true.,LOGFILE, 'Preparing to process output time %s', s1=temp_date)
@@ -555,6 +562,7 @@ integer, parameter :: BDR_WIDTH = 3
       logical, pointer, dimension(:) :: got_this_field
       character (len=3) :: memorder
       character (len=9) :: short_fieldnm
+      character (len=19) :: output_date
       character (len=24) :: hdate
       character (len=25) :: units
       character (len=32) :: map_src
@@ -583,12 +591,12 @@ integer, parameter :: BDR_WIDTH = 3
 
          ! Do a first pass through this fg source to get all mask fields used
          !   during interpolation
-         call get_interp_masks(trim(input_name), do_const_processing, temp_date(1:13))
+         call get_interp_masks(trim(input_name), do_const_processing, temp_date)
    
          istatus = 0
 
          ! Initialize the module for reading in the met fields
-         call read_met_init(trim(input_name), do_const_processing, temp_date(1:13), istatus)
+         call read_met_init(trim(input_name), do_const_processing, temp_date, istatus)
 
          if (istatus == 0) then
    
@@ -925,7 +933,7 @@ integer, parameter :: BDR_WIDTH = 3
             if (do_const_processing) then
                call mprintf(.true.,WARN,'Couldn''t open file %s for input.',s1=input_name)
             else
-               call mprintf(.true.,WARN,'Couldn''t open file %s for input.',s1=trim(input_name)//':'//temp_date(1:13))
+               call mprintf(.true.,WARN,'Couldn''t open file %s for input.',s1=trim(input_name)//':'//trim(temp_date))
             end if
          end if
    
@@ -1011,7 +1019,13 @@ integer, parameter :: BDR_WIDTH = 3
    
       ! Initialize the output module for this domain and time
       call mprintf(.true.,LOGFILE,'Initializing output module.')
-      call output_init(n, title, temp_date, gridtype, dyn_opt, &
+      output_date = temp_date
+      if (len_trim(temp_date) == 13) then
+         output_date(14:19) = ':00:00' 
+      else if (len_trim(temp_date) == 16) then
+         output_date(17:19) = ':00' 
+      end if
+      call output_init(n, title, output_date, gridtype, dyn_opt, &
                        corner_lats, corner_lons, &
                        we_domain_s, we_domain_e, sn_domain_s, sn_domain_e, &
                        we_patch_s,  we_patch_e,  sn_patch_s,  sn_patch_e, &
@@ -1022,7 +1036,7 @@ integer, parameter :: BDR_WIDTH = 3
    
       ! First write out global attributes
       call mprintf(.true.,LOGFILE,'Writing global attributes to output.')
-      call write_global_attrs(title, temp_date, gridtype, dyn_opt, west_east_dim, &
+      call write_global_attrs(title, output_date, gridtype, dyn_opt, west_east_dim, &
                               south_north_dim, bottom_top_dim, &
                               we_patch_s, we_patch_e, we_patch_stag_s, we_patch_stag_e, &
                               sn_patch_s, sn_patch_e, sn_patch_stag_s, sn_patch_stag_e, &
@@ -1043,7 +1057,7 @@ integer, parameter :: BDR_WIDTH = 3
 
             call mprintf(.true.,LOGFILE,'Writing field %s to output.',s1=cname)
             call write_field(sm1, em1, sm2, em2, sm3, em3, &
-                             cname, temp_date, real_array)
+                             cname, output_date, real_array)
             deallocate(real_array)
 
          end if

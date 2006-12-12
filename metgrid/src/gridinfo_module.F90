@@ -34,14 +34,15 @@ module gridinfo_module
   
       ! Local variables
       integer :: i, io_form_geogrid, io_form_metgrid
-      integer, dimension(MAX_DOMAINS) :: start_year, start_month, start_day, start_hour, &
-                                         end_year, end_month, end_day, end_hour 
+      integer, dimension(MAX_DOMAINS) :: start_year, start_month, start_day, start_hour, start_minute, start_second, &
+                                         end_year, end_month, end_day, end_hour, end_minute, end_second
       integer :: funit
       logical :: is_used
       character (len=3) :: wrf_core
       namelist /share/ wrf_core, max_dom, start_date, end_date, &
                         start_year, end_year, start_month, end_month, &
                         start_day, end_day, start_hour, end_hour, &
+                        start_minute, end_minute, start_second, end_second, &
                         interval_seconds, &
                         io_form_geogrid, opt_output_from_geogrid_path, debug_level
       namelist /metgrid/ io_form_metgrid, fg_name, constants_name, opt_output_from_metgrid_path, &
@@ -60,10 +61,14 @@ module gridinfo_module
          start_month(i) = 0
          start_day(i) = 0
          start_hour(i) = 0
+         start_minute(i) = 0
+         start_second(i) = 0
          end_year(i) = 0
          end_month(i) = 0
          end_day(i) = 0
          end_hour(i) = 0
+         end_minute(i) = 0
+         end_second(i) = 0
          start_date(i) = '0000-00-00_00:00:00'
          end_date(i) = '0000-00-00_00:00:00'
       end do
@@ -110,6 +115,14 @@ module gridinfo_module
       do i=2,max_dom
          call mprintf(.true.,DEBUG,'                   = %i',i1=start_hour(i))
       end do
+      call mprintf(.true.,DEBUG,'  START_MINUTE     = %i',i1=start_minute(1))
+      do i=2,max_dom
+         call mprintf(.true.,DEBUG,'                   = %i',i1=start_minute(i))
+      end do
+      call mprintf(.true.,DEBUG,'  START_SECOND     = %i',i1=start_second(1))
+      do i=2,max_dom
+         call mprintf(.true.,DEBUG,'                   = %i',i1=start_second(i))
+      end do
       call mprintf(.true.,DEBUG,'  END_YEAR         = %i',i1=end_year(1))
       do i=2,max_dom
          call mprintf(.true.,DEBUG,'                   = %i',i1=end_year(i))
@@ -125,6 +138,14 @@ module gridinfo_module
       call mprintf(.true.,DEBUG,'  END_HOUR         = %i',i1=end_hour(1))
       do i=2,max_dom
          call mprintf(.true.,DEBUG,'                   = %i',i1=end_hour(i))
+      end do
+      call mprintf(.true.,DEBUG,'  END_MINUTE       = %i',i1=end_minute(1))
+      do i=2,max_dom
+         call mprintf(.true.,DEBUG,'                   = %i',i1=end_minute(i))
+      end do
+      call mprintf(.true.,DEBUG,'  END_SECOND       = %i',i1=end_second(1))
+      do i=2,max_dom
+         call mprintf(.true.,DEBUG,'                   = %i',i1=end_second(i))
       end do
       call mprintf(.true.,DEBUG,'  START_DATE       = %s',s1=start_date(1))
       do i=2,max_dom
@@ -267,12 +288,12 @@ module gridinfo_module
       if (start_date(1) == '0000-00-00_00:00:00') then
          do i=1,max_dom
             ! Build starting date string
-            write(start_date(i), '(i4.4,a1,i2.2,a1,i2.2,a1,i2.2,a6)') &
-               start_year(i),'-',start_month(i),'-',start_day(i),' ',start_hour(i),':00:00'
+            write(start_date(i), '(i4.4,a1,i2.2,a1,i2.2,a1,i2.2,a1,i2.2,a1,i2.2)') &
+               start_year(i),'-',start_month(i),'-',start_day(i),'_',start_hour(i),':',start_minute(i),':',start_second(i)
      
             ! Build ending date string
-            write(end_date(i), '(i4.4,a1,i2.2,a1,i2.2,a1,i2.2,a6)') &
-               end_year(i),'-',end_month(i),'-',end_day(i),' ',end_hour(i),':00:00'
+            write(end_date(i), '(i4.4,a1,i2.2,a1,i2.2,a1,i2.2,a1,i2.2,a1,i2.2)') &
+               end_year(i),'-',end_month(i),'-',end_day(i),'_',end_hour(i),':',end_minute(i),':',end_second(i)
          end do
       end if
   
