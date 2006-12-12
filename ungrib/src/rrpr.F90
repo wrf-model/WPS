@@ -525,7 +525,7 @@ subroutine compute_t_vptmp(ix, jx, plvl)
   ELSE
     p = plvl
   ENDIF
-  call get_storage(nint(plvl), 'SPECHUMD',   Q, ix, jx)
+  call get_storage(nint(plvl), 'QV',   Q, ix, jx)
 
    t=vptmp * (p*1.e-5)**rovcp * (1./(1.+0.6078*Q))  
 
