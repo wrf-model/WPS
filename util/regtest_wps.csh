@@ -13,9 +13,10 @@ if ( ( ! -d WPS ) || ( ! -d WRFV2 ) ) then
 	exit ( 1 ) 
 endif
 
+set NUM_FRAMES = 12
 set TOP_DIR = `pwd`
-set PLOTS_ONLY = TRUE
 set PLOTS_ONLY = FALSE
+set PLOTS_ONLY = TRUE
 
 #	WRFV2 build
 
@@ -372,7 +373,6 @@ foreach test_num ( $all_tests )
 		endif
 		touch med.info
 
-		set NUM_FRAMES = 12
 		set count = 0
 
 		echo "read test.cgm" >> med.info
@@ -409,9 +409,34 @@ foreach test_num ( $all_tests )
 		TEMPORARY_STORAGE/${test_num}.source=${data_source}
 		rm med.info
 
-		popd >& /dev/null
-#########
+		#	Build singleton web pages for each image
 
+		set count = 0
+		while ( $count < $NUM_FRAMES ) 
+			@ count ++
+			if ( $count < 10 ) then
+				set index = 0$count
+			else
+				set index =  $count
+			endif
+			cat >&! TEMPORARY_STORAGE/${test_num}.source=${data_source}/plot_${index}.html << EOF
+<HTML>
+<BODY>
+<img src="${test_num}_${data_source}_${index}.gif">
+</BODY>
+</HTML>
+EOF
+		end
+
+		popd >& /dev/null
+
+		#	Put the pre-built web page on top of the WRF fcst plots.
+
+		if ( ! -e WRFV2/test/em_real/TEMPORARY_STORAGE/wps_reg.html ) then
+			cp WPS/util/wps_reg.html WRFV2/test/em_real/TEMPORARY_STORAGE
+		endif
+
+#########
 		skipped_namelist_as_a_directory:
 
 	end
