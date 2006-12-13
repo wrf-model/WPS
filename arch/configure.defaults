@@ -465,12 +465,12 @@ SFC		=	f90
 FFLAGS		=	-freeform -64
 F77FLAGS	=	-64
 FNGFLAGS	=	$(FFLAGS)
-LDFLAGS		=	
+LDFLAGS		=	-64
 CC		=	cc
 SCC		=	cc
 CFLAGS		=	-64
 CPP		=	/lib/cpp -C -P
-CPPFLAGS	=	-DSGI -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -DBIT32
+CPPFLAGS	=	-D_UNDERSCORE -DSGI -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -DBIT32
 
 ###########################################################
 #ARCH	SGI 64 bit IRIX64	serial
@@ -486,12 +486,12 @@ SFC		=	f90
 FFLAGS		=	-freeform -64
 F77FLAGS	=	-64
 FNGFLAGS	=	$(FFLAGS)
-LDFLAGS		=	
+LDFLAGS		=	-64
 CC		=	cc
 SCC		=	cc
 CFLAGS		=	-64
 CPP		=	/lib/cpp -C -P
-CPPFLAGS	=	-DSGI -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -DBIT32
+CPPFLAGS	=	-D_UNDERSCORE -DSGI -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -DBIT32
 
 ###########################################################
 #ARCH	SGI Altix 4700 Linux ia64, Intel compiler     DM parallel

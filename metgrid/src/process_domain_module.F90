@@ -764,7 +764,8 @@ integer, parameter :: BDR_WIDTH = 3
    
                      call interp_met_field(input_name, short_fieldnm, U, &
                                   field, xlat_u, xlon_u, we_mem_stag_s, we_mem_stag_e, sn_mem_s, sn_mem_e, &
-                                  halo_slab, 1-bdr_wdth, nx+bdr_wdth, 1, ny, bdr_wdth, do_gcell_interp, field%modified_mask)
+                                  halo_slab, 1-bdr_wdth, nx+bdr_wdth, 1, ny, bdr_wdth, do_gcell_interp, &
+                                  field%modified_mask)
    
                   ! Interpolate to V staggering
                   else if (output_stagger(idx) == V) then
@@ -791,7 +792,8 @@ integer, parameter :: BDR_WIDTH = 3
    
                      call interp_met_field(input_name, short_fieldnm, V, &
                                   field, xlat_v, xlon_v, we_mem_s, we_mem_e, sn_mem_stag_s, sn_mem_stag_e, &
-                                  halo_slab, 1-bdr_wdth, nx+bdr_wdth, 1, ny, bdr_wdth, do_gcell_interp, field%modified_mask)
+                                  halo_slab, 1-bdr_wdth, nx+bdr_wdth, 1, ny, bdr_wdth, do_gcell_interp, &
+                                  field%modified_mask)
              
                   ! Interpolate to VV staggering
                   else if (output_stagger(idx) == VV) then
@@ -821,7 +823,8 @@ integer, parameter :: BDR_WIDTH = 3
    
                      call interp_met_field(input_name, short_fieldnm, VV, &
                                   field, xlat_v, xlon_v, we_mem_s, we_mem_e, sn_mem_s, sn_mem_e, &
-                                  halo_slab, 1-bdr_wdth, nx+bdr_wdth, 1, ny, bdr_wdth, do_gcell_interp, field%modified_mask)
+                                  halo_slab, 1-bdr_wdth, nx+bdr_wdth, 1, ny, bdr_wdth, do_gcell_interp, &
+                                  field%modified_mask)
    
                   ! All other fields interpolated to M staggering for C grid, H staggering for E grid
                   else
@@ -846,12 +849,14 @@ integer, parameter :: BDR_WIDTH = 3
                      if (gridtype == 'C') then
                         call interp_met_field(input_name, short_fieldnm, M, &
                                      field, xlat, xlon, we_mem_s, we_mem_e, sn_mem_s, sn_mem_e, &
-                                     halo_slab, 1-bdr_wdth, nx+bdr_wdth, 1, ny, bdr_wdth, do_gcell_interp, field%modified_mask, landmask)
+                                     halo_slab, 1-bdr_wdth, nx+bdr_wdth, 1, ny, bdr_wdth, do_gcell_interp, &
+                                     field%modified_mask, landmask)
    
                      else if (gridtype == 'E') then
                         call interp_met_field(input_name, short_fieldnm, HH, &
                                      field, xlat, xlon, we_mem_s, we_mem_e, sn_mem_s, sn_mem_e, &
-                                     halo_slab, 1-bdr_wdth, nx+bdr_wdth, 1, ny, bdr_wdth, do_gcell_interp, field%modified_mask, landmask)
+                                     halo_slab, 1-bdr_wdth, nx+bdr_wdth, 1, ny, bdr_wdth, do_gcell_interp, &
+                                     field%modified_mask, landmask)
                      end if
    
                   end if
@@ -1360,11 +1365,12 @@ integer, parameter :: BDR_WIDTH = 3
                      else
 
                         if (interp_mask_status == 0) then
-                           temp = interp_to_latlon(xlat(i,j), xlon(i,j), istagger, interp_array, slab, minx, maxx, miny, maxy, bdr, &
-                                                   missing_value(idx), mask_val=interp_mask_val(idx), mask_field=mask_field%r_arr)
+                           temp = interp_to_latlon(xlat(i,j), xlon(i,j), istagger, interp_array, slab, &
+                                                   minx, maxx, miny, maxy, bdr, missing_value(idx), &
+                                                   mask_val=interp_mask_val(idx), mask_field=mask_field%r_arr)
                         else
-                           temp = interp_to_latlon(xlat(i,j), xlon(i,j), istagger, interp_array, slab, minx, maxx, miny, maxy, bdr, &
-                                                   missing_value(idx))
+                           temp = interp_to_latlon(xlat(i,j), xlon(i,j), istagger, interp_array, slab, &
+                                                   minx, maxx, miny, maxy, bdr, missing_value(idx))
                         end if
    
                         if (temp /= missing_value(idx)) then
@@ -1389,11 +1395,12 @@ integer, parameter :: BDR_WIDTH = 3
                   else
 
                      if (interp_mask_status == 0) then
-                        temp = interp_to_latlon(xlat(i,j), xlon(i,j), istagger, interp_array, slab, minx, maxx, miny, maxy, bdr, &
-                                                missing_value(idx), mask_val=interp_mask_val(idx), mask_field=mask_field%r_arr)
+                        temp = interp_to_latlon(xlat(i,j), xlon(i,j), istagger, interp_array, slab, &
+                                                minx, maxx, miny, maxy, bdr, missing_value(idx), &
+                                                mask_val=interp_mask_val(idx), mask_field=mask_field%r_arr)
                      else
-                        temp = interp_to_latlon(xlat(i,j), xlon(i,j), istagger, interp_array, slab, minx, maxx, miny, maxy, bdr, &
-                                                missing_value(idx))
+                        temp = interp_to_latlon(xlat(i,j), xlon(i,j), istagger, interp_array, slab, &
+                                                minx, maxx, miny, maxy, bdr, missing_value(idx))
                      end if
 
                      if (temp /= missing_value(idx)) then
@@ -1431,21 +1438,24 @@ integer, parameter :: BDR_WIDTH = 3
                      if (landmask(i,j) == 0) then  ! WATER POINT
 
                         if (interp_land_mask_status == 0) then
-                           temp = interp_to_latlon(xlat(i,j), xlon(i,j), istagger, interp_array, slab, minx, maxx, miny, maxy, bdr, &
-                                                   missing_value(idx), mask_val=interp_land_mask_val(idx), mask_field=mask_land_field%r_arr)
+                           temp = interp_to_latlon(xlat(i,j), xlon(i,j), istagger, interp_array, slab, &
+                                                   minx, maxx, miny, maxy, bdr, missing_value(idx), &
+                                                   mask_val=interp_land_mask_val(idx), mask_field=mask_land_field%r_arr)
                         else
-                           temp = interp_to_latlon(xlat(i,j), xlon(i,j), istagger, interp_array, slab, minx, maxx, miny, maxy, bdr, &
-                                                   missing_value(idx))
+                           temp = interp_to_latlon(xlat(i,j), xlon(i,j), istagger, interp_array, slab, &
+                                                   minx, maxx, miny, maxy, bdr, missing_value(idx))
                         end if
    
                      else if (landmask(i,j) == 1) then  ! LAND POINT
 
                         if (interp_water_mask_status == 0) then
-                           temp = interp_to_latlon(xlat(i,j), xlon(i,j), istagger, interp_array, slab, minx, maxx, miny, maxy, bdr, &
-                                                   missing_value(idx), mask_val=interp_water_mask_val(idx), mask_field=mask_water_field%r_arr)
+                           temp = interp_to_latlon(xlat(i,j), xlon(i,j), istagger, interp_array, slab, &
+                                                   minx, maxx, miny, maxy, bdr, missing_value(idx), &
+                                                   mask_val=interp_water_mask_val(idx), &
+                                                   mask_field=mask_water_field%r_arr)
                         else
-                           temp = interp_to_latlon(xlat(i,j), xlon(i,j), istagger, interp_array, slab, minx, maxx, miny, maxy, bdr, &
-                                                   missing_value(idx))
+                           temp = interp_to_latlon(xlat(i,j), xlon(i,j), istagger, interp_array, slab, &
+                                                   minx, maxx, miny, maxy, bdr, missing_value(idx))
                         end if
    
                      end if
@@ -1453,11 +1463,12 @@ integer, parameter :: BDR_WIDTH = 3
                   else if (landmask(i,j) /= masked(idx)) then
 
                      if (interp_mask_status == 0) then
-                        temp = interp_to_latlon(xlat(i,j), xlon(i,j), istagger, interp_array, slab, minx, maxx, miny, maxy, bdr, &
-                                                missing_value(idx), mask_val=interp_mask_val(idx), mask_field=mask_field%r_arr)
+                        temp = interp_to_latlon(xlat(i,j), xlon(i,j), istagger, interp_array, slab, &
+                                                minx, maxx, miny, maxy, bdr,  missing_value(idx), &
+                                                mask_val=interp_mask_val(idx), mask_field=mask_field%r_arr)
                      else
-                        temp = interp_to_latlon(xlat(i,j), xlon(i,j), istagger, interp_array, slab, minx, maxx, miny, maxy, bdr, &
-                                                missing_value(idx))
+                        temp = interp_to_latlon(xlat(i,j), xlon(i,j), istagger, interp_array, slab, &
+                                                minx, maxx, miny, maxy, bdr, missing_value(idx))
                      end if
 
                   else
@@ -1467,11 +1478,12 @@ integer, parameter :: BDR_WIDTH = 3
                else
 
                   if (interp_mask_status == 0) then
-                     temp = interp_to_latlon(xlat(i,j), xlon(i,j), istagger, interp_array, slab, minx, maxx, miny, maxy, bdr, &
-                                             missing_value(idx), mask_val=interp_mask_val(idx), mask_field=mask_field%r_arr)
+                     temp = interp_to_latlon(xlat(i,j), xlon(i,j), istagger, interp_array, slab, &
+                                             minx, maxx, miny, maxy, bdr, missing_value(idx), &
+                                             mask_val=interp_mask_val(idx), mask_field=mask_field%r_arr)
                   else
-                     temp = interp_to_latlon(xlat(i,j), xlon(i,j), istagger, interp_array, slab, minx, maxx, miny, maxy, bdr, &
-                                             missing_value(idx))
+                     temp = interp_to_latlon(xlat(i,j), xlon(i,j), istagger, interp_array, slab, &
+                                             minx, maxx, miny, maxy, bdr, missing_value(idx))
                   end if
 
                end if
@@ -1501,7 +1513,9 @@ integer, parameter :: BDR_WIDTH = 3
    ! 
    ! Purpose:
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-   function interp_to_latlon(rlat, rlon, istagger, interp_method_list, slab, minx, maxx, miny, maxy, bdr, source_missing_value, mask_field, mask_val)
+   function interp_to_latlon(rlat, rlon, istagger, interp_method_list, slab, &
+                             minx, maxx, miny, maxy, bdr, source_missing_value, &
+                             mask_field, mask_val)
 
       use interp_module
       use llxy_module
@@ -1995,7 +2009,8 @@ integer, parameter :: BDR_WIDTH = 3
                else if (trim(keys(i)%cvalue) == 'vertical_index') then
                   if (present(all_level_list)) then
                      do j=1,size(all_level_list)
-                        call create_level(field, real(all_level_list(j)), idx, output_flags, rfillconst=real(all_level_list(j)))
+                        call create_level(field, real(all_level_list(j)), idx, output_flags, &
+                                          rfillconst=real(all_level_list(j)))
                      end do
                   else
                      query_field%header%field = level_template(idx)
