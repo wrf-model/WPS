@@ -763,7 +763,7 @@ integer, parameter :: BDR_WIDTH = 3
                      call bitarray_create(field%modified_mask, we_mem_stag_e-we_mem_stag_s+1, sn_mem_e-sn_mem_s+1)
    
                      if (do_const_processing .or. field%header%time_dependent) then
-                        call interp_met_field(input_name, short_fieldnm, U, &
+                        call interp_met_field(input_name, short_fieldnm, U, M, &
                                      field, xlat_u, xlon_u, we_mem_stag_s, we_mem_stag_e, sn_mem_s, sn_mem_e, &
                                      halo_slab, 1-bdr_wdth, nx+bdr_wdth, 1, ny, bdr_wdth, do_gcell_interp, &
                                      field%modified_mask)
@@ -795,7 +795,7 @@ integer, parameter :: BDR_WIDTH = 3
                      call bitarray_create(field%modified_mask, we_mem_e-we_mem_s+1, sn_mem_stag_e-sn_mem_stag_s+1)
    
                      if (do_const_processing .or. field%header%time_dependent) then
-                        call interp_met_field(input_name, short_fieldnm, V, &
+                        call interp_met_field(input_name, short_fieldnm, V, M, &
                                      field, xlat_v, xlon_v, we_mem_s, we_mem_e, sn_mem_stag_s, sn_mem_stag_e, &
                                      halo_slab, 1-bdr_wdth, nx+bdr_wdth, 1, ny, bdr_wdth, do_gcell_interp, &
                                      field%modified_mask)
@@ -830,7 +830,7 @@ integer, parameter :: BDR_WIDTH = 3
                      call bitarray_create(field%modified_mask, we_mem_e-we_mem_s+1, sn_mem_e-sn_mem_s+1)
    
                      if (do_const_processing .or. field%header%time_dependent) then
-                        call interp_met_field(input_name, short_fieldnm, VV, &
+                        call interp_met_field(input_name, short_fieldnm, VV, M, &
                                      field, xlat_v, xlon_v, we_mem_s, we_mem_e, sn_mem_s, sn_mem_e, &
                                      halo_slab, 1-bdr_wdth, nx+bdr_wdth, 1, ny, bdr_wdth, do_gcell_interp, &
                                      field%modified_mask)
@@ -860,13 +860,13 @@ integer, parameter :: BDR_WIDTH = 3
    
                      if (do_const_processing .or. field%header%time_dependent) then
                         if (gridtype == 'C') then
-                           call interp_met_field(input_name, short_fieldnm, M, &
+                           call interp_met_field(input_name, short_fieldnm, M, M, &
                                         field, xlat, xlon, we_mem_s, we_mem_e, sn_mem_s, sn_mem_e, &
                                         halo_slab, 1-bdr_wdth, nx+bdr_wdth, 1, ny, bdr_wdth, do_gcell_interp, &
                                         field%modified_mask, landmask)
       
                         else if (gridtype == 'E') then
-                           call interp_met_field(input_name, short_fieldnm, HH, &
+                           call interp_met_field(input_name, short_fieldnm, HH, M, &
                                         field, xlat, xlon, we_mem_s, we_mem_e, sn_mem_s, sn_mem_e, &
                                         halo_slab, 1-bdr_wdth, nx+bdr_wdth, 1, ny, bdr_wdth, do_gcell_interp, &
                                         field%modified_mask, landmask)
@@ -1244,7 +1244,7 @@ integer, parameter :: BDR_WIDTH = 3
    !
    ! Purpose:
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-   subroutine interp_met_field(input_name, short_fieldnm, istagger, &
+   subroutine interp_met_field(input_name, short_fieldnm, ifieldstagger, istagger, &
                                field, xlat, xlon, sm1, em1, sm2, em2, &
                                slab, minx, maxx, miny, maxy, bdr, do_gcell_interp, &
                                new_pts, landmask)
@@ -1259,7 +1259,9 @@ integer, parameter :: BDR_WIDTH = 3
       implicit none 
 
       ! Arguments
-      integer, intent(in) :: istagger, sm1, em1, sm2, em2, minx, maxx, miny, maxy, bdr
+      integer, intent(in) :: ifieldstagger, istagger, &
+                             sm1, em1, sm2, em2, &
+                             minx, maxx, miny, maxy, bdr
       real, dimension(minx:maxx,miny:maxy) :: slab
       real, dimension(sm1:em1,sm2:em2) :: xlat, xlon
       real, dimension(sm1:em1,sm2:em2), optional :: landmask
@@ -1300,7 +1302,7 @@ integer, parameter :: BDR_WIDTH = 3
       field%header%dim1(2) = em1
       field%header%dim2(1) = sm2
       field%header%dim2(2) = em2
-      field%map%stagger = istagger
+      field%map%stagger = ifieldstagger
       if (.not. associated(field%r_arr)) then
          allocate(field%r_arr(sm1:em1,sm2:em2))
       end if
