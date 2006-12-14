@@ -762,10 +762,14 @@ integer, parameter :: BDR_WIDTH = 3
                      allocate(field%modified_mask)
                      call bitarray_create(field%modified_mask, we_mem_stag_e-we_mem_stag_s+1, sn_mem_e-sn_mem_s+1)
    
-                     call interp_met_field(input_name, short_fieldnm, U, &
-                                  field, xlat_u, xlon_u, we_mem_stag_s, we_mem_stag_e, sn_mem_s, sn_mem_e, &
-                                  halo_slab, 1-bdr_wdth, nx+bdr_wdth, 1, ny, bdr_wdth, do_gcell_interp, &
-                                  field%modified_mask)
+                     if (do_const_processing .or. field%header%time_dependent) then
+                        call interp_met_field(input_name, short_fieldnm, U, &
+                                     field, xlat_u, xlon_u, we_mem_stag_s, we_mem_stag_e, sn_mem_s, sn_mem_e, &
+                                     halo_slab, 1-bdr_wdth, nx+bdr_wdth, 1, ny, bdr_wdth, do_gcell_interp, &
+                                     field%modified_mask)
+                     else
+                        call mprintf(.true.,INFORM,' - already processed this field from constant file.')
+                     end if
    
                   ! Interpolate to V staggering
                   else if (output_stagger(idx) == V) then
@@ -790,10 +794,14 @@ integer, parameter :: BDR_WIDTH = 3
                      allocate(field%modified_mask)
                      call bitarray_create(field%modified_mask, we_mem_e-we_mem_s+1, sn_mem_stag_e-sn_mem_stag_s+1)
    
-                     call interp_met_field(input_name, short_fieldnm, V, &
-                                  field, xlat_v, xlon_v, we_mem_s, we_mem_e, sn_mem_stag_s, sn_mem_stag_e, &
-                                  halo_slab, 1-bdr_wdth, nx+bdr_wdth, 1, ny, bdr_wdth, do_gcell_interp, &
-                                  field%modified_mask)
+                     if (do_const_processing .or. field%header%time_dependent) then
+                        call interp_met_field(input_name, short_fieldnm, V, &
+                                     field, xlat_v, xlon_v, we_mem_s, we_mem_e, sn_mem_stag_s, sn_mem_stag_e, &
+                                     halo_slab, 1-bdr_wdth, nx+bdr_wdth, 1, ny, bdr_wdth, do_gcell_interp, &
+                                     field%modified_mask)
+                     else
+                        call mprintf(.true.,INFORM,' - already processed this field from constant file.')
+                     end if
              
                   ! Interpolate to VV staggering
                   else if (output_stagger(idx) == VV) then
@@ -821,10 +829,14 @@ integer, parameter :: BDR_WIDTH = 3
                      allocate(field%modified_mask)
                      call bitarray_create(field%modified_mask, we_mem_e-we_mem_s+1, sn_mem_e-sn_mem_s+1)
    
-                     call interp_met_field(input_name, short_fieldnm, VV, &
-                                  field, xlat_v, xlon_v, we_mem_s, we_mem_e, sn_mem_s, sn_mem_e, &
-                                  halo_slab, 1-bdr_wdth, nx+bdr_wdth, 1, ny, bdr_wdth, do_gcell_interp, &
-                                  field%modified_mask)
+                     if (do_const_processing .or. field%header%time_dependent) then
+                        call interp_met_field(input_name, short_fieldnm, VV, &
+                                     field, xlat_v, xlon_v, we_mem_s, we_mem_e, sn_mem_s, sn_mem_e, &
+                                     halo_slab, 1-bdr_wdth, nx+bdr_wdth, 1, ny, bdr_wdth, do_gcell_interp, &
+                                     field%modified_mask)
+                     else
+                        call mprintf(.true.,INFORM,' - already processed this field from constant file.')
+                     end if
    
                   ! All other fields interpolated to M staggering for C grid, H staggering for E grid
                   else
@@ -846,17 +858,21 @@ integer, parameter :: BDR_WIDTH = 3
                      allocate(field%modified_mask)
                      call bitarray_create(field%modified_mask, we_mem_e-we_mem_s+1, sn_mem_e-sn_mem_s+1)
    
-                     if (gridtype == 'C') then
-                        call interp_met_field(input_name, short_fieldnm, M, &
-                                     field, xlat, xlon, we_mem_s, we_mem_e, sn_mem_s, sn_mem_e, &
-                                     halo_slab, 1-bdr_wdth, nx+bdr_wdth, 1, ny, bdr_wdth, do_gcell_interp, &
-                                     field%modified_mask, landmask)
-   
-                     else if (gridtype == 'E') then
-                        call interp_met_field(input_name, short_fieldnm, HH, &
-                                     field, xlat, xlon, we_mem_s, we_mem_e, sn_mem_s, sn_mem_e, &
-                                     halo_slab, 1-bdr_wdth, nx+bdr_wdth, 1, ny, bdr_wdth, do_gcell_interp, &
-                                     field%modified_mask, landmask)
+                     if (do_const_processing .or. field%header%time_dependent) then
+                        if (gridtype == 'C') then
+                           call interp_met_field(input_name, short_fieldnm, M, &
+                                        field, xlat, xlon, we_mem_s, we_mem_e, sn_mem_s, sn_mem_e, &
+                                        halo_slab, 1-bdr_wdth, nx+bdr_wdth, 1, ny, bdr_wdth, do_gcell_interp, &
+                                        field%modified_mask, landmask)
+      
+                        else if (gridtype == 'E') then
+                           call interp_met_field(input_name, short_fieldnm, HH, &
+                                        field, xlat, xlon, we_mem_s, we_mem_e, sn_mem_s, sn_mem_e, &
+                                        halo_slab, 1-bdr_wdth, nx+bdr_wdth, 1, ny, bdr_wdth, do_gcell_interp, &
+                                        field%modified_mask, landmask)
+                        end if
+                     else
+                        call mprintf(.true.,INFORM,' - already processed this field from constant file.')
                      end if
    
                   end if
