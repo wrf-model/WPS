@@ -15,8 +15,8 @@ endif
 
 set NUM_FRAMES = 12
 set TOP_DIR = `pwd`
-set PLOTS_ONLY = FALSE
 set PLOTS_ONLY = TRUE
+set PLOTS_ONLY = FALSE
 
 #	WRFV2 build
 
@@ -432,9 +432,10 @@ EOF
 
 		#	Put the pre-built web page on top of the WRF fcst plots.
 
-		if ( ! -e WRFV2/test/em_real/TEMPORARY_STORAGE/wps_reg.html ) then
-			cp WPS/util/wps_reg.html WRFV2/test/em_real/TEMPORARY_STORAGE
+		if ( ! -e ../WRFV2/test/em_real/TEMPORARY_STORAGE/wps_reg.html ) then
+			cp util/wps_reg.html ../WRFV2/test/em_real/TEMPORARY_STORAGE
 		endif
+		echo "              end:   " `date`
 
 #########
 		skipped_namelist_as_a_directory:
