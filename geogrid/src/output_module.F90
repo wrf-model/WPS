@@ -351,6 +351,8 @@ module output_module
          dx = dxkm
          dy = dykm
          moad_cen_lat = 0.
+         cen_lat=known_lat
+         cen_lon=known_lon
       end if
   
       ! We may now write global attributes to the file
