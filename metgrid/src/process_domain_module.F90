@@ -395,22 +395,22 @@ module process_domain_module
              if (gridtype == 'C') then
                 if (trim(stagger) == 'M') then
                    field%map%stagger = M
-                   field%header%dim1(1) = we_patch_s
-                   field%header%dim1(2) = we_patch_e
-                   field%header%dim2(1) = sn_patch_s
-                   field%header%dim2(2) = sn_patch_e
+                   field%header%dim1(1) = we_mem_s
+                   field%header%dim1(2) = we_mem_e
+                   field%header%dim2(1) = sn_mem_s
+                   field%header%dim2(2) = sn_mem_e
                 else if (trim(stagger) == 'U') then
                    field%map%stagger = U
-                   field%header%dim1(1) = we_patch_stag_s
-                   field%header%dim1(2) = we_patch_stag_e
-                   field%header%dim2(1) = sn_patch_s
-                   field%header%dim2(2) = sn_patch_e
+                   field%header%dim1(1) = we_mem_stag_s
+                   field%header%dim1(2) = we_mem_stag_e
+                   field%header%dim2(1) = sn_mem_s
+                   field%header%dim2(2) = sn_mem_e
                 else if (trim(stagger) == 'V') then
                    field%map%stagger = V
-                   field%header%dim1(1) = we_patch_s
-                   field%header%dim1(2) = we_patch_e
-                   field%header%dim2(1) = sn_patch_stag_s
-                   field%header%dim2(2) = sn_patch_stag_e
+                   field%header%dim1(1) = we_mem_s
+                   field%header%dim1(2) = we_mem_e
+                   field%header%dim2(1) = sn_mem_stag_s
+                   field%header%dim2(2) = sn_mem_stag_e
                 end if
              else if (gridtype == 'E') then
                 if (trim(stagger) == 'M') then
@@ -418,10 +418,10 @@ module process_domain_module
                 else if (trim(stagger) == 'V') then
                    field%map%stagger = VV
                 end if
-                field%header%dim1(1) = we_patch_s
-                field%header%dim1(2) = we_patch_e
-                field%header%dim2(1) = sn_patch_s
-                field%header%dim2(2) = sn_patch_e
+                field%header%dim1(1) = we_mem_s
+                field%header%dim1(2) = we_mem_e
+                field%header%dim2(1) = sn_mem_s
+                field%header%dim2(2) = sn_mem_e
              end if
             
              allocate(field%valid_mask)
