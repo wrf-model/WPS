@@ -42,6 +42,7 @@
       use table          ! Included to define g2code
       use gridinfo       ! Included to define map%
       use storage_module ! Included sub put_storage
+      use module_debug
 
       real, allocatable, dimension(:) :: hold_array
       parameter(msk1=32000,msk2=4000)
@@ -89,6 +90,7 @@ C  SET ARGUMENTS
       currlen=0
       ith=1
       scale_factor = 1e6
+      call mprintf(.true.,DEBUG,"Begin rd_grib2")
 
 !/* IOS Return Codes from BACIO:  */
 !/*  0    All was well                                   */
@@ -131,23 +133,20 @@ C  SET ARGUMENTS
          ! Read a given number of bytes from unblocked file.
          call baread(junit,lskip,lgrib,lengrib,cgrib)
 
-         if (lgrib.ne.lengrib) then
-            print *,'G2 rd_grib2: IO Error.',lgrib,".ne.",lengrib
-            call errexit(9)
-         endif
+	 call mprintf ((lgrib.ne.lengrib),ERROR,
+     &    "rd_grib2: IO Error. %i .ne. %i ",i1=lgrib,i2=lengrib)
+
          iseek=lskip+lgrib
          icount=icount+1
 
-         !PRINT *
-         !PRINT *,'G2 GRIB MESSAGE ',icount,' starts at',lskip+1
+         call mprintf (.true.,DEBUG,
+     &     "G2 GRIB MESSAGE  %i starts at %i ",i1=icount,i2=lskip+1)
 
          ! Unpack GRIB2 field
          call gb_info(cgrib,lengrib,listsec0,listsec1,
      &                numfields,numlocal,maxlocal,ierr)
-         if (ierr.ne.0) then
-           write(*,*) ' ERROR querying GRIB2 message = ',ierr
-           stop 10
-         endif
+	 call mprintf((ierr.ne.0),ERROR,
+     &     " ERROR querying GRIB2 message = %i",i1=ierr)
          itot=itot+numfields
 
          grib_edition=listsec0(2)
@@ -157,7 +156,7 @@ C  SET ARGUMENTS
          
          ! Additional print statments for developer.
          if ( debug_level .GT. 100 ) then
-         print *,'G2 SECTION 0: ',(listsec0(j),j=1,3)
+	 print *,'G2 SECTION 0: ',(listsec0(j),j=1,3)
          print *,'G2 SECTION 1: ',(listsec1(j),j=1,13)
          print *,'G2 Contains ',numlocal,' Local Sections ',
      &           ' and ',numfields,' data fields.'
@@ -196,13 +195,9 @@ C  SET ARGUMENTS
            !print *, 'hhmm  ',gfld%idsect(9),gfld%idsect(10)
    
            call build_hdate(hdate,year,month,day,hour,minute,second)
-           if ( debug_level .gt. 100 ) then
-              print *, 'G2 hdate = ',hdate
-           end if
+	   call mprintf(.true.,DEBUG,"G2 hdate = %s ",s1=hdate)
            call geth_newdate(hdate,hdate,3600*fcst)
-           if ( debug_level .gt. 100 ) then
-              print *, 'G2 hdate (fcst?) = ',hdate
-           end if
+	   call mprintf(.true.,DEBUG,"G2 hdate (fcst?) = %s ",s1=hdate)
 
            !--
 
@@ -230,7 +225,10 @@ C  SET ARGUMENTS
                map%source = 'NCEP SST Analysis'
              else
                map%source = 'unknown model from NCEP'
-	       write (6,*) 'iprocess = ',iprocess
+	       call mprintf(.true.,STDOUT,
+     &            "unknown model from NCEP %i ",i1=iprocess)
+	       call mprintf(.true.,LOGFILE,
+     &            "unknown model from NCEP %i ",i1=iprocess)
              end if
 	   else if (icenter .eq. 57) then
 	     if (iprocess .eq. 87) then
@@ -352,13 +350,21 @@ C  SET ARGUMENTS
                  map%lon1 = map%lon1/scale_factor
               endif
               if ( debug_level .gt. 2 ) then
-           print *,'Gaussian Grid: Dx,Dy,lat,lon,nlats',map%dx,map%dy,
-     &       map%lat1,map%lon1,nint(map%dy)
+	      call mprintf(.true.,DEBUG,
+     &     "Gaussian Grid: Dx,Dy,lat,lon,nlats %f %f %f %f %i ",
+     &  f1=map%dx,f2=map%dy,f3=map%lat1,f4=map%lon1,i1=nint(map%dy))
               end if
 
            else
-              print*, 'GRIB2 Unknown Projection: ',gfld%igdtnum
-              print*, 'see Code Table 3.1: Grid Definition Template No'
+	      call mprintf(.true.,STDOUT,"GRIB2 Unknown Projection: %i",
+     &          i1=gfld%igdtnum)
+	      call mprintf(.true.,STDOUT,
+     &         "see Code Table 3.1: Grid Definition Template Number")
+	      call mprintf(.true.,LOGFILE,
+     &          "GRIB2 Unknown Projection: %i",
+     &          i1=gfld%igdtnum)
+	      call mprintf(.true.,LOGFILE,
+     &         "see Code Table 3.1: Grid Definition Template Number")
            endif
          
 	   if (icenter.eq.7) then
@@ -564,7 +570,8 @@ C  SET ARGUMENTS
 
 
       if ( debug_level .gt. 100 ) then
-         print *, 'G2 total number of fields found = ',itot
+	 call mprintf (.true.,DEBUG,
+     &     "G2 total number of fields found = %i ",i1=itot)
          call summary()
       end if
 
@@ -572,7 +579,8 @@ C  SET ARGUMENTS
 
        ireaderr=1
       else 
-       if (debug_level .gt. 50) print *,'open status failed because',ios
+       call mprintf (.true.,DEBUG,"open status failed because %i ",
+     &    i1=ios)
        hdate = '9999-99-99_99:99:99'
        ireaderr=2
       endif ! ireaderr check 
@@ -615,6 +623,7 @@ C  SET ARGUMENTS
 
       use grib_mod
       use params
+      use module_debug
 
       parameter(msk1=32000,msk2=4000)
       character(len=1),allocatable,dimension(:) :: cgrib
@@ -666,9 +675,8 @@ C  SET ARGUMENTS
          call skgb(junit,iseek,msk1,lskip,lgrib)
 
          ! Check for EOF, or problem
-         if (lgrib.eq.0) then
-            STOP "Grib2 file or date problem, stopping in edition_num."
-         endif
+	 call mprintf((lgrib.eq.0),ERROR,
+     &     "Grib2 file or date problem, stopping in edition_num.")
  
          ! Check size, if needed allocate more memory.
          if (lgrib.gt.currlen) then
@@ -705,8 +713,8 @@ C  SET ARGUMENTS
          CALL BACLOSE(junit,IOS)
          ireaderr=1
       else if (ios .eq. -4) then
-        print *,'edition_num: unable to open ',gribflnm
-	stop 'edition_num'
+	call mprintf(.true.,ERROR, 
+     &    "edition_num: unable to open %s",s1=gribflnm)
       else 
          print *,'edition_num: open status failed because',ios,gribflnm
          ireaderr=2
@@ -794,6 +802,7 @@ C  SET ARGUMENTS
 
       function earth_radius (icode)
 ! Grib2 Code Table 3.2. Returns the spherical earth's radius in km.
+      use module_debug
       real :: earth_radius
       integer :: icode
       if ( icode .eq. 0 ) then
@@ -801,7 +810,7 @@ C  SET ARGUMENTS
       else if ( icode .eq. 6 ) then
         earth_radius = 6371229. * .001
       else
-        write(6,*) 'unknown earth radius for code ',icode
-	stop
+	call mprintf(.true.,ERROR,
+     &    "unknown earth radius for code %i",i1=icode)
       endif
       end function earth_radius

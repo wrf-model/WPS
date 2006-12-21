@@ -47,6 +47,7 @@
 
 subroutine parse_table(debug_level,vtable_columns)
   use Table
+  use module_debug
   implicit none
   integer :: debug_level
 
@@ -71,27 +72,29 @@ subroutine parse_table(debug_level,vtable_columns)
 
   if (ierr.ne.0) then
      inquire(file='Vtable', exist=LEXIST)
-     write(*,'(//," ***** ERROR in Subroutine PARSE_TABLE:",//)')
+     call mprintf(.true.,STDOUT," ***** ERROR in Subroutine PARSE_TABLE:")
+     call mprintf(.true.,LOGFILE," ***** ERROR in Subroutine PARSE_TABLE:")
      if (.not.lexist) then
-        write(*,'(10x,"Problem opening file Vtable.",/,10x, &
-	     &"File ''Vtable'' does not exist.")')
+       call mprintf(.true.,STDOUT,"Problem opening file Vtable.")
+       call mprintf(.true.,STDOUT,"File ''Vtable'' does not exist.")
+       call mprintf(.true.,LOGFILE,"Problem opening file Vtable.")
+       call mprintf(.true.,LOGFILE,"File ''Vtable'' does not exist.")
      else
-        write(*,'(10x,"Problem opening file Vtable.",/,&
-             &10x,"File Vtable exists, but Fortran OPEN statement &
-             &failed ",/,10x,"with error ", I3)') ierr
+       call mprintf(.true.,STDOUT,"Problem opening file Vtable.")
+       call mprintf(.true.,STDOUT,"File Vtable exists, but Fortran OPEN statement")
+       call mprintf(.true.,STDOUT,"failed with error %i",i1=ierr)
+       call mprintf(.true.,LOGFILE,"Problem opening file Vtable.")
+       call mprintf(.true.,LOGFILE,"File Vtable exists, but Fortran OPEN statement")
+       call mprintf(.true.,LOGFILE,"failed with error %i",i1=ierr)
      endif
-     write(*,'(//" ***** Abort in Subroutine PARSE_TABLE",//)')
-     stop 'Parse_table'
+     call mprintf(.true.,ERROR," ***** Stopping in Subroutine PARSE_TABLE")
   endif
 
 ! First, read past the headers, i.e., skip lines until we hit the first
 ! line beginning with '-'
   do while (string(1:1).ne.'-')
      read(10,'(A255)', iostat=ierr) string
-     if (ierr /= 0) then
-        write(*, '("Read error 1 in PARSE_TABLE.")')
-        stop "PARSE_TABLE"
-     endif
+     call mprintf ((ierr /= 0),ERROR,"Read error 1 in PARSE_TABLE.")
   enddo
   string = ' '
 
@@ -99,10 +102,7 @@ subroutine parse_table(debug_level,vtable_columns)
 !
   RDLOOP : do while (string(1:1).ne.'-')
      read(10,'(A255)', iostat=ierr) string
-     if (ierr /= 0) then
-        write(*, '("Read error 2 in PARSE_TABLE.")')
-        stop "PARSE_TABLE"
-     endif
+     call mprintf ((ierr /= 0),ERROR,"Read error 2 in PARSE_TABLE.")
      if (string(1:1).eq.'#') cycle RDLOOP
      if (len_trim(string) == 0) cycle RDLOOP
      if (string(1:1).eq.'-') then
@@ -118,10 +118,7 @@ subroutine parse_table(debug_level,vtable_columns)
         enddo BLOOP
         do while (string(1:1).ne.'-')
            read(10,'(A255)', iostat=ierr) string
-           if (ierr /= 0) then
-              write(*, '("Read error 3 in PARSE_TABLE .")')
-              stop "PARSE_TABLE"
-           endif
+        call mprintf ((ierr /= 0),ERROR,"Read error 3 in PARSE_TABLE.")
         enddo
         string(1:1) = ' '
         
@@ -148,13 +145,10 @@ subroutine parse_table(debug_level,vtable_columns)
            endif
         enddo
 
-        if (tot_bars.eq.7.and.vtable_columns.eq.11) then
-           print *,"Vtable does not contain Grib2 decoding information."
-           print *,"11 columns of information is expected."
-           print *,"\t*** stopping parse_table ***"
-           stop 
-        endif
-
+        call mprintf((tot_bars.eq.7.and.vtable_columns.eq.11),ERROR, &
+          'Vtable does not contain Grib2 decoding information.'// &
+          '11 columns of information is expected.'// &
+          '*** stopping parse_table ***')
 
 
         istart = 1
@@ -170,10 +164,9 @@ subroutine parse_table(debug_level,vtable_columns)
               if (string(istart:ibar) == ' ') then
                  gcode(maxvar) = blankcode
               elseif (scan(string(istart:ibar),'*') /= 0) then
-                 write(*,'(//," ***** ERROR in Subroutine PARSE_TABLE:",//)')
-                 print *, "Please give a Grib1 parm code rather than $ in the first column of Vtable"
-                 write(*,'(//" ***** Abort in Subroutine PARSE_TABLE",//)')
-                 stop
+	        call mprintf(.true.,ERROR,'Parse_table: Please give a '// &
+	         'Grib1 parm code rather than $ in the first column of Vtable '// &
+                 '*** stopping in parse_table ***')
               else
                  read(string(istart:ibar), * ) gcode(maxvar)
               endif
@@ -183,18 +176,16 @@ subroutine parse_table(debug_level,vtable_columns)
 
               if (string(istart:ibar) == ' ') then
                  if (lcode(maxvar) /= blankcode) then
-                    write(*,'(//," ***** ERROR in Subroutine PARSE_TABLE:",//)')
-                    write(*,'("Please supply a Grib1 level type in the Vtable:",/, A)') trim(string)
-                    write(*,'(//" ***** Abort in Subroutine PARSE_TABLE",//)')
-                    stop
+		  call mprintf(.true.,ERROR,'Parse_table: '// &
+		   'Please supply a Grib1 level type in the Vtable: %s '// &
+		   '*** stopping in parse_table ***',s1=string)
                  else
                     lcode(maxvar) = blankcode
                  endif
               elseif (scan(string(istart:ibar),'*') /= 0) then
-                 write(*,'(//," ***** ERROR in Subroutine PARSE_TABLE:",//)')
-                 print *, "Used a * in Grib1 level type...don't do this!"
-                 write(*,'(//" ***** Abort in Subroutine PARSE_TABLE",//)')
-                 stop
+	        call mprintf(.true.,ERROR,'Parse_table: '// &
+	         "Used a * in Grib1 level type...don't do this! "// &
+                 '*** stopping in parse_table ***')
               else
                  read(string(istart:ibar), *) lcode(maxvar)
               endif
@@ -216,18 +207,16 @@ subroutine parse_table(debug_level,vtable_columns)
               if (string(istart:ibar) == ' ') then
                  if ( (lcode(maxvar) == 112) .or.&
                       (lcode(maxvar) == 116) ) then
-                    write(*,'(//," ***** ERROR in Subroutine PARSE_TABLE:",//)')
-                    print *,"Level Code  expects two Level values."
-                    write(*,'(//" ***** Abort in Subroutine PARSE_TABLE",//)')
-                    stop
+		  call mprintf(.true.,ERROR,'Parse_table: '// &
+		   'Level Code  expects two Level values. '// &
+		   '*** stopping in parse_table ***')
                  else
                     level2(maxvar) = blankcode
                  endif
               elseif (scan(string(istart:ibar),'*') /= 0) then
-                 write(*,'(//," ***** ERROR in Subroutine PARSE_TABLE:",//)')
-                 print *,"Please give a Level 2 value (or blank), rather * in Vtable column 4"
-                 write(*,'(//" ***** Abort in Subroutine PARSE_TABLE",//)')
-                 stop
+		 call mprintf(.true.,ERROR,'Parse_table: '// &
+		  'Please give a Level 2 value (or blank), rather * in Vtable column 4 '// &
+		  '*** stopping in parse_table ***')
               else
                  read(string(istart:ibar), *) level2(maxvar)
               endif
@@ -242,9 +231,9 @@ subroutine parse_table(debug_level,vtable_columns)
                  enddo
                  namvar(maxvar) = string(istart+nstart:ibar)
               else
-                 write(*,&
-               '("PARSE_TABLE : A field name is missing in the Vtable")')
-                 stop
+		 call mprintf(.true.,ERROR,'Parse_table: '// &
+		 'A field name is missing in the Vtable. '// &
+		 '*** stopping in parse_table ***')
               endif
 
            elseif (i.eq.6) then
@@ -292,10 +281,15 @@ subroutine parse_table(debug_level,vtable_columns)
               if (string(istart:ibar) == ' ') then
                  g2code(1,maxvar) = blankcode
               elseif (scan(string(istart:ibar),'*') /= 0) then
-                 write(*,201)
-                 write(*,202) trim(string)
-                 write(*,203)
-                 stop
+		 call mprintf(.true.,STDOUT," ERROR reading Grib2 Discipline")
+		 call mprintf(.true.,STDOUT,  &
+		    "This Grib2 Vtable line is incorrectly specified:")
+	         call mprintf(.true.,STDOUT," %s",s1=string)
+		 call mprintf(.true.,LOGFILE," ERROR reading Grib2 Discipline")
+		 call mprintf(.true.,LOGFILE,  &
+		    "This Grib2 Vtable line is incorrectly specified:")
+	         call mprintf(.true.,LOGFILE," %s",s1=string)
+		 call mprintf(.true.,ERROR,"Stopping in PARSE_TABLE")
               else
                  read(string(istart:ibar), *) g2code(1,maxvar)
               endif
@@ -306,10 +300,15 @@ subroutine parse_table(debug_level,vtable_columns)
               if (string(istart:ibar) == ' ') then
                  g2code(2,maxvar) = blankcode
               elseif (scan(string(istart:ibar),'*') /= 0) then
-                 write(*,201)
-                 write(*,202) trim(string)
-                 write(*,203)
-                 stop
+		 call mprintf(.true.,STDOUT," ERROR reading Grib2 Category")
+		 call mprintf(.true.,STDOUT,  &
+		    "This Grib2 Vtable line is incorrectly specified:")
+	         call mprintf(.true.,STDOUT," %s",s1=string)
+		 call mprintf(.true.,LOGFILE," ERROR reading Grib2 Category")
+		 call mprintf(.true.,LOGFILE,  &
+		    "This Grib2 Vtable line is incorrectly specified:")
+	         call mprintf(.true.,LOGFILE," %s",s1=string)
+		 call mprintf(.true.,ERROR,"Stopping in PARSE_TABLE")
               else
                  read(string(istart:ibar), * ) g2code(2,maxvar)
               endif
@@ -320,10 +319,17 @@ subroutine parse_table(debug_level,vtable_columns)
               if (string(istart:ibar) == ' ') then
                  g2code(3,maxvar) = blankcode
               elseif (scan(string(istart:ibar),'*') /= 0) then
-                 write(*,201)
-                 write(*,202) trim(string)
-                 write(*,203)
-                 stop
+		 call mprintf(.true.,STDOUT, &
+		  " ERROR reading Grib2 Parameter Number ")
+		 call mprintf(.true.,STDOUT,  &
+		    "This Grib2 Vtable line is incorrectly specified:")
+	         call mprintf(.true.,STDOUT," %s",s1=string)
+		 call mprintf(.true.,LOGFILE, &
+		  " ERROR reading Grib2 Parameter Number ")
+		 call mprintf(.true.,LOGFILE,  &
+		    "This Grib2 Vtable line is incorrectly specified:")
+	         call mprintf(.true.,LOGFILE," %s",s1=string)
+		 call mprintf(.true.,ERROR,"Stopping in PARSE_TABLE")
               else
                  read(string(istart:ibar), * ) g2code(3,maxvar)
               endif
@@ -334,18 +340,28 @@ subroutine parse_table(debug_level,vtable_columns)
 
               if (string(istart:ibar) == ' ') then
                  if (g2code(4,maxvar) /= blankcode) then
-                    write(*,201)
-                    write(*,202) trim(string)
-                    write(*,203)
-                    stop
+		   call mprintf(.true.,STDOUT," ERROR reading Grib2 Level Type ")
+		   call mprintf(.true.,STDOUT,  &
+		      "This Grib2 Vtable line is incorrectly specified:")
+		   call mprintf(.true.,STDOUT," %s",s1=string)
+		   call mprintf(.true.,LOGFILE," ERROR reading Grib2 Level Type ")
+		   call mprintf(.true.,LOGFILE,  &
+		      "This Grib2 Vtable line is incorrectly specified:")
+		   call mprintf(.true.,LOGFILE," %s",s1=string)
+		   call mprintf(.true.,ERROR,"Stopping in PARSE_TABLE")
                  else
                     g2code(4,maxvar) = blankcode
                  endif
               elseif (scan(string(istart:ibar),'*') /= 0) then
-                 write(*,'(//," ***** ERROR in Subroutine PARSE_TABLE:",//)')
-                 print *, "Used a * in Grib2 level type...don't do this!"
-                 write(*,'(//" ***** Abort in Subroutine PARSE_TABLE",//)')
-                 stop
+	         call mprintf(.true.,STDOUT,"ERROR in Subroutine Parse_table: ")
+	         call mprintf(.true.,STDOUT, &
+		  "Used a * in Grib2 level type...don't do this! ")
+	         call mprintf(.true.,STDOUT," %s ",s1=string)
+	         call mprintf(.true.,LOGFILE,"ERROR in Subroutine Parse_table: ")
+	         call mprintf(.true.,LOGFILE, &
+		  "Used a * in Grib2 level type...don't do this! ")
+	         call mprintf(.true.,LOGFILE," %s ",s1=string)
+		 call mprintf(.true.,ERROR," ***** Abort in Subroutine PARSE_TABLE")
               else
                  read(string(istart:ibar), *) g2code(4,maxvar)
               endif
@@ -361,10 +377,6 @@ subroutine parse_table(debug_level,vtable_columns)
 ! Now we have finished reading the file.  
   close(10)
 
-201 format('(//," ***** ERROR in Subroutine PARSE_TABLE:",//)')
-202 format('("Please supply a Grib2 level type in the Vtable:",/, A)')
-203 format('(//" ***** Abort in Subroutine PARSE_TABLE",//)')
-
 ! Now remove duplicates from the NAMEOUT array.  Duplicates may arise
 ! when we have the same name referred to by different level or parameter
 ! codes in some dataset.
@@ -373,9 +385,8 @@ subroutine parse_table(debug_level,vtable_columns)
   do i = 1, maxtmp-1
      do j = i+1, maxtmp
         if ((nameout(i).eq.nameout(j)).and.(nameout(j).ne.' ')) then
-           if (debug_level .gt. 0) then
-              write(*,'("Duplicate name.  Removing ",A9," from output list.")') nameout(j)
-           endif
+	   call mprintf(.true.,DEBUG,   &
+	     "Duplicate name.  Removing %s from output list.",s1=nameout(j))
            nameout(j:maxlines-1) = nameout(j+1:maxlines)
            unitout(j:maxlines-1) = unitout(j+1:maxlines)
            descout(j:maxlines-1) = descout(j+1:maxlines)

@@ -1,4 +1,4 @@
-subroutine datint(fuldates, nful, hstart, ntimes, interval, out_format)
+subroutine datint(fuldates, nful, hstart, ntimes, interval, out_format, prefix)
 !                                                                             !
 !*****************************************************************************!
 !                                                                             !
@@ -8,6 +8,7 @@ subroutine datint(fuldates, nful, hstart, ntimes, interval, out_format)
 !*****************************************************************************!
   use gridinfo
   use storage_module
+  use module_debug
   implicit none
   integer :: nful
   integer :: interval
@@ -21,6 +22,7 @@ subroutine datint(fuldates, nful, hstart, ntimes, interval, out_format)
   character(len=25) :: units
   character(len=46) :: desc
   character(LEN=3)  :: out_format
+  character(LEN=256)  :: prefix
   real :: xfcst
 
   real :: level
@@ -42,34 +44,42 @@ subroutine datint(fuldates, nful, hstart, ntimes, interval, out_format)
      datelen = 19
   end if
 
-  write(*, '(/,10("*"), /, "Subroutine DATINT:",/,2x,  &
-       &    "Interpolating 3-d files to fill in any missing data...",/, &
-       &    10("*")/)')
+  call mprintf(.true.,STDOUT,"Subroutine DATINT: Interpolating 3-d files to fill in any missing data...")
+  call mprintf(.true.,LOGFILE,"Subroutine DATINT: Interpolating 3-d files to fill in any missing data...")
 
   TIMELOOP : do itime = 1, ntimes
      call geth_newdate(hdate(1:19), hstart(1:19), (itime-1)*interval)
-     write(*, '(/,2x,"Looking for data at time ", A19)') hdate(1:datelen)//"      "
+     call mprintf(.true.,STDOUT,"Looking for data at time %s",s1=hdate(1:datelen))
+     call mprintf(.true.,LOGFILE,"Looking for data at time %s",s1=hdate(1:datelen))
      do iful = 1, nful
         if (fuldates(iful).eq.hdate) then
-           write(*, '(/, 10x, "Found file:      FILE:", A19)') hdate(1:datelen)//"      "
+	   call mprintf(.true.,STDOUT,"Found file:      %s:%s", &
+	         s1=trim(prefix),s2=hdate(1:datelen))
+	   call mprintf(.true.,LOGFILE,"Found file:      %s:%s", &
+	         s1=trim(prefix),s2=hdate(1:datelen))
            cycle TIMELOOP
         else if ((fuldates(iful).lt.hdate) .and. &
              (fuldates(iful+1).gt.hdate) )then
 
-           write(*,'(/, 10x,"Found surrounding files:      FILE:",& 
-                &  A19,2x,"FILE:",A19)') fuldates(iful)(1:datelen)//"      ", &
-                fuldates(iful+1)(1:datelen)//"      "
-           write(*, '(10x, "Interpolating to create file:  FILE:", A19,/)') &
-              &  hdate(1:datelen)//"      "
+	   call mprintf(.true.,STDOUT,"Found surrounding files:      %s: %s  and %s: %s", &
+	       s1=trim(prefix),s2=fuldates(iful)(1:datelen), &
+	       s3=trim(prefix),s4=fuldates(iful+1)(1:datelen))
+	   call mprintf(.true.,LOGFILE,"Found surrounding files:      %s: %s  and %s: %s", &
+	       s1=trim(prefix),s2=fuldates(iful)(1:datelen), &
+	       s3=trim(prefix),s4=fuldates(iful+1)(1:datelen))
+	   call mprintf(.true.,STDOUT,"Interpolating to create file:      %s: %s", &
+	         s1=trim(prefix),s2=hdate(1:datelen))
+	   call mprintf(.true.,LOGFILE,"Interpolating to create file:      %s: %s", &
+	         s1=trim(prefix),s2=hdate(1:datelen))
            call geth_idts(hdate(1:19), fuldates(iful)(1:19), intervalA)
-           write(*,'(15x, "A Time Difference = ", F6.2, " hours.")') &
-                float(intervalA) / 3600.
+	   call mprintf(.true.,STDOUT,"A Time Difference = %f",f1=float(intervalA) / 3600.)
+	   call mprintf(.true.,LOGFILE,"A Time Difference = %f",f1=float(intervalA) / 3600.)
            call geth_idts(fuldates(iful+1)(1:19), hdate(1:19), intervalB)
-           write(*,'(15x, "B Time Difference = ", F6.2, " hours.")') &
-                float(intervalB) / 3600.
+	   call mprintf(.true.,STDOUT,"B Time Difference = %f",f1=float(intervalB) / 3600.)
+	   call mprintf(.true.,LOGFILE,"B Time Difference = %f",f1=float(intervalB) / 3600.)
            AWT = 1. - (float(intervalA)/float(intervalA+intervalB))
 
-           open(10, file='FILE:'//fuldates(iful)(1:datelen), form='unformatted', &
+           open(10, file=trim(prefix)//':'//fuldates(iful)(1:datelen), form='unformatted', &
                 status='old')
            call clear_storage
            READLOOP1 : do
@@ -87,8 +97,8 @@ subroutine datint(fuldates, nful, hstart, ntimes, interval, out_format)
                    read (10) map%startloc, map%lat1, map%lon1, map%dx, map%dy, &
                         map%lov, map%truelat1, map%r_earth
                 case default
-                   print*, 'Unrecognized map%igrid: ', map%igrid
-                   stop "STOP IN DATINT"
+                  call mprintf(.true.,ERROR, &
+                    "Unrecognized map%%igrid: %i in DATINT 1",i1=map%igrid)
                 end select
                 read (10) map%grid_wind
 	      else if ( ifv .eq. 4 ) then          ! SI
@@ -104,8 +114,8 @@ subroutine datint(fuldates, nful, hstart, ntimes, interval, out_format)
                    read (10) map%startloc, map%lat1, map%lon1, map%dx, map%dy, &
                         map%lov, map%truelat1
                 case default
-                   print*, 'Unrecognized map%igrid: ', map%igrid
-                   stop "STOP IN DATINT"
+                  call mprintf(.true.,ERROR, &
+                    "Unrecognized map%%igrid: %i in DATINT 2",i1=map%igrid)
                 end select
 	      else if ( ifv .eq. 3 ) then          ! MM5
                 read(10) jdate, xfcst, field, units, desc, level,&
@@ -122,12 +132,12 @@ subroutine datint(fuldates, nful, hstart, ntimes, interval, out_format)
 	        case (1)      ! Mercator
                    read (10) map%lat1, map%lon1, map%dy, map%dx, map%truelat1
                 case default
-                   write(*,'("Unrecognized map%igrid: ", I20)') map%igrid
-                   stop 'DATINT'
+                  call mprintf(.true.,ERROR, &
+                    "Unrecognized map%%igrid: %i in DATINT 3",i1=map%igrid)
                 end select 
 	      else
-	        write(6,*) 'unknown out_format, ifv =', ifv
-		stop 'datint'
+                call mprintf(.true.,ERROR, &
+                  "Unknown out_format: %i in DATINT ",i1=ifv)
               endif
               allocate(scr2d(map%nx, map%ny))
               read (10) scr2d
@@ -136,9 +146,9 @@ subroutine datint(fuldates, nful, hstart, ntimes, interval, out_format)
            enddo READLOOP1
 44         close(10)
 
-           open(10, file='FILE:'//fuldates(iful+1)(1:datelen), status='old', &
+           open(10, file=trim(prefix)//':'//fuldates(iful+1)(1:datelen), status='old', &
                 form = 'unformatted')
-           open(11, file='FILE:'//hdate(1:datelen), status='new', form='unformatted')
+           open(11, file=trim(prefix)//':'//hdate(1:datelen), status='new', form='unformatted')
            READLOOP2 : do
               read (10,END=45) ifv
               if ( ifv .eq. 5) then     ! WPS
@@ -154,8 +164,8 @@ subroutine datint(fuldates, nful, hstart, ntimes, interval, out_format)
                    read (10) map%startloc, map%lat1, map%lon1, map%dx, map%dy, &
                       map%lov, map%truelat1, map%r_earth
                 case default
-                   print*, 'Unrecognized map%igrid: ', map%igrid
-                   stop "STOP IN DATINT"
+                   call mprintf(.true.,ERROR, &
+                     "Unrecognized map%%igrid: %i in DATINT ",i1=map%igrid)
                 end select
                 read (10) map%grid_wind
 	      else if ( ifv .eq. 4 ) then          ! SI
@@ -173,8 +183,8 @@ subroutine datint(fuldates, nful, hstart, ntimes, interval, out_format)
                    read (10) map%startloc, map%lat1, map%lon1, map%dx, map%dy, &
                       map%lov, map%truelat1
                 case default
-                   print*, 'Unrecognized map%igrid: ', map%igrid
-                   stop "STOP IN DATINT"
+                   call mprintf(.true.,ERROR, &
+                     "Unrecognized map%%igrid: %i in DATINT ",i1=map%igrid)
                 end select
 
               else if ( ifv .eq. 3 ) then          ! MM5
@@ -192,13 +202,13 @@ subroutine datint(fuldates, nful, hstart, ntimes, interval, out_format)
 	        case (1)    ! Mercator
                    read (10) map%lat1, map%lon1, map%dy, map%dx, map%truelat1
                 case default
-                   write(*,'("Unrecognized map%igrid: ", I20)') map%igrid
-                   stop 'DATINT'
+                   call mprintf(.true.,ERROR, &
+                     "Unrecognized map%%igrid: %i in DATINT ",i1=map%igrid)
                 end select
 
               else
-                write(6,*) 'unknown out_format, ifv = ',ifv
-                stop 'datint 2'
+                call mprintf(.true.,ERROR, &
+                  "Unknown out_format: %i in DATINT ",i1=ifv)
               endif
 
               allocate(scr2d(map%nx, map%ny))
@@ -224,8 +234,8 @@ subroutine datint(fuldates, nful, hstart, ntimes, interval, out_format)
                     write (11) map%startloc, map%lat1, map%lon1, map%dx, map%dy, &
                          map%lov, map%truelat1
                  else
-                    print*, 'Unrecognized map%igrid: ', map%igrid
-                    stop "STOP IN DATINT"
+                   call mprintf(.true.,ERROR, &
+                     "Unrecognized map%%igrid: %i in DATINT ",i1=map%igrid)
                  endif
 
 		 else if (out_format(1:2) .eq. 'WP') then
@@ -245,8 +255,8 @@ subroutine datint(fuldates, nful, hstart, ntimes, interval, out_format)
                     write (11) map%startloc, map%lat1, map%lon1, map%dx, map%dy, &
                          map%lov, map%truelat1, map%r_earth
                  else
-                    print*, 'Unrecognized map%igrid: ', map%igrid
-                    stop "STOP IN DATINT"
+                   call mprintf(.true.,ERROR, &
+                     "Unrecognized map%%igrid: %i in DATINT ",i1=map%igrid)
                  endif
 		 write(11) map%grid_wind
 
@@ -265,16 +275,14 @@ subroutine datint(fuldates, nful, hstart, ntimes, interval, out_format)
                  elseif (map%igrid.eq.1)then ! Mercator
                    write (11) map%lat1, map%lon1, map%dy, map%dx, map%truelat1
                  else
-                   write(*,'("Unrecognized map%igrid: ", I20)') map%igrid
-                   stop 'DATINT'
+                   call mprintf(.true.,ERROR, &
+                     "Unrecognized map%%igrid: %i in DATINT ",i1=map%igrid)
                  endif
                  endif
                  write(11) scr2d
               else
-                 print*, 'hdate = ', hdate
-                 print*, 'Problem:  ', fuldates
-                 print*, 'Field = ', field
-                 stop
+                 call mprintf(.true.,ERROR, &
+                  "hdate = %s , fuldates = %s , Field = %s",s1=hdate,s2=fuldates,s3=field)
               endif
               deallocate(scr2d, bfr2d)
            enddo READLOOP2
@@ -284,11 +292,14 @@ subroutine datint(fuldates, nful, hstart, ntimes, interval, out_format)
         endif
      enddo
 
-     print*, 'Data not found: ', hdate
-     stop
+     call mprintf(.true.,ERROR, &
+        "Data not found: %s",s1=hdate)
      
   enddo TIMELOOP
 
-  write(*, '(/,10("*"), /, "End Subroutine DATINT.",/,  10("*")/)')
+  call mprintf(.true.,STDOUT, &
+   "End Subroutine DATINT.")
+  call mprintf(.true.,LOGFILE, &
+   "End Subroutine DATINT.")
 
 end subroutine datint

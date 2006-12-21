@@ -1,4 +1,4 @@
-subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_level, out_format)
+subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_level, out_format, prefix)
 !                                                                             !
 ! In case you are wondering, RRPR stands for "Read, ReProcess, and wRite"     !
 !                                                                             !
@@ -47,7 +47,11 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_level, out_f
   use gridinfo
   use storage_module
   use table
+  use module_debug
+  use stringutil
+
   implicit none
+
 !------------------------------------------------------------------------------
 ! Arguments:
 
@@ -85,6 +89,7 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_level, out_f
   character(LEN=19) :: hdate, hend
   character(LEN=24) :: hdate_output
   character(LEN=3)  :: out_format
+  character(LEN=256)  :: prefix
   real :: xfcst, level
   character(LEN=9) :: field
 
@@ -104,11 +109,12 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_level, out_f
   endif
 
   if ( debug_level .gt. 100 ) then
-    print*, 'Begin rrpr'
-    print*, 'nfiles = ', nfiles
-    print*, 'ntimes = ', ntimes
-    print*, 'filedates = ', (filedates(n), n = 1, nfiles)
-  end if
+    call mprintf(.true.,DEBUG,"Begin rrpr")
+    call mprintf(.true.,DEBUG,"nfiles = %i , ntimes = %i )",i1=nfiles,i2=ntimes)
+    do n = 1, nfiles
+      call mprintf(.true.,DEBUG,"filedates(%i) = %s",i1=n,s1=filedates(n))
+    enddo
+  endif
 
 ! Compute the ending time:
 
@@ -120,25 +126,27 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_level, out_f
   TIMELOOP : do ntime = 1, ntimes
      idts = (ntime-1) * interval
      call geth_newdate(hdate, hstart, idts)
-     if ( debug_level .gt. 100 ) then
-     write(6,*) 'RRPR: hstart = ', hstart,' hdate = ', hdate, &
-         ' idts = ', idts
-     endif
+     call mprintf(.true.,DEBUG, &
+     "RRPR: hstart = %s , hdate = %s , idts = %i",s1=hstart,s2=hdate,i1=idts)
 
 ! Loop over the output file dates, and do stuff if the file date matches
 ! the requested time we are working on now.
 
      FILELOOP : do n = 1, nfiles
        if ( debug_level .gt. 100 ) then
-       print*, 'hstart, hend = ', hstart//"  "//hend
-       print*, 'filedates(n) = ', filedates(n)
-       print*, filedates(n)(1:datelen)
+         call mprintf(.true.,DEBUG, &
+            "hstart = %s , hend = %s",s1=hstart,s2=hend)
+         call mprintf(.true.,DEBUG, &
+            "filedates(n) = %s",s1=filedates(n))
+         call mprintf(.true.,DEBUG, &
+            "filedates(n) = %s",s1=filedates(n)(1:datelen))
        end if
        if (filedates(n)(1:datelen).ne.hdate(1:datelen)) cycle FILELOOP
        if (debug_level .gt. 50 ) then
-         print*, "RRPR Processing : ", filedates(n)(1:datelen)
+	 call mprintf(.true.,INFORM, &
+            "RRPR Processing : %s",s1=filedates(n)(1:datelen))
        endif
-       open(iunit, file='PFILE:'//filedates(n)(1:datelen), &
+       open(iunit, file=trim(get_path(prefix))//'PFILE:'//filedates(n)(1:datelen), &
           form='unformatted',status='old')
 
 ! Read the file:
@@ -163,8 +171,8 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_level, out_f
            read (iunit) map%startloc, map%lat1, map%lon1, map%dy, map%dx, &
                 map%truelat1, map%r_earth
           case default
-             write(*,'("Unrecognized map%igrid: ", I20)') map%igrid
-             stop 'RRPR'
+             call mprintf(.true.,ERROR, &
+                "Unrecognized map%%igrid: %i in RRPR 1",i1=map%igrid)
           end select
           read (iunit) map%grid_wind
 
@@ -182,8 +190,8 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_level, out_f
              read (iunit) map%startloc, map%lat1, map%lon1, map%dx, map%dy, &
                 map%lov, map%truelat1
           case default
-             print*, 'Unrecognized map%igrid: ', map%igrid
-             stop "RRPR"
+	     call mprintf(.true.,ERROR, &  
+                "Unrecognized map%%igrid: %i in RRPR 2",i1=map%igrid)
           end select
 
         else if ( ifv .eq. 3 ) then          ! MM5
@@ -202,12 +210,12 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_level, out_f
            case (1)      ! Mercator
               read (iunit) map%lat1, map%lon1, map%dy, map%dx, map%truelat1
            case default
-              write(*,'("Unrecognized map%igrid: ", I20)') map%igrid
-             stop 'RRPR'
+	     call mprintf(.true.,ERROR, &  
+                "Unrecognized map%%igrid: %i in RRPR 3",i1=map%igrid)
            end select
         else
-           write(6,*) 'unknown out_format, ifv =', ifv
-           stop 'RRPR'
+           call mprintf(.true.,ERROR, &
+              "unknown out_format, ifv = %i",i1=ifv)
         endif
 
         allocate(ptr2d(map%nx,map%ny))
@@ -240,8 +248,8 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_level, out_f
                     INLOOP : do kk = 200101, nint(plvl(k))
                        if (is_there(kk, namvar(m))) then
                           if ( debug_level .gt. 100 ) then
-                          write(*, &
-'("Copying ", A9, " at level ", I6, " to level 200100.")') namvar(m), kk
+                            call mprintf(.true.,DEBUG, &
+               "Copying %s at level %i to level 200100.",s1=namvar(m),i1=kk)
                           end if
                           call get_dims(kk, namvar(m))
                           allocate(scr2d(map%nx,map%ny))
@@ -436,9 +444,8 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_level, out_f
                 is_there(200100, 'SPECHUMD')) then
               call get_dims(200100, 'TT')
               call compute_rh_spechumd(map%nx, map%ny)
-              if ( debug_level .gt. 100 ) then
-                print *,' RRPR:   SURFACE RH is computed'
-              end if
+	      call mprintf(.true.,DEBUG, &
+                "RRPR:   SURFACE RH is computed")
            elseif (is_there(200100, 'TT'       ).and. &
                 is_there(200100, 'DEWPT')) then
               call get_dims(200100, 'TT')
@@ -457,10 +464,9 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_level, out_f
            call make_zero_or_one(map%nx, map%ny)
         endif
 
-        if ( debug_level.gt.50 ) then
-        write(*, '("RRPR: hdate = ", A19," ",/)' ) hdate
-        end if
-        call output(hdate, nlvl, maxlvl, plvl, interval, 2, out_format, debug_level)
+	call mprintf(.true.,INFORM, &
+           "RRPR: hdate = %s ",s1=hdate)
+        call output(hdate, nlvl, maxlvl, plvl, interval, 2, out_format, prefix, debug_level)
         call clear_storage
         exit FILELOOP
      enddo FILELOOP
@@ -525,7 +531,7 @@ subroutine compute_t_vptmp(ix, jx, plvl)
   ELSE
     p = plvl
   ENDIF
-  call get_storage(nint(plvl), 'QV',   Q, ix, jx)
+  call get_storage(nint(plvl), 'SPECHUMD',   Q, ix, jx)
 
    t=vptmp * (p*1.e-5)**rovcp * (1./(1.+0.6078*Q))  
 

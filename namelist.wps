@@ -40,6 +40,7 @@
 &ungrib
  out_format = 'WPS'
 /
+ prefix = '/mmmtmp/duda/MIKE-is_cool.prefix',
 
 &metgrid
  fg_name = './FILE'

@@ -48,7 +48,6 @@ module module_debug
 
       ! Local variables 
       integer :: idxi, idxf, idxs, istart, i, iend, ia
-      integer :: write_unit
       real :: fa
       character (len=8) :: cur_date
       character (len=10) :: cur_time
@@ -78,6 +77,10 @@ module module_debug
             call cio_set_log_filename(ctemp,len_trim(ctemp))
          end if
 #endif
+#ifdef _UNGRIB
+         write(ctemp,'(a)') 'ungrib.log'
+         call cio_set_log_filename(ctemp,len_trim(ctemp))
+#endif
          have_set_logname = .true.
       end if
 
@@ -88,10 +91,13 @@ module module_debug
       iend = len_trim(fmtstring)
 
 #if (defined _GEOGRID) || (defined _METGRID)
-      if (assertion .and. .not. (level == STDOUT .and. my_proc_id /= IO_NODE)) then
+      if (assertion .and. (.not. (level == STDOUT .and. my_proc_id /= IO_NODE))) then
 #else
       if (assertion) then
 #endif
+
+         ! If this is a debug message give up if level is not high enough
+         if (level == DEBUG .and. the_debug_level > DEBUG) return 
 
          if (level /= STDOUT) then 
             call date_and_time(date=cur_date,time=cur_time)
@@ -101,16 +107,8 @@ module module_debug
             call cio_prints(1,ctemp,len(print_date//' '//print_time//' --- '))
          end if
 
-         if (level == LOGFILE) then
-            write_unit = QUIET
-         else
-            write_unit = 6
-         end if
-
          if (level == DEBUG) then
             write(ctemp,'(a)') 'DEBUG: '
-            if (level >= the_debug_level) &
-               call cio_prints(0,ctemp,7)
             call cio_prints(1,ctemp,7)
          else if (level == INFORM) then
             write(ctemp,'(a)') 'INFORM: '
@@ -133,14 +131,14 @@ module module_debug
          do while (i > 0 .and. i < iend)
             i = i + istart - 1
             write(ctemp,'(a)') fmtstring(istart:i-1)
-            if (level >= the_debug_level) &
+            if (level >= the_debug_level .and. level /= DEBUG) &
                call cio_prints(0,ctemp,i-istart)
             if (level /= STDOUT) &
                call cio_prints(1,ctemp,i-istart)
    
             if (fmtstring(i+1:i+1) == '%') then
                write(ctemp,'(a)') '%'
-               if (level >= the_debug_level) &
+               if (level >= the_debug_level .and. level /= DEBUG) &
                   call cio_prints(0,ctemp,1)
                if (level /= STDOUT) &
                   call cio_prints(1,ctemp,1)
@@ -160,7 +158,7 @@ module module_debug
                   ia = i6
                end if
    
-               if (level >= the_debug_level) &
+               if (level >= the_debug_level .and. level /= DEBUG) &
                   call cio_printi(0,ia)
                if (level /= STDOUT) &
                   call cio_printi(1,ia)
@@ -182,7 +180,7 @@ module module_debug
                   fa = f6
                end if
    
-               if (level >= the_debug_level) &
+               if (level >= the_debug_level .and. level /= DEBUG) &
                   call cio_printf(0,fa)
                if (level /= STDOUT) &
                   call cio_printf(1,fa)
@@ -205,7 +203,7 @@ module module_debug
                end if
    
                write(ctemp,'(a)') trim(sa)
-               if (level >= the_debug_level) &
+               if (level >= the_debug_level .and. level /= DEBUG) &
                   call cio_prints(0,ctemp,len_trim(sa))
                if (level /= STDOUT) &
                   call cio_prints(1,ctemp,len_trim(sa))
@@ -218,7 +216,7 @@ module module_debug
          end do
    
          write(ctemp,'(a)') fmtstring(istart:iend)//achar(10)  ! Add newline character 0xA
-         if (level >= the_debug_level) &
+         if (level >= the_debug_level .and. level /= DEBUG) &
             call cio_prints(0,ctemp,iend-istart+2)
          if (level /= STDOUT) &
             call cio_prints(1,ctemp,iend-istart+2)

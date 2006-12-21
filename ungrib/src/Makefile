@@ -4,7 +4,8 @@ LIBTARGET	=	pgu
 EXE		=	ungrib.exe \
 			g1print.exe g2print.exe
 
-OBJS1		=	table.o module_datarray.o gridinfo.o new_storage.o filelist.o \
+OBJS1		=	debug_cio.o module_debug.o module_stringutil.o table.o \
+			module_datarray.o gridinfo.o new_storage.o filelist.o \
 			ungrib.o output.o rrpr.o \
 			rd_grib1.o file_delete.o datint.o rd_grib2.o 
 
@@ -40,29 +41,27 @@ g2print.o:		table.o gridinfo.o new_storage.o filelist.o module_datarray.o \
 			$(FC) -c $(FFLAGS) $*.f -I. -I./ngl/g2
 			$(RM) $*.f
 
-rd_grib2.o:		ngl/g2/gribmod.o table.o gridinfo.o ngl/g2/params.o new_storage.o \
+rd_grib2.o:		ngl/g2/gribmod.o module_debug.o table.o gridinfo.o ngl/g2/params.o new_storage.o \
 				rd_grib2.F90
 			$(CPP) $(CPPFLAGS) $*.F90 > $*.f
 			$(FC) -c $(F77FLAGS) $*.f -I. -I./ngl/g2
 			$(RM) $*.f
 
-datint.o:		gridinfo.o new_storage.o datint.F90
+datint.o:		module_debug.o gridinfo.o new_storage.o datint.F90
+
+module_debug.o:		debug_cio.o module_debug.F90
 
 new_storage.o:		gridinfo.o new_storage.F90
 
-read_met_module.o:	module_debug.o misc_definitions_module.o read_met_module.f90
+output.o:		module_debug.o table.o gridinfo.o module_stringutil.o new_storage.o filelist.o output.F90
 
-write_met_module.o:	module_debug.o misc_definitions_module.o write_met_module.f90
+parse_table.o:		module_debug.o table.o parse_table.F90
 
-module_debug.o:		parallel_module.o mprintf.o module_debug.F90
+rd_grib1.o:		module_debug.o table.o gridinfo.o module_datarray.o rd_grib1.F90
 
-output.o:		table.o gridinfo.o new_storage.o filelist.o output.F90
+rrpr.o:			module_debug.o filelist.o gridinfo.o module_stringutil.o table.o new_storage.o rrpr.F90
 
-parse_table.o:		table.o parse_table.F90
-
-rd_grib1.o:		table.o gridinfo.o module_datarray.o rd_grib1.F90
-
-rrpr.o:			filelist.o gridinfo.o table.o new_storage.o rrpr.F90
+read_namelist.o:	module_debug.o read_namelist.F90
 
 .F90.o:
 			$(CPP) $(CPPFLAGS) $(FDEFS) $< > $*.f

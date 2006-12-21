@@ -48,6 +48,9 @@ program ungrib
   use storage_module
   use filelist
   use datarray
+  use module_debug
+  use stringutil
+
   implicit none
 
   integer :: nunit1 = 12
@@ -66,6 +69,7 @@ program ungrib
   real :: level
   character (LEN=9) ::  field
   character (LEN=3) ::  out_format
+  character (LEN=256) ::  prefix
 
   logical :: readit
 
@@ -82,40 +86,42 @@ program ungrib
   integer :: vtable_columns
 
 
-  write(6,*) 'Begin ungrib'
+  call mprintf(.true.,STDOUT,' *** Starting program ungrib.exe *** ')
+  call mprintf(.true.,LOGFILE,' *** Starting program ungrib.exe *** ')
 ! -----------------
 ! Read the namelist, and return the information we want:
 
   call read_namelist(hstart, hend, interval, ntimes, &
-       ordered_by_date, debug_level, out_format)
+       ordered_by_date, debug_level, out_format, prefix)
 
-  write(6,'(1x,a,i8,a8,f10.6,1x,a)') 'Interval value:', interval, &
-    ' sec  ( ',  float(interval)/3600., ' hours )'
+  call mprintf(.true.,INFORM,"Interval value: %i seconds or  %f hours", &
+               i1=interval, f1=float(interval)/3600.)
 
 ! -----------------
 ! Determine GRIB Edition number
   grib_version=0
   call edition_num(nunit1, gribflnm, grib_version, ierr)
-  if (ierr.eq.3) STOP 'GRIB file problem' 
+  call mprintf((ierr.eq.3),ERROR,"GRIB file problem")
   if (grib_version.eq.2) then
      vtable_columns=11 
 #if defined (USE_PNG) && (USE_JPEG2000)
-     write(6,*) 'Linked in png and jpeg libraries for Grib Edition 2'
+     call mprintf(.true.,INFORM, &
+        "Linked in png and jpeg libraries for Grib Edition 2")
 #else
-     write(6,*) ' '
-     write(6,*) '***********************************************'
-     write(6,*) 'WARNING - Grib Edition 2 data detected, and'
-     write(6,*) '        - png and jpeg libs were NOT selected'
-     write(6,*) '        - during the build.'
-     write(6,*) 'Stopping'
-     write(6,*) '***********************************************'
-     write(6,*) ' '
-     stop 'NEED_GRIB2_LIBS'
+     call mprintf(.true.,STDOUT,"WARNING - Grib Edition 2 data detected, and")
+     call mprintf(.true.,STDOUT,"        - png and jpeg libs were NOT selected")
+     call mprintf(.true.,STDOUT,"        - during the build.")
+     call mprintf(.true.,STDOUT,"Stopping")
+     call mprintf(.true.,LOGFILE,"WARNING - Grib Edition 2 data detected, and")
+     call mprintf(.true.,LOGFILE,"        - png and jpeg libs were NOT selected")
+     call mprintf(.true.,LOGFILE,"        - during the build.")
+     call mprintf(.true.,LOGFILE,"Stopping")
+     call mprintf(.true.,ERROR,"NEED_GRIB2_LIBS")
 #endif
   else
      vtable_columns=7 
   endif
-  write(6,'(1x,a,i4)') 'Reading Grib Edition ',grib_version
+  call mprintf(.true.,INFORM,"Reading Grib Edition %i", i1=grib_version)
 
 ! -----------------
 ! Read the "Vtable" file, and put the information contained therein into 
@@ -123,9 +129,7 @@ program ungrib
 
   call parse_table(debug_level,vtable_columns)
 
-  if ( debug_level .gt. 100 ) then
-     write(6,*) 'Parsed the vtable'
-  end if
+  call mprintf(.true.,DEBUG,"Parsed the vtable.")
 
 ! -----------------
 ! Initialize the input filename to GRIBFILE.AA{character just before A}
@@ -156,9 +160,7 @@ program ungrib
      ! Set READIT to .TRUE., meaning that we have not read any records yet 
      ! from the file GRIBFLNM.
 
-     if ( debug_level .gt. 100 ) then
-        write(6,*) 'reading from gribflnm = ',gribflnm
-     end if
+     call mprintf(.true.,DEBUG,"Reading from gribflnm %s ",s1=gribflnm)
 
      readit = .TRUE.  ! i.e., "Yes, we want to read a record."
 
@@ -191,28 +193,24 @@ program ungrib
            if (READIT) then
 
               if (grib_version.ne.2) then 
-                 if ( debug_level .gt. 100 ) then
-                    write(6,*) 'calling rd_grib1 with iunit ', nunit1
-                    write(6,*) 'flnm = ',gribflnm
-                 end if
+                call mprintf(.true.,DEBUG, &
+		     "Calling rd_grib1 with iunit %i", i1=nunit1)
+                call mprintf(.true.,DEBUG, &
+		     "flnm = %s",s1=gribflnm)
                  ! Read one record at a time from GRIB1 (and older Editions) 
                  call rd_grib1(nunit1, gribflnm, level, field, &
                       hdate, ierr, iuarr, debug_level)
               else 
 
                  ! Read one file of records from GRIB2.
-                 if ( debug_level .gt. 100 ) then
-                    write(6,*) 'calling rd_grib2'
-                 end if
+                 call mprintf(.true.,DEBUG,"Calling rd_grib2")
                  call rd_grib2(nunit1, gribflnm, hdate, &
                       grib_version, ierr, debug_level)
                  FIELD='NULL'
 
               endif
 
-              if ( debug_level .gt. 100 ) then
-                 write(6,*) 'ierr = ',ierr
-              end if
+	      call mprintf(.true.,DEBUG,"ierr = %i ",i1=ierr)
               if (ierr.eq.1) then 
                  ! We have hit the end of a file.  Exit LOOP0 so we can 
                  ! write output for date HDATE, and then exit LOOP1
@@ -227,15 +225,13 @@ program ungrib
                  exit LOOP2
               endif
 
-              if (debug_level .gt. 100) then
-                 print*, 'Read a record '//field//' with date ', hdate(1:13)
-              end if
+	      call mprintf(.true.,DEBUG, &
+               "Read a record %s with date %s", s1=field,s2=hdate(1:13))
 
            endif
 
-           if (debug_level .gt. 100) then
-              print*, "hdate, hsave = "//hdate(1:13)//"  "//hsave(1:13)
-           end if
+	   call mprintf(.true.,DEBUG, &
+            "hdate = %s , hsave = %s ",s1=hdate(1:13), s2=hsave(1:13) )
 
 !           if (hdate < hstart) then
 !              ! The data read has a date HDATE earlier than the starting
@@ -256,9 +252,8 @@ program ungrib
               ! Exit LOOP0, because we started to read data from another 
               ! date.
 
-              if (debug_level .gt. 100) then
-                 write(*, '(A19, " > ", A19, " so exit LOOP0")') hdate, hsave
-              endif
+	      call mprintf(.true.,DEBUG, &
+	      "hdate %s > hsave %s so exit LOOP0",s1=hdate,s2=hsave)
 
               ! We set READIT to FALSE because we have not yet processed
               ! the data from this record, and we will want to process this
@@ -279,11 +274,8 @@ program ungrib
            if (((field == "SST").or.(field == "SKINTEMP")) .and. &
                 (level /= 200100.)) level = 200100.
            iplvl = int(level)
-           if (.not.allocated(rdatarray)) then
-              write(6,*) 'ERROR: GRIB data slab not allocated in ungrib.F before'
-              write(6,*) '       call to put_storage.'
-              stop
-           end if
+	   call mprintf((.not.allocated(rdatarray)),ERROR, &
+           "GRIB data slab not allocated in ungrib.F before call to put_storage.")
            call put_storage(iplvl,field, &
                 reshape(rdatarray(1:map%nx*map%ny),(/map%nx, map%ny/)),&
                 map%nx,map%ny)
@@ -310,7 +302,7 @@ program ungrib
 
         if ((hsave(1:4).ne.'0000').and.(hsave.le.hend)) then
            if (debug_level .gt. 100) print*, 'Calling output: '//hsave(1:13)
-           call output(hsave, nlvl, maxlvl, plvl, interval, 1, out_format, debug_level)
+           call output(hsave, nlvl, maxlvl, plvl, interval, 1, out_format, prefix, debug_level)
            hsave=hdate
 
            ! If the next record we process has a date later than HEND,
@@ -342,9 +334,9 @@ program ungrib
 
 ! Now Reread, process, and reoutput.
 
-  write(*,*) 'First pass done, doing a reprocess'
+  call mprintf(.true.,INFORM,"First pass done, doing a reprocess")
 
-  call rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_level, out_format)
+  call rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_level, out_format, prefix)
 
 ! Make sure the filedates are in order, with an inefficient sort:
 
@@ -352,21 +344,23 @@ program ungrib
 
 ! Interpolate temporally to fill in missing times:
 
-  call datint(filedates, nfiles, hstart, ntimes, interval, out_format)
+  call datint(filedates, nfiles, hstart, ntimes, interval, out_format, prefix)
 
 ! Now delete the temporary files:
 
-  call file_delete(filedates, nfiles, "PFILE:", interval)
+  call file_delete(filedates, nfiles, trim(get_path(prefix))//'PFILE:', interval)
+  call mprintf(.true.,STDOUT,'THE PATH TO INTERMEDIATE FILES IS %s',s1=get_path(prefix))
 
 ! And Now we are done:
 
-!   print*,'!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
-!   print*,"!  We're hauling gear at Bandimere.   !"
-!   print*,'!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
-
-   print*,'!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
-   print*,'!  Successful completion of ungrib.         !'
-   print*,'!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
+   call mprintf(.true.,STDOUT,'!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+   call mprintf(.true.,STDOUT,'!  Successful completion of ungrib.   !')
+!  call mprintf(.true.,STDOUT,"!  We're hauling gear at Bandimere.   !")
+   call mprintf(.true.,STDOUT,'!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+   call mprintf(.true.,LOGFILE,'!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+   call mprintf(.true.,LOGFILE,'!  Successful completion of ungrib.   !')
+!  call mprintf(.true.,LOGFILE,"!  We're hauling gear at Bandimere.   !")
+   call mprintf(.true.,LOGFILE,'!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
 
 
 

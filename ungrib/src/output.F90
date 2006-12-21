@@ -1,4 +1,4 @@
-subroutine output(hdate, nlvl, maxlvl, plvl, interval, iflag, out_format, debug_level)
+subroutine output(hdate, nlvl, maxlvl, plvl, interval, iflag, out_format, prefix, debug_level)
 !                                                                             !
 !*****************************************************************************!
 !  Write output to a file.
@@ -17,10 +17,15 @@ subroutine output(hdate, nlvl, maxlvl, plvl, interval, iflag, out_format, debug_
   use gridinfo
   use storage_module
   use filelist
+  use module_debug
+  use stringutil
+
   implicit none
+
   character(LEN=19) :: hdate
   character(LEN=24) :: hdate_output
   character(LEN=3)  :: out_format
+  character(LEN=256)  :: prefix
   integer :: iunit = 13
 
   real, pointer, dimension(:,:) :: scr2d
@@ -107,27 +112,27 @@ subroutine output(hdate, nlvl, maxlvl, plvl, interval, iflag, out_format, debug_
   
   if (iflag.eq.1) then
      if (nfiles.eq.0) then
-        open(iunit, file='PFILE:'//HDATE(1:datelen), form='unformatted', &
+        open(iunit, file=trim(get_path(prefix))//'PFILE:'//HDATE(1:datelen), form='unformatted', &
              position='REWIND')
         nfiles = nfiles + 1
         filedates(nfiles)(1:datelen) = hdate(1:datelen)
      else
         DOFILES : do k = 1, nfiles
            if (hdate(1:datelen).eq.filedates(k)(1:datelen)) then
-              open(iunit, file='PFILE:'//HDATE(1:datelen), form='unformatted',&
+              open(iunit, file=trim(get_path(prefix))//'PFILE:'//HDATE(1:datelen), form='unformatted',&
                    position='APPEND')
            endif
         enddo DOFILES
         inquire (iunit, OPENED=LOPEN)
         if (.not. LOPEN) then
-           open(iunit, file='PFILE:'//HDATE(1:datelen), form='unformatted', &
+           open(iunit, file=trim(get_path(prefix))//'PFILE:'//HDATE(1:datelen), form='unformatted', &
                 position='REWIND')
            nfiles = nfiles + 1
            filedates(nfiles)(1:datelen) = hdate(1:datelen)
         endif
      endif
   else if (iflag.eq.2) then
-     open(iunit, file='FILE:'//HDATE(1:datelen), form='unformatted', &
+     open(iunit, file=trim(prefix)//':'//HDATE(1:datelen), form='unformatted', &
           position='REWIND')
   endif
 
@@ -188,15 +193,13 @@ subroutine output(hdate, nlvl, maxlvl, plvl, interval, iflag, out_format, debug_
                  write (iunit) map%startloc, map%lat1, map%lon1, map%dy, map%dx, &
                       map%truelat1
               else
-                 write(*,'("Unrecognized map%igrid: ", I20)') map%igrid
-                 stop
+                 call mprintf(.true.,ERROR, &
+                "Unrecognized map%%igrid: %i in subroutine output 1",i1=map%igrid)
               endif
               write (iunit) scr2d
 	    else if (out_format(1:2) .eq. 'WP') then   
-              if ( debug_level .gt. 100 ) then
-                 write(6,*) 'writing in WPS format'
-		 write(6,*) 'iunit = ',iunit,' map%igrid = ',map%igrid
-              end if
+                call mprintf(.true.,DEBUG, &
+         "writing in WPS format  iunit = %i, map%%igrid = %i",i1=iunit,i2=map%igrid)
               write(iunit) 5
               hdate_output = hdate
               write (iunit) hdate_output, xfcst, map%source, field, units, &
@@ -214,8 +217,8 @@ subroutine output(hdate, nlvl, maxlvl, plvl, interval, iflag, out_format, debug_
                  write (iunit) map%startloc, map%lat1, map%lon1, map%dy, map%dx, &
                       map%truelat1, map%r_earth
               else
-                 write(*,'("Unrecognized map%igrid: ", I20)') map%igrid
-                 stop
+                 call mprintf(.true.,ERROR, &
+                "Unrecognized map%%igrid: %i in subroutine output 1",i1=map%igrid)
               endif
 	      write (iunit) map%grid_wind
               write (iunit) scr2d
@@ -238,18 +241,25 @@ subroutine output(hdate, nlvl, maxlvl, plvl, interval, iflag, out_format, debug_
               elseif (map%igrid.eq.1)then ! Mercator
                  write (iunit) map%lat1, map%lon1, map%dy, map%dx, map%truelat1
               else
-                 write(*,'("Unrecognized map%igrid: ", I20)') map%igrid
-                 stop
+                 call mprintf(.true.,ERROR, &
+                "Unrecognized map%%igrid: %i in subroutine output 1",i1=map%igrid)
               endif
               write (iunit) scr2d
 	    endif
               if ( debug_level .gt. 100 ) then
-	      write(6,*) 'hdate = ',hdate_output,' xfcst = ',xfcst
-	      write(6,*) 'map%source = ',map%source,' field = ',field,' units = ',units
-	      write(6,*) 'Desc = ',Desc,' level = ',level
-	      write(6,*) 'map%nx = ',map%nx,' map%ny = ',map%ny
+	        call mprintf(.true.,DEBUG, &
+	        "hdate = %s,  xfcst = %f ",s1=hdate_output,f1=xfcst)
+	        call mprintf(.true.,DEBUG, &
+           "map%%source = %s, field = %s, units = %s",s1=map%source,s2=field,s3=units)
+	        call mprintf(.true.,DEBUG, &
+	            "Desc = %s, level = %f",s1=Desc,f1=level)
+	        call mprintf(.true.,DEBUG, &
+	            "map%%nx = %i, map%%ny = %i",i1=map%nx,i2=map%ny)
               else if ( debug_level .gt. 0 ) then
-	      write(6,*) ' field = ',field,' level = ',level
+	        call mprintf(.true.,STDOUT, &
+	      " field = %s, level = %f",s1=field,f1=level)
+	        call mprintf(.true.,LOGFILE, &
+	      " field = %s, level = %f",s1=field,f1=level)
               end if
               if ( debug_level .gt. 100 ) then
 	      maxv = -99999.
@@ -260,7 +270,8 @@ subroutine output(hdate, nlvl, maxlvl, plvl, interval, iflag, out_format, debug_
 	        if (scr2d(ii,jj) .lt. minv) minv = scr2d(ii,jj)
 	      enddo
 	      enddo
-	      write(6,*) 'max value = ',maxv,' min value = ',minv
+	      call mprintf(.true.,DEBUG, &
+	         "max value = %f , min value = %f",f1=maxv,f2=minv)
               end if
 
               nullify(scr2d)

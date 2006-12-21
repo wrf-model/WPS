@@ -64,6 +64,7 @@ SUBROUTINE rd_grib1(IUNIT, gribflnm, level, field, hdate,  &
   use table
   use gridinfo
   use datarray
+  use module_debug
 
   implicit none
 
@@ -117,7 +118,7 @@ SUBROUTINE rd_grib1(IUNIT, gribflnm, level, field, hdate,  &
   call gribget(iuarr(iunit), ierr)
 
   if (ierr.ne.0) then
-     if (debug_level.gt.100) write(*,*) 'ierr = ', ierr, ' in RD_GRIB.'
+     call mprintf(.true.,DEBUG,"RD_GRIB1 gribget read error, ierr = %i",i1=ierr)
      call deallogrib
      return
   endif

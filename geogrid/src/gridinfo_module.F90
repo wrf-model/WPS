@@ -122,122 +122,122 @@ module gridinfo_module
          call set_debug_level(WARN)
       end if
 
-      call mprintf(.true.,DEBUG,'Using the following namelist variables:')
-      call mprintf(.true.,DEBUG,'&SHARE')
-      call mprintf(.true.,DEBUG,'  WRF_CORE         = %s',s1=wrf_core)
-      call mprintf(.true.,DEBUG,'  MAX_DOM          = %i',i1=max_dom)
-      call mprintf(.true.,DEBUG,'  START_YEAR       = %i',i1=start_year(1))
+      call mprintf(.true.,LOGFILE,'Using the following namelist variables:')
+      call mprintf(.true.,LOGFILE,'&SHARE')
+      call mprintf(.true.,LOGFILE,'  WRF_CORE         = %s',s1=wrf_core)
+      call mprintf(.true.,LOGFILE,'  MAX_DOM          = %i',i1=max_dom)
+      call mprintf(.true.,LOGFILE,'  START_YEAR       = %i',i1=start_year(1))
       do i=2,max_dom
-         call mprintf(.true.,DEBUG,'                   = %i',i1=start_year(i))
+         call mprintf(.true.,LOGFILE,'                   = %i',i1=start_year(i))
       end do
-      call mprintf(.true.,DEBUG,'  START_MONTH      = %i',i1=start_month(1))
+      call mprintf(.true.,LOGFILE,'  START_MONTH      = %i',i1=start_month(1))
       do i=2,max_dom
-         call mprintf(.true.,DEBUG,'                   = %i',i1=start_month(i))
+         call mprintf(.true.,LOGFILE,'                   = %i',i1=start_month(i))
       end do
-      call mprintf(.true.,DEBUG,'  START_DAY        = %i',i1=start_day(1))
+      call mprintf(.true.,LOGFILE,'  START_DAY        = %i',i1=start_day(1))
       do i=2,max_dom
-         call mprintf(.true.,DEBUG,'                   = %i',i1=start_day(i))
+         call mprintf(.true.,LOGFILE,'                   = %i',i1=start_day(i))
       end do
-      call mprintf(.true.,DEBUG,'  START_HOUR       = %i',i1=start_hour(1))
+      call mprintf(.true.,LOGFILE,'  START_HOUR       = %i',i1=start_hour(1))
       do i=2,max_dom
-         call mprintf(.true.,DEBUG,'                   = %i',i1=start_hour(i))
+         call mprintf(.true.,LOGFILE,'                   = %i',i1=start_hour(i))
       end do
-      call mprintf(.true.,DEBUG,'  START_MINUTE     = %i',i1=start_minute(1))
+      call mprintf(.true.,LOGFILE,'  START_MINUTE     = %i',i1=start_minute(1))
       do i=2,max_dom
-         call mprintf(.true.,DEBUG,'                   = %i',i1=start_minute(i))
+         call mprintf(.true.,LOGFILE,'                   = %i',i1=start_minute(i))
       end do
-      call mprintf(.true.,DEBUG,'  START_SECOND     = %i',i1=start_second(1))
+      call mprintf(.true.,LOGFILE,'  START_SECOND     = %i',i1=start_second(1))
       do i=2,max_dom
-         call mprintf(.true.,DEBUG,'                   = %i',i1=start_second(i))
+         call mprintf(.true.,LOGFILE,'                   = %i',i1=start_second(i))
       end do
-      call mprintf(.true.,DEBUG,'  END_YEAR         = %i',i1=end_year(1))
+      call mprintf(.true.,LOGFILE,'  END_YEAR         = %i',i1=end_year(1))
       do i=2,max_dom
-         call mprintf(.true.,DEBUG,'                   = %i',i1=end_year(i))
+         call mprintf(.true.,LOGFILE,'                   = %i',i1=end_year(i))
       end do
-      call mprintf(.true.,DEBUG,'  END_MONTH        = %i',i1=end_month(1))
+      call mprintf(.true.,LOGFILE,'  END_MONTH        = %i',i1=end_month(1))
       do i=2,max_dom
-         call mprintf(.true.,DEBUG,'                   = %i',i1=end_month(i))
+         call mprintf(.true.,LOGFILE,'                   = %i',i1=end_month(i))
       end do
-      call mprintf(.true.,DEBUG,'  END_DAY          = %i',i1=end_day(1))
+      call mprintf(.true.,LOGFILE,'  END_DAY          = %i',i1=end_day(1))
       do i=2,max_dom
-         call mprintf(.true.,DEBUG,'                   = %i',i1=end_day(i))
+         call mprintf(.true.,LOGFILE,'                   = %i',i1=end_day(i))
       end do
-      call mprintf(.true.,DEBUG,'  END_HOUR         = %i',i1=end_hour(1))
+      call mprintf(.true.,LOGFILE,'  END_HOUR         = %i',i1=end_hour(1))
       do i=2,max_dom
-         call mprintf(.true.,DEBUG,'                   = %i',i1=end_hour(i))
+         call mprintf(.true.,LOGFILE,'                   = %i',i1=end_hour(i))
       end do
-      call mprintf(.true.,DEBUG,'  END_MINUTE       = %i',i1=end_minute(1))
+      call mprintf(.true.,LOGFILE,'  END_MINUTE       = %i',i1=end_minute(1))
       do i=2,max_dom
-         call mprintf(.true.,DEBUG,'                   = %i',i1=end_minute(i))
+         call mprintf(.true.,LOGFILE,'                   = %i',i1=end_minute(i))
       end do
-      call mprintf(.true.,DEBUG,'  END_SECOND       = %i',i1=end_second(1))
+      call mprintf(.true.,LOGFILE,'  END_SECOND       = %i',i1=end_second(1))
       do i=2,max_dom
-         call mprintf(.true.,DEBUG,'                   = %i',i1=end_second(i))
+         call mprintf(.true.,LOGFILE,'                   = %i',i1=end_second(i))
       end do
-      call mprintf(.true.,DEBUG,'  START_DATE       = %s',s1=start_date(1))
+      call mprintf(.true.,LOGFILE,'  START_DATE       = %s',s1=start_date(1))
       do i=2,max_dom
-         call mprintf(.true.,DEBUG,'                   = %s',s1=start_date(i))
+         call mprintf(.true.,LOGFILE,'                   = %s',s1=start_date(i))
       end do
-      call mprintf(.true.,DEBUG,'  END_DATE         = %s',s1=end_date(1))
+      call mprintf(.true.,LOGFILE,'  END_DATE         = %s',s1=end_date(1))
       do i=2,max_dom
-         call mprintf(.true.,DEBUG,'                   = %s',s1=end_date(i))
+         call mprintf(.true.,LOGFILE,'                   = %s',s1=end_date(i))
       end do
-      call mprintf(.true.,DEBUG,'  INTERVAL_SECONDS = %i',i1=interval_seconds)
-      call mprintf(.true.,DEBUG,'  IO_FORM_GEOGRID  = %i',i1=io_form_geogrid)
-      call mprintf(.true.,DEBUG,'  OPT_OUTPUT_FROM_GEOGRID_PATH = %s',s1=opt_output_from_geogrid_path)
-      call mprintf(.true.,DEBUG,'  DEBUG_LEVEL      = %i',i1=debug_level)
-      call mprintf(.true.,DEBUG,'/')
+      call mprintf(.true.,LOGFILE,'  INTERVAL_SECONDS = %i',i1=interval_seconds)
+      call mprintf(.true.,LOGFILE,'  IO_FORM_GEOGRID  = %i',i1=io_form_geogrid)
+      call mprintf(.true.,LOGFILE,'  OPT_OUTPUT_FROM_GEOGRID_PATH = %s',s1=opt_output_from_geogrid_path)
+      call mprintf(.true.,LOGFILE,'  DEBUG_LEVEL      = %i',i1=debug_level)
+      call mprintf(.true.,LOGFILE,'/')
 
-      call mprintf(.true.,DEBUG,'&GEOGRID')
-      call mprintf(.true.,DEBUG,'  PARENT_ID         = %i',i1=parent_id(1))
+      call mprintf(.true.,LOGFILE,'&GEOGRID')
+      call mprintf(.true.,LOGFILE,'  PARENT_ID         = %i',i1=parent_id(1))
       do i=2,max_dom
-         call mprintf(.true.,DEBUG,'                    = %i',i1=parent_id(i))
+         call mprintf(.true.,LOGFILE,'                    = %i',i1=parent_id(i))
       end do
-      call mprintf(.true.,DEBUG,'  PARENT_GRID_RATIO = %i',i1=parent_grid_ratio(1))
+      call mprintf(.true.,LOGFILE,'  PARENT_GRID_RATIO = %i',i1=parent_grid_ratio(1))
       do i=2,max_dom
-         call mprintf(.true.,DEBUG,'                    = %i',i1=parent_grid_ratio(i))
+         call mprintf(.true.,LOGFILE,'                    = %i',i1=parent_grid_ratio(i))
       end do
-      call mprintf(.true.,DEBUG,'  I_PARENT_START    = %i',i1=i_parent_start(1))
+      call mprintf(.true.,LOGFILE,'  I_PARENT_START    = %i',i1=i_parent_start(1))
       do i=2,max_dom
-         call mprintf(.true.,DEBUG,'                    = %i',i1=i_parent_start(i))
+         call mprintf(.true.,LOGFILE,'                    = %i',i1=i_parent_start(i))
       end do
-      call mprintf(.true.,DEBUG,'  J_PARENT_START    = %i',i1=j_parent_start(1))
+      call mprintf(.true.,LOGFILE,'  J_PARENT_START    = %i',i1=j_parent_start(1))
       do i=2,max_dom
-         call mprintf(.true.,DEBUG,'                    = %i',i1=j_parent_start(i))
+         call mprintf(.true.,LOGFILE,'                    = %i',i1=j_parent_start(i))
       end do
-      call mprintf(.true.,DEBUG,'  S_WE              = %i',i1=s_we(1))
+      call mprintf(.true.,LOGFILE,'  S_WE              = %i',i1=s_we(1))
       do i=2,max_dom
-         call mprintf(.true.,DEBUG,'                    = %i',i1=s_we(i))
+         call mprintf(.true.,LOGFILE,'                    = %i',i1=s_we(i))
       end do
-      call mprintf(.true.,DEBUG,'  E_WE              = %i',i1=e_we(1))
+      call mprintf(.true.,LOGFILE,'  E_WE              = %i',i1=e_we(1))
       do i=2,max_dom
-         call mprintf(.true.,DEBUG,'                    = %i',i1=e_we(i))
+         call mprintf(.true.,LOGFILE,'                    = %i',i1=e_we(i))
       end do
-      call mprintf(.true.,DEBUG,'  S_SN              = %i',i1=s_sn(1))
+      call mprintf(.true.,LOGFILE,'  S_SN              = %i',i1=s_sn(1))
       do i=2,max_dom
-         call mprintf(.true.,DEBUG,'                    = %i',i1=s_sn(i))
+         call mprintf(.true.,LOGFILE,'                    = %i',i1=s_sn(i))
       end do
-      call mprintf(.true.,DEBUG,'  E_SN              = %i',i1=e_sn(1))
+      call mprintf(.true.,LOGFILE,'  E_SN              = %i',i1=e_sn(1))
       do i=2,max_dom
-         call mprintf(.true.,DEBUG,'                    = %i',i1=e_sn(i))
+         call mprintf(.true.,LOGFILE,'                    = %i',i1=e_sn(i))
       end do
-      call mprintf(.true.,DEBUG,'  GEOG_DATA_RES     = %s',s1=geog_data_res(1))
+      call mprintf(.true.,LOGFILE,'  GEOG_DATA_RES     = %s',s1=geog_data_res(1))
       do i=2,max_dom
-         call mprintf(.true.,DEBUG,'                    = %s',s1=geog_data_res(i))
+         call mprintf(.true.,LOGFILE,'                    = %s',s1=geog_data_res(i))
       end do
-      call mprintf(.true.,DEBUG,'  DX                = %f',f1=dx)
-      call mprintf(.true.,DEBUG,'  DY                = %f',f1=dy)
-      call mprintf(.true.,DEBUG,'  MAP_PROJ          = %s',s1=map_proj)
-      call mprintf(.true.,DEBUG,'  REF_LAT           = %f',f1=ref_lat)
-      call mprintf(.true.,DEBUG,'  REF_LON           = %f',f1=ref_lon)
-      call mprintf(.true.,DEBUG,'  REF_X             = %f',f1=ref_x)
-      call mprintf(.true.,DEBUG,'  REF_Y             = %f',f1=ref_y)
-      call mprintf(.true.,DEBUG,'  TRUELAT1          = %f',f1=truelat1)
-      call mprintf(.true.,DEBUG,'  TRUELAT2          = %f',f1=truelat2)
-      call mprintf(.true.,DEBUG,'  STAND_LON         = %f',f1=stand_lon)
-      call mprintf(.true.,DEBUG,'  GEOG_DATA_PATH    = %s',s1=geog_data_path)
-      call mprintf(.true.,DEBUG,'  OPT_GEOGRID_TBL_PATH = %s',s1=opt_geogrid_tbl_path)
-      call mprintf(.true.,DEBUG,'/')
+      call mprintf(.true.,LOGFILE,'  DX                = %f',f1=dx)
+      call mprintf(.true.,LOGFILE,'  DY                = %f',f1=dy)
+      call mprintf(.true.,LOGFILE,'  MAP_PROJ          = %s',s1=map_proj)
+      call mprintf(.true.,LOGFILE,'  REF_LAT           = %f',f1=ref_lat)
+      call mprintf(.true.,LOGFILE,'  REF_LON           = %f',f1=ref_lon)
+      call mprintf(.true.,LOGFILE,'  REF_X             = %f',f1=ref_x)
+      call mprintf(.true.,LOGFILE,'  REF_Y             = %f',f1=ref_y)
+      call mprintf(.true.,LOGFILE,'  TRUELAT1          = %f',f1=truelat1)
+      call mprintf(.true.,LOGFILE,'  TRUELAT2          = %f',f1=truelat2)
+      call mprintf(.true.,LOGFILE,'  STAND_LON         = %f',f1=stand_lon)
+      call mprintf(.true.,LOGFILE,'  GEOG_DATA_PATH    = %s',s1=geog_data_path)
+      call mprintf(.true.,LOGFILE,'  OPT_GEOGRID_TBL_PATH = %s',s1=opt_geogrid_tbl_path)
+      call mprintf(.true.,LOGFILE,'/')
 
       dxkm = dx
       dykm = dy
