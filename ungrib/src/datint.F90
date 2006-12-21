@@ -282,7 +282,7 @@ subroutine datint(fuldates, nful, hstart, ntimes, interval, out_format, prefix)
                  write(11) scr2d
               else
                  call mprintf(.true.,ERROR, &
-                  "hdate = %s , fuldates = %s , Field = %s",s1=hdate,s2=fuldates,s3=field)
+                  "hdate = %s , fuldates = %s %s, Field = %s",s1=hdate,s2=fuldates(iful),s3=fuldates(iful+1),s4=field)
               endif
               deallocate(scr2d, bfr2d)
            enddo READLOOP2

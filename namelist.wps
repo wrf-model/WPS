@@ -38,12 +38,12 @@
  geog_data_path = '/standalone/users/gill/DATA/GEOG'
 
 &ungrib
- out_format = 'WPS'
+ out_format = 'WPS',
+ prefix = 'FILE',
 /
- prefix = '/mmmtmp/duda/MIKE-is_cool.prefix',
 
 &metgrid
- fg_name = './FILE'
+ fg_name = 'FILE'
  io_form_metgrid = 2, 
 /
  opt_output_from_metgrid_path = './',

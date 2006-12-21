@@ -185,7 +185,7 @@ end program g2print
       integer :: debug_level
       character(len=4) :: tmp4
       character(len=40) :: string
-      character(len=12) :: pstring = ',t50,":",i14)'
+      character(len=13) :: pstring = ',t50,":",i14)'
       character(len=15) :: rstring = ',t50,":",f14.5)'
 
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -369,15 +369,10 @@ end program g2print
 	  endif
 
 	  if (debug_level .le. 50) then
-          write(6,*) '-------------------------------------------------&
-      --------------------------'
-          write(6,*) ' rec Prod Cat Param  Lvl    Lvl      Lvl   Name  &
-      ','        Time          Fcst'
-          write(6,*) ' num Disc     num    code   one      two         &
-      ','                      hour'
-
-          write(6,*) '-------------------------------------------------&
-      --------------------------'
+          write(6,*) '---------------------------------------------------------------------------'
+          write(6,*) ' rec Prod Cat Param  Lvl    Lvl      Lvl   Name          Time          Fcst'
+          write(6,*) ' num Disc     num    code   one      two                               hour'
+          write(6,*) '---------------------------------------------------------------------------'
           endif
 
            year  =gfld%idsect(6)     !(FOUR-DIGIT) YEAR OF THE DATA
