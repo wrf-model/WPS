@@ -5,7 +5,7 @@
  end_date   = '2006-08-16_18:00:00','2006-08-16_12:00:00',
  interval_seconds = 21600
  io_form_geogrid = 2,
- debug_level = 0
+ debug_level = 10000
 /
  opt_output_from_geogrid_path = './',
  start_date = '2000-01-24_12:00:00','2000-01-24_12:00:00',
@@ -29,12 +29,12 @@
  truelat1  =  30.0,
  truelat2  =  60.0,
  stand_lon = -98.0,
- geog_data_path = '/data3a/mp/gill/DATA/GEOG'
+ geog_data_path = '/mmm/users/wrfhelp/WPS_GEOG'
 /
  ref_x     = 50.,
  ref_y     = 40.,
  opt_geogrid_tbl_path = 'geogrid/'
- geog_data_path = '/mmm/users/wrfhelp/WPS_GEOG'
+ geog_data_path = '/data3a/mp/gill/DATA/GEOG'
  geog_data_path = '/standalone/users/gill/DATA/GEOG'
 
 &ungrib

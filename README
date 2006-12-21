@@ -1,21 +1,18 @@
-Version - prerelease
+WRF Pre-Processing System Version 2.2 (December 2006)
+http://www.mmm.ucar.edu/wrf/users/
 
 The WRF Pre-Processing System (WPS) is a collection
-of Fortran and C programs that provides data which is
+of Fortran and C programs that provides data which are
 input to the real.exe program.  There are three main
 programs and a number of auxillary programs that
 are part of WPS.  Both the ARW and NMM dynamical cores
 in WRF are supported by WPS.
 
-Please see
-http://www.mmm.ucar.edu/people/duda/files/wps.html
-which has source, static data, a sample data set, 
-presentations, a tutorial, example output -- just 
-about everything for new users of WPS.
+For questions and help to run the program, please see the 
+User's Guide at http://www.mmm.ucar.edu/wrf/users/docs/user_guide/contents.html
+and send email to wrfhelp@ucar.edu.
 
-
-
-
+===================================================
 
 Main programs: geogrid.exe, ungrib.exe, metgrid.exe
 
@@ -78,32 +75,21 @@ Building WPS
 
 Similar to the WRF package, WPS uses a two-step:
 ./configure
-./compile wps
+./compile
 build mechanism, which directs the unix make underneath.
 If the user is on a recognized architecture, the
 configure script will display a list of available
 compile options (usually serial vs parallel, Grib 2
 enabled vs a "no Grib 2" option).  For some OS options,
 there are multiple compilers that are supported.
-Please see the web page for build the WPS executables
-on the http://www.mmm.ucar.edu/people/duda/files/wps.html 
-page.
 
 The configure option lists both "build Grib2" and
 "do not build Grib2" options.  It is suggested that
 the first builds be without the Grib Edition 2
 capability.
 
-The compile option "wps" builds only the main three
-WPS programs: geogrid, ungrib, and metgrid.  This is
-the suggested for the initial build so that NCAR
-Graphics libraries are not required.
-
-To build the utility programs, then the command
-is:
-./compile util
-The utility programs are located in the WPS/util
-directory:
+There are a number of utility programs that will be
+built in WPS/util/ directory:
 
 avg_tsfc.exe
 ------------
@@ -178,11 +164,10 @@ usage:
 
 Static Input Data
 
-The static input data is provided for users in a large
-tar file (250 MB to 350 MB, depending on whether bzip2
-or gzip files are selected).  This data may be downloaded 
-from the http://www.mmm.ucar.edu/people/duda/files/wps.html
-site.
+The static input data is provided in two tar files: one
+contains full resolution data (30", 2', 5' and 10') and the other
+contains only 10' low resolution data. The data may be downloaded 
+from http://www.mmm.ucar.edu/wrf/users/download/get_source.html.
 
 
 
@@ -190,16 +175,14 @@ site.
 Meteorological Input Data
 
 The meteorological input data for WPS is the Grib
-Edition 1 or 2 data available from NCEP.  A test
+Edition 1 GFS data from NCEP.  A test
 data set (Jan 2000, 24/12Z to 25/12Z) is available from
-the http://www.mmm.ucar.edu/people/duda/files/wps.html
-site.
+http://www.mmm.ucar.edu/wrf/users/download/get_source.html.
 
 
 
-Sample Running of WPS and WRF
+Sample WPS output data for WRF
 
-A sample of the entire run of WPS and WRF for the
-Jan 2000 case is provided (both commands and
-output).  The stdout of each program (geogrid,
-ungrib, metgrid, real, and wrf) is also provided.
+Samples of the output data from WPS for use in WRF for the
+Jan 2000 and June 2001 cases are provided from
+http://www.mmm.ucar.edu/wrf/users/download/get_source.html.

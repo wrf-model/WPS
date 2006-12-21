@@ -1339,11 +1339,11 @@ subroutine gribheader(debug_level,ierr)
         call gbyte_g1(grec, infogrid(11), iskip, 32)
         iskip = iskip + 32
 
-        if ( debug_level .gt. 100 ) then
-        print *, "lat/lon grib grid info", infogrid(1), infogrid(3), &
-        infogrid(5), infogrid(6), infogrid(8), infogrid(21), &
-        infogrid(22), infogrid(10), infogrid(11), infogrid(8)
-        end if
+!MGD        if ( debug_level .gt. 100 ) then
+!MGD        print *, "lat/lon grib grid info", infogrid(1), infogrid(3), &
+!MGD        infogrid(5), infogrid(6), infogrid(8), infogrid(21), &
+!MGD        infogrid(22), infogrid(10), infogrid(11), infogrid(8)
+!MGD        end if
 
         infogrid(8) = infogrid(8) * infogrid(21)
         infogrid(9) = infogrid(9) * infogrid(22)

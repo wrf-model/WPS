@@ -136,14 +136,14 @@ subroutine output(hdate, nlvl, maxlvl, plvl, interval, iflag, out_format, prefix
           position='REWIND')
   endif
 
-  if ( debug_level .gt. 100 ) then
-     write(6,*) 'begin nloop'
-  end if
+!MGD  if ( debug_level .gt. 100 ) then
+!MGD     write(6,*) 'begin nloop'
+!MGD  end if
   NLOOP : do n = 1, nlvl
 
-  if ( debug_level .gt. 100 ) then
-     write(6,*) 'begin outloop'
-  end if
+!MGD  if ( debug_level .gt. 100 ) then
+!MGD     write(6,*) 'begin outloop'
+!MGD  end if
      OUTLOOP : do m = 1, maxvar
         field = namvar(m)
         do k = 1, m-1
@@ -163,20 +163,20 @@ subroutine output(hdate, nlvl, maxlvl, plvl, interval, iflag, out_format, prefix
           if (is_there(ilev,field)) then 
             call get_dims(ilev, field)
 
-            if ( debug_level .gt. 100 ) then
-               write(6,*) 'call refr_storage'
-            end if
+!MGD            if ( debug_level .gt. 100 ) then
+!MGD               write(6,*) 'call refr_storage'
+!MGD            end if
             call refr_storage(ilev, field, scr2d, map%nx, map%ny)
 
-            if ( debug_level .gt. 100 ) then
-               write(6,*) 'back from refr'
-               write(6,*) 'out_format = ',out_format
-            end if
+!MGD            if ( debug_level .gt. 100 ) then
+!MGD               write(6,*) 'back from refr'
+!MGD               write(6,*) 'out_format = ',out_format
+!MGD            end if
 
 	    if (out_format(1:2) .eq. 'SI') then
-              if ( debug_level .gt. 100 ) then
-                 write(6,*) 'writing in SI format'
-              end if
+!MGD              if ( debug_level .gt. 100 ) then
+!MGD                 write(6,*) 'writing in SI format'
+!MGD              end if
               write(iunit) 4
               hdate_output = hdate
               write (iunit) hdate_output, xfcst, map%source, field, units, &
@@ -223,9 +223,9 @@ subroutine output(hdate, nlvl, maxlvl, plvl, interval, iflag, out_format, prefix
 	      write (iunit) map%grid_wind
               write (iunit) scr2d
 	    else if (out_format(1:2) .eq. 'MM') then
-              if ( debug_level .gt. 100 ) then
-	         write(6,*) 'writing in MM5 format'
-              end if
+!MGD              if ( debug_level .gt. 100 ) then
+!MGD	         write(6,*) 'writing in MM5 format'
+!MGD              end if
               write(iunit) 3
               hdate_output = hdate
               write (iunit) hdate_output, xfcst, field, units, Desc, level,&

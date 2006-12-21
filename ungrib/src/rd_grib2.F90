@@ -155,12 +155,12 @@ C  SET ARGUMENTS
          endif
          
          ! Additional print statments for developer.
-         if ( debug_level .GT. 100 ) then
-	 print *,'G2 SECTION 0: ',(listsec0(j),j=1,3)
-         print *,'G2 SECTION 1: ',(listsec1(j),j=1,13)
-         print *,'G2 Contains ',numlocal,' Local Sections ',
-     &           ' and ',numfields,' data fields.'
-         endif
+!MGD         if ( debug_level .GT. 100 ) then
+!MGD	 print *,'G2 SECTION 0: ',(listsec0(j),j=1,3)
+!MGD         print *,'G2 SECTION 1: ',(listsec1(j),j=1,13)
+!MGD         print *,'G2 Contains ',numlocal,' Local Sections ',
+!MGD     &           ' and ',numfields,' data fields.'
+!MGD         endif
 
 
          ! ----
@@ -385,50 +385,52 @@ C  SET ARGUMENTS
 ! ------------------------------------
          ! Additional print information for developer.
          if ( debug_level .GT. 100 ) then
-           print *
-           print *,'G2 FIELD ',n
-           if (n==1) then
-            print *,'G2 SECTION 0: ',gfld%discipline,gfld%version
-            print *,'G2 SECTION 1: ',(gfld%idsect(j),j=1,gfld%idsectlen)
-           endif
-           if ( associated(gfld%local).AND.gfld%locallen.gt.0 ) then
-              print *,'G2 SECTION 2: ',(gfld%local(j),j=1,gfld%locallen)
-           endif
-           print *,'G2 SECTION 3: ',gfld%griddef,gfld%ngrdpts,
-     &                            gfld%numoct_opt,gfld%interp_opt,
-     &                            gfld%igdtnum
-           print *,'G2 GRID TEMPLATE 3.',gfld%igdtnum,': ',
-     &            (gfld%igdtmpl(j),j=1,gfld%igdtlen)
-           if ( gfld%num_opt .eq. 0 ) then
-             print *,'G2 NO Section 3 List Defining No. of Data Points.'
-           else
-             print *,'G2 Section 3 Optional List: ',
-     &                (gfld%list_opt(j),j=1,gfld%num_opt)
-           endif
-           print *,'G2 PRODUCT TEMPLATE 4.',gfld%ipdtnum,': ',
-     &          (gfld%ipdtmpl(j),j=1,gfld%ipdtlen)
+!MGD           print *
+!MGD           print *,'G2 FIELD ',n
+!MGD           if (n==1) then
+!MGD            print *,'G2 SECTION 0: ',gfld%discipline,gfld%version
+!MGD            print *,'G2 SECTION 1: ',(gfld%idsect(j),j=1,gfld%idsectlen)
+!MGD           endif
+!MGD           if ( associated(gfld%local).AND.gfld%locallen.gt.0 ) then
+!MGD              print *,'G2 SECTION 2: ',(gfld%local(j),j=1,gfld%locallen)
+!MGD           endif
+!MGD           print *,'G2 SECTION 3: ',gfld%griddef,gfld%ngrdpts,
+!MGD     &                            gfld%numoct_opt,gfld%interp_opt,
+!MGD     &                            gfld%igdtnum
+!MGD           print *,'G2 GRID TEMPLATE 3.',gfld%igdtnum,': ',
+!MGD     &            (gfld%igdtmpl(j),j=1,gfld%igdtlen)
+!MGD           if ( gfld%num_opt .eq. 0 ) then
+!MGD             print *,'G2 NO Section 3 List Defining No. of Data Points.'
+!MGD           else
+!MGD             print *,'G2 Section 3 Optional List: ',
+!MGD     &                (gfld%list_opt(j),j=1,gfld%num_opt)
+!MGD           endif
+!MGD           print *,'G2 PRODUCT TEMPLATE 4.',gfld%ipdtnum,': ',
+!MGD     &          (gfld%ipdtmpl(j),j=1,gfld%ipdtlen)
 
            pabbrev=param_get_abbrev(gfld%discipline,gfld%ipdtmpl(1),
      &                              gfld%ipdtmpl(2))
            !call prlevel(gfld%ipdtnum,gfld%ipdtmpl,labbrev)
            !call prvtime(gfld%ipdtnum,gfld%ipdtmpl,listsec1,tabbrev)
-            print *,'G2 TEXT: ',pabbrev,trim(labbrev)," ",trim(tabbrev)
+!MGD            print *,'G2 TEXT: ',pabbrev,trim(labbrev)," ",trim(tabbrev)
 
-           if ( gfld%num_coord .eq. 0 ) then
-             print *,'G2 NO Optional Vertical Coordinate List.'
-           else
-             print *,'G2 Section 4 Optional Coordinates: ',
-     &             (gfld%coord_list(j),j=1,gfld%num_coord)
-           endif
+!MGD           if ( gfld%num_coord .eq. 0 ) then
+!MGD             print *,'G2 NO Optional Vertical Coordinate List.'
+!MGD           else
+!MGD             print *,'G2 Section 4 Optional Coordinates: ',
+!MGD     &             (gfld%coord_list(j),j=1,gfld%num_coord)
+!MGD           endif
            if ( gfld%ibmap .ne. 255 ) then
-              print *,'G2 Num. of Data Points = ',gfld%ndpts,
-     &             '    with BIT-MAP ',gfld%ibmap
+              call mprintf(.true.,DEBUG, 
+     &             'G2 Num. of Data Points = %i with BIT-MAP %i', 
+     &              i1=gfld%ndpts, i2=gfld%ibmap)
            else
-              print *,'G2 Num. of Data Points = ',gfld%ndpts,
-     &                '    NO BIT-MAP '
+              call mprintf(.true.,DEBUG, 
+     &                'G2 Num. of Data Points = %i NO BIT-MAP', 
+     &                 i1=gfld%ndpts)
            endif
-           print *,'G2 DRS TEMPLATE 5.',gfld%idrtnum,': ',
-     &          (gfld%idrtmpl(j),j=1,gfld%idrtlen)
+!MGD           print *,'G2 DRS TEMPLATE 5.',gfld%idrtnum,': ',
+!MGD     &          (gfld%idrtmpl(j),j=1,gfld%idrtlen)
            fldmax=gfld%fld(1)
            fldmin=gfld%fld(1)
            sum=gfld%fld(1)
@@ -438,9 +440,9 @@ C  SET ARGUMENTS
              sum=sum+gfld%fld(j)
            enddo ! gfld%ndpts
 
-           print *,'G2 Data Values:'
-           write(*,fmt='("G2 MIN=",f21.8," AVE=",f21.8,
-     &          " MAX=",f21.8)') fldmin,sum/gfld%ndpts,fldmax
+!MGD           print *,'G2 Data Values:'
+           call mprintf(.true.,DEBUG,'G2 MIN=%f AVE=%f MAX=%f', 
+     &             f1=fldmin, f2=sum/gfld%ndpts, f3=fldmax)
            !do j=1,gfld%ndpts\20
            !   write(*,*) j, gfld%fld(j)
            !enddo
@@ -450,10 +452,10 @@ C  SET ARGUMENTS
 !         do i = 1, maxvar
 !           write(6,'(a10,4i8)') namvar(i),(g2code(j,i),j=1,4)
 !         enddo
-	  if (debug_level .gt. 50) then
-          write(6,*) 'looking for ',gfld%discipline,gfld%ipdtmpl(1),
-     &       gfld%ipdtmpl(2),gfld%ipdtmpl(10)
-          endif
+!MGD	  if (debug_level .gt. 50) then
+!MGD          write(6,*) 'looking for ',gfld%discipline,gfld%ipdtmpl(1),
+!MGD     &       gfld%ipdtmpl(2),gfld%ipdtmpl(10)
+!MGD          endif
 
          ! Test this data record again list of desired variables 
          ! found in Vtable.
@@ -472,10 +474,10 @@ C  SET ARGUMENTS
               !my_field (e.g. RH, TMP, similar to, but not the same as pabbrev)
               my_field=namvar(i) 
 
-	if (debug_level .gt. 50) then
-	 write(6,*) 'namvar(i) = ',namvar(i),' pabbrev = ',pabbrev
-	 write(6,*) 'Parameter = ',gfld%ipdtmpl(2)
-	endif
+!MGD	if (debug_level .gt. 50) then
+!MGD	 write(6,*) 'namvar(i) = ',namvar(i),' pabbrev = ',pabbrev
+!MGD	 write(6,*) 'Parameter = ',gfld%ipdtmpl(2)
+!MGD	endif
 
 
 ! need to match up soil levels with those requested.
@@ -497,7 +499,7 @@ C  SET ARGUMENTS
      &               gfld%ipdtmpl(12),' to ',gfld%ipdtmpl(15),
      &           ' in the GRIB2 file, was not found in the Vtable'
 		endif
-         if (debug_level .gt. 50) write(6,*) 'my_field is now ',my_field
+!MGD         if (debug_level .gt. 50) write(6,*) 'my_field is now ',my_field
 	      endif
 
               ! Level (eg. 10000 mb)

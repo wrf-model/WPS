@@ -97,6 +97,9 @@ program ungrib
   call mprintf(.true.,INFORM,"Interval value: %i seconds or  %f hours", &
                i1=interval, f1=float(interval)/3600.)
 
+  call mprintf(.true.,STDOUT,'Path to intermediate files is %s',s1=get_path(prefix))
+  call mprintf(.true.,LOGFILE,'Path to intermediate files is %s',s1=get_path(prefix))
+
 ! -----------------
 ! Determine GRIB Edition number
   grib_version=0
@@ -349,7 +352,6 @@ program ungrib
 ! Now delete the temporary files:
 
   call file_delete(filedates, nfiles, trim(get_path(prefix))//'PFILE:', interval)
-  call mprintf(.true.,STDOUT,'THE PATH TO INTERMEDIATE FILES IS %s',s1=get_path(prefix))
 
 ! And Now we are done:
 
