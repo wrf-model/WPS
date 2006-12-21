@@ -359,10 +359,8 @@ program ungrib
    call mprintf(.true.,STDOUT,'!  Successful completion of ungrib.   !')
 !  call mprintf(.true.,STDOUT,"!  We're hauling gear at Bandimere.   !")
    call mprintf(.true.,STDOUT,'!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
-   call mprintf(.true.,LOGFILE,'!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
-   call mprintf(.true.,LOGFILE,'!  Successful completion of ungrib.   !')
-!  call mprintf(.true.,LOGFILE,"!  We're hauling gear at Bandimere.   !")
-   call mprintf(.true.,LOGFILE,'!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+
+   call mprintf(.true.,LOGFILE,' *** Successful completion of program ungrib.exe *** ')
 
 
 
