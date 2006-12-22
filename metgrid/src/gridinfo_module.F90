@@ -162,7 +162,7 @@ module gridinfo_module
       call mprintf(.true.,LOGFILE,'/')
 
       call mprintf(.true.,LOGFILE,'&METGRID')
-      do i=1,max_dom
+      do i=1,MAX_DOMAINS
          if (i == 1) then
             if (fg_name(i) == '*') then
                call mprintf(.true.,LOGFILE,'  FG_NAME               = ')
@@ -174,7 +174,7 @@ module gridinfo_module
             call mprintf(.true.,LOGFILE,'                        = %s',s1=fg_name(i))
          end if
       end do
-      do i=1,max_dom
+      do i=1,MAX_DOMAINS
          if (i == 1) then
             if (constants_name(i) == '*') then
                call mprintf(.true.,LOGFILE,'  CONSTANTS_NAME        = ')
