@@ -11,19 +11,22 @@ program avg_tsfc
 
    ! Local variables
    integer :: idiff, n_times, t, istatus, fg_idx, discardtimes
-   integer :: met_map_proj, version, nx, ny
+   integer :: met_map_proj, version, nx, ny, t_nx, t_ny, t_met_map_proj
    real :: xfcst, xlvl, startlat, startlon, starti, startj, deltalat, deltalon, earth_radius
+   real :: t_startlat, t_startlon, t_starti, t_startj, t_deltalat, t_deltalon, t_earth_radius
    real :: met_dx, met_dy
+   real :: t_met_dx, t_met_dy
    real :: met_cen_lon, met_truelat1, met_truelat2
+   real :: t_met_cen_lon, t_met_truelat1, t_met_truelat2
    real, pointer, dimension(:,:) :: slab
    real, pointer, dimension(:,:) :: mean
    logical :: is_rotated
    character (len=9) :: short_fieldnm
    character (len=19) :: valid_date, temp_date
    character (len=24) :: hdate
-   character (len=25) :: units
-   character (len=32) :: map_src
-   character (len=46) :: desc
+   character (len=25) :: units, t_units
+   character (len=32) :: map_src, t_map_src
+   character (len=46) :: desc, t_desc
    character (len=128) :: input_name
 
    call get_namelist_params()
@@ -77,11 +80,35 @@ program avg_tsfc
                if (istatus == 0) then
 
                   if (trim(short_fieldnm) == 'TT' .and. xlvl == 200100.) then
-! BUG: Should check here whether projection and dimensions match from previous read of the TT field
+                     t_units = units
+                     t_desc  = desc
                      if (.not. associated(mean)) then
+                        t_nx = nx
+                        t_ny = ny
+                        t_startlat = startlat
+                        t_startlon = startlon
+                        t_starti = starti
+                        t_startj = startj
+                        t_deltalat = deltalat
+                        t_deltalon = deltalon
+                        t_met_dx = met_dx
+                        t_met_dy = met_dy
+                        t_met_dy = met_dy
+                        t_met_map_proj = met_map_proj
+                        t_met_cen_lon = met_cen_lon
+                        t_met_truelat1 = met_truelat1
+                        t_met_truelat2 = met_truelat2
+                        t_earth_radius = earth_radius
+                        t_map_src = map_src
                         allocate(mean(nx,ny))
                         mean = 0.
                      end if
+
+! BUG: Should check here whether projection matches from previous read of the TT field
+                     if (t_nx /= nx .or. t_ny /= ny) &
+                        call mprintf(.true.,ERROR,'Mismatch in Tsfc field dimensions in file %s', &
+                                     s1=trim(input_name)//':'//temp_date(1:13))
+                      
                      mean = mean + slab
                   end if
    
@@ -103,12 +130,13 @@ program avg_tsfc
          mean = mean /real(n_times-discardtimes+1)
 
          call write_met_init('TAVGSFC', .true., temp_date(1:13), istatus)
-! BUG: Need to save all of these arguments from the TT field read
-         call write_next_met_field(version, 'TAVGSFC  ', hdate, xfcst, 200100., units, desc, &
-                             met_map_proj, startlat, startlon, starti, startj, deltalat, &
-                             deltalon, met_dx, met_dy, met_cen_lon, met_truelat1, met_truelat2, &
-                             earth_radius, nx, ny, &
-                             map_src, mean, is_rotated, istatus)
+         hdate = '0000-00-00_00:00:00     '
+         xfcst = 0.
+         call write_next_met_field(version, 'TAVGSFC  ', hdate, xfcst, 200100., t_units, t_desc, &
+                             t_met_map_proj, t_startlat, t_startlon, t_starti, t_startj, t_deltalat, &
+                             t_deltalon, t_met_dx, t_met_dy, t_met_cen_lon, t_met_truelat1, t_met_truelat2, &
+                             t_earth_radius, t_nx, t_ny, &
+                             t_map_src, mean, is_rotated, istatus)
          call write_met_close()
   
          deallocate(mean)
