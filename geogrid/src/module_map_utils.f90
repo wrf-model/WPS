@@ -1206,7 +1206,7 @@ MODULE map_utils
       dph = dphd*d2r
       dlm = dlmd*d2r
       tph0 = proj%lat1*d2r
-      tlm0 = proj%lon1*d2r
+      tlm0 = -proj%lon1*d2r
   
       x = COS(tph0)*COS(glat)*COS(glon-tlm0)+SIN(tph0)*SIN(glat)
       y = -COS(glat)*SIN(glon-tlm0)
@@ -1341,8 +1341,8 @@ MODULE map_utils
       d2r = pi/180.
       r2d = 1./d2r
       tph0 = proj%lat1*d2r
-      tlm0 = proj%lon1*d2r
-     
+      tlm0 = -proj%lon1*d2r
+
       midrow = (proj%jydim+1)/2
       midcol = proj%ixdim
 
@@ -1372,8 +1372,8 @@ MODULE map_utils
       fctr = 1.
       IF (tlond > 0.) fctr = -1.
      
-      glond = proj%lon1+fctr*ACOS(arg2)*r2d
-     
+      glond = tlm0*r2d+fctr*ACOS(arg2)*r2d
+
       lat = glatd
       lon = -glond
 

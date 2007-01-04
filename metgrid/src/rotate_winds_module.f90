@@ -381,7 +381,8 @@ module rotate_winds_module
 
             phi0  = proj_stack(current_nest_number)%lat1 * rad_per_deg
 
-            clontemp= -proj_stack(current_nest_number)%lon1
+            clontemp= proj_stack(current_nest_number)%lon1
+
             if (clontemp .lt. 0.) then
                lmbd0 = (clontemp + 360.) * rad_per_deg
             else
