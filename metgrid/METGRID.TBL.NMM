@@ -96,6 +96,7 @@ name=SNOW
         fill_missing=0.
 ========================================
 name=SKINTEMP
+        mandatory=yes    # MUST HAVE THIS FIELD
         interp_option=four_pt+wt_average_4pt+wt_average_16pt+search
         masked=both
         interp_land_mask  = LANDSEA(1)
