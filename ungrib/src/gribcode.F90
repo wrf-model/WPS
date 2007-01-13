@@ -915,8 +915,8 @@ subroutine gribprint(isec)
   implicit none
   integer :: isec
   integer :: ou = 6
-  character(len=12) :: string = 't45,":",i8)'
-  character(len=15) :: rstring = 't45,":",f12.5)'
+  character(len=12) :: string = ',t45,":",i8)'
+  character(len=15) :: rstring = ',t45,":",f12.5)'
 
   if (isec.eq.0) then
      write(*,'(/,"GRIB SECTION 0:")')
