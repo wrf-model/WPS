@@ -785,7 +785,8 @@ subroutine gribget(nunit, ierr)
 
   call bnread(nunit, grec, isize, isz, ierr, 1)
 
-#if defined (DEC) || defined (ALPHA) || defined (alpha) || defined (LINUX)
+!#if defined (DEC) || defined (ALPHA) || defined (alpha) || defined (LINUX)
+#ifdef BYTESWAP
       call swap4(grec, isz)
 #endif
 
