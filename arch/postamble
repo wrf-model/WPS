@@ -30,7 +30,7 @@ WRF_INCLUDE	=	-I$(WRF_DIR)/external/io_netcdf \
 
 .f.o:
 	$(RM) $@ $*.mod
-	$(FC) $(FFLAGS) -c $< $(WRF_INCLUDE)
+	$(FC) $(F77FLAGS) -c $< $(WRF_INCLUDE)
 
 .F90.o:
 	$(RM) $@ $*.mod
