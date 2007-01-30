@@ -411,7 +411,7 @@
           int  namelen ) {
 #endif
 #ifdef LINUXG95
-  int banio
+  int banio_
          (int * mode, int * start, int *newpos, int * size, int * no, 
           int * nactual, int * fdes, const char *fname, char *datary, 
           int  namelen ) {
