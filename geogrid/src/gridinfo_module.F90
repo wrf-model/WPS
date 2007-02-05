@@ -385,9 +385,20 @@ module gridinfo_module
       end if
 
       ! If the user hasn't supplied a known_x and known_y, assume the center of domain 1
-      if (known_x == NAN) known_x = ixdim(1) / 2.
-      if (known_y == NAN) known_y = jydim(1) / 2.
-  
+      if (gridtype == 'E' .and. (known_x /= NAN .or. known_y /= NAN)) then
+         call mprintf(.true.,WARN, &
+                      'Namelist variables ref_x and ref_y cannot be used for NMM grids.'// &
+                      ' (ref_lat, ref_lon) will refer to the center of the coarse grid.')
+      else if (gridtype == 'C') then
+         if (known_x == NAN .and. known_y == NAN) then
+            known_x = ixdim(1) / 2.
+            known_y = jydim(1) / 2.
+         else if (known_x == NAN .or. known_y == NAN) then
+            call mprintf(.true.,ERROR, &
+                      'In namelist.wps, neither or both of ref_x, ref_y must be specified.')
+         end if 
+      end if
+
       ! Checks specific to E grid
       if (gridtype == 'E') then
   
@@ -400,15 +411,11 @@ module gridinfo_module
             iproj_type = PROJ_ROTLL
          end if
    
-         ! Nesting is not currently supported in E grid
-         call mprintf((n_domains > 1), ERROR, &
-                      'Nesting for NMM core is not currently supported by '// &
-                      'this program. Only a single domain must be specified '// &
-                      'in the namelist.')
-   
          do i=1,n_domains
             call mprintf(mod(jydim(i),2) /= 1, ERROR, &
                          'For the NMM core, the number of rows must be odd for grid %i.', i1=i)
+            call mprintf((parent_grid_ratio(i) /= 3 .and. i > 1), ERROR, &
+                         'For the NMM core, the parent_grid_ratio must be 3.') 
          end do
    
       ! Checks specific to C grid

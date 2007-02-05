@@ -9,6 +9,7 @@
 module llxy_module
 
    use gridinfo_module
+   use list_module
    use map_utils
    use module_debug
    use misc_definitions_module
@@ -449,6 +450,62 @@ module llxy_module
  
    end subroutine find_known_latlon
 
+
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
+   ! Name: compute_nest_level_info
+   !
+   ! Purpose: This routine computes the parameters describing a nesting level for 
+   !          NMM grids.
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
+   subroutine compute_nest_level_info()
+
+      implicit none
+
+      ! Local variables
+      integer :: i, nest_level, temp
+      type (list) :: level_list 
+
+      call list_init(level_list)
+
+      ! Set location of coarse/mother domain
+      call map_init(proj_stack(1))
+
+      call map_set(PROJ_ROTLL, proj_stack(1), &
+                   ixdim=ixdim(1), &
+                   jydim=jydim(1), &
+                   phi=phi, &
+                   lambda=lambda, &
+                   lat1=known_lat, &
+                   lon1=known_lon, &
+                   stagger=HH)
+
+      do i=2,n_domains
+
+         nest_level = get_nest_level(i)
+
+         if (.not. list_search(level_list, ikey=nest_level, ivalue=temp)) then
+
+            call list_insert(level_list, ikey=nest_level, ivalue=nest_level)
+
+            ixdim(nest_level) = ixdim(1)*(3**(nest_level-1))-(3**(nest_level-1)-1)
+            jydim(nest_level) = jydim(1)*(3**(nest_level-1))-(3**(nest_level-1)-1)
+
+            call map_set(PROJ_ROTLL, proj_stack(nest_level), &
+                         ixdim = ixdim(nest_level), &
+                         jydim = jydim(nest_level), &
+                         phi    = phi, &
+                         lambda = lambda, &
+                         lat1=known_lat, &
+                         lon1=known_lon, &
+                         stagger=HH)
+         end if
+
+      end do
+
+      call list_destroy(level_list)
+
+   end subroutine compute_nest_level_info
+
    
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
    ! Name: get_domain_resolution
@@ -467,6 +524,56 @@ module llxy_module
       dom_dy = proj_stack(current_nest_number)%dx
 
    end subroutine get_domain_resolution
+
+
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
+   ! Name: get_nest_level
+   !
+   ! Purpose: This function returns, given a grid ID number, the nesting level of
+   !   that domain; the coarse domain is taken to have nesting level 1.
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
+   function get_nest_level(i)
+      
+      implicit none
+
+      ! Arguments
+      integer, intent(in) :: i
+
+      ! Local variables
+      integer :: j
+
+      ! Return value
+      integer :: get_nest_level
+
+      ! If argument is the coarse domain, return
+      if (i == 1) then
+         get_nest_level = 1
+         return
+      end if
+
+      if (i > MAX_DOMAINS) then
+         call mprintf(.true., ERROR, &
+                      'get_nest_level() called with invalid grid ID of %i.',i1=i)
+      end if
+
+      ! If not the coarse domain, then nesting level is at least 2
+      ! Yes, this looks silly. But we do not have a grid_id array, so
+      !    we must check on parent_id
+      get_nest_level = 2
+
+      j = i
+      do while (parent_id(j) /= 1)
+         j = parent_id(j)
+         get_nest_level = get_nest_level + 1
+         
+         ! Sanity check
+         if (get_nest_level > MAX_DOMAINS) then
+            call mprintf(.true., ERROR, &
+                         'Spooky nesting setup encountered in get_nest_level().')
+         end if
+      end do
+
+   end function get_nest_level
 #endif
 
 

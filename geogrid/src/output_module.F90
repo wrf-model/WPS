@@ -162,16 +162,16 @@ module output_module
          write(output_fname(i+9:i+10),'(i2.2)') nest_number
       else if (grid_type == 'E') then
 #ifdef IO_BINARY
-         if (io_form_output == BINARY) output_fname = trim(opt_output_from_geogrid_path)//'geo_nmm.d  .int'
+         if (io_form_output == BINARY) output_fname = trim(opt_output_from_geogrid_path)//'geo_nmm.nl  .int'
 #endif
 #ifdef IO_NETCDF
-         if (io_form_output == NETCDF) output_fname = trim(opt_output_from_geogrid_path)//'geo_nmm.d  .nc'
+         if (io_form_output == NETCDF) output_fname = trim(opt_output_from_geogrid_path)//'geo_nmm.nl  .nc'
 #endif
 #ifdef IO_GRIB1
-         if (io_form_output == GRIB1) output_fname = trim(opt_output_from_geogrid_path)//'geo_nmm.d  .grib'
+         if (io_form_output == GRIB1) output_fname = trim(opt_output_from_geogrid_path)//'geo_nmm.nl  .grib'
 #endif
          i = len_trim(opt_output_from_geogrid_path)
-         write(output_fname(i+10:i+11),'(i2.2)') nest_number
+         write(output_fname(i+11:i+12),'(i2.2)') nest_number
       end if
 
       if (nprocs > 1 .and. do_tiled_output) then
@@ -203,21 +203,21 @@ module output_module
       else if (grid_type == 'E') then
 #ifdef IO_BINARY
          if (io_form_output == BINARY) then
-            output_fname = trim(opt_output_from_metgrid_path)//'met_nmm.d  .'//trim(datestr)//'.int'
+            output_fname = trim(opt_output_from_metgrid_path)//'met_nmm.nl  .'//trim(datestr)//'.int'
          end if
 #endif
 #ifdef IO_NETCDF
          if (io_form_output == NETCDF) then
-            output_fname = trim(opt_output_from_metgrid_path)//'met_nmm.d  .'//trim(datestr)//'.nc'
+            output_fname = trim(opt_output_from_metgrid_path)//'met_nmm.nl  .'//trim(datestr)//'.nc'
          end if
 #endif
 #ifdef IO_GRIB1
          if (io_form_output == GRIB1) then
-            output_fname = trim(opt_output_from_metgrid_path)//'met_nmm.d  .'//trim(datestr)//'.grib'
+            output_fname = trim(opt_output_from_metgrid_path)//'met_nmm.nl  .'//trim(datestr)//'.grib'
          end if
 #endif
          i = len_trim(opt_output_from_metgrid_path)
-         write(output_fname(i+10:i+11),'(i2.2)') nest_number
+         write(output_fname(i+11:i+12),'(i2.2)') nest_number
       end if
 
       if (nprocs > 1 .and. do_tiled_output) then

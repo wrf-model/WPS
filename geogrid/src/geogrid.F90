@@ -7,6 +7,7 @@ program geogrid
 
    use gridinfo_module
    use llxy_module
+   use list_module
    use module_debug
    use parallel_module
    use process_tile_module
@@ -15,8 +16,9 @@ program geogrid
    implicit none
 
    ! Local variables
-   integer :: i
+   integer :: i, nest_level, temp
    logical :: ew_extra_col, sn_extra_row
+   type(list) :: level_list
 
    ! Prepare anything necessary to do parallel processing of domains 
    ! The parallel module should be initialized before any other calls take place
@@ -30,25 +32,26 @@ program geogrid
    ! Get information about the source data to be processed
    call get_datalist()
 
-   ! Tell the llxy module that it can now compute parameters necessary to do 
-   !   transformations for any nest 
-   call compute_nest_locations()
+   if (gridtype == 'C') then
 
-   ! Process all requested domains 
-   do i=1,n_domains
-      call mprintf(.true.,STDOUT,'Processing domain %i of %i', i1=i, i2=n_domains)
-      call mprintf(.true.,LOGFILE,'Processing domain %i of %i', i1=i, i2=n_domains)
+      ! Tell the llxy module that it can now compute parameters necessary to do 
+      !   transformations for any nest 
+      call compute_nest_locations()
+
+      ! Process all requested domains 
+      do i=1,n_domains
+         call mprintf(.true.,STDOUT,'Processing domain %i of %i', i1=i, i2=n_domains)
+         call mprintf(.true.,LOGFILE,'Processing domain %i of %i', i1=i, i2=n_domains)
   
-      ! Get information about the source data we will use for this nest
-      call get_source_params(geog_data_res(i))
+         ! Get information about the source data we will use for this nest
+         call get_source_params(geog_data_res(i))
   
-      ! Set transformations in llxy module to be with respect to current nest
-      call select_domain(i)
+         ! Set transformations in llxy module to be with respect to current nest
+         call select_domain(i)
  
-      ! Determine which range of indices we will work on
-      call parallel_get_tile_dims(ixdim(i), jydim(i))
+         ! Determine which range of indices we will work on
+         call parallel_get_tile_dims(ixdim(i), jydim(i))
   
-      if (gridtype == 'C') then
          if (my_x == nproc_x-1) then ! One more column for U points
             ew_extra_col = .true.
          else
@@ -61,18 +64,56 @@ program geogrid
             sn_extra_row = .false.
          end if
   
-      else if (gridtype == 'E') then
-         sn_extra_row = .false.  
-         ew_extra_col = .false.  
+         ! Process fields for a tile of the current nest
+         call process_tile(i, gridtype, dyn_opt, &
+                           1,       ixdim(i), 1,       jydim(i), &
+                           my_minx, my_maxx,  my_miny, my_maxy, &   ! These come from parallel_module
+                           ew_extra_col, sn_extra_row)
+      end do
 
-      end if
+   else if (gridtype == 'E') then
+
+      ! Get number of grid points and grid spacing for nest levels
+      call compute_nest_level_info()
+
+      ! Create list to track NMM nesting levels
+      call list_init(level_list)
+
+      ! Process all requested domains 
+      do i=1,n_domains
+
+         nest_level = get_nest_level(i)
+
+         if (.not. list_search(level_list, ikey=nest_level, ivalue=temp)) then
+            call list_insert(level_list, ikey=nest_level, ivalue=nest_level)
+
+            call mprintf(.true.,STDOUT,'Processing nest_level %i', i1=nest_level)
+            call mprintf(.true.,LOGFILE,'Processing nest_level %i', i1=nest_level)
   
-      ! Process fields for a tile of the current nest
-      call process_tile(i, gridtype, dyn_opt, &
-                        1,       ixdim(i), 1,       jydim(i), &
-                        my_minx, my_maxx,  my_miny, my_maxy, &   ! These come from parallel_module
-                        ew_extra_col, sn_extra_row)
-   end do
+            ! Get information about the source data we will use for this nest
+            call get_source_params(geog_data_res(i))
+  
+            ! Set transformations in llxy module to be with respect to current nest
+            call select_domain(nest_level)
+ 
+            ! Determine which range of indices we will work on
+            call parallel_get_tile_dims(ixdim(nest_level), jydim(nest_level))
+  
+            sn_extra_row = .false.  
+            ew_extra_col = .false.  
+  
+            ! Process fields for a tile of the current nest
+            call process_tile(nest_level, gridtype, dyn_opt, &
+                              1, ixdim(nest_level), 1, jydim(nest_level), &
+                              my_minx, my_maxx, my_miny, my_maxy, &   ! These come from parallel_module
+                              ew_extra_col, sn_extra_row)
+         end if
+      end do
+
+      ! Free up list that was used for tracking NMM nesting levels
+      call list_destroy(level_list)
+
+   end if
 
    ! Free up memory used by list of source data to be processed
    call datalist_destroy()
