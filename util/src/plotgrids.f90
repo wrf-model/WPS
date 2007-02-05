@@ -133,6 +133,19 @@ program plotgrids
       stop
    end if
 
+   !
+   ! Currently, plotgrids.exe does not work with NMM domains
+   !
+   if (gridtype == 'E') then
+      write(6,*)
+      write(6,*) '!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
+      write(6,*) '! This version of the plotgrids utility does not work for NMM domains. !'
+      write(6,*) '!    An NMM-specific plotgrids may or may not be under development.    !'
+      write(6,*) '!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
+      write(6,*)
+      stop
+   end if
+
    if (max_dom > MAX_DOMAINS) then
       write(6,*) 'In namelist, max_dom must be <= ',MAX_DOMAINS,'. To run with more'// &
                 ' than ',MAX_DOMAINS,' domains, increase the MAX_DOMAINS parameter.'
