@@ -348,8 +348,8 @@ module output_module
 
          call select_domain(save_domain)
       else if (grid_type == 'E') then
-         dx = dxkm
-         dy = dykm
+         dx = dxkm / 3**(nest_number-1)   ! For NMM, nest_number is really nesting level
+         dy = dykm / 3**(nest_number-1)
          moad_cen_lat = 0.
          cen_lat=known_lat
          cen_lon=known_lon

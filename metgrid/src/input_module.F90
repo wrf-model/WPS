@@ -70,16 +70,16 @@ module input_module
             write(input_fname(i+9:i+10),'(i2.2)') nest_number
          else if (gridtype == 'E') then
 #ifdef IO_BINARY
-            if (io_form_input == BINARY) input_fname = trim(opt_output_from_geogrid_path)//'geo_nmm.d  .int'
+            if (io_form_input == BINARY) input_fname = trim(opt_output_from_geogrid_path)//'geo_nmm.nl  .int'
 #endif
 #ifdef IO_NETCDF
-            if (io_form_input == NETCDF) input_fname = trim(opt_output_from_geogrid_path)//'geo_nmm.d  .nc'
+            if (io_form_input == NETCDF) input_fname = trim(opt_output_from_geogrid_path)//'geo_nmm.nl  .nc'
 #endif
 #ifdef IO_GRIB1
-            if (io_form_input == GRIB1) input_fname = trim(opt_output_from_geogrid_path)//'geo_nmm.d  .grib'
+            if (io_form_input == GRIB1) input_fname = trim(opt_output_from_geogrid_path)//'geo_nmm.nl  .grib'
 #endif
             i = len_trim(opt_output_from_geogrid_path)
-            write(input_fname(i+10:i+11),'(i2.2)') nest_number
+            write(input_fname(i+11:i+12),'(i2.2)') nest_number
          end if
 
          if (nprocs > 1 .and. do_tiled_input) then

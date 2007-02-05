@@ -56,14 +56,25 @@ program metgrid
    ! Now begin the processing work, looping over all domains to be processed 
    !
 
-   do n=1,max_dom
+   if (gridtype == 'C') then
 
-      call mprintf(.true.,STDOUT,'Processing domain %i of %i.', i1=n, i2=max_dom)
-      call mprintf(.true.,LOGFILE,'Processing domain %i of %i.', i1=n, i2=max_dom)
+      do n=1,max_dom
 
-      call process_domain(n, extra_row, extra_col)
+         call mprintf(.true.,STDOUT,'Processing domain %i of %i', i1=n, i2=max_dom)
+         call mprintf(.true.,LOGFILE,'Processing domain %i of %i', i1=n, i2=max_dom)
 
-   end do  ! Loop over max_dom
+         call process_domain(n, extra_row, extra_col)
+
+      end do  ! Loop over max_dom
+
+   else if (gridtype == 'E') then
+
+      call mprintf(.true.,STDOUT,'Processing coarse domain only for NMM.')
+      call mprintf(.true.,LOGFILE,'Processing coarse domain only for NMM.')
+
+      call process_domain(1, extra_row, extra_col)
+
+   end if
 
 
    !

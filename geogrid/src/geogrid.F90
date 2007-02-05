@@ -87,8 +87,13 @@ program geogrid
          if (.not. list_search(level_list, ikey=nest_level, ivalue=temp)) then
             call list_insert(level_list, ikey=nest_level, ivalue=nest_level)
 
-            call mprintf(.true.,STDOUT,'Processing nest_level %i', i1=nest_level)
-            call mprintf(.true.,LOGFILE,'Processing nest_level %i', i1=nest_level)
+            if (nest_level == 1) then
+               call mprintf(.true.,STDOUT,'Processing coarse domain', i1=nest_level)
+               call mprintf(.true.,LOGFILE,'Processing coarse domain', i1=nest_level)
+            else
+               call mprintf(.true.,STDOUT,'Processing nesting level %i', i1=nest_level)
+               call mprintf(.true.,LOGFILE,'Processing nesting level %i', i1=nest_level)
+            end if
   
             ! Get information about the source data we will use for this nest
             call get_source_params(geog_data_res(i))
