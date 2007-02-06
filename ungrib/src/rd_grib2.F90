@@ -531,6 +531,11 @@ C  SET ARGUMENTS
                  hold_array(j)=gfld%fld(j)
               enddo
 
+!   Some grids need to be reordered. Until we get an example, this is
+!   a placeholder
+!             call reorder_it (hold_array, map%nx, map%ny, map%dx, 
+!    &                 map%dy, iorder)
+
               ! When we have reached this point, we have a data array ARRAY 
               ! which has some data we want to save, with field name FIELD 
               ! at pressure level LEVEL (Pa).  Dimensions of this data are 

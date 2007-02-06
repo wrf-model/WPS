@@ -1571,9 +1571,9 @@ subroutine gribheader(debug_level,ierr)
         infogrid(18) = infogrid(3)
         gridinfo(17) = gridinfo(6)
         infogrid(17) = infogrid(6)
-        call griblgg(infogrid(2), gridinfo(3), gridinfo(19))
-        infogrid(19) = nint(gridinfo(19)*1000.)
-        infogrid(3) = nint(gridinfo(3)*1000.)
+!        call griblgg(infogrid(2), gridinfo(3), gridinfo(19))
+!        infogrid(19) = nint(gridinfo(19)*1000.)
+!        infogrid(3) = nint(gridinfo(3)*1000.)
         gridinfo(6) = -gridinfo(3)
         infogrid(6) = -infogrid(3)
 
@@ -2017,3 +2017,88 @@ contains
   end subroutine lgord
 
 END SUBROUTINE GRIBLGG
+
+SUBROUTINE REORDER_IT (a, nx, ny, dx, dy, iorder)
+use module_debug
+      integer :: nx, ny, iorder
+      integer :: i, j, k, m
+      real :: dx, dy
+      real , dimension(nx*ny) :: a
+      real, dimension(1:nx*ny) :: z
+
+! There is some problem dimensioning z. It seg faults unless hardwired.
+
+      if (iorder .eq. 0 .and. dx .gt. 0. .and. dy .lt. 0) return
+      k = 0
+      call mprintf(.true.,DEBUG, &
+        "Reordering GRIB array : dx = %f  , dy = %f  , iorder = %i",  &
+	 f1=dx,f2=dy,i1=iorder)
+      if (iorder .eq. 0 ) then
+	if ( dx .lt. 0 .and. dy .lt. 0. ) then
+	  do j = 1, ny
+	  do i = nx, 1, -1
+	    k = k + 1
+	    m = i * j
+	    z(k) = a(m)
+	  enddo
+	  enddo
+        else if ( dx .lt. 0 .and. dy .gt. 0. ) then
+	  do j = ny, 1, -1
+	  do i = nx, 1, -1
+	    k = k + 1
+	    m = i * j
+	    z(k) = a(m)
+	  enddo
+	  enddo
+        else if ( dx .gt. 0 .and. dy .gt. 0. ) then
+	  do j = ny, 1, -1
+	  do i = 1, nx
+	    k = k + 1
+	    m = i * j
+	    z(k) = a(m)
+	  enddo
+	  enddo
+        endif
+      else
+	if ( dx .gt. 0 .and. dy .lt. 0. ) then
+	  do i = 1, nx
+	  do j = 1, ny
+	    k = k + 1
+	    m = i * j
+	    z(k) = a(m)
+	  enddo
+	  enddo
+        else if ( dx .lt. 0 .and. dy .lt. 0. ) then
+	  do i = nx, 1, -1
+	  do j = 1, ny
+	    k = k + 1
+	    m = i * j
+	    z(k) = a(m)
+	  enddo
+	  enddo
+        else if ( dx .lt. 0 .and. dy .lt. 0. ) then
+	  do i = nx, 1, -1
+	  do j = ny, 1, -1
+	    k = k + 1
+	    m = i * j
+	    z(k) = a(m)
+	  enddo
+	  enddo
+        else if ( dx .gt. 0 .and. dy .gt. 0. ) then
+	  do i = 1, nx
+	  do j = ny, 1, -1
+	    k = k + 1
+	    m = i * j
+	    z(k) = a(m)
+	  enddo
+	  enddo
+        endif
+      endif
+!  now put it back in the 1-d array and reset the dx and dy
+      do k = 1, n
+        a(k) = z(k)
+      enddo
+      dx = abs ( dx)
+      dy = -1 * abs(dy)
+      return
+END SUBROUTINE REORDER_IT
