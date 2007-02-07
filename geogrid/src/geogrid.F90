@@ -91,8 +91,8 @@ program geogrid
                call mprintf(.true.,STDOUT,'Processing coarse domain', i1=nest_level)
                call mprintf(.true.,LOGFILE,'Processing coarse domain', i1=nest_level)
             else
-               call mprintf(.true.,STDOUT,'Processing nesting level %i', i1=nest_level)
-               call mprintf(.true.,LOGFILE,'Processing nesting level %i', i1=nest_level)
+               call mprintf(.true.,STDOUT,'Processing nesting level %i', i1=nest_level-1)
+               call mprintf(.true.,LOGFILE,'Processing nesting level %i', i1=nest_level-1)
             end if
   
             ! Get information about the source data we will use for this nest

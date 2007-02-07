@@ -417,6 +417,22 @@ module gridinfo_module
             call mprintf((parent_grid_ratio(i) /= 3 .and. i > 1), ERROR, &
                          'For the NMM core, the parent_grid_ratio must be 3.') 
          end do
+
+         ! Check that nests have an acceptable number of grid points in each dimension
+         do i=2,n_domains
+            rparent_gridpts = real(ixdim(i)+2)/real(parent_grid_ratio(i))
+            if (floor(rparent_gridpts) /= ceiling(rparent_gridpts)) then
+               call mprintf(.true.,ERROR,'For nest %i, e_we must be 3n-2 '// &
+                            'for some integer n > 1.', &
+                            i1=i)
+            end if
+            rparent_gridpts = real(jydim(i)+2)/real(parent_grid_ratio(i))
+            if (floor(rparent_gridpts) /= ceiling(rparent_gridpts)) then
+               call mprintf(.true.,ERROR,'For nest %i, e_sn must be 3n-2 '// &
+                            'for some odd integer n > 1.', &
+                            i1=i)
+            end if
+         end do
    
       ! Checks specific to C grid
       else if (gridtype == 'C') then
