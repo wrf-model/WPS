@@ -175,20 +175,16 @@ module output_module
             write(output_fname(i+10:i+11),'(i2.2)') nest_number
          else
 #ifdef IO_BINARY
-            if (io_form_output == BINARY) output_fname = trim(opt_output_from_geogrid_path)//'geo_nmm.nl .int'
+            if (io_form_output == BINARY) output_fname = trim(opt_output_from_geogrid_path)//'geo_nmm_nest.l  .int'
 #endif
 #ifdef IO_NETCDF
-            if (io_form_output == NETCDF) output_fname = trim(opt_output_from_geogrid_path)//'geo_nmm.nl .nc'
+            if (io_form_output == NETCDF) output_fname = trim(opt_output_from_geogrid_path)//'geo_nmm_nest.l  .nc'
 #endif
 #ifdef IO_GRIB1
-            if (io_form_output == GRIB1) output_fname = trim(opt_output_from_geogrid_path)//'geo_nmm.nl .grib'
+            if (io_form_output == GRIB1) output_fname = trim(opt_output_from_geogrid_path)//'geo_nmm_nest.l  .grib'
 #endif
             i = len_trim(opt_output_from_geogrid_path)
-            if (nest_number-1 > 9) &
-               call mprintf(.true.,ERROR,'Nesting level > 9 encountered while building filename '// &
-                            'in output_init().')
-                      
-            write(output_fname(i+11:i+11),'(i1.1)') nest_number-1
+            write(output_fname(i+15:i+16),'(i2.2)') nest_number-1
          end if
       end if
 
