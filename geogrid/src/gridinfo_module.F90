@@ -261,6 +261,17 @@ module gridinfo_module
          gridtype = 'E'
          dyn_opt = 4
       end if
+
+      ! Next, if this is NMM, we need to subtract 1 from the specified E_WE and E_SN;
+      !    for some reason, these two variables need to be set to 1 larger than they 
+      !    really ought to be in the WRF namelist, so, to be consistent, we will do 
+      !    the same in the WPS namelist
+      if (gridtype == 'E') then
+         do i=1,max_dom
+            e_we(i) = e_we(i) - 1 
+            e_sn(i) = e_sn(i) - 1 
+         end do 
+      end if
   
       call mprintf(gridtype /= 'C' .and. gridtype /= 'E', ERROR, &
                    'A valid wrf_core must be specified in the namelist. '// &
@@ -374,6 +385,9 @@ module gridinfo_module
   
       n_domains = max_dom
   
+      ! For C grid, let ixdim and jydim be the number of mass points in 
+      !    each direction; for E grid, we will put the row and column back
+      !    later; maybe this should be changed to be more clear, though.
       do i=1,n_domains
          ixdim(i) = e_we(i) - s_we(i) + 1
          jydim(i) = e_sn(i) - s_sn(i) + 1
@@ -411,28 +425,31 @@ module gridinfo_module
             iproj_type = PROJ_ROTLL
          end if
    
+         ! In the following check, add back the 1 that we had to subtract above 
+         !   for the sake of being consistent with WRF namelist
+         call mprintf(mod(e_sn(1)+1,2) /= 0, ERROR, &
+                      'For the NMM core, E_SN must be an even number for grid %i.', i1=1)
+
          do i=1,n_domains
-            call mprintf(mod(jydim(i),2) /= 1, ERROR, &
-                         'For the NMM core, the number of rows must be odd for grid %i.', i1=i)
             call mprintf((parent_grid_ratio(i) /= 3 .and. i > 1), ERROR, &
                          'For the NMM core, the parent_grid_ratio must be 3.') 
          end do
 
          ! Check that nests have an acceptable number of grid points in each dimension
-         do i=2,n_domains
-            rparent_gridpts = real(ixdim(i)+2)/real(parent_grid_ratio(i))
-            if (floor(rparent_gridpts) /= ceiling(rparent_gridpts)) then
-               call mprintf(.true.,ERROR,'For nest %i, e_we must be 3n-2 '// &
-                            'for some integer n > 1.', &
-                            i1=i)
-            end if
-            rparent_gridpts = real(jydim(i)+2)/real(parent_grid_ratio(i))
-            if (floor(rparent_gridpts) /= ceiling(rparent_gridpts)) then
-               call mprintf(.true.,ERROR,'For nest %i, e_sn must be 3n-2 '// &
-                            'for some odd integer n > 1.', &
-                            i1=i)
-            end if
-         end do
+!         do i=2,n_domains
+!            rparent_gridpts = real(ixdim(i)+2)/real(parent_grid_ratio(i))
+!            if (floor(rparent_gridpts) /= ceiling(rparent_gridpts)) then
+!               call mprintf(.true.,ERROR,'For nest %i, e_we must be 3n-2 '// &
+!                            'for some integer n > 1.', &
+!                            i1=i)
+!            end if
+!            rparent_gridpts = real(jydim(i)+2)/real(parent_grid_ratio(i))
+!            if (floor(rparent_gridpts) /= ceiling(rparent_gridpts)) then
+!               call mprintf(.true.,ERROR,'For nest %i, e_sn must be 3n-2 '// &
+!                            'for some odd integer n > 1.', &
+!                            i1=i)
+!            end if
+!         end do
    
       ! Checks specific to C grid
       else if (gridtype == 'C') then
