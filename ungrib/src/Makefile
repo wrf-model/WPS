@@ -26,8 +26,8 @@ lib$(LIBTARGET).a:	$(OBJS2)
 			$(AR) lib$(LIBTARGET).a $(OBJS2)
 			$(RANLIB) lib$(LIBTARGET).a
 
-g1print.exe:		g1print.o gribcode.o lib$(LIBTARGET).a
-			$(FC) -o $(@) $(LDFLAGS) g1print.o lib$(LIBTARGET).a
+g1print.exe:		g1print.o gribcode.o module_debug.o debug_cio.o lib$(LIBTARGET).a
+			$(FC) -o $(@) $(LDFLAGS) g1print.o gribcode.o module_debug.o debug_cio.o lib$(LIBTARGET).a
 
 g2print.exe:		filelist.o gridinfo.o g2print.o
 			$(FC) -o $(@) $(LDFLAGS) g2print.o \
@@ -59,6 +59,8 @@ output.o:		module_debug.o table.o gridinfo.o module_stringutil.o new_storage.o f
 parse_table.o:		module_debug.o table.o parse_table.F90
 
 rd_grib1.o:		module_debug.o table.o gridinfo.o module_datarray.o rd_grib1.F90
+
+gribcode.o:		module_debug.o gribcode.F90
 
 rrpr.o:			module_debug.o filelist.o gridinfo.o module_stringutil.o table.o new_storage.o rrpr.F90
 
