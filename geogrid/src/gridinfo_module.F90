@@ -430,9 +430,11 @@ module gridinfo_module
          call mprintf(mod(e_sn(1)+1,2) /= 0, ERROR, &
                       'For the NMM core, E_SN must be an even number for grid %i.', i1=1)
 
-         do i=1,n_domains
-            call mprintf((parent_grid_ratio(i) /= 3 .and. i > 1), ERROR, &
-                         'For the NMM core, the parent_grid_ratio must be 3.') 
+         do i=2,n_domains
+            call mprintf((parent_grid_ratio(i) /= 3), WARN, &
+                         'For the NMM core, the parent_grid_ratio must be 3 for '// &
+                         'domain %i. A ratio of 3 will be assumed.', i1=i) 
+            parent_grid_ratio(i) = 3
          end do
 
          ! Check that nests have an acceptable number of grid points in each dimension
@@ -450,6 +452,11 @@ module gridinfo_module
 !                            i1=i)
 !            end if
 !         end do
+
+         do i=2,n_domains
+            parent_ll_x(i) = 1.
+            parent_ll_y(i) = 1.
+         end do
    
       ! Checks specific to C grid
       else if (gridtype == 'C') then
@@ -474,14 +481,15 @@ module gridinfo_module
                             i1=i, i2=parent_grid_ratio(i))
             end if
          end do
-      end if
+
+         do i=1,n_domains
+            parent_ll_x(i) = real(i_parent_start(i))
+            parent_ll_y(i) = real(j_parent_start(i))
+            parent_ur_x(i) = real(i_parent_start(i))+real(ixdim(i))/real(parent_grid_ratio(i))-1.
+            parent_ur_y(i) = real(j_parent_start(i))+real(jydim(i))/real(parent_grid_ratio(i))-1.
+         end do
   
-      do i=1,n_domains
-         parent_ll_x(i) = real(i_parent_start(i))
-         parent_ll_y(i) = real(j_parent_start(i))
-         parent_ur_x(i) = real(i_parent_start(i))+real(ixdim(i))/real(parent_grid_ratio(i))-1.
-         parent_ur_y(i) = real(j_parent_start(i))+real(jydim(i))/real(parent_grid_ratio(i))-1.
-      end do
+      end if
   
       return
   

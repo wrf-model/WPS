@@ -479,6 +479,9 @@ module llxy_module
                    lon1=known_lon, &
                    stagger=HH)
 
+      parent_ur_x(1) = real(ixdim(1))
+      parent_ur_y(1) = real(jydim(1))
+
       do i=2,n_domains
 
          nest_level = get_nest_level(i)
@@ -489,6 +492,9 @@ module llxy_module
 
             ixdim(nest_level) = ixdim(1)*(3**(nest_level-1))-(3**(nest_level-1)-1)
             jydim(nest_level) = jydim(1)*(3**(nest_level-1))-(3**(nest_level-1)-1)
+
+            parent_ur_x(nest_level) = ixdim(nest_level)
+            parent_ur_y(nest_level) = jydim(nest_level)
 
             call map_set(PROJ_ROTLL, proj_stack(nest_level), &
                          ixdim = ixdim(nest_level), &
