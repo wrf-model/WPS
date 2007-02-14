@@ -2019,14 +2019,13 @@ contains
 END SUBROUTINE GRIBLGG
 
 SUBROUTINE REORDER_IT (a, nx, ny, dx, dy, iorder)
-use module_debug
+
+      use module_debug
+
       integer :: nx, ny, iorder
       integer :: i, j, k, m
       real :: dx, dy
-      real , dimension(nx*ny) :: a
-      real, dimension(1:nx*ny) :: z
-
-! There is some problem dimensioning z. It seg faults unless hardwired.
+      real, dimension(nx*ny) :: a, z
 
       if (iorder .eq. 0 .and. dx .gt. 0. .and. dy .lt. 0) return
       k = 0
@@ -2095,7 +2094,7 @@ use module_debug
         endif
       endif
 !  now put it back in the 1-d array and reset the dx and dy
-      do k = 1, n
+      do k = 1, nx*ny
         a(k) = z(k)
       enddo
       dx = abs ( dx)
