@@ -125,24 +125,13 @@ program plotgrids
    else if (wrf_core == 'NMM') then
       gridtype = 'E'
       dyn_opt = 4
+      CALL plot_e_grid ( e_we(1)-1 , e_sn(1)-1 , ref_lat , -1. * ref_lon , dy , dx ) 
+      stop
    end if
 
    if (gridtype /= 'C' .and. gridtype /= 'E') then
       write(6,*) 'A valid wrf_core must be specified in the namelist. '// &
                  'Currently, only "ARW" and "NMM" are supported.'
-      stop
-   end if
-
-   !
-   ! Currently, plotgrids.exe does not work with NMM domains
-   !
-   if (gridtype == 'E') then
-      write(6,*)
-      write(6,*) '!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
-      write(6,*) '! This version of the plotgrids utility does not work for NMM domains. !'
-      write(6,*) '!    An NMM-specific plotgrids may or may not be under development.    !'
-      write(6,*) '!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
-      write(6,*)
       stop
    end if
 
@@ -359,3 +348,300 @@ subroutine getxy ( xs, xe, ys, ye, &
    ye = ys + ye
 
 end subroutine getxy
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!  E GRID MAP INFO BELOW     !!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+SUBROUTINE plot_e_grid ( im , jm , rlat0d , rlon0d , dphd , dlmd ) 
+
+!  This routine generates a gmeta file of the area covered by an Arakawa e-grid.
+!  We assume that NCAR Graphics has not been called yet (and will be closed
+!  upon exit).  The required input fields are as from the WPS namelist file.
+
+   IMPLICIT NONE
+
+!  15 April 2005 NCEP/EMC 
+!    The Code and some instructions are provided by Tom BLACK to
+!    NCAR/DTC Meral Demirtas			
+
+!  4 May 2005  NCAR/DTC Meral DEMIRTAS  
+!    - An include file (plot_inc) is added to get
+!    Domain size: IM,JM
+!    Central latitute and longnitute: RLAT0D,RLON0D
+!    Horizontal resolution: DPHD, DLMD
+
+!  Feb 2007 NCAR/MMM
+!    Turn into f90
+!    Add implicit none
+!    Remove non-mapping portions
+!    Make part of WPS domain plotting utility
+
+
+   !  Input map parameters for E grid.
+
+   INTEGER , INTENT(IN) :: im , &     ! number of H points in odd rows
+                           jm         ! number of rows
+
+   REAL , INTENT(IN)    :: rlat0d , & ! latitude of grid center (degrees)
+                           rlon0d     ! longitude of grid center (degrees, times -1)
+
+   REAL , INTENT(IN)    :: dphd , &   ! angular distance between rows (degrees)
+                           dlmd       ! angular distance between adjacent H and V points (degrees)
+
+   !  Some local vars
+
+   REAL :: rlat1d , &
+           rlon1d
+
+   INTEGER :: ngpwe , &
+              ngpsn , &
+              ilowl , &
+              jlowl
+     
+   INTEGER :: imt , imtjm
+   REAL :: latlft,lonlft,latrgt,lonrgt
+
+   imt=2*im-1
+   imtjm=imt*jm
+   rlat1d=rlat0d
+   rlon1d=rlon0d
+   ngpwe=2*im-1
+   ngpsn=jm
+
+   !  Get lat and lon of left and right points.
+
+   CALL corners ( rlat1d,rlon1d,im,jm,rlat0d,rlon0d,dphd,dlmd,&
+                  ngpwe,ngpsn,ilowl,jlowl,latlft,lonlft,latrgt,lonrgt)
+
+   !  With corner points, make map background.
+
+   CALL mapbkg_egrid ( imt,jm,ilowl,jlowl,ngpwe,ngpsn,&
+                       rlat0d,rlon0d,latlft,lonlft,latrgt,lonrgt,&
+                       dlmd,dphd)
+
+END SUBROUTINE plot_e_grid
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+SUBROUTINE corners ( glatd,glond,im,jm,tph0d,tlm0d,dphd,dlmd,&
+                     ngpwe,ngpsn,ilowl,jlowl,glatl,glonl,glatr,glonr)
+
+   IMPLICIT NONE
+
+   REAL , INTENT(IN) :: glatd,glond,tph0d,tlm0d,dphd,dlmd,&
+                        glatl,glonl,glatr,glonr
+
+   INTEGER , INTENT(IN) :: im,jm,ngpwe,ngpsn
+   INTEGER , INTENT(OUT) :: ilowl,jlowl
+
+   !  Local vars
+
+   REAL , PARAMETER :: d2r = 1.74532925E-2 , r2D = 1./D2R
+
+   REAL :: glat , glon , dph , dlm , tph0 , tlm0
+   REAL :: x , y , z , tlat , tlon , tlat1 , tlat2 , tlon1 , tlon2
+   REAL :: row , col
+   REAL :: dlm1 , dlm2 , d1 , d2 , d3 , d4 , dmin
+
+   INTEGER :: jmt , ii , jj , iuppr , juppr
+   INTEGER :: nrow , ncol
+
+   jmt = jm/2+1
+
+   !  Convert from geodetic to transformed coordinates (degrees).
+
+   glat = glatd * d2r
+   glon = glond * d2r
+   dph = dphd * d2r
+   dlm = dlmd * d2r
+   tph0 = tph0d * d2r
+   tlm0 = tlm0d * d2r
+
+   x = COS(tph0) * COS(glat) * COS(glon-tlm0)+SIN(tph0) * SIN(glat)
+   y = -COS(glat) * SIN(glon-tlm0)
+   z = COS(tph0) * SIN(glat)-SIN(tph0) * COS(glat) * COS(glon-tlm0)
+   tlat = r2d * ATAN(z/SQRT(x*x + y*y))
+   tlon = r2d * ATAN(y/x)
+
+   !  Find the real (non-integer) row and column of the input location on 
+   !  the filled e-grid.
+
+   row = tlat/dphd+jmt
+   col = tlon/dlmd+im
+   nrow = INT(row)
+   ncol = INT(col)
+   tlat = tlat * d2r
+   tlon = tlon * d2r
+
+!               E2     E3
+! 
+! 
+!                  X
+!               E1     E4
+
+   tlat1 = (nrow-jmt) * dph
+   tlat2 = tlat1+dph
+   tlon1 = (ncol-im) * dlm
+   tlon2 = tlon1+dlm
+
+   dlm1 = tlon-tlon1
+   dlm2 = tlon-tlon2
+
+   d1 = ACOS(COS(tlat) * COS(tlat1) * COS(dlm1)+SIN(tlat) * SIN(tlat1))
+   d2 = ACOS(COS(tlat) * COS(tlat2) * COS(dlm1)+SIN(tlat) * SIN(tlat2))
+   d3 = ACOS(COS(tlat) * COS(tlat2) * COS(dlm2)+SIN(tlat) * SIN(tlat2))
+   d4 = ACOS(COS(tlat) * COS(tlat1) * COS(dlm2)+SIN(tlat) * SIN(tlat1))
+
+   dmin = MIN(d1,d2,d3,d4)
+
+   IF      ( ABS(dmin-d1) .LT. 1.e-6 ) THEN
+     ii = ncol
+     jj = nrow
+   ELSE IF ( ABS(dmin-d2) .LT. 1.e-6 ) THEN
+     ii = ncol
+     jj = nrow+1
+   ELSE IF ( ABS(dmin-d3) .LT. 1.e-6 ) THEN
+     ii = ncol+1
+     jj = nrow+1
+   ELSE IF ( ABS(dmin-d4) .LT. 1.e-6 ) THEN
+     ii = ncol+1
+     jj = nrow
+   END IF
+
+   !  Now find the i and j of the lower left corner of the desired grid 
+   !  region and of the upper right.
+
+   ilowl = ii-ngpwe/2
+   jlowl = jj-ngpsn/2
+   iuppr = ii+ngpwe/2
+   juppr = jj+ngpsn/2
+
+   !  Find their geodetic coordinates.
+
+   CALL e2t2g(ilowl,jlowl,im,jm,tph0d,tlm0d,dphd,dlmd,glatl,glonl)
+   CALL e2t2g(iuppr,juppr,im,jm,tph0d,tlm0d,dphd,dlmd,glatr,glonr)
+
+END SUBROUTINE corners
+ 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+SUBROUTINE mapbkg_egrid ( imt,jm,ilowl,jlowl,ngpwe,ngpsn,&
+                          rlat0d,rlon0d,glatl,glonl,glatr,glonr,&
+                          dlmd,dphd)
+
+!  IMPLICIT NONE
+
+   !  Some local vars
+
+   CHARACTER (LEN=97) :: string
+
+   !  Yet more center lon messing around, hoo boy.
+
+!  clonx=180.-rlon0d
+   clonx=-rlon0d
+
+   !  Open up NCAR Graphics
+
+   CALL opngks
+   CALL gopwk(8,9,3)
+   CALL gsclip(0)
+
+   !  Make the background white, and the foreground black.
+
+   CALL gscr ( 1 , 0 , 1., 1., 1. )
+   CALL gscr ( 1 , 1 , 0., 0., 0. )
+
+   !  Line width twice default thickness.
+
+   CALL setusv('LW',2000)
+
+   !  Make map outline a solid line, not dots.
+
+   CALL mapsti('MV',8)
+   CALL mapsti('DO',0)
+
+   !  Map outlines are political and states.
+
+   CALL mapstc('OU','PS')
+
+   !  Cylindrical equidistant.
+
+   CALL maproj('CE',rlat0d,clonx,0.)
+
+   !  Specify corner points.
+
+   CALL mapset('CO',glatl,glonl,glatr,glonr)
+
+   !  Lat lon lines every 5 degrees.
+
+   CALL mapsti('GR',5)
+
+   !  Map takes up this much real estate.
+
+   CALL mappos( 0.05 , 0.95 , 0.05 , 0.95 )
+
+   !  Initialize and draw map.
+
+   CALL mapint
+   CALL mapdrw
+
+   !  Add approx grid point tick marks
+
+   CALL setusv('LW',1000)
+   CALL perim(((imt+3)/2)-1,1,jm-1,1)
+
+   !  Put on a quicky description.
+
+   WRITE ( string , FMT = '("E-GRID E_WE = ",I4,", E_SN = ",I4 , &
+                            ", DX = ",F6.4,", DY = ",F6.4 , &
+                            ", REF_LAT = ",F8.3,", REF_LON = ",F8.3)') &
+                            (imt+3)/2,jm+1,dlmd,dphd,rlat0d,-1.*rlon0d
+   CALL getset(xa,xb,ya,yb,xxa,xxy,yya,yyb,ltype)
+!  CALL set   (xa,xb,ya,yb,0.,1.,0.,1.,lytpe)
+!  CALL gsclip(0)
+!  CALL pchiqu ( 0.5 , -5. , string , 8. , 0., 0. )
+   CALL pchiqu ( xxa , yya - (yyb-yya)/20., string , 8. , 0., -1. )
+   CALL frame
+
+   !  Close workstation and NCAR Grpahics.
+
+   CALL gclwk(8)
+   CALL clsgks
+
+END SUBROUTINE mapbkg_egrid
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+SUBROUTINE e2t2g ( ncol,nrow,im,jm,tph0d,tlm0d,dphd,dlmd,glatd,glond)
+
+!  IMPLICIT NONE
+
+   REAL , PARAMETER :: D2R=1.74532925E-2 , R2D=1./D2R
+
+   DPH=DPHD*D2R
+   DLM=DLMD*D2R
+   TPH0=TPH0D*D2R
+   TLM0=TLM0D*D2R
+
+!***  FIND THE TRANSFORMED LAT (POSITIVE NORTH) AND LON (POSITIVE EAST)
+
+   TLATD=(NROW-(JM+1)/2)*DPHD
+   TLOND=(NCOL-IM)*DLMD
+
+!***  NOW CONVERT TO GEODETIC LAT (POSITIVE NORTH) AND LON (POSITIVE EAST)
+
+   TLATR=TLATD*D2R
+   TLONR=TLOND*D2R
+   ARG1=SIN(TLATR)*COS(TPH0)+COS(TLATR)*SIN(TPH0)*COS(TLONR)
+   GLATR=ASIN(ARG1)
+   GLATD=GLATR*R2D
+   ARG2=COS(TLATR)*COS(TLONR)/(COS(GLATR)*COS(TPH0))- & 
+        TAN(GLATR)*TAN(TPH0)
+   IF(ABS(ARG2).GT.1.)ARG2=ABS(ARG2)/ARG2
+   FCTR=1.
+   IF(TLOND.GT.0.)FCTR=-1.
+   GLOND=TLM0D+FCTR*ACOS(ARG2)*R2D
+   GLOND=-GLOND
+
+END SUBROUTINE e2t2g
