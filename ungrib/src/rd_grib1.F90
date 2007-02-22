@@ -408,10 +408,12 @@ SUBROUTINE rd_grib1(IUNIT, gribflnm, level, field, hdate,  &
 ! Unpack the 2D slab from the GRIB record, and put it in array rdatarray
   call gribdata(rdatarray,map%nx*map%ny)
 
-! Some grids need to be reordered (e.g. NCEP-II). WPS assumes grids start in
+! Some Lat/Lon grids need to be reordered (e.g. NCEP-II). WPS assumes grids start in
 ! the north and are ordered in the +x and -y direction
 
-  call reorder_it (rdatarray, map%nx, map%ny, map%dx, map%dy, infogrid(10))
+  if ( map%igrid .eq. 0 ) then
+    call reorder_it (rdatarray, map%nx, map%ny, map%dx, map%dy, infogrid(10))
+  endif
 
 ! Deallocate a couple of arrays that may have been allocated by the 
 ! GRIB decoding routines.
