@@ -367,6 +367,7 @@ module interp_option_module
                         if (list_search(flag_in_output_list, ckey=flag_string, cvalue=flag_val)) then
                            call mprintf(.true.,WARN, 'In METGRID.TBL, %s is given as a flag more than once.', &
                                         s1=flag_string)
+                           flag_in_output(i)(1:eos-idx-1) = buffer(idx+1:eos-1)
                         else
                            flag_in_output(i)(1:eos-idx-1) = buffer(idx+1:eos-1)
                            write(flag_val,'(i1)') 1
