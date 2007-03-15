@@ -340,7 +340,7 @@ MODULE map_utils
             call mprintf(.true.,ERROR,'MAP_INIT')
          END IF
       ELSE
-         PRINT '(A,I2)', 'Unknown projection code: ', proj%code
+         PRINT '(A,I2)', 'Unknown projection code: ', proj_code
          call mprintf(.true.,ERROR,'MAP_INIT')
       END IF
   
