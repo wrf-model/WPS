@@ -24,7 +24,7 @@ module source_data_module
    integer :: num_entries
    integer :: next_field = 1
    integer :: output_field_state = RETURN_LANDMASK 
-   integer, pointer, dimension(:) :: source_proj, source_wordsize, source_fieldtype, &
+   integer, pointer, dimension(:) :: source_proj, source_wordsize, source_endian, source_fieldtype, &
                   source_dest_fieldtype, source_priority, source_tile_x, source_tile_y, &
                   source_tile_z, source_tile_z_start, source_tile_z_end, source_tile_bdr, &
                   source_category_min, source_category_max, source_landmask_water, &
@@ -36,7 +36,7 @@ module source_data_module
    character (len=128), pointer, dimension(:) :: source_fieldname, source_path, source_interp_string, &
                   source_dominant_category, source_dominant_only, source_dfdx, source_dfdy, &
                   source_z_dim_name, source_units, source_descr
-   logical, pointer, dimension(:) :: is_proj, is_wordsize, is_fieldtype, &
+   logical, pointer, dimension(:) :: is_proj, is_wordsize, is_endian, is_fieldtype, &
                   is_dest_fieldtype, is_priority, is_tile_x, is_tile_y, is_tile_z, &
                   is_tile_z_start, is_tile_z_end, is_tile_bdr, is_category_min, &
                   is_category_max, is_landmask_water, is_landmask_land, is_masked, &
@@ -121,6 +121,7 @@ module source_data_module
       !   the properly sized arrays
       !
       allocate(source_wordsize(num_entries))
+      allocate(source_endian(num_entries))
       allocate(source_fieldtype(num_entries))
       allocate(source_dest_fieldtype(num_entries))
       allocate(source_proj(num_entries))
@@ -170,6 +171,7 @@ module source_data_module
       end do
   
       allocate(is_wordsize(num_entries))
+      allocate(is_endian(num_entries))
       allocate(is_fieldtype(num_entries))
       allocate(is_dest_fieldtype(num_entries))
       allocate(is_proj(num_entries))
@@ -547,6 +549,7 @@ module source_data_module
   
       do idx=1,num_entries
          is_wordsize(idx) = .false.
+         is_endian(idx) = .false.
          is_row_order(idx) = .false.
          is_fieldtype(idx) = .false.
          is_proj(idx) = .false.
@@ -746,6 +749,18 @@ module source_data_module
                      is_wordsize(idx) = .true.
                      read(buffer(i+1:eos-1),'(i10)') source_wordsize(idx)
         
+                  else if (index('endian',trim(buffer(1:i-1))) /= 0) then
+                     if (index('big',trim(buffer(i+1:eos-1))) /= 0) then
+                        is_endian(idx) = .true.
+                        source_endian(idx) = BIG_ENDIAN
+                     else if (index('little',trim(buffer(i+1:eos-1))) /= 0) then
+                        is_endian(idx) = .true.
+                        source_endian(idx) = LITTLE_ENDIAN
+                     else
+                        call mprintf(.true.,WARN,'Invalid value for keyword ''endian'' '// &
+                                     'specified in index file. BIG_ENDIAN will be used.')
+                     end if
+          
                   else if (index('row_order',trim(buffer(1:i-1))) /= 0) then
                      if (index('bottom_top',trim(buffer(i+1:eos-1))) /= 0) then
                         is_row_order(idx) = .true.
@@ -837,6 +852,7 @@ module source_data_module
   
       if (associated(source_wordsize)) then
          deallocate(source_wordsize)
+         deallocate(source_endian)
          deallocate(source_fieldtype)
          deallocate(source_dest_fieldtype)
          deallocate(source_proj)
@@ -886,6 +902,7 @@ module source_data_module
          deallocate(source_interp_option)
      
          deallocate(is_wordsize)
+         deallocate(is_endian)
          deallocate(is_fieldtype)
          deallocate(is_dest_fieldtype)
          deallocate(is_proj)
@@ -2301,7 +2318,7 @@ module source_data_module
       character (len=256), intent(out) :: file_name
   
       ! Local variables
-      integer :: local_wordsize, sign_convention, irow_order
+      integer :: local_wordsize, local_endian, sign_convention, irow_order
   
       call get_tile_fname(file_name, xlat, xlon, ilevel, field_name, istatus)
 
@@ -2314,8 +2331,8 @@ module source_data_module
       end if
   
       call get_tile_dimensions(xlat, xlon, start_x_dim, end_x_dim, start_y_dim, end_y_dim, &
-                      start_z_dim, end_z_dim, npts_bdr, local_wordsize, sign_convention, &
-                      ilevel, field_name, istatus)
+                      start_z_dim, end_z_dim, npts_bdr, local_wordsize, local_endian, &
+                      sign_convention, ilevel, field_name, istatus)
   
       if (associated(array)) deallocate(array)
       allocate(array(start_x_dim:end_x_dim,start_y_dim:end_y_dim,start_z_dim:end_z_dim))
@@ -2325,7 +2342,7 @@ module source_data_module
   
       call read_dem(29, file_name, end_x_dim-start_x_dim+1, &
                     end_y_dim-start_y_dim+1, end_z_dim-start_z_dim+1, &
-                    local_wordsize, array, sign_convention, irow_order, istatus)
+                    local_wordsize, local_endian, array, sign_convention, irow_order, istatus)
   
       if (istatus /= 0) then
          start_x_dim = INVALID
@@ -2375,8 +2392,8 @@ module source_data_module
    ! Name: get_tile_dimensions
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
    subroutine get_tile_dimensions(xlat, xlon, start_x_dim, end_x_dim, start_y_dim, end_y_dim, &
-                        start_z_dim, end_z_dim, npts_bdr, bytes_per_datum, sign_convention, ilevel, &
-                        fieldnm, istatus)
+                        start_z_dim, end_z_dim, npts_bdr, bytes_per_datum, endianness, &
+                        sign_convention, ilevel, fieldnm, istatus)
  
       use llxy_module
   
@@ -2388,8 +2405,8 @@ module source_data_module
                               start_y_dim, end_y_dim, &
                               start_z_dim, end_z_dim, &
                               npts_bdr, &
-                              bytes_per_datum, sign_convention, &
-                              istatus
+                              bytes_per_datum, endianness, &
+                              sign_convention, istatus
       real, intent(in) :: xlat, xlon
       character (len=128), intent(in) :: fieldnm
   
@@ -2460,7 +2477,13 @@ module source_data_module
          bytes_per_datum = source_wordsize(idx)
       else
          bytes_per_datum = 1
-         call mprintf(.true.,ERROR,'In GEOGRID.TBL, no wordsize specified for entry %i.',i1=idx)
+         call mprintf(.true.,ERROR,'In GEOGRID.TBL, no wordsize specified for data in entry %i.',i1=idx)
+      end if
+
+      if (is_endian(idx)) then
+         endianness = source_endian(idx)
+      else
+         endianness = BIG_ENDIAN
       end if
   
       if (is_signed(idx)) then
@@ -3028,13 +3051,13 @@ module source_data_module
    ! NOTE: This routine adapted from a routine of the same name in the 
    !       original FSL WRF SI.
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
-   subroutine read_dem(unit_no, unit_name, nn1, nn2, nn3, i1, datarr, sign_convention, &
-                       row_order, istat)
+   subroutine read_dem(unit_no, unit_name, nn1, nn2, nn3, i1, endianness, datarr, &
+                       sign_convention, row_order, istat)
  
       implicit none
   
       ! Arguments
-      integer, intent(in) :: unit_no, nn1, nn2, nn3, i1, sign_convention, row_order
+      integer, intent(in) :: unit_no, nn1, nn2, nn3, i1, endianness, sign_convention, row_order
       integer, intent(out) :: istat
       real, dimension(nn1,nn2,nn3), intent(out) :: datarr
       character (len=*), intent(in) :: unit_name
@@ -3046,7 +3069,7 @@ module source_data_module
   
       call s_len(unit_name,strlen)
   
-      call read_binary_field(datarr,i1,nn1*nn2*nn3,unit_name,strlen,sign_convention,istat)
+      call read_binary_field(datarr,i1,endianness,nn1*nn2*nn3,unit_name,strlen,sign_convention,istat)
 
       if (row_order == TOP_BOTTOM) then
          allocate(temprow(nn1))

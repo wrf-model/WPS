@@ -30,6 +30,8 @@ module misc_definitions_module
 
    integer, parameter :: BINARY=1, NETCDF=2, GRIB1=3, HDF=4
 
+   integer, parameter :: BIG_ENDIAN=0, LITTLE_ENDIAN=1
+
    ! Projection codes for proj_info structure:
    INTEGER, PUBLIC, PARAMETER  :: PROJ_LATLON = 0
    INTEGER, PUBLIC, PARAMETER  :: PROJ_LC = 1
