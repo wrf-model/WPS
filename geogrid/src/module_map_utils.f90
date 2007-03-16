@@ -133,7 +133,7 @@ MODULE map_utils
    use constants_module
    use misc_definitions_module
    use module_debug
- 
+
    ! Define some private constants
    INTEGER, PRIVATE, PARAMETER :: HIGH = 8
  
@@ -171,6 +171,9 @@ MODULE map_utils
       REAL             :: knowni   ! X-location of known lat/lon
       REAL             :: knownj   ! Y-location of known lat/lon
       REAL             :: re_m     ! Radius of spherical earth, meters
+      REAL             :: rho0     ! For Albers equal area
+      REAL             :: nc       ! For Albers equal area
+      REAL             :: bigc     ! For Albers equal area
       LOGICAL          :: init     ! Flag to indicate if this struct is 
                                    !  ready for use
       LOGICAL          :: wrap     ! For Gaussian -- flag to indicate wrapping 
@@ -178,7 +181,7 @@ MODULE map_utils
       REAL, POINTER, DIMENSION(:) :: gauss_lat  ! Latitude array for Gaussian grid
  
    END TYPE proj_info
- 
+
  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  CONTAINS
  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -213,6 +216,9 @@ MODULE map_utils
       proj%re_m     = EARTH_RADIUS_M
       proj%init     = .FALSE.
       proj%wrap     = .FALSE.
+      proj%rho0     = 0.
+      proj%nc       = 0.
+      proj%bigc     = 0.
       nullify(proj%gauss_lat)
    
    END SUBROUTINE map_init
@@ -294,6 +300,19 @@ MODULE map_utils
               .NOT.PRESENT(dx) ) THEN
             PRINT '(A,I2)', 'The following are mandatory parameters for projection code : ', proj_code
             PRINT '(A)', ' truelat1, lat1, lon1, knonwi, knownj, stdlon, dx'
+            call mprintf(.true.,ERROR,'MAP_INIT')
+         END IF
+      ELSE IF ( proj_code == PROJ_ALBERS_NAD83 ) THEN
+         IF ( .NOT.PRESENT(truelat1) .OR. &
+              .NOT.PRESENT(truelat2) .OR. &
+              .NOT.PRESENT(lat1) .OR. &
+              .NOT.PRESENT(lon1) .OR. &
+              .NOT.PRESENT(knowni) .OR. &
+              .NOT.PRESENT(knownj) .OR. &
+              .NOT.PRESENT(stdlon) .OR. &
+              .NOT.PRESENT(dx) ) THEN
+            PRINT '(A,I2)', 'The following are mandatory parameters for projection code : ', proj_code
+            PRINT '(A)', ' truelat1, truelat2, lat1, lon1, knonwi, knownj, stdlon, dx'
             call mprintf(.true.,ERROR,'MAP_INIT')
          END IF
       ELSE IF ( proj_code == PROJ_MERC ) THEN
@@ -423,7 +442,8 @@ MODULE map_utils
   
       IF ( PRESENT(dx) ) THEN 
          IF ( (proj_code == PROJ_LC) .OR. (proj_code == PROJ_PS) .OR. &
-              (proj_code == PROJ_PS_WGS84) .OR. (proj_code == PROJ_MERC) ) THEN
+              (proj_code == PROJ_PS_WGS84) .OR. (proj_code == PROJ_ALBERS_NAD83) .OR. &
+              (proj_code == PROJ_MERC) ) THEN
             proj%dx = dx
             IF (truelat1 .LT. 0.) THEN
                proj%hemi = -1.0 
@@ -441,6 +461,9 @@ MODULE map_utils
 
          CASE(PROJ_PS_WGS84)
             CALL set_ps_wgs84(proj)
+
+         CASE(PROJ_ALBERS_NAD83)
+            CALL set_albers_nad83(proj)
    
          CASE(PROJ_LC)
             IF (ABS(proj%truelat2) .GT. 90.) THEN
@@ -498,6 +521,9 @@ MODULE map_utils
          CASE(PROJ_PS_WGS84)
             CALL llij_ps_wgs84(lat,lon,proj,i,j)
          
+         CASE(PROJ_ALBERS_NAD83)
+            CALL llij_albers_nad83(lat,lon,proj,i,j)
+         
          CASE(PROJ_LC)
             CALL llij_lc(lat,lon,proj,i,j)
    
@@ -546,6 +572,9 @@ MODULE map_utils
 
          CASE (PROJ_PS_WGS84)
             CALL ijll_ps_wgs84(i, j, proj, lat, lon)
+   
+         CASE (PROJ_ALBERS_NAD83)
+            CALL ijll_albers_nad83(i, j, proj, lat, lon)
    
          CASE (PROJ_LC)
             CALL ijll_lc(i, j, proj, lat, lon)
@@ -825,6 +854,142 @@ MODULE map_utils
       RETURN
    
    END SUBROUTINE ijll_ps_wgs84
+
+
+   SUBROUTINE set_albers_nad83(proj)
+      ! Initializes an Albers equal area map projection (NAD83 ellipsoid) 
+      ! from the partially filled proj structure. This routine computes the 
+      ! radius to the southwest corner and computes the i/j location of the 
+      ! pole for use in llij_albers_nad83 and ijll_albers_nad83.
+
+      IMPLICIT NONE
+   
+      ! Arguments
+      TYPE(proj_info), INTENT(INOUT)    :: proj
+  
+      ! Local variables
+      real :: h, m1, m2, q1, q2, rho, theta, q, sinphi
+
+      h = proj%hemi
+
+      m1 = cos(h*proj%truelat1*rad_per_deg)/sqrt(1.0-(E_NAD83*sin(h*proj%truelat1*rad_per_deg))**2.0)
+      m2 = cos(h*proj%truelat2*rad_per_deg)/sqrt(1.0-(E_NAD83*sin(h*proj%truelat2*rad_per_deg))**2.0)
+
+      sinphi = sin(proj%truelat1*rad_per_deg)
+      q1 = (1.0-E_NAD83**2.0) * &
+           ((sinphi/(1.0-(E_NAD83*sinphi)**2.0)) - 1.0/(2.0*E_NAD83) * log((1.0-E_NAD83*sinphi)/(1.0+E_NAD83*sinphi)))
+
+      sinphi = sin(proj%truelat2*rad_per_deg)
+      q2 = (1.0-E_NAD83**2.0) * &
+           ((sinphi/(1.0-(E_NAD83*sinphi)**2.0)) - 1.0/(2.0*E_NAD83) * log((1.0-E_NAD83*sinphi)/(1.0+E_NAD83*sinphi)))
+
+      if (proj%truelat1 == proj%truelat2) then
+         proj%nc = sin(proj%truelat1*rad_per_deg)
+      else
+         proj%nc = (m1**2.0 - m2**2.0) / (q2 - q1)
+      end if
+
+      proj%bigc = m1**2.0 + proj%nc*q1
+
+      ! Find the i/j location of reference lat/lon with respect to the pole of the projection
+      sinphi = sin(proj%lat1*rad_per_deg)
+      q = (1.0-E_NAD83**2.0) * &
+           ((sinphi/(1.0-(E_NAD83*sinphi)**2.0)) - 1.0/(2.0*E_NAD83) * log((1.0-E_NAD83*sinphi)/(1.0+E_NAD83*sinphi)))
+
+      proj%rho0 = h * (A_NAD83 / proj%dx) * sqrt(proj%bigc - proj%nc * q) / proj%nc 
+      theta = proj%nc*(proj%lon1 - proj%stdlon)*rad_per_deg
+
+      proj%polei = proj%rho0 * sin(h*theta) 
+      proj%polej = proj%rho0 - proj%rho0 * cos(h*theta)
+
+      RETURN
+
+   END SUBROUTINE set_albers_nad83
+
+
+   SUBROUTINE llij_albers_nad83(lat,lon,proj,i,j)
+      ! Given latitude (-90 to 90), longitude (-180 to 180), and the
+      ! standard projection information via the 
+      ! public proj structure, this routine returns the i/j indices which
+      ! if within the domain range from 1->nx and 1->ny, respectively.
+  
+      IMPLICIT NONE
+  
+      ! Arguments
+      REAL, INTENT(IN)               :: lat
+      REAL, INTENT(IN)               :: lon
+      REAL, INTENT(OUT)              :: i !(x-index)
+      REAL, INTENT(OUT)              :: j !(y-index)
+      TYPE(proj_info),INTENT(IN)     :: proj
+  
+      ! Local variables
+      real :: h, q, rho, theta, sinphi
+
+      h = proj%hemi
+
+      sinphi = sin(h*lat*rad_per_deg)
+
+      ! Find the x/y location of the requested lat/lon with respect to the pole of the projection
+      q = (1.0-E_NAD83**2.0) * &
+           ((sinphi/(1.0-(E_NAD83*sinphi)**2.0)) - 1.0/(2.0*E_NAD83) * log((1.0-E_NAD83*sinphi)/(1.0+E_NAD83*sinphi)))
+
+      rho = h * (A_NAD83 / proj%dx) * sqrt(proj%bigc - proj%nc * q) / proj%nc
+      theta = proj%nc * (h*lon - h*proj%stdlon)*rad_per_deg
+
+      i = h*rho*sin(theta)
+      j = h*proj%rho0 - h*rho*cos(theta)
+
+      ! Get i/j relative to reference i/j
+      i = proj%knowni + (i - proj%polei)
+      j = proj%knownj + (j - proj%polej)
+
+      RETURN
+
+   END SUBROUTINE llij_albers_nad83
+
+
+   SUBROUTINE ijll_albers_nad83(i, j, proj, lat, lon)
+ 
+      ! This is the inverse subroutine of llij_albers_nad83.  It returns the 
+      ! latitude and longitude of an i/j point given the projection info 
+      ! structure.  
+  
+      implicit none
+  
+      ! Arguments
+      REAL, INTENT(IN)                    :: i    ! Column
+      REAL, INTENT(IN)                    :: j    ! Row
+      REAL, INTENT(OUT)                   :: lat     ! -90 -> 90 north
+      REAL, INTENT(OUT)                   :: lon     ! -180 -> 180 East
+      TYPE (proj_info), INTENT(IN)        :: proj
+
+      ! Local variables
+      real :: h, q, rho, theta, beta, x, y
+      real :: a, b, c
+
+      h = proj%hemi
+
+      x = (i - proj%knowni + proj%polei)
+      y = (j - proj%knownj + proj%polej)
+
+      rho = sqrt(x**2.0 + (proj%rho0 - y)**2.0)
+      theta = atan2(x, proj%rho0-y)
+
+      q = (proj%bigc - (rho*proj%nc*proj%dx/A_NAD83)**2.0) / proj%nc
+
+      beta = asin(q/(1.0 - log((1.0-E_NAD83)/(1.0+E_NAD83))*(1.0-E_NAD83**2.0)/(2.0*E_NAD83)))
+      a = 1./3.*E_NAD83**2. + 31./180.*E_NAD83**4. + 517./5040.*E_NAD83**6.
+      b =                     23./360.*E_NAD83**4. + 251./3780.*E_NAD83**6.
+      c =                                            761./45360.*E_NAD83**6.
+
+      lat = beta + a*sin(2.*beta) + b*sin(4.*beta) + c*sin(6.*beta)
+
+      lat = h*lat*deg_per_rad
+      lon = proj%stdlon + theta*deg_per_rad/proj%nc
+
+      RETURN
+   
+   END SUBROUTINE ijll_albers_nad83
 
 
    SUBROUTINE set_lc(proj)

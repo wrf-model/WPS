@@ -648,6 +648,10 @@ module source_data_module
                               len_trim('polar_wgs84') == len_trim(buffer(i+1:eos-1))) then
                         is_proj(idx) = .true.
                         source_proj(idx) = PROJ_PS_WGS84
+                     else if (index('albers_nad83',trim(buffer(i+1:eos-1))) /= 0 .and. &
+                              len_trim('albers_nad83') == len_trim(buffer(i+1:eos-1))) then
+                        is_proj(idx) = .true.
+                        source_proj(idx) = PROJ_ALBERS_NAD83
                      else if (index('polar',trim(buffer(i+1:eos-1))) /= 0 .and. &
                               len_trim('polar') == len_trim(buffer(i+1:eos-1))) then
                         is_proj(idx) = .true.

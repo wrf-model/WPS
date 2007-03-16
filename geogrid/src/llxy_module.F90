@@ -87,6 +87,18 @@ module llxy_module
                       knownj=user_known_y, &
                       dx=user_dxkm, &
                       r_earth=earth_radius)
+
+      else if (iprojection == PROJ_ALBERS_NAD83) then
+         call map_set(iprojection, proj_stack(SOURCE_PROJ), &
+                      truelat1=user_truelat1, &
+                      truelat2=user_truelat2, &
+                      stdlon=user_stand_lon, &
+                      lat1=user_known_lat, &
+                      lon1=user_known_lon, &
+                      knowni=user_known_x, &
+                      knownj=user_known_y, &
+                      dx=user_dxkm, &
+                      r_earth=earth_radius)
   
       else if (iprojection == PROJ_PS) then
          call map_set(iprojection, proj_stack(SOURCE_PROJ), &
@@ -198,6 +210,18 @@ module llxy_module
                       dx=user_dxkm, &
                       r_earth=earth_radius)
   
+      else if (iprojection == PROJ_ALBERS_NAD83) then
+         call map_set(iprojection, proj_stack(current_nest_number), &
+                      truelat1=user_truelat1, &
+                      truelat2=user_truelat2, &
+                      stdlon=user_stand_lon, &
+                      lat1=user_known_lat, &
+                      lon1=user_known_lon, &
+                      knowni=user_known_x, &
+                      knownj=user_known_y, &
+                      dx=user_dxkm, &
+                      r_earth=earth_radius)
+  
       else if (iprojection == PROJ_PS) then
          call map_set(iprojection, proj_stack(current_nest_number), &
                       truelat1=user_truelat1, &
@@ -289,6 +313,17 @@ module llxy_module
                       knownj=known_y, &
                       dx=dxkm)
   
+      else if (iproj_type == PROJ_ALBERS_NAD83) then
+         call map_set(iproj_type, proj_stack(1), &
+                      truelat1=truelat1, &
+                      truelat2=truelat2, &
+                      stdlon=stand_lon, &
+                      lat1=known_lat, &
+                      lon1=known_lon, &
+                      knowni=known_x, &
+                      knownj=known_y, &
+                      dx=dxkm)
+  
       else if (iproj_type == PROJ_PS) then
          call map_set(iproj_type, proj_stack(1), &
                       truelat1=truelat1, &
@@ -358,6 +393,17 @@ module llxy_module
                          dx=temp_dxkm)
     
          else if (iproj_type == PROJ_LC) then
+            call map_set(iproj_type, proj_stack(i), &
+                         truelat1=truelat1, &
+                         truelat2=truelat2, &
+                         stdlon=stand_lon, &
+                         lat1=temp_known_lat, &
+                         lon1=temp_known_lon, &
+                         knowni=temp_known_x, &
+                         knownj=temp_known_y, &
+                         dx=temp_dxkm)
+    
+         else if (iproj_type == PROJ_ALBERS_NAD83) then
             call map_set(iproj_type, proj_stack(i), &
                          truelat1=truelat1, &
                          truelat2=truelat2, &
