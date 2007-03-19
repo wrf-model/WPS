@@ -142,6 +142,12 @@
           int * nactual, int * fdes, const char *fname, char *datary, 
           int  namelen, int  datanamelen) {
 #endif
+#ifdef __crayx1
+  int bacio_
+         (int * mode, int * start, int *newpos, int * size, int * no,
+          int * nactual, int * fdes, const char *fname, char *datary,
+          int  namelen, int  datanamelen) {
+#endif
   int i, j, jret, seekret;
   char *realname, *tempchar;
   int tcharval;
@@ -440,6 +446,12 @@
   int banio
          (int * mode, int * start, int *newpos, int * size, int * no, 
           int * nactual, int * fdes, const char *fname, char *datary, 
+          int  namelen ) {
+#endif
+#ifdef __crayx1
+  int banio_
+         (int * mode, int * start, int *newpos, int * size, int * no,
+          int * nactual, int * fdes, const char *fname, char *datary,
           int  namelen ) {
 #endif
   int i, j, jret, seekret;

@@ -374,6 +374,26 @@ NCARG_LIBS2	=	-L${PGI}/linux86-64/5.2/lib -lpgftnrtl -lpgc \
 			-L/usr/lib64 -lg2c
 
 ###########################################################
+#ARCH    Cray XT Linux x86_64 (IA64 and Opteron), PGI compiler 5.2 or higher, DM parallel, NO GRIB2
+#
+COMPRESSION_LIBS        =
+COMPRESSION_INC         =
+FDEFS                   =
+FC              =       ftn
+SFC             =       pgf90
+FFLAGS          =       -Mfree -byteswapio -O3 -fastsse
+F77FLAGS        =       -byteswapio -O3
+FNGFLAGS        =       $(FFLAGS)
+LDFLAGS         =
+CC              =       gcc
+SCC             =       pgcc
+CFLAGS          =       -O3
+CPP             =       /lib/cpp -C -P -traditional
+CPPFLAGS        =       -D_UNDERSCORE -DBYTESWAP -DLINUX -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -D_MPI -DBIT32
+NCARG_LIBS2     =       -L${PGI}/linux86-64/5.2/lib -lpgftnrtl -lpgc \
+                        -L/usr/lib64 -lg2c
+
+###########################################################
 #ARCH    PC Linux x86_64 (IA64 and Opteron), PGI compiler 5.2 or higher, DM parallel, NO GRIB2
 #
 COMPRESSION_LIBS	=
@@ -618,6 +638,24 @@ CFLAGS          =       -g
 CPP             =       /usr/bin/cpp -C -P -traditional
 CPPFLAGS        =       -D_UNDERSCORE -DBYTESWAP -DLINUXG95 -DIO_NETCDF -DBIT32
 RANLIB		=	ranlib
+
+##################################################################
+#ARCH	UNICOS/mp  machine crayx1                      DM parallel
+#  Cray X1/X1E (MPI, MSP mode)
+COMPRESSION_LIBS	=
+COMPRESSION_INC		=
+FDEFS			=
+FC              =       ftn
+SFC             =       ftn
+FFLAGS          =       -f free -N 255 -I. -dy -O3 -p../../$(WRF_DIR)/frame
+F77FLAGS        =       -I. -O2 -dy -p./ngl/g2
+FNGFLAGS        =       -I. -O2 -dy
+LDFLAGS         =
+CC              =       cc
+SCC             =       cc
+CFLAGS          =       -w
+CPP             =       cpp -C -P -traditional
+CPPFLAGS        =       -D_UNDERSCORE -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -D_MPI -DBIT32 -UCRAY
 
 ##################################################################
 #ARCH	NULL

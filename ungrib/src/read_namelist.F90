@@ -68,7 +68,9 @@ subroutine read_namelist(hstart, hend, delta_time, ntimes,&
 
 ! Build the namelist file name:
 
+#ifndef __crayx1
   CALL GETENV('EXT_DATAROOT',extdataroot)
+#endif
   file_name_namelist =  'namelist.wps'
  
 ! Open the namelist file:

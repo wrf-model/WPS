@@ -31,6 +31,9 @@
 #ifdef MAC
   void errexit (int a)
 #endif
+#ifdef __crayx1
+  void errexit_ (int a)
+#endif
 {
     exit (a);
 }

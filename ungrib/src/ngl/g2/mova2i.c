@@ -68,6 +68,9 @@ C$$$i*/
 #ifdef MAC
    int mova2i(unsigned char *a)
 #endif
+#ifdef __crayx1
+   int mova2i_(unsigned char *a)
+#endif
 
 {
     return (int)(*a);
