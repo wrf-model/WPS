@@ -337,8 +337,8 @@ module input_module
                                 west_east_dim, south_north_dim, bottom_top_dim, &
                                 we_patch_s, we_patch_e, we_patch_s_stag, we_patch_e_stag, &
                                 sn_patch_s, sn_patch_e, sn_patch_s_stag, sn_patch_e_stag, &
-                                map_proj, is_water, &
-                                is_ice, grid_id, parent_id, i_parent_start, j_parent_start, &
+                                map_proj, mminlu, is_water, &
+                                is_ice, is_urban, isoilwater, grid_id, parent_id, i_parent_start, j_parent_start, &
                                 i_parent_end, j_parent_end, dx, dy, cen_lat, moad_cen_lat, cen_lon, &
                                 stand_lon, truelat1, truelat2, parent_grid_ratio, corner_lats, corner_lons)
  
@@ -348,16 +348,15 @@ module input_module
       integer, intent(out) :: dyn_opt, west_east_dim, south_north_dim, bottom_top_dim, map_proj, is_water, &
                  we_patch_s, we_patch_e, we_patch_s_stag, we_patch_e_stag, &
                  sn_patch_s, sn_patch_e, sn_patch_s_stag, sn_patch_e_stag, &
-                 is_ice, grid_id, parent_id, i_parent_start, j_parent_start, &
+                 is_ice, is_urban, isoilwater, grid_id, parent_id, i_parent_start, j_parent_start, &
                  i_parent_end, j_parent_end, parent_grid_ratio
       real, intent(out) :: dx, dy, cen_lat, moad_cen_lat, cen_lon, stand_lon, truelat1, truelat2
       real, dimension(16), intent(out) :: corner_lats, corner_lons
-      character (len=128), intent(out) :: title, start_date, grid_type
+      character (len=128), intent(out) :: title, start_date, grid_type, mminlu
   
       ! Local variables
       integer :: outcount, istatus, i
-      integer :: is_urban, isoilwater
-      character (len=128) :: cunits, cdesc, cstagger, mminlu
+      character (len=128) :: cunits, cdesc, cstagger
       type (q_data) :: qd
   
       if (my_proc_id == IO_NODE .or. do_tiled_input) then

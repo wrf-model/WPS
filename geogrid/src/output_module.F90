@@ -58,6 +58,7 @@ module output_module
  
 #ifdef _GEOGRID
       use llxy_module
+      use source_data_module
 #endif
   
       implicit none
@@ -372,7 +373,8 @@ module output_module
       ! We may now write global attributes to the file
       call write_global_attrs(title, datestr, grid_type, dynopt, ixdim(nest_number), jydim(nest_number), 0, &
                               sp1, ep1, sp1, ep1_stag, sp2, ep2, sp2, ep2_stag, &
-                              iproj_type, 16, 24, nest_number, parent_id(nest_number), &
+                              iproj_type, source_mminlu, source_iswater, source_isice, source_isurban, &
+                              source_isoilwater, nest_number, parent_id(nest_number), &
                               nint(parent_ll_x(nest_number)), nint(parent_ll_y(nest_number)), &
                               nint(parent_ur_x(nest_number)), nint(parent_ur_y(nest_number)), &
                               dx, dy, cen_lat, moad_cen_lat, &
@@ -933,8 +935,8 @@ module output_module
                                 west_east_dim, south_north_dim, bottom_top_dim, &
                                 we_patch_s, we_patch_e, we_patch_s_stag, we_patch_e_stag, &
                                 sn_patch_s, sn_patch_e, sn_patch_s_stag, sn_patch_e_stag, &
-                                map_proj, is_water, &
-                                is_ice, grid_id, parent_id, i_parent_start, j_parent_start, &
+                                map_proj, cmminlu, is_water, is_ice, is_urban, i_soilwater, &
+                                grid_id, parent_id, i_parent_start, j_parent_start, &
                                 i_parent_end, j_parent_end, dx, dy, cen_lat, moad_cen_lat, cen_lon, &
                                 stand_lon, truelat1, truelat2, parent_grid_ratio, corner_lats, corner_lons, &
                                 flags, nflags)
@@ -945,12 +947,14 @@ module output_module
       integer, intent(in) :: dyn_opt, west_east_dim, south_north_dim, bottom_top_dim, &
                  we_patch_s, we_patch_e, we_patch_s_stag, we_patch_e_stag, &
                  sn_patch_s, sn_patch_e, sn_patch_s_stag, sn_patch_e_stag, &
-                 map_proj, is_water, is_ice, grid_id, parent_id, i_parent_start, j_parent_start, &
+                 map_proj, is_water, is_ice, is_urban, i_soilwater, &
+                 grid_id, parent_id, i_parent_start, j_parent_start, &
                  i_parent_end, j_parent_end, parent_grid_ratio
       integer, intent(in), optional :: nflags
       real, intent(in) :: dx, dy, cen_lat, moad_cen_lat, cen_lon, stand_lon, truelat1, truelat2
       real, dimension(16), intent(in) :: corner_lats, corner_lons
       character (len=*), intent(in) :: title, start_date, grid_type
+      character (len=128), intent(in) :: cmminlu
       character (len=128), dimension(:), intent(in), optional :: flags
   
       ! Local variables
@@ -1049,11 +1053,11 @@ module output_module
          call ext_put_dom_ti_real_vector   ('corner_lats', local_corner_lats, 16) 
          call ext_put_dom_ti_real_vector   ('corner_lons', local_corner_lons, 16) 
          call ext_put_dom_ti_integer_scalar('MAP_PROJ', map_proj)
-         call ext_put_dom_ti_char          ('MMINLU', 'USGS')
-         call ext_put_dom_ti_integer_scalar('ISWATER', 16)
-         call ext_put_dom_ti_integer_scalar('ISICE', 24)
-         call ext_put_dom_ti_integer_scalar('ISURBAN', 1)
-         call ext_put_dom_ti_integer_scalar('ISOILWATER', 14)
+         call ext_put_dom_ti_char          ('MMINLU', trim(cmminlu))
+         call ext_put_dom_ti_integer_scalar('ISWATER', is_water)
+         call ext_put_dom_ti_integer_scalar('ISICE', is_ice)
+         call ext_put_dom_ti_integer_scalar('ISURBAN', is_urban)
+         call ext_put_dom_ti_integer_scalar('ISOILWATER', i_soilwater)
          call ext_put_dom_ti_integer_scalar('grid_id', grid_id)
          call ext_put_dom_ti_integer_scalar('parent_id', parent_id)
          call ext_put_dom_ti_integer_scalar('i_parent_start', i_parent_start)

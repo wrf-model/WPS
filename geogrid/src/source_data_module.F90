@@ -30,12 +30,14 @@ module source_data_module
                   source_category_min, source_category_max, source_landmask_water, &
                   source_landmask_land, source_smooth_option, &
                   source_smooth_passes, source_output_stagger, source_row_order
+   integer :: source_iswater, source_isice, source_isurban, source_isoilwater
    real, pointer, dimension(:) :: source_dx, source_dy, source_known_x, source_known_y, &
                   source_known_lat, source_known_lon, source_masked, source_truelat1, source_truelat2, &
                   source_stdlon, source_scale_factor, source_missing_value, source_fill_missing
    character (len=128), pointer, dimension(:) :: source_fieldname, source_path, source_interp_string, &
                   source_dominant_category, source_dominant_only, source_dfdx, source_dfdy, &
                   source_z_dim_name, source_units, source_descr
+   character (len=128) :: source_mminlu
    logical, pointer, dimension(:) :: is_proj, is_wordsize, is_endian, is_fieldtype, &
                   is_dest_fieldtype, is_priority, is_tile_x, is_tile_y, is_tile_z, &
                   is_tile_z_start, is_tile_z_end, is_tile_bdr, is_category_min, &
@@ -214,6 +216,12 @@ module source_data_module
       allocate(is_signed(num_entries))
       allocate(is_missing_value(num_entries))
       allocate(is_fill_missing(num_entries))
+
+      write(source_mminlu,'(a4)') 'USGS'
+      source_iswater = 16
+      source_isice = 24
+      source_isurban = 1
+      source_isoilwater = 14
   
       ! 
       ! Actually read and save the specifications
@@ -709,6 +717,29 @@ module source_data_module
                      if (buffer(ispace-1:ispace-1) == '"' .or. buffer(ispace-1:ispace-1) == '''') ispace = ispace - 1
                      source_descr(idx)(1:ispace-i) = buffer(i+1:ispace-1)
         
+                  else if (index('mminlu',trim(buffer(1:i-1))) /= 0) then
+                     ispace = i+1
+                     iquoted = 0
+                     do while (((ispace < eos) .and. (buffer(ispace:ispace) /= ' ')) .or. (iquoted == 1))
+                        if (buffer(ispace:ispace) == '"' .or. buffer(ispace:ispace) == '''') iquoted = mod(iquoted+1,2)
+                        ispace = ispace + 1
+                     end do 
+                     if (buffer(i+1:i+1) == '"' .or. buffer(i+1:i+1) == '''') i = i + 1
+                     if (buffer(ispace-1:ispace-1) == '"' .or. buffer(ispace-1:ispace-1) == '''') ispace = ispace - 1
+                     source_mminlu(1:ispace-i) = buffer(i+1:ispace-1)
+        
+                  else if (index('iswater',trim(buffer(1:i-1))) /= 0) then
+                     read(buffer(i+1:eos-1),*) source_iswater
+          
+                  else if (index('isice',trim(buffer(1:i-1))) /= 0) then
+                     read(buffer(i+1:eos-1),*) source_isice
+          
+                  else if (index('isurban',trim(buffer(1:i-1))) /= 0) then
+                     read(buffer(i+1:eos-1),*) source_isurban
+          
+                  else if (index('isoilwater',trim(buffer(1:i-1))) /= 0) then
+                     read(buffer(i+1:eos-1),*) source_isoilwater
+          
                   else if (index('dx',trim(buffer(1:i-1))) /= 0) then
                      is_dx(idx) = .true.
                      read(buffer(i+1:eos-1),*) source_dx(idx)
