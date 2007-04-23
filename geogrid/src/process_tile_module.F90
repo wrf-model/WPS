@@ -53,9 +53,10 @@ module process_tile_module
                                        xlat_array_u, xlon_array_u, &
                                        xlat_array_v, xlon_array_v, &
                                        f_array, e_array, &
-                                       mapfac_array_m, mapfac_array_u, mapfac_array_v, &
+                                       mapfac_array_m_x, mapfac_array_u_x, mapfac_array_v_x, &
+                                       mapfac_array_m_y, mapfac_array_u_y, mapfac_array_v_y, &
                                        sina_array, cosa_array
-      real, pointer, dimension(:,:) :: xlat_ptr, xlon_ptr, mapfac_ptr, landmask, dominant_field
+      real, pointer, dimension(:,:) :: xlat_ptr, xlon_ptr, mapfac_ptr_x, mapfac_ptr_y, landmask, dominant_field
       real, pointer, dimension(:,:,:) :: field, slp_field
       logical :: is_water_mask, only_save_dominant, halt_on_missing
       character (len=19) :: datestr
@@ -270,23 +271,32 @@ module process_tile_module
       if (grid_type == 'C') then
          call mprintf(.true.,STDOUT,'  Processing MAPFAC')
     
-         allocate(mapfac_array_m(start_mem_i:end_mem_i, start_mem_j:end_mem_j))
-         call get_map_factor(which_domain, xlat_array, mapfac_array_m, start_mem_i, &
+         allocate(mapfac_array_m_x(start_mem_i:end_mem_i, start_mem_j:end_mem_j))
+         allocate(mapfac_array_m_y(start_mem_i:end_mem_i, start_mem_j:end_mem_j))
+         call get_map_factor(which_domain, xlat_array, xlon_array, mapfac_array_m_x, mapfac_array_m_y, start_mem_i, &
                              start_mem_j, end_mem_i, end_mem_j)
-         call write_field(start_mem_i, end_mem_i, start_mem_j, end_mem_j, 1, 1, 'MAPFAC_M', &
-                          datestr, real_array = mapfac_array_m)
+         call write_field(start_mem_i, end_mem_i, start_mem_j, end_mem_j, 1, 1, 'MAPFAC_MX', &
+                          datestr, real_array = mapfac_array_m_x)
+         call write_field(start_mem_i, end_mem_i, start_mem_j, end_mem_j, 1, 1, 'MAPFAC_MY', &
+                          datestr, real_array = mapfac_array_m_y)
     
-         allocate(mapfac_array_v(start_mem_i:end_mem_i, start_mem_j:end_mem_stag_j))
-         call get_map_factor(which_domain, xlat_array_v, mapfac_array_v, start_mem_i, &
+         allocate(mapfac_array_v_x(start_mem_i:end_mem_i, start_mem_j:end_mem_stag_j))
+         allocate(mapfac_array_v_y(start_mem_i:end_mem_i, start_mem_j:end_mem_stag_j))
+         call get_map_factor(which_domain, xlat_array_v, xlon_array_v, mapfac_array_v_x, mapfac_array_v_y, start_mem_i, &
                              start_mem_j, end_mem_i, end_mem_stag_j)
-         call write_field(start_mem_i, end_mem_i, start_mem_j, end_mem_stag_j, 1, 1, 'MAPFAC_V', &
-                          datestr, real_array = mapfac_array_v)
+         call write_field(start_mem_i, end_mem_i, start_mem_j, end_mem_stag_j, 1, 1, 'MAPFAC_VX', &
+                          datestr, real_array = mapfac_array_v_x)
+         call write_field(start_mem_i, end_mem_i, start_mem_j, end_mem_stag_j, 1, 1, 'MAPFAC_VY', &
+                          datestr, real_array = mapfac_array_v_y)
     
-         allocate(mapfac_array_u(start_mem_i:end_mem_stag_i, start_mem_j:end_mem_j))
-         call get_map_factor(which_domain, xlat_array_u, mapfac_array_u, start_mem_i, &
+         allocate(mapfac_array_u_x(start_mem_i:end_mem_stag_i, start_mem_j:end_mem_j))
+         allocate(mapfac_array_u_y(start_mem_i:end_mem_stag_i, start_mem_j:end_mem_j))
+         call get_map_factor(which_domain, xlat_array_u, xlon_array_u, mapfac_array_u_x, mapfac_array_u_y, start_mem_i, &
                              start_mem_j, end_mem_stag_i, end_mem_j)
-         call write_field(start_mem_i, end_mem_stag_i, start_mem_j, end_mem_j, 1, 1, 'MAPFAC_U', &
-                          datestr, real_array = mapfac_array_u)
+         call write_field(start_mem_i, end_mem_stag_i, start_mem_j, end_mem_j, 1, 1, 'MAPFAC_UX', &
+                          datestr, real_array = mapfac_array_u_x)
+         call write_field(start_mem_i, end_mem_stag_i, start_mem_j, end_mem_j, 1, 1, 'MAPFAC_UY', &
+                          datestr, real_array = mapfac_array_u_y)
       end if
     
     
@@ -558,7 +568,8 @@ module process_tile_module
                   em2 = end_mem_j
                   xlat_ptr => xlat_array 
                   xlon_ptr => xlon_array 
-                  mapfac_ptr => mapfac_array_m
+                  mapfac_ptr_x => mapfac_array_m_x
+                  mapfac_ptr_y => mapfac_array_m_y
                else if (istagger == U) then ! In the case that extra_cols = .false.
                   sm1 = start_mem_i          ! we should have that end_mem_stag is
                   em1 = end_mem_stag_i       ! the same as end_mem, so we do not need
@@ -566,7 +577,8 @@ module process_tile_module
                   em2 = end_mem_j
                   xlat_ptr => xlat_array_u 
                   xlon_ptr => xlon_array_u 
-                  mapfac_ptr => mapfac_array_u
+                  mapfac_ptr_x => mapfac_array_u_x
+                  mapfac_ptr_y => mapfac_array_u_y
                else if (istagger == V) then
                   sm1 = start_mem_i
                   em1 = end_mem_i
@@ -574,7 +586,8 @@ module process_tile_module
                   em2 = end_mem_stag_j
                   xlat_ptr => xlat_array_v 
                   xlon_ptr => xlon_array_v 
-                  mapfac_ptr => mapfac_array_v
+                  mapfac_ptr_x => mapfac_array_v_x
+                  mapfac_ptr_y => mapfac_array_v_y
                else if (istagger == HH) then   ! E grid
                   sm1 = start_mem_i
                   em1 = end_mem_i
@@ -582,7 +595,8 @@ module process_tile_module
                   em2 = end_mem_j
                   xlat_ptr => xlat_array 
                   xlon_ptr => xlon_array 
-                  mapfac_ptr => mapfac_array_m
+                  mapfac_ptr_x => mapfac_array_m_x
+                  mapfac_ptr_y => mapfac_array_m_y
                else if (istagger == VV) then   ! E grid 
                   sm1 = start_mem_i
                   em1 = end_mem_i
@@ -590,7 +604,8 @@ module process_tile_module
                   em2 = end_mem_stag_j
                   xlat_ptr => xlat_array_v 
                   xlon_ptr => xlon_array_v 
-                  mapfac_ptr => mapfac_array_v
+                  mapfac_ptr_x => mapfac_array_v_x
+                  mapfac_ptr_y => mapfac_array_v_y
                end if
        
                call get_missing_fill_value(fieldname, msg_fill_val, istatus)
@@ -691,7 +706,7 @@ module process_tile_module
                                   i1=field_count,i2=NUM_FIELDS-NUM_AUTOMATIC_FIELDS,s1=gradname)
 
                      if (grid_type == 'C') then
-                        call calc_dfdx(field, slp_field, sm1, sm2, min_level, em1, em2, max_level, mapfac_ptr)
+                        call calc_dfdx(field, slp_field, sm1, sm2, min_level, em1, em2, max_level, mapfac_ptr_x)
                      else if (grid_type == 'E') then
                         call calc_dfdx(field, slp_field, sm1, sm2, min_level, em1, em2, max_level)
                      end if
@@ -708,7 +723,7 @@ module process_tile_module
                                   i1=field_count,i2=NUM_FIELDS-NUM_AUTOMATIC_FIELDS,s1=gradname)
 
                      if (grid_type == 'C') then
-                        call calc_dfdy(field, slp_field, sm1, sm2, min_level, em1, em2, max_level, mapfac_ptr)
+                        call calc_dfdy(field, slp_field, sm1, sm2, min_level, em1, em2, max_level, mapfac_ptr_y)
                      else if (grid_type == 'E') then
                         call calc_dfdy(field, slp_field, sm1, sm2, min_level, em1, em2, max_level)
                      end if
@@ -861,12 +876,15 @@ module process_tile_module
       if (grid_type == 'C') then
          if (associated(xlat_array_u)) deallocate(xlat_array_u)
          if (associated(xlon_array_u)) deallocate(xlon_array_u)
-         if (associated(mapfac_array_u)) deallocate(mapfac_array_u)
+         if (associated(mapfac_array_u_x)) deallocate(mapfac_array_u_x)
+         if (associated(mapfac_array_u_y)) deallocate(mapfac_array_u_y)
       end if
       if (associated(xlat_array_v)) deallocate(xlat_array_v)
       if (associated(xlon_array_v)) deallocate(xlon_array_v)
-      if (associated(mapfac_array_m)) deallocate(mapfac_array_m)
-      if (associated(mapfac_array_v)) deallocate(mapfac_array_v)
+      if (associated(mapfac_array_m_x)) deallocate(mapfac_array_m_x)
+      if (associated(mapfac_array_m_y)) deallocate(mapfac_array_m_y)
+      if (associated(mapfac_array_v_x)) deallocate(mapfac_array_v_x)
+      if (associated(mapfac_array_v_y)) deallocate(mapfac_array_v_y)
       if (associated(landmask)) deallocate(landmask)
       nullify(xlat_ptr)
       nullify(xlon_ptr)
@@ -1354,23 +1372,25 @@ module process_tile_module
    !   E grid), the latitude array should provide the latitudes of the points for
    !   which map factors are to be calculated. 
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-   subroutine get_map_factor(which_domain, xlat_arr, mapfac_arr, start_mem_i, &
-                             start_mem_j, end_mem_i, end_mem_j)
+   subroutine get_map_factor(which_domain, xlat_arr, xlon_arr, mapfac_arr_x, mapfac_arr_y, &
+                             start_mem_i, start_mem_j, end_mem_i, end_mem_j)
    
       use constants_module
       use gridinfo_module
       use misc_definitions_module
+      use map_utils
     
       implicit none
     
       ! Arguments
       integer, intent(in) :: which_domain, start_mem_i, start_mem_j, end_mem_i, end_mem_j
-      real, dimension(start_mem_i:end_mem_i, start_mem_j:end_mem_j), intent(in) :: xlat_arr
-      real, dimension(start_mem_i:end_mem_i, start_mem_j:end_mem_j), intent(out) :: mapfac_arr
+      real, dimension(start_mem_i:end_mem_i, start_mem_j:end_mem_j), intent(in) :: xlat_arr, xlon_arr
+      real, dimension(start_mem_i:end_mem_i, start_mem_j:end_mem_j), intent(out) :: mapfac_arr_x
+      real, dimension(start_mem_i:end_mem_i, start_mem_j:end_mem_j), intent(out) :: mapfac_arr_y
     
       ! Local variables
       integer :: i, j
-      real :: n, colat, colat0, colat1, colat2
+      real :: n, colat, colat0, colat1, colat2, comp_lat, comp_lon
     
       !
       ! Equations for map factor given in Principles of Meteorological Analysis,
@@ -1388,7 +1408,8 @@ module process_tile_module
             do i=start_mem_i, end_mem_i
                do j=start_mem_j, end_mem_j
                   colat = rad_per_deg*(90.0 - xlat_arr(i,j))
-                  mapfac_arr(i,j) = sin(colat2)/sin(colat)*(tan(colat/2.0)/tan(colat2/2.0))**n
+                  mapfac_arr_x(i,j) = sin(colat2)/sin(colat)*(tan(colat/2.0)/tan(colat2/2.0))**n
+                  mapfac_arr_y(i,j) = mapfac_arr_x(i,j)
                end do
             end do
      
@@ -1398,7 +1419,8 @@ module process_tile_module
             do i=start_mem_i, end_mem_i
                do j=start_mem_j, end_mem_j
                   colat = rad_per_deg*(90.0 - xlat_arr(i,j))
-                  mapfac_arr(i,j) = sin(colat0)/sin(colat)*(tan(colat/2.0)/tan(colat0/2.0))**cos(colat0)
+                  mapfac_arr_x(i,j) = sin(colat0)/sin(colat)*(tan(colat/2.0)/tan(colat0/2.0))**cos(colat0)
+                  mapfac_arr_y(i,j) = mapfac_arr_x(i,j)
                end do
             end do
     
@@ -1409,7 +1431,8 @@ module process_tile_module
     
          do i=start_mem_i, end_mem_i
             do j=start_mem_j, end_mem_j
-               mapfac_arr(i,j) = (1.0 + sin(rad_per_deg*abs(truelat1)))/(1.0 + sin(rad_per_deg*sign(1.,truelat1)*xlat_arr(i,j)))
+               mapfac_arr_x(i,j) = (1.0 + sin(rad_per_deg*abs(truelat1)))/(1.0 + sin(rad_per_deg*sign(1.,truelat1)*xlat_arr(i,j)))
+               mapfac_arr_y(i,j) = mapfac_arr_x(i,j)
             end do
          end do
     
@@ -1420,15 +1443,71 @@ module process_tile_module
          do i=start_mem_i, end_mem_i
             do j=start_mem_j, end_mem_j
                colat = rad_per_deg*(90.0 - xlat_arr(i,j))
-               mapfac_arr(i,j) = sin(colat0) / sin(colat) 
+               mapfac_arr_x(i,j) = sin(colat0) / sin(colat) 
+               mapfac_arr_y(i,j) = mapfac_arr_x(i,j)
             end do
          end do
+    
+      ! Global cylindrical projection
+      else if (iproj_type == PROJ_CYL) then
+     
+         do i=start_mem_i, end_mem_i
+            do j=start_mem_j, end_mem_j
+               if (abs(xlat_arr(i,j)) == 90.0) then
+                  mapfac_arr_x(i,j) = 0.    ! MSF actually becomes infinite at poles, but 
+                                            !   the values should never be used there; by
+                                            !   setting to 0, we hope to induce a "divide
+                                            !   by zero" error if they are
+               else
+                  mapfac_arr_x(i,j) = 1.0 / cos(xlat_arr(i,j)*rad_per_deg) 
+               end if
+               mapfac_arr_y(i,j) = 1.0
+            end do
+         end do
+    
+      ! Rotated global cylindrical projection
+      else if (iproj_type == PROJ_CASSINI) then
+     
+         if (abs(pole_lat) == 90.) then
+            do i=start_mem_i, end_mem_i
+               do j=start_mem_j, end_mem_j
+                  if (abs(xlat_arr(i,j)) >= 90.0) then
+                     mapfac_arr_x(i,j) = 0.    ! MSF actually becomes infinite at poles, but 
+                                               !   the values should never be used there; by
+                                               !   setting to 0, we hope to induce a "divide
+                                               !   by zero" error if they are
+                  else
+                     mapfac_arr_x(i,j) = 1.0 / cos(xlat_arr(i,j)*rad_per_deg) 
+                  end if
+                  mapfac_arr_y(i,j) = 1.0
+               end do
+            end do
+         else
+            do i=start_mem_i, end_mem_i
+               do j=start_mem_j, end_mem_j
+                  call rotate_coords(xlat_arr(i,j),xlon_arr(i,j), &
+                                     comp_lat, comp_lon, &
+                                     pole_lat, pole_lon, stand_lon, &
+                                     -1)
+                  if (abs(comp_lat) >= 90.0) then
+                     mapfac_arr_x(i,j) = 0.    ! MSF actually becomes infinite at poles, but 
+                                               !   the values should never be used there; by
+                                               !   setting to 0, we hope to induce a "divide
+                                               !   by zero" error if they are
+                  else
+                     mapfac_arr_x(i,j) = 1.0 / cos(comp_lat*rad_per_deg) 
+                  end if
+                  mapfac_arr_y(i,j) = 1.0
+               end do
+            end do
+         end if
     
       else if (iproj_type == PROJ_ROTLL) then
     
          do i=start_mem_i, end_mem_i
             do j=start_mem_j, end_mem_j
-               mapfac_arr(i,j) = 1.0
+               mapfac_arr_x(i,j) = 1.0
+               mapfac_arr_y(i,j) = 1.0
             end do
          end do
     

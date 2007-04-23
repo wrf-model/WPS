@@ -22,13 +22,13 @@ module rotate_winds_module
    subroutine map_to_met(u, u_mask, v, v_mask, &
                          us1, us2, ue1, ue2, &
                          vs1, vs2, ve1, ve2, &
-                         xlon_u, xlon_v)
+                         xlon_u, xlon_v, xlat_u, xlat_v)
 
       implicit none
 
       ! Arguments
       integer, intent(in) :: us1, us2, ue1, ue2, vs1, vs2, ve1, ve2
-      real, pointer, dimension(:,:) :: u, v, xlon_u, xlon_v
+      real, pointer, dimension(:,:) :: u, v, xlon_u, xlon_v, xlat_u, xlat_v
       type (bitarray), intent(in) :: u_mask, v_mask
 
       orig_selected_projection = iget_selected_domain()
@@ -36,7 +36,7 @@ module rotate_winds_module
       call metmap_xform(u, u_mask, v, v_mask, &
                         us1, us2, ue1, ue2, &
                         vs1, vs2, ve1, ve2, &
-                        xlon_u, xlon_v, 1)
+                        xlon_u, xlon_v, xlat_u, xlat_v, 1)
       call select_domain(orig_selected_projection)
 
    end subroutine map_to_met
@@ -50,13 +50,13 @@ module rotate_winds_module
    subroutine met_to_map(u, u_mask, v, v_mask, &
                          us1, us2, ue1, ue2, &
                          vs1, vs2, ve1, ve2, &
-                         xlon_u, xlon_v)
+                         xlon_u, xlon_v, xlat_u, xlat_v)
 
       implicit none
 
       ! Arguments
       integer, intent(in) :: us1, us2, ue1, ue2, vs1, vs2, ve1, ve2
-      real, pointer, dimension(:,:) :: u, v, xlon_u, xlon_v
+      real, pointer, dimension(:,:) :: u, v, xlon_u, xlon_v, xlat_u, xlat_v
       type (bitarray), intent(in) :: u_mask, v_mask
 
       orig_selected_projection = iget_selected_domain()
@@ -64,7 +64,7 @@ module rotate_winds_module
       call metmap_xform(u, u_mask, v, v_mask, &
                         us1, us2, ue1, ue2, &
                         vs1, vs2, ve1, ve2, &
-                        xlon_u, xlon_v, -1)
+                        xlon_u, xlon_v, xlat_u, xlat_v, -1)
       call select_domain(orig_selected_projection)
 
    end subroutine met_to_map
@@ -83,13 +83,13 @@ module rotate_winds_module
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
    subroutine metmap_xform(u, u_mask, v, v_mask, &
                            us1, us2, ue1, ue2, vs1, vs2, ve1, ve2, &
-                           xlon_u, xlon_v, idir)
+                           xlon_u, xlon_v, xlat_u, xlat_v, idir)
 
       implicit none
 
       ! Arguments
       integer, intent(in) :: us1, us2, ue1, ue2, vs1, vs2, ve1, ve2, idir
-      real, pointer, dimension(:,:) :: u, v, xlon_u, xlon_v
+      real, pointer, dimension(:,:) :: u, v, xlon_u, xlon_v, xlat_u, xlat_v
       type (bitarray), intent(in) :: u_mask, v_mask
 
       ! Local variables
@@ -102,8 +102,10 @@ module rotate_winds_module
       !   information about the projection and standard longitude.
       if (proj_stack(current_nest_number)%init) then
 
-         ! Only rotate winds for Lambert conformal or polar stereographic
-         if ((proj_stack(current_nest_number)%code == PROJ_LC) .or. (proj_stack(current_nest_number)%code == PROJ_PS)) then
+         ! Only rotate winds for Lambert conformal, polar stereographic, or Cassini
+         if ((proj_stack(current_nest_number)%code == PROJ_LC) .or. &
+             (proj_stack(current_nest_number)%code == PROJ_PS) .or. &
+             (proj_stack(current_nest_number)%code == PROJ_CASSINI)) then
             call mprintf((idir ==  1),LOGFILE,'Rotating map winds to earth winds.')
             call mprintf((idir == -1),LOGFILE,'Rotating earth winds to grid winds')
 
@@ -167,6 +169,38 @@ module rotate_winds_module
                   else
                      alpha = diff * rad_per_deg * proj_stack(current_nest_number)%hemi 
                   end if
+
+                  if (j == ue2) then
+                     diff = xlon_u(i,j)-xlon_u(i,j-1)
+                     if (diff > 180.) then
+                        diff = diff - 360.
+                     else if (diff < -180.) then
+                        diff = diff + 360.
+                     end if
+                     alpha = atan2(   (-cos(xlat_u(i,j)*rad_per_deg) * diff*rad_per_deg),   &
+                                                     (xlat_u(i,j)-xlat_u(i,j-1))*rad_per_deg    &
+                                  )
+                  else if (j == us2) then
+                     diff = xlon_u(i,j+1)-xlon_u(i,j)
+                     if (diff > 180.) then
+                        diff = diff - 360.
+                     else if (diff < -180.) then
+                        diff = diff + 360.
+                     end if
+                     alpha = atan2(   (-cos(xlat_u(i,j)*rad_per_deg) * diff*rad_per_deg),   &
+                                                     (xlat_u(i,j+1)-xlat_u(i,j))*rad_per_deg    &
+                                  )
+                  else
+                     diff = xlon_u(i,j+1)-xlon_u(i,j-1)
+                     if (diff > 180.) then
+                        diff = diff - 360.
+                     else if (diff < -180.) then
+                        diff = diff + 360.
+                     end if
+                     alpha = atan2(   (-cos(xlat_u(i,j)*rad_per_deg) * diff*rad_per_deg),   &
+                                                     (xlat_u(i,j+1)-xlat_u(i,j-1))*rad_per_deg    &
+                                  )
+                  end if
                  
                   v_weight = 0.
 
@@ -224,6 +258,38 @@ module rotate_winds_module
                      alpha = diff * proj_stack(current_nest_number)%cone * rad_per_deg * proj_stack(current_nest_number)%hemi 
                   else
                      alpha = diff * rad_per_deg * proj_stack(current_nest_number)%hemi 
+                  end if
+
+                  if (j == ve2) then
+                     diff = xlon_v(i,j)-xlon_v(i,j-1)
+                     if (diff > 180.) then
+                        diff = diff - 360.
+                     else if (diff < -180.) then
+                        diff = diff + 360.
+                     end if
+                     alpha = atan2(   (-cos(xlat_v(i,j)*rad_per_deg) * diff*rad_per_deg),   &
+                                                     (xlat_v(i,j)-xlat_v(i,j-1))*rad_per_deg    &
+                                  )
+                  else if (j == vs2) then
+                     diff = xlon_v(i,j+1)-xlon_v(i,j)
+                     if (diff > 180.) then
+                        diff = diff - 360.
+                     else if (diff < -180.) then
+                        diff = diff + 360.
+                     end if
+                     alpha = atan2(   (-cos(xlat_v(i,j)*rad_per_deg) * diff*rad_per_deg),   &
+                                                     (xlat_v(i,j+1)-xlat_v(i,j))*rad_per_deg    &
+                                  )
+                  else
+                     diff = xlon_v(i,j+1)-xlon_v(i,j-1)
+                     if (diff > 180.) then
+                        diff = diff - 360.
+                     else if (diff < -180.) then
+                        diff = diff + 360.
+                     end if
+                     alpha = atan2(   (-cos(xlat_v(i,j)*rad_per_deg) * diff*rad_per_deg),   &
+                                                     (xlat_v(i,j+1)-xlat_v(i,j-1))*rad_per_deg    &
+                                  )
                   end if
 
                   u_weight = 0.
@@ -449,8 +515,10 @@ module rotate_winds_module
             deallocate(u_new)
             deallocate(v_new)
    
-         ! Only rotate winds for Lambert conformal or polar stereographic
-         else if ((proj_stack(current_nest_number)%code == PROJ_LC) .or. (proj_stack(current_nest_number)%code == PROJ_PS)) then
+         ! Only rotate winds for Lambert conformal, polar stereographic, or Cassini
+         else if ((proj_stack(current_nest_number)%code == PROJ_LC) .or. &
+                  (proj_stack(current_nest_number)%code == PROJ_PS) .or. &
+                  (proj_stack(current_nest_number)%code == PROJ_CASSINI)) then
 
             call mprintf((idir ==  1),LOGFILE,'Rotating map winds to earth winds.')
             call mprintf((idir == -1),LOGFILE,'Rotating earth winds to grid winds')

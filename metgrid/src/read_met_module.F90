@@ -132,7 +132,7 @@ module read_met_module
      
          allocate(slab(nx, ny))
          read(unit=input_unit,err=1001,end=1001) slab
-     
+
          istatus = 0 
     
       ! GRIB_PREP

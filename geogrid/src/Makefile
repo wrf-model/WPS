@@ -54,7 +54,7 @@ output_module.o: gridinfo_module.o llxy_module.o misc_definitions_module.o modul
 
 parallel_module.o:
 
-process_tile_module.o: bitarray_module.o constants_module.o hash_module.o gridinfo_module.o interp_module.o llxy_module.o misc_definitions_module.o module_debug.o output_module.o parallel_module.o proc_point_module.o queue_module.o smooth_module.o source_data_module.o
+process_tile_module.o: bitarray_module.o constants_module.o hash_module.o gridinfo_module.o interp_module.o llxy_module.o misc_definitions_module.o module_debug.o module_map_utils.o output_module.o parallel_module.o proc_point_module.o queue_module.o smooth_module.o source_data_module.o
 
 proc_point_module.o: bitarray_module.o hash_module.o interp_module.o llxy_module.o misc_definitions_module.o module_debug.o source_data_module.o
 

@@ -15,8 +15,9 @@ module gridinfo_module
    ! Variables
    integer :: iproj_type, n_domains, io_form_output, dyn_opt
    integer, dimension(MAX_DOMAINS) :: parent_grid_ratio, parent_id, ixdim, jydim
-   real :: known_lat, known_lon, stand_lon, truelat1, truelat2, known_x, known_y, &
-           dxkm, dykm, phi, lambda, ref_lat, ref_lon, ref_x, ref_y
+   real :: known_lat, known_lon, pole_lat, pole_lon, stand_lon, truelat1, truelat2, &
+           known_x, known_y, dxkm, dykm, phi, lambda, ref_lat, ref_lon, ref_x, ref_y, &
+           dlatdeg, dlondeg
    real, dimension(MAX_DOMAINS) :: parent_ll_x, parent_ll_y, parent_ur_x, parent_ur_y
    character (len=128) :: geog_data_path, opt_output_from_geogrid_path, opt_geogrid_tbl_path
 
@@ -59,8 +60,8 @@ module gridinfo_module
       namelist /geogrid/ parent_id, parent_grid_ratio, &
                          i_parent_start, j_parent_start, s_we, e_we, s_sn, e_sn, &
                          map_proj, ref_x, ref_y, ref_lat, ref_lon, &
-                         truelat1, truelat2, stand_lon, dx, dy, &
-                         geog_data_res, geog_data_path, opt_geogrid_tbl_path
+                         pole_lat, pole_lon, truelat1, truelat2, stand_lon, &
+                         dx, dy, geog_data_res, geog_data_path, opt_geogrid_tbl_path
   
       ! Set defaults for namelist variables
       debug_level = 0
@@ -72,9 +73,11 @@ module gridinfo_module
       ref_y = NAN
       ref_lat = NAN
       ref_lon = NAN
-      dx = 10000.
-      dy = 10000.
+      dx = NAN
+      dy = NAN
       map_proj = 'Lambert'
+      pole_lat = NAN
+      pole_lon = NAN
       truelat1 = NAN
       truelat2 = NAN
       stand_lon = NAN
@@ -228,6 +231,8 @@ module gridinfo_module
       call mprintf(.true.,LOGFILE,'  DX                = %f',f1=dx)
       call mprintf(.true.,LOGFILE,'  DY                = %f',f1=dy)
       call mprintf(.true.,LOGFILE,'  MAP_PROJ          = %s',s1=map_proj)
+      call mprintf(.true.,LOGFILE,'  POLE_LAT          = %f',f1=pole_lat)
+      call mprintf(.true.,LOGFILE,'  POLE_LON          = %f',f1=pole_lon)
       call mprintf(.true.,LOGFILE,'  REF_LAT           = %f',f1=ref_lat)
       call mprintf(.true.,LOGFILE,'  REF_LON           = %f',f1=ref_lon)
       call mprintf(.true.,LOGFILE,'  REF_X             = %f',f1=ref_x)
@@ -376,11 +381,44 @@ module gridinfo_module
                (len_trim(map_proj) == len('ROTATED_LL'))) then
          iproj_type = PROJ_ROTLL 
   
+      else if ((index(map_proj, 'CASSINI') /= 0) .and. &
+               (len_trim(map_proj) == len('CASSINI'))) then
+         iproj_type = PROJ_CASSINI 
+  
       else
          call mprintf(.true.,ERROR,&
                       'In namelist, invalid map_proj specified. Valid '// &
                       'projections are "lambert", "mercator", "polar", '// &
-                      'and "rotated_ll".')
+                      '"global", and "rotated_ll".')
+      end if
+
+      ! For Cassini projections
+      if (iproj_type == PROJ_CASSINI) then
+
+         if (pole_lat == NAN .or. pole_lon == NAN) then
+            call mprintf(.true.,ERROR,'A pole_lat and pole_lon must be specified for the Cassini projection.')
+         end if
+        
+         ! If no dx,dy specified, assume global grid
+         if (dx == NAN .and. dy == NAN) then
+            dlondeg = 360. / (e_we(1)-s_we(1))   ! Here, we really do not want e_we-s_we+1
+            dlatdeg = 180. / (e_sn(1)-s_sn(1))   ! Here, we really do not want e_we-s_we+1
+            known_x = 1.
+            known_y = 1.
+            known_lon = stand_lon + dlondeg/2.
+            known_lat = -90. + dlatdeg/2.
+            dxkm = dlondeg      ! Set dxkm and dykm for possible use by nested domains
+            dykm = dlatdeg 
+
+         ! If dx,dy specified, however, assume regional grid
+         else
+            dlatdeg = dy
+            dlondeg = dx
+            if (known_lat == NAN .or. known_lon == NAN) then
+               call mprintf(.true.,ERROR,'For Cassini projection, if dx/dy are specified, '// &
+                        'a regional domain is assumed, and a ref_lat,ref_lon must also be specified')
+            end if
+         end if
       end if
   
       n_domains = max_dom
@@ -437,22 +475,6 @@ module gridinfo_module
             parent_grid_ratio(i) = 3
          end do
 
-         ! Check that nests have an acceptable number of grid points in each dimension
-!         do i=2,n_domains
-!            rparent_gridpts = real(ixdim(i)+2)/real(parent_grid_ratio(i))
-!            if (floor(rparent_gridpts) /= ceiling(rparent_gridpts)) then
-!               call mprintf(.true.,ERROR,'For nest %i, e_we must be 3n-2 '// &
-!                            'for some integer n > 1.', &
-!                            i1=i)
-!            end if
-!            rparent_gridpts = real(jydim(i)+2)/real(parent_grid_ratio(i))
-!            if (floor(rparent_gridpts) /= ceiling(rparent_gridpts)) then
-!               call mprintf(.true.,ERROR,'For nest %i, e_sn must be 3n-2 '// &
-!                            'for some odd integer n > 1.', &
-!                            i1=i)
-!            end if
-!         end do
-
          do i=2,n_domains
             parent_ll_x(i) = 1.
             parent_ll_y(i) = 1.
@@ -464,7 +486,7 @@ module gridinfo_module
          ! C grid does not support the rotated lat/lon projection
          call mprintf((iproj_type == PROJ_ROTLL), ERROR, &
                       'Rotated lat/lon projection is not supported for the ARW core. '// &
-                      'Valid projecitons are "lambert", "mercator", and "polar".')
+                      'Valid projecitons are "lambert", "mercator", "polar", and "cassini".')
 
          ! Check that nests have an acceptable number of grid points in each dimension
          do i=2,n_domains
