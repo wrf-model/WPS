@@ -335,6 +335,12 @@ SUBROUTINE rd_grib1(IUNIT, gribflnm, level, field, hdate,  &
        map%dx = 0.083333333 * sign(1.0,map%dx)
        map%dy = 0.083333333 * sign(1.0,map%dy)
      endif
+! correction for ncep grid 229   added 5/3/07   JFB
+     if (icenter .eq. 7 .and. KSEC1(5) .eq. 229 ) then 
+       if (ginfo(3) .gt. 89. .and. ginfo(9) .gt. 0.) then
+         map%dy = -1. * map%dy
+       endif
+     endif
 
 !    print *, "CE map stuff", map%igrid, map%nx, map%ny, map%dx, &
 !    map%dy, map%lat1, map%lon1
@@ -408,12 +414,10 @@ SUBROUTINE rd_grib1(IUNIT, gribflnm, level, field, hdate,  &
 ! Unpack the 2D slab from the GRIB record, and put it in array rdatarray
   call gribdata(rdatarray,map%nx*map%ny)
 
-! Some Lat/Lon grids need to be reordered (e.g. NCEP-II). WPS assumes grids start in
+! Some grids need to be reordered (e.g. NCEP-II). WPS assumes grids start in
 ! the north and are ordered in the +x and -y direction
 
-  if ( map%igrid .eq. 0 ) then
-    call reorder_it (rdatarray, map%nx, map%ny, map%dx, map%dy, infogrid(10))
-  endif
+  call reorder_it (rdatarray, map%nx, map%ny, map%dx, map%dy, infogrid(10))
 
 ! Deallocate a couple of arrays that may have been allocated by the 
 ! GRIB decoding routines.
