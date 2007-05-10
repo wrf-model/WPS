@@ -26,6 +26,6 @@ Code | Code |   1  |   2  | Name     |  Units   | Description                   
  144 | 112  |100   |200   | SM100200 | kg m-3   | Soil Moisture of 100-200 cm ground layer |
   81 |  1   |   0  |      | LANDSEA  | proprtn  | Land/Sea flag          (from .fixed file)|
    7 |  1   |   0  |      | SOILHGT  | m        | Terrain from source analysis             | 
- 224 |  1   |   0  |      | SOIL_CAT |          | Dominant soil type category (from .fixed)|
+ 224 |  1   |   0  |      | SOILCAT  |          | Dominant soil type category (from .fixed)|
  225 |  1   |   0  |      | VEGCAT   |          | Dominant land use category  (from .fixed)|
 -----+------+------+------+----------+----------+------------------------------------------+
