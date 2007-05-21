@@ -88,7 +88,7 @@ echo " "
 echo 3. starting WPS tests
 echo "     start: " `date`
 pushd WPS >& /dev/null
-set count = 0
+set tcount = 0
 
 #	Loop over all of the tests
 
@@ -109,8 +109,8 @@ foreach test_num ( $all_tests )
 
 	#	Tell folks what we are doing.
 
-	@ count ++
-	echo "        Test #${count}"
+	@ tcount ++
+	echo "        Test #${tcount}"
 	echo "        share:   " $share
 	echo "        geogrid: " $geogrid
 	echo "        ungrib:  " $ungrib
