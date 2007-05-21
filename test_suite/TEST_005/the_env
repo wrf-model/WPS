@@ -1,5 +1,0 @@
-#
-setenv share DATE=2006080100
-setenv geogrid INDIA
-setenv ungrib SI
-setenv metgrid FILE
