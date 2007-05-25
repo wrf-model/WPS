@@ -2047,11 +2047,12 @@ module source_data_module
    !
    ! Purpose:
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-   subroutine get_field_scale_factor(fieldnm, scale_factor, istatus)
+   subroutine get_field_scale_factor(fieldnm, ilevel, scale_factor, istatus)
    
       implicit none
   
       ! Arguments
+      integer, intent(in) :: ilevel
       integer, intent(out) :: istatus
       real, intent(out) :: scale_factor
       character (len=128), intent(in) :: fieldnm
@@ -2063,7 +2064,8 @@ module source_data_module
   
       do idx=1,num_entries
          if ((index(source_fieldname(idx),trim(fieldnm)) /= 0) .and. &
-             (len_trim(source_fieldname(idx)) == len_trim(fieldnm))) then
+             (len_trim(source_fieldname(idx)) == len_trim(fieldnm)) .and. &
+             (ilevel == source_priority(idx))) then
    
             if (is_scale_factor(idx)) then
                scale_factor = source_scale_factor(idx) 

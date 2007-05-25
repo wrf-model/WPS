@@ -47,7 +47,7 @@ module process_tile_module
       integer :: start_mem_i, end_mem_i, start_mem_j, end_mem_j, end_mem_stag_i, end_mem_stag_j
       integer :: sm1, em1, sm2, em2
       integer :: istagger
-      real :: sum, dominant, scale_factor, msg_fill_val, topo_flag_val, mass_flag
+      real :: sum, dominant, msg_fill_val, topo_flag_val, mass_flag
       real, dimension(16) :: corner_lats, corner_lons
       real, pointer, dimension(:,:) :: xlat_array,   xlon_array, &
                                        xlat_array_u, xlon_array_u, &
@@ -624,20 +624,6 @@ module process_tile_module
                      end do
                   end if
         
-                  ! We may need to scale this field by a constant
-                  call get_field_scale_factor(fieldname, scale_factor, istatus)
-                  if (istatus == 0) then
-                     do i=sm1, em1
-                        do j=sm2, em2
-                           do k=min_level,max_level
-                              if (field(i,j,k) /= msg_fill_val) then
-                                 field(i,j,k) = field(i,j,k) * scale_factor
-                              end if
-                           end do
-                        end do
-                     end do
-                  end if
-       
                   ! We may be asked to smooth the fractional field
                   call get_smooth_option(fieldname, smth_opt, smth_passes, istatus)
                   if (istatus == 0) then
@@ -655,7 +641,7 @@ module process_tile_module
                        end if
   
                      else if (grid_type == 'E') then
-  	
+ 
                         if (trim(fieldname) == 'HGT_M' ) then
                            topo_flag_val=1.0
                            mass_flag=1.0
@@ -910,6 +896,7 @@ module process_tile_module
       integer :: user_iproj, istatus
       real :: mask_val
       real :: temp
+      real :: scale_factor
       real :: msg_val, msg_fill_val, threshold, src_dx, src_dy, dom_dx, dom_dy
       real :: user_stand_lon, user_truelat1, user_truelat2, user_dxkm, user_dykm, &
               user_known_x, user_known_y, user_known_lat, user_known_lon
@@ -1293,6 +1280,25 @@ module process_tile_module
       end if
 
       deallocate(interp_type)
+
+
+      ! We may need to scale this field by a constant
+      call get_field_scale_factor(fieldname, ilevel, scale_factor, istatus)
+      if (istatus == 0) then
+         do i=start_i, end_i
+            do j=start_j, end_j
+               if (bitarray_test(level_domain,i-start_i+1,j-start_j+1) .and. &
+                   .not. bitarray_test(processed_domain,i-start_i+1,j-start_j+1)) then
+                  do k=start_k,end_k
+                     if (field(i,j,k) /= msg_fill_val) then
+                        field(i,j,k) = field(i,j,k) * scale_factor
+                     end if
+                  end do
+               end if
+            end do
+         end do
+      end if
+
     
       ! Now add the points that were assigned values at this priority level to the complete array
       !   of points that have been assigned values
