@@ -154,8 +154,12 @@ SUBROUTINE rd_grib1(IUNIT, gribflnm, level, field, hdate,  &
       map%source = 'NCEP RUC Model'
     elseif (iprocess.eq.140) then
       map%source = 'NCEP NARR'
+    elseif (iprocess.eq.195) then
+      map%source = 'NCEP CDAS2'
     elseif (iprocess.eq.44) then
       map%source = 'NCEP SST Analysis'
+    elseif (iprocess.eq.70) then
+      map%source = 'GFDL Hurricane Model'
     else
       map%source = 'unknown model from NCEP'
     end if
@@ -414,10 +418,20 @@ SUBROUTINE rd_grib1(IUNIT, gribflnm, level, field, hdate,  &
 ! Unpack the 2D slab from the GRIB record, and put it in array rdatarray
   call gribdata(rdatarray,map%nx*map%ny)
 
-! Some grids need to be reordered (e.g. NCEP-II). WPS assumes grids start in
-! the north and are ordered in the +x and -y direction
+! Some grids are broken and need to be reordered (e.g. NCEP-II in 1997).
+! WPS assumes that the grids are ordered consistently with the start location.
 
-  call reorder_it (rdatarray, map%nx, map%ny, map%dx, map%dy, infogrid(10))
+  call mprintf(.true.,DEBUG, &
+  "RD_GRIB1 icenter = %i , iprocess = %i , grid = %i",i1=icenter,i2=iprocess,i3=KSEC1(5))
+  if (icenter .eq. 7 .and. iprocess .eq. 0 .and. KSEC1(5) .eq. 2 ) then
+  call mprintf(.true.,DEBUG, &
+  "resetting NCEP2 dx and dy. If this is not NCEP2 data you must modify rd_grib1.f90")
+  call mprintf(.true.,DEBUG, &
+  "field = %s , dx = %f , dy = %f , i10 = %i",s1=field,f1=map%dx,f2=map%dy,i1=infogrid(10))
+     map%dx = 2.5
+     map%dy = -2.5
+!   call reorder_it (rdatarray, map%nx, map%ny, map%dx, map%dy, infogrid(10))
+  endif
 
 ! Deallocate a couple of arrays that may have been allocated by the 
 ! GRIB decoding routines.

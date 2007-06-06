@@ -2022,6 +2022,7 @@ SUBROUTINE REORDER_IT (a, nx, ny, dx, dy, iorder)
 
       use module_debug
 
+      implicit none
       integer :: nx, ny, iorder
       integer :: i, j, k, m
       real :: dx, dy

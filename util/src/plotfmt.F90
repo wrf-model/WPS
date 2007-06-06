@@ -4,7 +4,7 @@ program pltfmt
 
   implicit none
 !
-! Utility program to plot up the files created by pregrid.
+! Utility program to plot up files created by pregrid / SI / ungrib.
 ! Uses NCAR graphics routines.  If you don't have NCAR Graphics, you're 
 ! out of luck.
 !
@@ -116,7 +116,7 @@ subroutine plt2d(scr2d, ix, jx, llflag, &
 
   integer :: iproj, ierr
   real :: pl1, pl2, pl3, pl4, plon, plat, rota, phic
-  real :: xl, xr, xb, xt, wl, wr, wb, wt
+  real :: xl, xr, xb, xt, wl, wr, wb, wt, yb
   integer :: ml, ih, i
 
   integer, parameter :: lwrk = 20000, liwk = 50000
@@ -193,7 +193,12 @@ subroutine plt2d(scr2d, ix, jx, llflag, &
   write(hlev,'(I8)') ilev
 
   call set(0., 1., 0., 1., 0., 1., 0., 1., 1)
-  call pchiqu(0.1, xb-0.04, hlev//'  '//field, .020, 0.0, -1.0)
+  if ( xb .lt. .16 ) then
+    yb = .16    ! xb depends on the projection, so fix yb and use it for labels
+  else
+    yb = xb
+  endif
+  call pchiqu(0.1, yb-0.05, hlev//'  '//field, .020, 0.0, -1.0)
   print*, field//'#'//units//'#'//trim(Desc)
 ! call pchiqu(0.1, xb-0.12, Desc, .012, 0.0, -1.0)
   hunit = '                                      '
@@ -217,10 +222,10 @@ subroutine plt2d(scr2d, ix, jx, llflag, &
   else if ( ifv .eq. 5 ) then
     tmp32 = 'WPS intermediate format'
   endif
-  call pchiqu(0.1, xb-0.08, hunit, .015, 0.0, -1.0)
-  call pchiqu(0.1, xb-0.12, Desc, .013, 0.0, -1.0)
-  call pchiqu(0.6, xb-0.12, source, .013, 0.0, -1.0)
-  call pchiqu(0.1, xb-0.15, tmp32, .013, 0.0, -1.0)
+  call pchiqu(0.1, yb-0.09, hunit, .015, 0.0, -1.0)
+  call pchiqu(0.1, yb-0.12, Desc, .013, 0.0, -1.0)
+  call pchiqu(0.6, yb-0.12, source, .013, 0.0, -1.0)
+  call pchiqu(0.1, yb-0.15, tmp32, .013, 0.0, -1.0)
 
   call set(xl,xr,xb,xt,1.,float(ix),1.,float(jx),ml)
 
