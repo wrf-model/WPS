@@ -10,7 +10,14 @@
 #BSUB -W 3:00                           # wallclock time
 
 ########	CHANGE THIS DIRECTORY	#######
-cd /ptmp/gill/WPS_reg
+if ( `uname` == AIX ) then
+	if ( -d /ptmp/gill/WPS_reg ) then
+		cd /ptmp/gill/WPS_reg
+	else
+		echo "/ptmp/gill/WPS_reg does not exist - stopping"
+		exit 1
+	endif
+endif
 ########	CHANGE THIS DIRECTORY	#######
 
 unalias cp rm ls
@@ -203,7 +210,7 @@ foreach test_num ( $all_tests )
 	#	1 vs Edition 2.  Each has the associated Vtable, where the difference
 	#	between dir and the Vtable name is the extra "_g1" or "_g2".
 
-	set source = ( `ls -1 $datadir/$test_num` )
+	set source = ( `ls -1 $datadir/$test_num/DATA` )
 
 	#	Loop of the data sources, one run each of ungrib and one of metgrid.
 
@@ -222,7 +229,7 @@ foreach test_num ( $all_tests )
 
 		set Vtable = `echo $data_source | cut -d "_" -f1`
 		cp ungrib/Variable_Tables/Vtable.$Vtable Vtable
-		./link_grib.csh $datadir/$test_num/$data_source/*
+		./link_grib.csh $datadir/$test_num/DATA/$data_source/*
 
 		if ( $PLOTS_ONLY == FALSE ) then
 
@@ -422,6 +429,8 @@ foreach test_num ( $all_tests )
 			endif
 			ctrans -d sun plot${index}.cgm > plot${index}.ras
 			convert plot${index}.ras ${test_num}_${data_source}_${index}.gif
+			convert ${test_num}_${data_source}_${index}.gif -resize 10% \
+				${test_num}_${data_source}_${index}_small.gif
 		end
 
 		mv test.cgm plot*.cgm plot*.ras *.gif \
