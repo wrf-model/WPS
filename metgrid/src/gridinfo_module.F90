@@ -297,6 +297,7 @@ module gridinfo_module
          end do
       end if
   
+
       ! Paths need to end with a /
       i = len_trim(opt_metgrid_tbl_path)
       if (opt_metgrid_tbl_path(i:i) /= '/') then
@@ -312,6 +313,17 @@ module gridinfo_module
       if (opt_output_from_metgrid_path(i:i) /= '/') then
          opt_output_from_metgrid_path(i+1:i+1) = '/'
       end if
+
+
+      ! Blank strings should be set to flag values
+      do i=1,max_dom
+         if (len_trim(constants_name(i)) == 0) then
+            constants_name(i) = '*'
+         end if
+         if (len_trim(fg_name(i)) == 0) then
+            fg_name(i) = '*'
+         end if
+      end do
   
       return
   
