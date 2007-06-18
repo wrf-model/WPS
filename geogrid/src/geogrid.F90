@@ -65,9 +65,9 @@ program geogrid
          end if
   
          ! Process fields for a tile of the current nest
-         call process_tile(i, gridtype, dyn_opt, &
+         call process_tile(i, gridtype, dyn_opt,                 &
                            1,       ixdim(i), 1,       jydim(i), &
-                           my_minx, my_maxx,  my_miny, my_maxy, &   ! These come from parallel_module
+                           my_minx, my_maxx,  my_miny, my_maxy,  &   ! These come from parallel_module
                            ew_extra_col, sn_extra_row)
       end do
 

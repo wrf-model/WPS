@@ -16,8 +16,10 @@ module process_tile_module
    !       (tile_i_min, tile_j_min) and whose upper-right corner is at
    !       (tile_i_max, tile_j_max), of the model grid given by which_domain 
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-   subroutine process_tile(which_domain, grid_type, dynopt, dummy_start_dom_i, dummy_end_dom_i, &
-                           dummy_start_dom_j, dummy_end_dom_j, dummy_start_patch_i, dummy_end_patch_i, &
+   subroutine process_tile(which_domain, grid_type, dynopt,        &
+                           dummy_start_dom_i, dummy_end_dom_i,     &
+                           dummy_start_dom_j, dummy_end_dom_j,     &
+                           dummy_start_patch_i, dummy_end_patch_i, &
                            dummy_start_patch_j, dummy_end_patch_j, &
                            extra_col, extra_row)
    
@@ -301,8 +303,10 @@ module process_tile_module
       call get_coriolis_parameters(which_domain, xlat_array, f_array, e_array, &
                                    start_mem_i, start_mem_j, end_mem_i, end_mem_j)
     
-      call write_field(start_mem_i, end_mem_i, start_mem_j, end_mem_j, 1, 1, 'E', datestr, real_array = e_array)
-      call write_field(start_mem_i, end_mem_i, start_mem_j, end_mem_j, 1, 1, 'F', datestr, real_array = f_array)
+      call write_field(start_mem_i, end_mem_i, start_mem_j, end_mem_j, 1, 1, 'E', &
+                       datestr, real_array = e_array)
+      call write_field(start_mem_i, end_mem_i, start_mem_j, end_mem_j, 1, 1, 'F', &
+                       datestr, real_array = f_array)
     
       if (associated(f_array)) deallocate(f_array)
       if (associated(e_array)) deallocate(e_array)
@@ -420,9 +424,11 @@ module process_tile_module
          end if
      
          if (is_water_mask) then
-            call mprintf(.true.,STDOUT,'  Calculating landmask from %s (WATER = %i)', s1=trim(landmask_name), i1=landmask_value)
+            call mprintf(.true.,STDOUT,'  Calculating landmask from %s (WATER = %i)', &
+                         s1=trim(landmask_name), i1=landmask_value)
          else
-            call mprintf(.true.,STDOUT,'  Calculating landmask from %s (LAND = %i)', s1=trim(landmask_name), i1=landmask_value)
+            call mprintf(.true.,STDOUT,'  Calculating landmask from %s (LAND = %i)', &
+                         s1=trim(landmask_name), i1=landmask_value)
          end if
      
          ! Calculate landmask
@@ -468,22 +474,47 @@ module process_tile_module
 
                if (grid_type == 'C') then
                   if (smth_opt == ONETWOONE) then
-                     call one_two_one(field, start_mem_i, end_mem_i, start_mem_j, end_mem_j, &
-                                      min_category, max_category, smth_passes, msg_fill_val)
+                     call one_two_one(field,                      &
+                                      start_dom_i, end_dom_i,     &
+                                      start_dom_j, end_dom_j,     &
+                                      start_mem_i, end_mem_i,     &
+                                      start_mem_j, end_mem_j,     &
+                                      min_category, max_category, &
+                                      smth_passes, msg_fill_val)
                   else if (smth_opt == SMTHDESMTH) then
-                     call smth_desmth(field, start_mem_i, end_mem_i, start_mem_j, end_mem_j, &
-                                      min_category, max_category, smth_passes, msg_fill_val)
+                     call smth_desmth(field,                      &
+                                      start_dom_i, end_dom_i,     &
+                                      start_dom_j, end_dom_j,     &
+                                      start_mem_i, end_mem_i,     &
+                                      start_mem_j, end_mem_j,     &
+                                      min_category, max_category, &
+                                      smth_passes, msg_fill_val)
                   else if (smth_opt == SMTHDESMTH_SPECIAL) then
-                     call smth_desmth_special(field, start_mem_i, end_mem_i, start_mem_j, end_mem_j, &
-                                      min_category, max_category, smth_passes, msg_fill_val)
+                     call smth_desmth_special(field,              &
+                                      start_dom_i, end_dom_i,     &
+                                      start_dom_j, end_dom_j,     &
+                                      start_mem_i, end_mem_i,     &
+                                      start_mem_j, end_mem_j,     &
+                                      min_category, max_category, &
+                                      smth_passes, msg_fill_val)
                   end if
                else if (grid_type == 'E') then
                   if (smth_opt == ONETWOONE) then
-                     call one_two_one_egrid(field, start_mem_i, end_mem_i, start_mem_j, end_mem_j, &
-                                      min_category, max_category, smth_passes, msg_fill_val, 1.0)
+                     call one_two_one_egrid(field,                &
+                                      start_dom_i, end_dom_i,     &
+                                      start_dom_j, end_dom_j,     &
+                                      start_mem_i, end_mem_i,     &
+                                      start_mem_j, end_mem_j,     &
+                                      min_category, max_category, &
+                                      smth_passes, msg_fill_val, 1.0)
                   else if (smth_opt == SMTHDESMTH) then
-                     call smth_desmth_egrid(field, start_mem_i, end_mem_i, start_mem_j, end_mem_j, &
-                                      min_category, max_category, smth_passes, msg_fill_val, 1.0)
+                     call smth_desmth_egrid(field,                &
+                                      start_patch_i, end_patch_i, &
+                                      start_patch_j, end_patch_j, &
+                                      start_mem_i, end_mem_i,     &
+                                      start_mem_j, end_mem_j,     &
+                                      min_category, max_category, &
+                                      smth_passes, msg_fill_val, 1.0)
                   end if
                end if
 
@@ -630,14 +661,29 @@ module process_tile_module
 
                      if (grid_type == 'C') then
                         if (smth_opt == ONETWOONE) then
-                           call one_two_one(field, sm1, em1, sm2, em2, &
-                                            min_level, max_level, smth_passes, msg_fill_val)
+                           call one_two_one(field,                &
+                                            start_dom_i, end_dom_i,     &
+                                            start_dom_j, end_dom_j,     &
+                                            sm1,         em1,           &
+                                            sm2,         em2,           &
+                                            min_level, max_level, &
+                                            smth_passes, msg_fill_val)
                         else if (smth_opt == SMTHDESMTH) then
-                           call smth_desmth(field, sm1, em1, sm2, em2, &
-                                            min_level, max_level, smth_passes, msg_fill_val)
+                           call smth_desmth(field,                &
+                                            start_dom_i, end_dom_i,     &
+                                            start_dom_j, end_dom_j,     &
+                                            sm1,         em1,           &
+                                            sm2,         em2,           &
+                                            min_level, max_level, &
+                                            smth_passes, msg_fill_val)
                         else if (smth_opt == SMTHDESMTH_SPECIAL) then
-                           call smth_desmth_special(field, sm1, em1, sm2, em2, &
-                                            min_level, max_level, smth_passes, msg_fill_val)
+                           call smth_desmth_special(field,        &
+                                            start_dom_i, end_dom_i,     &
+                                            start_dom_j, end_dom_j,     &
+                                            sm1,         em1,           &
+                                            sm2,         em2,           &
+                                            min_level, max_level, &
+                                            smth_passes, msg_fill_val)
                        end if
   
                      else if (grid_type == 'E') then
@@ -653,11 +699,21 @@ module process_tile_module
                         end if
   
                         if (smth_opt == ONETWOONE) then
-                           call one_two_one_egrid(field, sm1, em1, sm2, em2, &
-                                            min_level, max_level, smth_passes, topo_flag_val, mass_flag)
+                           call one_two_one_egrid(field,          &
+                                            start_dom_i, end_dom_i,     &
+                                            start_dom_j, end_dom_j,     &
+                                            sm1,         em1,           &
+                                            sm2,         em2,           &
+                                            min_level, max_level, &
+                                            smth_passes, topo_flag_val, mass_flag)
                         else if (smth_opt == SMTHDESMTH) then
-                           call smth_desmth_egrid(field, sm1, em1, sm2, em2, &
-                                            min_level, max_level, smth_passes, topo_flag_val, mass_flag)
+                           call smth_desmth_egrid(field,          &
+                                            start_patch_i, end_patch_i, &
+                                            start_patch_j, end_patch_j, &
+                                            sm1,         em1,           &
+                                            sm2,         em2,           &
+                                            min_level, max_level, &
+                                            smth_passes, topo_flag_val, mass_flag)
                         end if
   
                      end if
@@ -766,22 +822,47 @@ module process_tile_module
                      if (istatus == 0) then
                         if (grid_type == 'C') then
                            if (smth_opt == ONETWOONE) then
-                              call one_two_one(field, sm1, em1, sm2, em2, &
-                                             min_category, max_category, smth_passes, msg_fill_val)
+                              call one_two_one(field,                    &
+                                             start_dom_i, end_dom_i,     &
+                                             start_dom_j, end_dom_j,     &
+                                             sm1,         em1,           &
+                                             sm2,         em2,           &
+                                             min_category, max_category, &
+                                             smth_passes, msg_fill_val)
                            else if (smth_opt == SMTHDESMTH) then
-                              call smth_desmth(field, sm1, em1, sm2, em2, &
-                                             min_category, max_category, smth_passes, msg_fill_val)
+                              call smth_desmth(field,                    &
+                                             start_dom_i, end_dom_i,     &
+                                             start_dom_j, end_dom_j,     &
+                                             sm1,         em1,           &
+                                             sm2,         em2,           &
+                                             min_category, max_category, &
+                                             smth_passes, msg_fill_val)
                            else if (smth_opt == SMTHDESMTH_SPECIAL) then
-                              call smth_desmth_special(field, sm1, em1, sm2, em2, &
-                                             min_category, max_category, smth_passes, msg_fill_val)
+                              call smth_desmth_special(field,            &
+                                             start_dom_i, end_dom_i,     &
+                                             start_dom_j, end_dom_j,     &
+                                             sm1,         em1,           &
+                                             sm2,         em2,           &
+                                             min_category, max_category, &
+                                             smth_passes, msg_fill_val)
                            end if
                         else if (grid_type == 'E') then
                            if (smth_opt == ONETWOONE) then
-                              call one_two_one_egrid(field, sm1, em1, sm2, em2, &
-                                             min_category, max_category, smth_passes, msg_fill_val, 1.0)
+                              call one_two_one_egrid(field,              &
+                                             start_dom_i, end_dom_i,     &
+                                             start_dom_j, end_dom_j,     &
+                                             sm1,         em1,           &
+                                             sm2,         em2,           &
+                                             min_category, max_category, &
+                                             smth_passes, msg_fill_val, 1.0)
                            else if (smth_opt == SMTHDESMTH) then
-                              call smth_desmth_egrid(field, sm1, em1, sm2, em2, &
-                                             min_category, max_category, smth_passes, msg_fill_val, 1.0)
+                              call smth_desmth_egrid(field,              &
+                                             start_patch_i, end_patch_i, &
+                                             start_patch_j, end_patch_j, &
+                                             sm1,         em1,           &
+                                             sm2,         em2,           &
+                                             min_category, max_category, &
+                                             smth_passes, msg_fill_val, 1.0)
                            end if
                         end if
                      end if

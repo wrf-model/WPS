@@ -62,7 +62,7 @@ queue_module.o: module_debug.o
 
 read_binary_field.o:
 
-smooth_module.o:
+smooth_module.o: parallel_module.o
 
 source_data_module.o: despace.o gridinfo_module.o hash_module.o list_module.o llxy_module.o misc_definitions_module.o module_debug.o
 
