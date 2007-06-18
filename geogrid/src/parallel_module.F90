@@ -6,7 +6,7 @@
 module parallel_module
 
 #ifdef _MPI
-   use MPI
+include 'mpif.h'
 #endif
 
    integer, parameter :: IO_NODE = 0
