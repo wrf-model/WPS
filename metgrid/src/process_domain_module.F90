@@ -194,7 +194,7 @@ module process_domain_module
       real, intent(inout) :: cen_lat, moad_cen_lat, cen_lon, stand_lon, truelat1, truelat2, &
                              dom_dx, dom_dy
       real, pointer, dimension(:,:) :: xlat, xlon, xlat_u, xlon_u, xlat_v, xlon_v
-      real, dimension(16) :: corner_lats, corner_lons
+      real, dimension(16), intent(out) :: corner_lats, corner_lons
       character (len=128), intent(inout) :: title, mminlu
     
       ! Local variables
@@ -1271,9 +1271,9 @@ integer, parameter :: BDR_WIDTH = 3
       integer, intent(in) :: ifieldstagger, istagger, &
                              sm1, em1, sm2, em2, &
                              minx, maxx, miny, maxy, bdr
-      real, dimension(minx:maxx,miny:maxy) :: slab
-      real, dimension(sm1:em1,sm2:em2) :: xlat, xlon
-      real, dimension(sm1:em1,sm2:em2), optional :: landmask
+      real, dimension(minx:maxx,miny:maxy), intent(in) :: slab
+      real, dimension(sm1:em1,sm2:em2), intent(in) :: xlat, xlon
+      real, dimension(sm1:em1,sm2:em2), intent(in), optional :: landmask
       logical, intent(in) :: do_gcell_interp
       character (len=9), intent(in) :: short_fieldnm
       character (len=128), intent(in) :: input_name
@@ -1553,9 +1553,9 @@ integer, parameter :: BDR_WIDTH = 3
       integer, intent(in) :: minx, maxx, miny, maxy, bdr, istagger
       integer, dimension(:), intent(in) :: interp_method_list
       real, intent(in) :: rlat, rlon, source_missing_value
-      real, dimension(minx:maxx,miny:maxy) :: slab
+      real, dimension(minx:maxx,miny:maxy), intent(in) :: slab
       real, intent(in), optional :: mask_val
-      real, dimension(minx:maxx,miny:maxy), optional :: mask_field
+      real, dimension(minx:maxx,miny:maxy), intent(in), optional :: mask_field
 
       ! Return value
       real :: interp_to_latlon
@@ -1976,7 +1976,7 @@ integer, parameter :: BDR_WIDTH = 3
       integer, intent(in) :: idx
       type (fg_input), intent(inout) :: field
       character (len=128), dimension(:), intent(inout) :: output_flags
-      real, dimension(:), optional :: all_level_list
+      real, dimension(:), intent(in), optional :: all_level_list
 
       ! Local variables
       integer :: i, j, istatus, isrclevel

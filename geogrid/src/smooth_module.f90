@@ -7,7 +7,9 @@ module smooth_module
 
    use parallel_module
 
+
    contains
+
  
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
    ! Name: one_two_one
@@ -309,10 +311,9 @@ module smooth_module
 
 
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-   ! Name: smth_desmth_egrid
+   ! Name: smth_desmth_egrid_old
    !
-   ! Purpose: Apply the smoother-desmoother from the MM5 program TERRAIN
-   !   (found in smther.F) to array.
+   ! Purpose: Apply the smoother-desmoother for E grid
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
    subroutine smth_desmth_egrid_old(array, start_dom_x, end_dom_x, start_dom_y, end_dom_y, &
                                     start_x, end_x, start_y, end_y, start_z, end_z, npass, msgval, hflag)
@@ -411,6 +412,11 @@ module smooth_module
    end subroutine smth_desmth_egrid_old
 
 
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   ! Name: smth_desmth_egrid
+   !
+   ! Purpose: Apply the smoother-desmoother for E grid 
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
    subroutine smth_desmth_egrid(array, start_dom_x, end_dom_x, start_dom_y, end_dom_y, &
                                 start_x, end_x, start_y, end_y, start_z, end_z, npass, msgval, hflag)
 

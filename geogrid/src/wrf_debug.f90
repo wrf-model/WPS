@@ -2,8 +2,9 @@ subroutine wrf_debug(i, msg)
 
    implicit none
 
-   integer :: i
-   character (len=*) msg
+   ! Arguments
+   integer, intent(in) :: i
+   character (len=*), intent(in) :: msg
 
    write(6,*) 'WRF_DEBUG:'//msg
 
@@ -14,7 +15,8 @@ subroutine wrf_message(msg)
 
    implicit none
 
-   character (len=*) msg
+   ! Arguments
+   character (len=*), intent(in) :: msg
 
    write(6,*) 'WRF_MESSAGE:'//msg
 
@@ -25,7 +27,8 @@ subroutine wrf_error_fatal(msg)
 
    implicit none
 
-   character (len=*) msg
+   ! Arguments
+   character (len=*), intent(in) :: msg
 
    write(6,*) 'WRF_ERROR_FATAL:'//msg
 
@@ -38,7 +41,8 @@ subroutine wrf_error_fatal3(msg)
 
    implicit none
 
-   character (len=*) msg
+   ! Arguments
+   character (len=*), intent(in) :: msg
 
    write(6,*) 'WRF_ERROR_FATAL:'//msg
 

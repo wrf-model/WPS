@@ -42,6 +42,11 @@ module storage_module
    end subroutine storage_init
 
 
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   ! Name: reset_next_field
+   !
+   ! Purpose: Sets the next field to the first available field
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
    subroutine reset_next_field()
 
       implicit none
@@ -63,7 +68,7 @@ module storage_module
       implicit none
 
       ! Arguments
-      type (fg_input) :: store_me
+      type (fg_input), intent(in) :: store_me
 
       ! Local variables
       integer :: funit

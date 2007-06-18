@@ -7,7 +7,9 @@ module process_tile_module
 
    use module_debug
 
+
    contains
+
 
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
    ! Name: process_tile
@@ -1433,6 +1435,7 @@ module process_tile_module
 
    end subroutine get_lat_lon_fields
    
+
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
    ! Name: get_map_factor
    !
@@ -1496,7 +1499,8 @@ module process_tile_module
     
          do i=start_mem_i, end_mem_i
             do j=start_mem_j, end_mem_j
-               mapfac_arr(i,j) = (1.0 + sin(rad_per_deg*abs(truelat1)))/(1.0 + sin(rad_per_deg*sign(1.,truelat1)*xlat_arr(i,j)))
+               mapfac_arr(i,j) = (1.0 + sin(rad_per_deg*abs(truelat1))) / &
+                          (1.0 + sin(rad_per_deg*sign(1.,truelat1)*xlat_arr(i,j)))
             end do
          end do
     

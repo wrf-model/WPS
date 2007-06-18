@@ -931,6 +931,11 @@ module output_module
    end subroutine write_field
  
  
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
+   ! Name: write_global_attrs
+   !
+   ! Purpose:
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
    subroutine write_global_attrs(title, start_date, grid_type, dyn_opt, &
                                 west_east_dim, south_north_dim, bottom_top_dim, &
                                 we_patch_s, we_patch_e, we_patch_s_stag, we_patch_e_stag, &

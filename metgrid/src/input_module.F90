@@ -125,7 +125,7 @@ module input_module
                               start_patch_k, end_patch_k
       real, pointer, dimension(:,:,:) :: real_array
       character (len=*), intent(out) :: cname, memorder, stagger, cunits, cdesc
-      character (len=128), dimension(3) :: dimnames
+      character (len=128), dimension(3), intent(inout) :: dimnames
       integer, intent(inout) :: istatus
   
 #include "wrf_io_flags.h"

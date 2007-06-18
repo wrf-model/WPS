@@ -17,8 +17,13 @@ module module_debug
 
    logical :: have_set_logname = .false.
 
+
    contains
 
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   ! Name: set_debug_level
+   !
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
    subroutine set_debug_level(ilev)
 
       implicit none
@@ -31,6 +36,10 @@ module module_debug
    end subroutine set_debug_level
 
 
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   ! Name: mprintf
+   !
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
    subroutine mprintf(assertion, level, fmtstring, &
                       i1, i2, i3, i4, i5, i6, &
                       f1, f2, f3, f4, f5, f6, &

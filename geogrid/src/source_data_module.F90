@@ -52,6 +52,7 @@ module source_data_module
    type (list), pointer, dimension(:) :: source_res_path, source_interp_option
    type (hashtable) :: bad_files   ! Track which files produce errors when we try to open them
    type (hashtable) :: duplicate_fnames  ! Remember which output fields we have returned 
+
  
    contains
  

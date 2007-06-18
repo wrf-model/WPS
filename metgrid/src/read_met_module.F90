@@ -10,6 +10,10 @@ module read_met_module
  
    contains
  
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   ! Name: read_met_init
+   !
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
    subroutine read_met_init(fg_source, source_is_constant, datestr, istatus)
  
       implicit none
@@ -17,8 +21,8 @@ module read_met_module
       ! Arguments
       integer, intent(out) :: istatus
       logical, intent(in) :: source_is_constant
-      character (len=*) :: fg_source
-      character (len=*) :: datestr
+      character (len=*), intent(in) :: fg_source
+      character (len=*), intent(in) :: datestr
   
       ! Local variables
       integer :: io_status
@@ -50,6 +54,10 @@ module read_met_module
    end subroutine read_met_init
  
  
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   ! Name: read_next_met_field
+   !
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
    subroutine read_next_met_field(version, field, hdate, xfcst, xlvl, units, desc, &
                           iproj, startlat, startlon, starti, startj, deltalat, &
                           deltalon, dx, dy, xlonc, truelat1, truelat2, earth_radius, nx, ny, map_source, &
@@ -273,6 +281,10 @@ module read_met_module
    end subroutine read_next_met_field
  
  
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   ! Name: read_met_close
+   !
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
    subroutine read_met_close()
  
       implicit none

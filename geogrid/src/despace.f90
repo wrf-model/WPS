@@ -9,7 +9,7 @@ subroutine despace(string)
    implicit none
  
    ! Arguments
-   character (len=*) :: string
+   character (len=*), intent(inout) :: string
  
    ! Local variables
    integer :: i, j, length, iquoted

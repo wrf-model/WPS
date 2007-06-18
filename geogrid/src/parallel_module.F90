@@ -23,8 +23,10 @@ include 'mpif.h'
               my_minx, my_miny, my_maxx, my_maxy, &
               comm
  
+
    contains
  
+
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
    ! Name: parallel_start
    !
@@ -218,7 +220,8 @@ include 'mpif.h'
       implicit none
 
       ! Arguments
-      integer :: i_p, j_p, ids_p, ide_p, jds_p, jde_p, npx, npy, px, py
+      integer, intent(in) :: i_p, j_p, ids_p, ide_p, jds_p, jde_p, npx, npy
+      integer, intent(out) :: px, py
 
       ! Local variables
       integer :: a, b, rem, idim, jdim, i, j, ids, jds, ide, jde
