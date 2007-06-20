@@ -361,8 +361,8 @@ contains
 !     MODULE_GRIB                                                             !
 !                                                                             !
 ! Externals:                                                                  !
-!     BNREAD                                                                  !
-!     BNSEEK                                                                  !
+!     BN_READ                                                                 !
+!     BN_SEEK                                                                 !
 !     GRIBSIZE                                                                !
 !                                                                             !
 !-----------------------------------------------------------------------------!
@@ -394,7 +394,7 @@ contains
 
     LOOP : DO
 ! Read LENTMP bytes into holding array TREC.
-       call bnread(nunit, trec, lentmp, isz, ierr, 0)
+       call bn_read(nunit, trec, lentmp, isz, ierr, 0)
        if (ierr.eq.1) then
           return
        elseif (ierr.eq.2) then
@@ -402,7 +402,7 @@ contains
           return
        endif
 ! Reposition the file pointer back to where we started.
-       call bnseek(nunit, -isz, 0, 0)
+       call bn_seek(nunit, -isz, 0, 0)
 
 ! Compare the first four bytes of TREC with the string 'GRIB' stored in 
 ! integer variable GTEST.
@@ -414,7 +414,7 @@ contains
        endif
 
 ! Advance the file pointer one byte.
-       call bnseek(nunit, 1, 0, 0)
+       call bn_seek(nunit, 1, 0, 0)
 
     ENDDO LOOP
 
@@ -760,7 +760,7 @@ subroutine gribget(nunit, ierr)
 !                                                                             !
 ! Externals:                                                                  !
 !       FINDGRIB                                                              !
-!       BNREAD                                                                !
+!       BN_READ                                                               !
 !                                                                             !
 !-----------------------------------------------------------------------------!
 
@@ -783,7 +783,7 @@ subroutine gribget(nunit, ierr)
 
 ! Read the full GRIB record.
 
-  call bnread(nunit, grec, isize, isz, ierr, 1)
+  call bn_read(nunit, grec, isize, isz, ierr, 1)
 
 !#if defined (DEC) || defined (ALPHA) || defined (alpha) || defined (LINUX)
 #ifdef BYTESWAP

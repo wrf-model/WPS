@@ -581,7 +581,7 @@ CC		=	cc
 SCC		=	$(CC)
 CFLAGS		=	-O
 CPP		=	/usr/bin/cpp -C -P
-CPPFLAGS	=	-DAIX -DMAC -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -DBIT32
+CPPFLAGS	=	-DAIX -DMACOS -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -DBIT32
 RANLIB		=	ranlib
 
 ###########################################################
@@ -601,7 +601,7 @@ CC		=	cc
 SCC		=	$(CC)
 CFLAGS		=	-O
 CPP		=	/usr/bin/cpp -C -P
-CPPFLAGS	=	-DAIX -DMAC -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -DBIT32
+CPPFLAGS	=	-DAIX -DMACOS -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -DBIT32
 RANLIB		=	ranlib
 
 ###########################################################
@@ -637,6 +637,44 @@ SCC             =       gcc
 CFLAGS          =       -g
 CPP             =       /usr/bin/cpp -C -P -traditional
 CPPFLAGS        =       -D_UNDERSCORE -DBYTESWAP -DLINUXG95 -DIO_NETCDF -DBIT32
+RANLIB		=	ranlib
+
+###########################################################
+#ARCH	Darwin	serial, INTEL, g95 compiler, NO GRIB2
+#
+COMPRESSION_LIBS	=
+COMPRESSION_INC		=
+FDEFS			=
+FC              =       g95
+SFC             =       g95
+FFLAGS          =       -ffree-form -g 
+F77FLAGS        =       -ffixed-form -g
+FNGFLAGS	=	$(FFLAGS)
+LDFLAGS         =       -g
+CC              =       gcc
+SCC             =       gcc
+CFLAGS          =       -g
+CPP             =       /usr/bin/cpp -C -P -traditional
+CPPFLAGS        =       -D_DOUBLEUNDERSCORE -DBYTESWAP -DIO_NETCDF -DBIT32 -DMACOS
+RANLIB		=	ranlib
+
+###########################################################
+#ARCH	Darwin	serial, INTEL, g95 compiler
+#
+COMPRESSION_LIBS	=	-L/stink/gill/WPS_LIBS/local/lib \
+				-ljasper -lpng12 -lpng -lz
+COMPRESSION_INC		=	-I/stink/gill/WPS_LIBS/local/include
+FC              =       g95
+SFC             =       g95
+FFLAGS          =       -ffree-form -g
+F77FLAGS        =       -ffixed-form -g
+FNGFLAGS	=	$(FFLAGS)
+LDFLAGS         =       -g
+CC              =       gcc
+SCC             =       gcc
+CFLAGS          =       -g
+CPP             =       /usr/bin/cpp -C -P -traditional
+CPPFLAGS        =       -D_DOUBLEUNDERSCORE -DBYTESWAP -DIO_NETCDF -DBIT32 -DMACOS
 RANLIB		=	ranlib
 
 ##################################################################

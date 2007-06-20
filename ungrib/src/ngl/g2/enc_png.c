@@ -11,17 +11,10 @@
   typedef long g2int;
 #endif
 
-#if defined CRAY90
-   #include <fortran.h>
-   #define SUB_NAME ENC_PNG
-#elif defined LINUXF90
-   #define SUB_NAME ENC_PNG
-#elif defined LINUXG95
-   #define SUB_NAME enc_png_
-#elif defined HP || defined AIX || defined MAC
-   #define SUB_NAME enc_png
-#elif defined SGI || defined LINUX || defined VPP5000
-   #define SUB_NAME enc_png_
+#if defined _UNDERSCORE
+   #define enc_png enc_png_
+#elif defined _DOUBLEUNDERSCORE
+   #define enc_png enc_png__
 #endif
 
 #ifdef USE_PNG
@@ -64,7 +57,7 @@ void user_flush_data(png_structp png_ptr)
 #endif /* USE_PNG */
 
 
-int SUB_NAME(char *data,g2int *width,g2int *height,g2int *nbits,char *pngbuf)
+int enc_png(char *data,g2int *width,g2int *height,g2int *nbits,char *pngbuf)
 {
     g2int pnglen;
 #ifdef USE_PNG

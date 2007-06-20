@@ -1,4 +1,4 @@
-/* Fortran-callable routines to read and write characther (bacio) and */
+/* Fortran-callable routines to read and write characther (ba_cio) and */
 /*   numeric (banio) data byte addressably                            */
 /* Robert Grumbine  16 March 1998 */
 /*  v1.1: Put diagnostic output under control of define VERBOSE or QUIET */
@@ -11,7 +11,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
-#ifdef MAC
+#ifdef MACOS
 #include <malloc/malloc.h>
 #else
 #include <malloc.h>
@@ -38,8 +38,8 @@
 /* -9    Error in close                                 */
 /* -10   Read or wrote fewer data than requested        */
 
-/* Note: In your Fortran code, call bacio, not bacio_.  */
-/*int bacio_(int * mode, int * start, int * size, int * no, int * nactual,   */ 
+/* Note: In your Fortran code, call ba_cio, not ba_cio_.  */
+/*int ba_cio_(int * mode, int * start, int * size, int * no, int * nactual,   */ 
 /*          int * fdes, const char *fname, char *data, int  namelen,         */ 
 /*          int  datanamelen)                                                */
 /* Arguments: */
@@ -75,77 +75,22 @@
 
 
 /* What is going on here is that although the Fortran caller will always */
-/*   be calling bacio, the called C routine name will change from system */
+/*   be calling ba_cio, the called C routine name will change from system */
 /*   to system. */
-#ifdef CRAY90
-  #include <fortran.h>
-  int BACIO
-         (int * mode, int * start, int *newpos, int * size, int * no, 
-          int * nactual, int * fdes, 
-          _fcd fcd_fname, _fcd fcd_datary) { 
-  char *fname, *datary;
-  int namelen;
-#endif
-#ifdef HP
-  int bacio
+#if defined _UNDERSCORE
+  int ba_cio_
          (int * mode, int * start, int *newpos, int * size, int * no, 
           int * nactual, int * fdes, const char *fname, char *datary, 
           int  namelen, int  datanamelen) {
-#endif
-#ifdef SGI
-  int bacio_
+#elif defined _DOUBLEUNDERSCORE
+  int ba_cio__
          (int * mode, int * start, int *newpos, int * size, int * no, 
           int * nactual, int * fdes, const char *fname, char *datary, 
           int  namelen, int  datanamelen) {
-#endif
-#ifdef ALPHA
-  int bacio_
+#else
+  int ba_cio
          (int * mode, int * start, int *newpos, int * size, int * no, 
           int * nactual, int * fdes, const char *fname, char *datary, 
-          int  namelen, int  datanamelen) {
-#endif
-#ifdef LINUX
-  int bacio_
-         (int * mode, int * start, int *newpos, int * size, int * no, 
-          int * nactual, int * fdes, const char *fname, char *datary, 
-          int  namelen, int  datanamelen) {
-#endif
-#ifdef LINUXG95
-  int bacio_
-         (int * mode, int * start, int *newpos, int * size, int * no, 
-          int * nactual, int * fdes, const char *fname, char *datary, 
-          int  namelen, int  datanamelen) {
-#endif
-#ifdef LINUXF90
-  int BACIO
-         (int * mode, int * start, int *newpos, int * size, int * no, 
-          int * nactual, int * fdes, const char *fname, char *datary, 
-          int  namelen, int  datanamelen) {
-#endif
-#ifdef IBM4
-  int bacio
-         (int * mode, int * start, int *newpos, int * size, int * no, 
-          int * nactual, int * fdes, const char *fname, char *datary, 
-          int  namelen, int  datanamelen) {
-#endif
-#ifdef IBM8
-  long long int bacio
-         (long long int * mode, long long int * start, long long int *newpos,
-          long long int * size, long long int * no, 
-          long long int * nactual, long long int * fdes, const char *fname,
-          char *datary, 
-          long long int  namelen, long long int  datanamelen) {
-#endif
-#ifdef MAC
-  int bacio
-         (int * mode, int * start, int *newpos, int * size, int * no, 
-          int * nactual, int * fdes, const char *fname, char *datary, 
-          int  namelen, int  datanamelen) {
-#endif
-#ifdef __crayx1
-  int bacio_
-         (int * mode, int * start, int *newpos, int * size, int * no,
-          int * nactual, int * fdes, const char *fname, char *datary,
           int  namelen, int  datanamelen) {
 #endif
   int i, j, jret, seekret;
@@ -384,74 +329,20 @@
     return 0;
   }
 } 
-#ifdef CRAY90
-  #include <fortran.h>
-  int BANIO
+#if defined _UNDERSCORE
+  int banio_
          (int * mode, int * start, int *newpos, int * size, int * no, 
-          int * nactual, int * fdes, _fcd fcd_fname, void *datary) { 
-  char *fname;
-  int namelen;
-#endif
-#ifdef HP
+          int * nactual, int * fdes, const char *fname, char *datary, 
+          int  namelen ) {
+#elif defined _DOUBLEUNDERSCORE
+  int banio__
+         (int * mode, int * start, int *newpos, int * size, int * no, 
+          int * nactual, int * fdes, const char *fname, char *datary, 
+          int  namelen ) {
+#else
   int banio
          (int * mode, int * start, int *newpos, int * size, int * no, 
           int * nactual, int * fdes, const char *fname, char *datary, 
-          int  namelen ) {
-#endif
-#ifdef SGI
-  int banio_
-         (int * mode, int * start, int *newpos, int * size, int * no, 
-          int * nactual, int * fdes, const char *fname, char *datary, 
-          int  namelen ) {
-#endif
-#ifdef ALPHA
-  int banio_
-         (int * mode, int * start, int *newpos, int * size, int * no, 
-          int * nactual, int * fdes, const char *fname, char *datary, 
-          int  namelen ) {
-#endif
-#ifdef LINUX
-  int banio_
-         (int * mode, int * start, int *newpos, int * size, int * no, 
-          int * nactual, int * fdes, const char *fname, char *datary, 
-          int  namelen ) {
-#endif
-#ifdef LINUXG95
-  int banio_
-         (int * mode, int * start, int *newpos, int * size, int * no, 
-          int * nactual, int * fdes, const char *fname, char *datary, 
-          int  namelen ) {
-#endif
-#ifdef LINUXF90
-  int BANIO
-         (int * mode, int * start, int *newpos, int * size, int * no, 
-          int * nactual, int * fdes, const char *fname, char *datary, 
-          int  namelen ) {
-#endif
-#ifdef IBM4
-  int banio
-         (int * mode, int * start, int *newpos, int * size, int * no, 
-          int * nactual, int * fdes, const char *fname, char *datary, 
-          int  namelen ) {
-#endif
-#ifdef IBM8
-  long long int banio
-         (long long int * mode, long long int * start, long long int *newpos,
-          long long int * size, long long int * no, 
-          long long int * nactual, long long int * fdes, const char *fname,
-          char *datary, 
-          long long int  namelen ) {
-#endif
-#ifdef MAC
-  int banio
-         (int * mode, int * start, int *newpos, int * size, int * no, 
-          int * nactual, int * fdes, const char *fname, char *datary, 
-          int  namelen ) {
-#endif
-#ifdef __crayx1
-  int banio_
-         (int * mode, int * start, int *newpos, int * size, int * no,
-          int * nactual, int * fdes, const char *fname, char *datary,
           int  namelen ) {
 #endif
   int i, j, jret, seekret;

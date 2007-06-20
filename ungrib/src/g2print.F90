@@ -107,7 +107,7 @@
      enddo LOOP1
 
      if (grib_version.ne.2) then
-        call cclose(iuarr(nunit1), iprint, ierr)
+        call c_close(iuarr(nunit1), iprint, ierr)
         iuarr(nunit1) = 0
      endif 
 
@@ -256,7 +256,7 @@ end program g2print
 
          if (lgrib.ne.lengrib) then
             print *,'G2 r_grib2: IO Error.',lgrib,".ne.",lengrib
-            call errexit(9)
+            stop 9 
          endif
          iseek=lskip+lgrib
          icount=icount+1

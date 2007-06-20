@@ -27,10 +27,18 @@ program pltfmt
 !   Set up the graceful stop (Sun, SGI, DEC).
 !
    integer, external :: graceful_stop
+#if defined(_DOUBLEUNDERSCORE) && defined(MACOS)
+   ! we do not do any signaling
+#else
    integer, external :: signal
+#endif
    integer :: iii
 
+#if defined(_DOUBLEUNDERSCORE) && defined(MACOS)
+  ! still more no signaling
+#else
   iii = signal(2, graceful_stop, -1)
+#endif
 
   call getarg(1,flnm)
 

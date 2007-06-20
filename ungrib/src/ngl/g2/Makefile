@@ -42,6 +42,7 @@ all:	$(LIB)
 $(LIB):	$(OBJS)
 	$(RM) $@
 	$(AR) $(ARFLAGS) $@ $(OBJS)
+	$(RANLIB) $@
 
 clean:
 	$(RM) $(OBJS)

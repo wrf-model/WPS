@@ -40,21 +40,21 @@ c     nbit is the start position of the field in bits
 
 c        first byte
          tbit = min(bitcnt,8-ibit)
-         itmp = iand(mova2i(in(index)),ones(8-ibit))
+         itmp = iand(mov_a2i(in(index)),ones(8-ibit))
          if (tbit.ne.8-ibit) itmp = ishft(itmp,tbit-8+ibit)
          index = index + 1
          bitcnt = bitcnt - tbit
 
 c        now transfer whole bytes
          do while (bitcnt.ge.8)
-             itmp = ior(ishft(itmp,8),mova2i(in(index)))
+             itmp = ior(ishft(itmp,8),mov_a2i(in(index)))
              bitcnt = bitcnt - 8
              index = index + 1
          enddo
 
 c        get data from last byte
          if (bitcnt.gt.0) then
-             itmp = ior(ishft(itmp,bitcnt),iand(ishft(mova2i(in(index)),
+            itmp = ior(ishft(itmp,bitcnt),iand(ishft(mov_a2i(in(index)),
      1          -(8-bitcnt)),ones(bitcnt)))
          endif
 
@@ -97,7 +97,7 @@ c        make byte aligned
              tbit = min(bitcnt,ibit+1)
              imask = ishft(ones(tbit),7-ibit)
              itmp2 = iand(ishft(itmp,7-ibit),imask)
-             itmp3 = iand(mova2i(out(index)), 255-imask)
+             itmp3 = iand(mov_a2i(out(index)), 255-imask)
              out(index) = char(ior(itmp2,itmp3))
              bitcnt = bitcnt - tbit
              itmp = ishft(itmp, -tbit)
@@ -118,7 +118,7 @@ c        do last byte
 
          if (bitcnt.gt.0) then
              itmp2 = iand(itmp,ones(bitcnt))
-             itmp3 = iand(mova2i(out(index)), 255-ones(bitcnt))
+             itmp3 = iand(mov_a2i(out(index)), 255-ones(bitcnt))
              out(index) = char(ior(itmp2,itmp3))
          endif
       enddo

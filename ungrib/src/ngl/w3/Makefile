@@ -35,6 +35,7 @@ all: $(LIB)
 
 $(LIB): $(OBJ_MOD) $(OBJS) $(OBJS_CC) 
 	$(AR) $(ARFLAGS) $(LIB) $(OBJ_MOD) $(OBJS) $(OBJS_CC)
+	$(RANLIB) $(LIB)
 
 clean:
 	$(RM) $(OBJ_MOD) $(OBJS) $(OBJS_CC) *.mod *.a

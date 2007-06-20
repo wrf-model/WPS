@@ -13,20 +13,13 @@
   typedef long g2int;
 #endif
 
-#if defined CRAY90
-   #include <fortran.h>
-   #define SUB_NAME DEC_JPEG2000
-#elif defined LINUXF90
-   #define SUB_NAME DEC_JPEG2000
-#elif defined LINUXG95
-   #define SUB_NAME dec_jpeg2000_
-#elif defined HP || defined AIX || defined MAC
-   #define SUB_NAME dec_jpeg2000
-#elif defined SGI || defined LINUX || defined VPP5000
-   #define SUB_NAME dec_jpeg2000_
+#if defined _UNDERSCORE
+   #define dec_jpeg2000 dec_jpeg2000_
+#elif defined _DOUBLEUNDERSCORE
+   #define dec_jpeg2000 dec_jpeg2000__
 #endif
 
-   int SUB_NAME(char *injpc, int *bufsize, int *outfld)
+   int dec_jpeg2000(char *injpc, int *bufsize, int *outfld)
 /*$$$  SUBPROGRAM DOCUMENTATION BLOCK
 *                .      .    .                                       .
 * SUBPROGRAM:    dec_jpeg2000      Decodes JPEG2000 code stream

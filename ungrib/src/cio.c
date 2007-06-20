@@ -1,30 +1,39 @@
 /*  FILE: cio.c  */
 /*  C functions to write bytes to UNIX files - called from FORTRAN */
-/*  copen
-    bnread
+/*  c_open
+    bn_read
     bnwrit
-    cclose */
+    c_close */
 /*  bsrfil */
 /*  870417  */
 
 #if defined(CRAY)
 
-#define copen COPEN
-#define cclose CCLOSE
-#define bnread BNREAD
-#define bnseek BNSEEK
+#define c_open C_OPEN
+#define c_close C_CLOSE
+#define bn_read BN_READ
+#define bn_seek BN_SEEK
 
 #endif
 
 /* length of the char string from the fortran file is 132, plus one for null terminator */
 #define FORT_FILE_LEN 133
 
-#if defined (SGI) || defined (SOLARIS) || defined (SUN) || defined (DEC) || defined (ALPHA) || defined (_UNDERSCORE) || defined (LINUX) || defined (LINUXG95)
+#ifdef _UNDERSCORE
 
-#define copen copen_
-#define cclose cclose_
-#define bnread bnread_
-#define bnseek bnseek_
+#define c_open c_open_
+#define c_close c_close_
+#define bn_read bn_read_
+#define bn_seek bn_seek_
+
+#endif
+
+#ifdef _DOUBLEUNDERSCORE
+
+#define c_open c_open__
+#define c_close c_close__
+#define bn_read bn_read__
+#define bn_seek bn_seek__
 
 #endif
 
@@ -38,7 +47,7 @@
 
 /* ****************************************************************** */
 
-copen(unit, nunit, name, mode, err, oflag)
+c_open(unit, nunit, name, mode, err, oflag)
  /*
   * unit  = Fortran unit number 
   * nunit = UNIX file descriptor associated with 'unit'
@@ -93,7 +102,7 @@ copen(unit, nunit, name, mode, err, oflag)
     if (fd == -1) {		/* error opening file */
       if (*oflag >= 0){
 	printf("Error opening %s  Error status: %d\n", fname, errno);
-	perror("copen.c");
+	perror("c_open.c");
       };
       *err = errno;
     };
@@ -103,7 +112,7 @@ copen(unit, nunit, name, mode, err, oflag)
 }
 
 /* ****************************************************************** */
-bnseek(fd, bread, mode, iprint)
+bn_seek(fd, bread, mode, iprint)
 
 /*  Move the read/write file pointer
        fd     : Unix file descriptor.
@@ -114,8 +123,8 @@ bnseek(fd, bread, mode, iprint)
                > 0 : move the pointer to the end + BREAD bytes. (?)
        iprint : Flag to turn on (iprint = 1)  or off (iprint = 0) print.
 
-   Location 0 [bnseek(fd,0,-1,0)] puts us just before the first byte, 
-   so the next bnread will get byte 1.
+   Location 0 [bn_seek(fd,0,-1,0)] puts us just before the first byte, 
+   so the next bn_read will get byte 1.
 */
 
     int            *fd, *bread, *mode, *iprint;
@@ -141,7 +150,7 @@ bnseek(fd, bread, mode, iprint)
 
 /* ****************************************************************** */
 
-bnread(fd, buf, nbuf, bread, ios, idiag)
+bn_read(fd, buf, nbuf, bread, ios, idiag)
  /*
   * fd = UNIX file descriptor number (NOT a Fortran unit) 
   * buf = area into which to read 
@@ -164,7 +173,7 @@ bnread(fd, buf, nbuf, bread, ios, idiag)
     if (bytesread == -1) {	/* error reading file */
 	if (*idiag != 0)
 	    printf("Error reading C unit %d\n", *fd);
-	perror("bnread.c");
+	perror("bn_read.c");
 	*ios = 2;
 	/*  *ios = errno; */
     } else if (bytesread == 0) {/* end-of-file on input */
@@ -221,7 +230,7 @@ bnwrit_(fd, buf, nbuf, bwritten, err, idiag)
 
 /* ****************************************************************** */
 
-cclose(nunit, iprint, err)
+c_close(nunit, iprint, err)
 /*
 Close a C (UNIX?) file descriptor:
   nunit  : (INPUT)  : The C (UNIX?) file descriptor to close.

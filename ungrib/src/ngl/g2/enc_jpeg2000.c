@@ -12,20 +12,15 @@
   typedef long g2int;
 #endif
 
-#if defined CRAY90
-   #include <fortran.h>
-   #define SUB_NAME ENC_JPEG2000
-#elif defined LINUXF90
-   #define SUB_NAME ENC_JPEG2000
-#elif defined LINUXG95
-   #define SUB_NAME enc_jpeg2000_
-#elif defined HP || defined AIX || defined MAC
-   #define SUB_NAME enc_jpeg2000
-#elif defined SGI || defined LINUX || defined VPP5000
-   #define SUB_NAME enc_jpeg2000_
+
+#if defined _UNDERSCORE
+   #define enc_jpeg2000 enc_jpeg2000_
+#elif defined _DOUBLEUNDERSCORE
+   #define enc_jpeg2000 enc_jpeg2000__
 #endif
 
-int SUB_NAME(unsigned char *cin,g2int *pwidth,g2int *pheight,g2int *pnbits,
+
+int enc_jpeg2000(unsigned char *cin,g2int *pwidth,g2int *pheight,g2int *pnbits,
                  g2int *ltype, g2int *ratio, g2int *retry, char *outjpc, 
                  g2int *jpclen)
 /*$$$  SUBPROGRAM DOCUMENTATION BLOCK

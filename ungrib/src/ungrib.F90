@@ -14,7 +14,7 @@
 !    Subroutine RD_GRIB2                                                      !
 !    Subroutine PUT_STORAGE                                                   !
 !    Subroutine OUTPUT                                                        !
-!    Subroutine CCLOSE                                                        !
+!    Subroutine C_CLOSE                                                       !
 !    Subroutine RRPR                                                          !
 !    Subroutine DATINT                                                        !
 !    Subroutine FILE_DELETE                                                   !
@@ -328,7 +328,7 @@ program ungrib
 ! the next file.
 
      if (grib_version.ne.2) then
-        call cclose(iuarr(nunit1), debug_level, ierr)
+        call c_close(iuarr(nunit1), debug_level, ierr)
         iuarr(nunit1) = 0
      endif 
      hsave = '0000-00-00_00:00:00'

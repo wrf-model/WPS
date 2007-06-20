@@ -36,7 +36,7 @@ C   95-10-31  IREDELL      REMOVED SAVES AND PRINTS
 C   98-05-19  Gilbert      Increased array dimensions to handle grids
 C                          of up to 500,000 grid points.
 C   95-10-31  IREDELL      GENERALIZED WORD SIZE
-C   98-12-21  Gilbert      Replaced Function ICHAR with mova2i.
+C   98-12-21  Gilbert      Replaced Function ICHAR with mov_a2i.
 C   99-02-01  Gilbert      Changed the method of zeroing out array KBUF.
 C                          the old method, using W3FI01 and XSTORE was
 C                          incorrect with 4-byte integers and 8-byte reals.
@@ -216,10 +216,10 @@ C
         ID(6) = 1
         CALL W3FI68(ID,PDS)
       ELSE IF (IPFLAG .EQ. 1) THEN
-        IF (IAND(mova2i(PDS(8)),64) .EQ. 64) THEN
+        IF (IAND(mov_a2i(PDS(8)),64) .EQ. 64) THEN
 C         BOTH GDS AND BMS
           PDS(8) = CHAR(192)
-        ELSE IF (mova2i(PDS(8)) .EQ. 0) THEN
+        ELSE IF (mov_a2i(PDS(8)) .EQ. 0) THEN
 C         GDS ONLY
           PDS(8) = CHAR(128)
         END IF
@@ -232,8 +232,8 @@ C       PRINT *,' W3FI72 ERROR, IPFLAG IS NOT 0 OR 1 IPFLAG = ',IPFLAG
 C
 C     GET LENGTH OF PDS
 C
-      IPDSL = mova2i(PDS(1)) * 65536 + mova2i(PDS(2)) * 256 +
-     &        mova2i(PDS(3))
+      IPDSL = mov_a2i(PDS(1)) * 65536 + mov_a2i(PDS(2)) * 256 +
+     &        mov_a2i(PDS(3))
 C
 C            2.0   GRID DEFINITION SECTION (GDS).
 C
@@ -267,8 +267,8 @@ C     SET ITOSS=1 IF BITMAP BEING USED.  W3FI75 WILL TOSS DATA
 C     PRIOR TO PACKING.  LATER CODING WILL BE NEEDED WHEN THE
 C     'PREDEFINED' GRIDS ARE FINALLY 'DEFINED'.
 C
-      IF (mova2i(PDS(8)) .EQ. 64 .OR.
-     &    mova2i(PDS(8)) .EQ. 192)   THEN
+      IF (mov_a2i(PDS(8)) .EQ. 64 .OR.
+     &    mov_a2i(PDS(8)) .EQ. 192)   THEN
         ITOSS = 1
         IF (IBFLAG .EQ. 0) THEN
           IF (IBLEN .NE. NPTS) THEN
@@ -292,7 +292,7 @@ C            4.0   BINARY DATA SECTION (BDS).
 C
 C            4.1   SCALE THE DATA WITH D-SCALE FROM PDS(27-28)
 C
-      JSCALE = mova2i(PDS(27)) * 256 + mova2i(PDS(28))
+      JSCALE = mov_a2i(PDS(27)) * 256 + mov_a2i(PDS(28))
       IF (IAND(JSCALE,32768).NE.0) THEN
         JSCALE = - IAND(JSCALE,32767)
       END IF

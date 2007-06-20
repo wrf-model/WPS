@@ -41,7 +41,7 @@ plotfmt.exe: plotfmt.o read_met_module.o
 		$(NCARG_LIBS) $(NCARG_LIBS2)
 
 plotfmt.o: plotfmt.F90 misc_definitions_module.o read_met_module.o
-	$(CP) $< $*.f
+	$(CPP) $(CPPFLAGS) $< > $*.f
 	$(SFC) $(FNGFLAGS) -c $*.f
 	$(RM) $*.f
 

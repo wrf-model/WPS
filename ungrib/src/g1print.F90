@@ -76,7 +76,7 @@ program gribscan
 
   if (idb) ivb = .TRUE.
 
-  call copen(idum, munit, flnm, 1, ierr, 1)
+  call c_open(idum, munit, flnm, 1, ierr, 1)
 
   if (.not. ivb) then
      write(*,'(52("-"))')
@@ -179,7 +179,7 @@ program gribscan
      call gribget(munit, ierr)
   enddo
   if (ierr.eq.1) write(*,'(/,"***** End-Of-File on C unit ", I3,/)') munit
-  call cclose( munit, 0, ierr)
+  call c_close( munit, 0, ierr)
 
 end program gribscan
 

@@ -11,7 +11,7 @@ bad_idea:
 	@echo ' *************** '
 
 all:
-	( cd src/ngl ; $(MAKE) DEV_TOP="$(DEV_TOP)" CC="$(SCC)" FC="$(SFC)" all )
+	( cd src/ngl ; $(MAKE) DEV_TOP="$(DEV_TOP)" CC="$(SCC)" FC="$(SFC)" RANLIB="$(RANLIB)" all )
 	( cd src ; \
 	$(MAKE) $(TARGET) \
 		WRF_DIR="$(WRF_DIR_PRE)$(WRF_DIR)" \

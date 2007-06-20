@@ -11,17 +11,10 @@
   typedef long g2int;
 #endif
 
-#if defined CRAY90
-   #include <fortran.h>
-   #define SUB_NAME DEC_PNG
-#elif defined LINUXF90
-   #define SUB_NAME DEC_PNG
-#elif defined LINUXG95
-   #define SUB_NAME dec_png_
-#elif defined HP || defined AIX || defined MAC
-   #define SUB_NAME dec_png
-#elif defined SGI || defined LINUX || defined VPP5000
-   #define SUB_NAME dec_png_
+#if defined _UNDERSCORE
+   #define dec_png dec_png_
+#elif defined _DOUBLEUNDERSCORE
+   #define dec_png dec_png__
 #endif
 
 #ifdef USE_PNG
@@ -54,7 +47,7 @@ void user_read_data(png_structp png_ptr,png_bytep data, png_uint_32 length)
 
 
 
-int SUB_NAME(unsigned char *pngbuf,g2int *width,g2int *height,char *cout)
+int dec_png(unsigned char *pngbuf,g2int *width,g2int *height,char *cout)
 {
 #ifdef USE_PNG
     int interlace,color,compres,filter,bit_depth;

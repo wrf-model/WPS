@@ -35,7 +35,7 @@
 ! Externals                                                                   !
 !     Module TABLE                                                            !
 !     Module GRIDINFO                                                         !
-!     Subroutine COPEN                                                        !
+!     Subroutine C_OPEN                                                       !
 !     Subroutine DEALLOGRIB                                                   !
 !     Subroutine GRIBGET                                                      !
 !     Subroutine GRIBHEADER                                                   !
@@ -101,9 +101,9 @@ SUBROUTINE rd_grib1(IUNIT, gribflnm, level, field, hdate,  &
 !
   if (iuarr(iunit).eq.0) then
      if (debug_level.gt.0) then
-        call copen(iunit, nunit, gribflnm, 1, ierr,  1)
+        call c_open(iunit, nunit, gribflnm, 1, ierr,  1)
      else
-        call copen(iunit, nunit, gribflnm, 1, ierr, -1)
+        call c_open(iunit, nunit, gribflnm, 1, ierr, -1)
      endif
      if (ierr.ne.0) then
         call deallogrib

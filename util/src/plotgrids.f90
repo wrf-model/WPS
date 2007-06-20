@@ -594,8 +594,8 @@ SUBROUTINE mapbkg_egrid ( imt,jm,ilowl,jlowl,ngpwe,ngpsn,&
    !  Put on a quicky description.
 
    WRITE ( string , FMT = '("E-GRID E_WE = ",I4,", E_SN = ",I4 , &
-                            ", DX = ",F6.4,", DY = ",F6.4 , &
-                            ", REF_LAT = ",F8.3,", REF_LON = ",F8.3)') &
+                            &", DX = ",F6.4,", DY = ",F6.4 , &
+                            &", REF_LAT = ",F8.3,", REF_LON = ",F8.3)') &
                             (imt+3)/2,jm+1,dlmd,dphd,rlat0d,-1.*rlon0d
    CALL getset(xa,xb,ya,yb,xxa,xxy,yya,yyb,ltype)
 !  CALL set   (xa,xb,ya,yb,0.,1.,0.,1.,lytpe)

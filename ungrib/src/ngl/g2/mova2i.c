@@ -1,6 +1,6 @@
 /*$$$  SUBPROGRAM DOCUMENTATION BLOCK
 C                .      .    .                                       .
-C SUBPROGRAM:    mova2i      Moves a bit string from a char*1 to int
+C SUBPROGRAM:    mov_a2i      Moves a bit string from a char*1 to int
 C   PRGMMR: Gilbert          ORG: W/NP11     DATE: 02-08-15
 C
 C ABSTRACT: This Function copies a bit string from a Character*1 variable
@@ -13,7 +13,7 @@ C
 C PROGRAM HISTORY LOG:
 C   98-12-15  Gilbert
 C
-C USAGE:     I = mova2i(a)
+C USAGE:     I = mov_a2i(a)
 C
 C   INPUT ARGUMENT :
 C
@@ -21,7 +21,7 @@ C          a - Character*1 variable that holds the bitstring to extract
 C
 C   RETURN ARGUMENT :
 C
-C          mova2i - Integer value of the bitstring in character a
+C          mov_a2i - Integer value of the bitstring in character a
 C
 C REMARKS:
 C
@@ -34,42 +34,12 @@ C   MACHINE:  IBM SP
 C
 C$$$i*/
 
-#ifdef CRAY90
-   #include <fortran.h>
-   int MOVA2I(unsigned char *a)
-#endif
-#ifdef HP
-   int mova2i(unsigned char *a)
-#endif
-#ifdef SGI
-   int mova2i_(unsigned char *a)
-#endif
-#ifdef ALPHA
-   int mova2i_(unsigned char *a)
-#endif
-#ifdef LINUX
-   int mova2i_(unsigned char *a)
-#endif
-#ifdef LINUXF90
-   int MOVA2I(unsigned char *a)
-#endif
-#ifdef LINUXG95
-   int mova2i_(unsigned char *a)
-#endif
-#ifdef VPP5000
-   int mova2i_(unsigned char *a)
-#endif
-#ifdef IBM4
-   int mova2i(unsigned char *a)
-#endif
-#ifdef IBM8
-   long long int mova2i(unsigned char *a)
-#endif
-#ifdef MAC
-   int mova2i(unsigned char *a)
-#endif
-#ifdef __crayx1
-   int mova2i_(unsigned char *a)
+#if defined _UNDERSCORE
+   int mov_a2i_(unsigned char *a)
+#elif defined _DOUBLEUNDERSCORE
+   int mov_a2i__(unsigned char *a)
+#else
+   int mov_a2i(unsigned char *a)
 #endif
 
 {

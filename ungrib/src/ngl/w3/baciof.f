@@ -15,7 +15,7 @@ C ATTRIBUTES:
 C   LANGUAGE: FORTRAN 90
 C
 C$$$
-      INTEGER,EXTERNAL:: BACIO
+      INTEGER,EXTERNAL:: BA_CIO
       INTEGER,DIMENSION(999),SAVE:: FD=999*0
       INTEGER,DIMENSION(20),SAVE:: BAOPTS=0
       INCLUDE 'baciof.h'
@@ -95,7 +95,7 @@ C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         RETURN
       ENDIF
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-      IRET=BACIO(BACIO_OPENRW,IB,JB,1,NB,KA,FD(LU),CFN,A)
+      IRET=BA_CIO(BACIO_OPENRW,IB,JB,1,NB,KA,FD(LU),CFN,A)
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       END
 C-----------------------------------------------------------------------
@@ -136,7 +136,7 @@ C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         RETURN
       ENDIF
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-      IRET=BACIO(BACIO_OPENR,IB,JB,1,NB,KA,FD(LU),CFN,A)
+      IRET=BA_CIO(BACIO_OPENR,IB,JB,1,NB,KA,FD(LU),CFN,A)
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       END
 C-----------------------------------------------------------------------
@@ -177,7 +177,7 @@ C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         RETURN
       ENDIF
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-      IRET=BACIO(BACIO_OPENW,IB,JB,1,NB,KA,FD(LU),CFN,A)
+      IRET=BA_CIO(BACIO_OPENW,IB,JB,1,NB,KA,FD(LU),CFN,A)
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       END
 C-----------------------------------------------------------------------
@@ -218,7 +218,7 @@ C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         RETURN
       ENDIF
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-      IRET=BACIO(BACIO_OPENWT,IB,JB,1,NB,KA,FD(LU),CFN,A)
+      IRET=BA_CIO(BACIO_OPENWT,IB,JB,1,NB,KA,FD(LU),CFN,A)
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       END
 C-----------------------------------------------------------------------
@@ -259,7 +259,7 @@ C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         RETURN
       ENDIF
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-      IRET=BACIO(BACIO_OPENWA,IB,JB,1,NB,KA,FD(LU),CFN,A)
+      IRET=BA_CIO(BACIO_OPENWA,IB,JB,1,NB,KA,FD(LU),CFN,A)
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       END
 C-----------------------------------------------------------------------
@@ -299,7 +299,7 @@ C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         RETURN
       ENDIF
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-      IRET=BACIO(BACIO_CLOSE,IB,JB,1,NB,KA,FD(LU),CFN,A)
+      IRET=BA_CIO(BACIO_CLOSE,IB,JB,1,NB,KA,FD(LU),CFN,A)
       IF(IRET.EQ.0) FD(LU)=0
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       END
@@ -366,9 +366,9 @@ C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 C  UNBUFFERED I/O
       IF(BAOPTS(1).NE.1) THEN
         IF(IB.GE.0) THEN
-          IRET=BACIO(BACIO_READ,IB,JB,1,NB,KA,FD(LU),CFN,A)
+          IRET=BA_CIO(BACIO_READ,IB,JB,1,NB,KA,FD(LU),CFN,A)
         ELSE
-          IRET=BACIO(BACIO_READ+BACIO_NOSEEK,0,JB,1,NB,KA,FD(LU),CFN,A)
+          IRET=BA_CIO(BACIO_READ+BACIO_NOSEEK,0,JB,1,NB,KA,FD(LU),CFN,A)
         ENDIF
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 C  BUFFERED I/O
@@ -396,7 +396,7 @@ C  SET POSITION AND READ BUFFER AND GET DATA
           LUX=ABS(LU)
           JY=MOD(JY,MY)+1
           NS(JY)=IB+KA
-          IRET=BACIO(BACIO_READ,NS(JY),JB,1,NY,NN(JY),
+          IRET=BA_CIO(BACIO_READ,NS(JY),JB,1,NY,NN(JY),
      &               FD(LUX),CFN,Y(1,JY))
           IF(NN(JY).GT.0) THEN
             K=MIN(NB-KA,NN(JY))
@@ -408,7 +408,7 @@ C  CONTINUE TO READ BUFFER AND GET DATA
           DOWHILE(NN(JY).EQ.NY.AND.KA.LT.NB)
             JY=MOD(JY,MY)+1
             NS(JY)=NS(JY)+NN(JY)
-            IRET=BACIO(BACIO_READ+BACIO_NOSEEK,NS(JY),JB,1,NY,NN(JY),
+            IRET=BA_CIO(BACIO_READ+BACIO_NOSEEK,NS(JY),JB,1,NY,NN(JY),
      &                 FD(LUX),CFN,Y(1,JY))
             IF(NN(JY).GT.0) THEN
               K=MIN(NB-KA,NN(JY))
@@ -469,9 +469,9 @@ C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       ENDIF
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       IF(IB.GE.0) THEN
-        IRET=BACIO(BACIO_WRITE,IB,JB,1,NB,KA,FD(LU),CFN,A)
+        IRET=BA_CIO(BACIO_WRITE,IB,JB,1,NB,KA,FD(LU),CFN,A)
       ELSE
-        IRET=BACIO(BACIO_WRITE+BACIO_NOSEEK,0,JB,1,NB,KA,FD(LU),CFN,A)
+        IRET=BA_CIO(BACIO_WRITE+BACIO_NOSEEK,0,JB,1,NB,KA,FD(LU),CFN,A)
       ENDIF
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       END
@@ -518,7 +518,7 @@ C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         RETURN
       ENDIF
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-      IRET=BACIO(BACIO_WRITE+BACIO_NOSEEK,0,JB,1,NB,KA,FD(LU),CFN,A)
+      IRET=BA_CIO(BACIO_WRITE+BACIO_NOSEEK,0,JB,1,NB,KA,FD(LU),CFN,A)
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       RETURN
       END
