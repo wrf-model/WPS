@@ -140,8 +140,8 @@
       nullify(gfld%idsect)
 
       if (associated(gfld%local)) then
-         deallocate(gfld%local)
-         !deallocate(gfld%local,stat=is)
+         !deallocate(gfld%local)
+         deallocate(gfld%local,stat=is)
          !print *,'gfld%local: ',is
       endif
       nullify(gfld%local)
