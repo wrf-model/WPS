@@ -539,7 +539,7 @@ include 'mpif.h'
       !
       if (my_x /= (nproc_x - 1)) then
          do kk=ps3,pe3
-            do jj=ps2,pe2
+            do jj=ms2,me2
                call MPI_Send(patch_array(pe1-HALO_WIDTH+1:pe1,jj,kk), HALO_WIDTH, MPI_REAL, &
                              processors(my_x+1,my_y), my_proc_id, comm, mpi_ierr)
             end do
@@ -547,7 +547,7 @@ include 'mpif.h'
       end if
       if (my_x /= 0) then
          do kk=ps3,pe3
-            do jj=ps2,pe2
+            do jj=ms2,me2
                call MPI_Recv(patch_array(ms1:ms1+HALO_WIDTH-1,jj,kk), HALO_WIDTH, MPI_REAL, &
                              processors(my_x-1,my_y), MPI_ANY_TAG, comm, mpi_stat, mpi_ierr)
             end do
@@ -559,7 +559,7 @@ include 'mpif.h'
       !
       if (my_x /= 0) then
          do kk=ps3,pe3
-            do jj=ps2,pe2
+            do jj=ms2,me2
                call MPI_Send(patch_array(ps1:ps1+HALO_WIDTH-1,jj,kk), HALO_WIDTH, MPI_REAL, &
                              processors(my_x-1,my_y), my_proc_id, comm, mpi_ierr)
             end do
@@ -567,7 +567,7 @@ include 'mpif.h'
       end if
       if (my_x /= (nproc_x - 1)) then
          do kk=ps3,pe3
-            do jj=ps2,pe2
+            do jj=ms2,me2
                call MPI_Recv(patch_array(me1-HALO_WIDTH+1:me1,jj,kk), HALO_WIDTH, MPI_REAL, &
                              processors(my_x+1,my_y), MPI_ANY_TAG, comm, mpi_stat, mpi_ierr)
             end do
@@ -580,7 +580,7 @@ include 'mpif.h'
       if (my_y /= (nproc_y - 1)) then
          do kk=ps3,pe3
             do jj=pe2-HALO_WIDTH+1,pe2
-               call MPI_Send(patch_array(ps1:pe1,jj,kk), (pe1-ps1+1), MPI_REAL, &
+               call MPI_Send(patch_array(ms1:me1,jj,kk), (me1-ms1+1), MPI_REAL, &
                              processors(my_x,my_y+1), my_proc_id, comm, mpi_ierr)
             end do
          end do
@@ -588,7 +588,7 @@ include 'mpif.h'
       if (my_y /= 0) then
          do kk=ps3,pe3
             do jj=ms2,ms2+HALO_WIDTH-1
-               call MPI_Recv(patch_array(ps1:pe1,jj,kk), (pe1-ps1+1), MPI_REAL, &
+               call MPI_Recv(patch_array(ms1:me1,jj,kk), (me1-ms1+1), MPI_REAL, &
                              processors(my_x,my_y-1), MPI_ANY_TAG, comm, mpi_stat, mpi_ierr)
             end do
          end do
@@ -600,7 +600,7 @@ include 'mpif.h'
       if (my_y /= 0) then
          do kk=ps3,pe3
             do jj=ps2,ps2+HALO_WIDTH-1
-               call MPI_Send(patch_array(ps1:pe1,jj,kk), (pe1-ps1+1), MPI_REAL, &
+               call MPI_Send(patch_array(ms1:me1,jj,kk), (me1-ms1+1), MPI_REAL, &
                              processors(my_x,my_y-1), my_proc_id, comm, mpi_ierr)
             end do
          end do
@@ -608,7 +608,7 @@ include 'mpif.h'
       if (my_y /= (nproc_y - 1)) then
          do kk=ps3,pe3
             do jj=me2-HALO_WIDTH+1,me2
-               call MPI_Recv(patch_array(ps1:pe1,jj,kk), (pe1-ps1+1), MPI_REAL, &
+               call MPI_Recv(patch_array(ms1:me1,jj,kk), (me1-ms1+1), MPI_REAL, &
                              processors(my_x,my_y+1), MPI_ANY_TAG, comm, mpi_stat, mpi_ierr)
             end do
          end do
@@ -725,7 +725,7 @@ include 'mpif.h'
       !
       if (my_x /= (nproc_x - 1)) then
          do kk=ps3,pe3
-            do jj=ps2,pe2
+            do jj=ms2,me2
                call MPI_Send(patch_array(pe1-HALO_WIDTH+1:pe1,jj,kk), HALO_WIDTH, MPI_INTEGER, &
                              processors(my_x+1,my_y), my_proc_id, comm, mpi_ierr)
             end do
@@ -733,7 +733,7 @@ include 'mpif.h'
       end if
       if (my_x /= 0) then
          do kk=ps3,pe3
-            do jj=ps2,pe2
+            do jj=ms2,me2
                call MPI_Recv(patch_array(ms1:ms1+HALO_WIDTH-1,jj,kk), HALO_WIDTH, MPI_INTEGER, &
                              processors(my_x-1,my_y), MPI_ANY_TAG, comm, mpi_stat, mpi_ierr)
             end do
@@ -745,7 +745,7 @@ include 'mpif.h'
       !
       if (my_x /= 0) then
          do kk=ps3,pe3
-            do jj=ps2,pe2
+            do jj=ms2,me2
                call MPI_Send(patch_array(ps1:ps1+HALO_WIDTH-1,jj,kk), HALO_WIDTH, MPI_INTEGER, &
                              processors(my_x-1,my_y), my_proc_id, comm, mpi_ierr)
             end do
@@ -753,7 +753,7 @@ include 'mpif.h'
       end if
       if (my_x /= (nproc_x - 1)) then
          do kk=ps3,pe3
-            do jj=ps2,pe2
+            do jj=ms2,me2
                call MPI_Recv(patch_array(me1-HALO_WIDTH+1:me1,jj,kk), HALO_WIDTH, MPI_INTEGER, &
                              processors(my_x+1,my_y), MPI_ANY_TAG, comm, mpi_stat, mpi_ierr)
             end do
@@ -766,7 +766,7 @@ include 'mpif.h'
       if (my_y /= (nproc_y - 1)) then
          do kk=ps3,pe3
             do jj=pe2-HALO_WIDTH+1,pe2
-               call MPI_Send(patch_array(ps1:pe1,jj,kk), (pe1-ps1+1), MPI_INTEGER, &
+               call MPI_Send(patch_array(ms1:me1,jj,kk), (me1-ms1+1), MPI_INTEGER, &
                              processors(my_x,my_y+1), my_proc_id, comm, mpi_ierr)
             end do
          end do
@@ -774,7 +774,7 @@ include 'mpif.h'
       if (my_y /= 0) then
          do kk=ps3,pe3
             do jj=ms2,ms2+HALO_WIDTH-1
-               call MPI_Recv(patch_array(ps1:pe1,jj,kk), (pe1-ps1+1), MPI_INTEGER, &
+               call MPI_Recv(patch_array(ms1:me1,jj,kk), (me1-ms1+1), MPI_INTEGER, &
                              processors(my_x,my_y-1), MPI_ANY_TAG, comm, mpi_stat, mpi_ierr)
             end do
          end do
@@ -786,7 +786,7 @@ include 'mpif.h'
       if (my_y /= 0) then
          do kk=ps3,pe3
             do jj=ps2,ps2+HALO_WIDTH-1
-               call MPI_Send(patch_array(ps1:pe1,jj,kk), (pe1-ps1+1), MPI_INTEGER, &
+               call MPI_Send(patch_array(ms1:me1,jj,kk), (me1-ms1+1), MPI_INTEGER, &
                              processors(my_x,my_y-1), my_proc_id, comm, mpi_ierr)
             end do
          end do
@@ -794,7 +794,7 @@ include 'mpif.h'
       if (my_y /= (nproc_y - 1)) then
          do kk=ps3,pe3
             do jj=me2-HALO_WIDTH+1,me2
-               call MPI_Recv(patch_array(ps1:pe1,jj,kk), (pe1-ps1+1), MPI_INTEGER, &
+               call MPI_Recv(patch_array(ms1:me1,jj,kk), (me1-ms1+1), MPI_INTEGER, &
                              processors(my_x,my_y+1), MPI_ANY_TAG, comm, mpi_stat, mpi_ierr)
             end do
          end do
