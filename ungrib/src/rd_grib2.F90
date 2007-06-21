@@ -369,6 +369,9 @@ C  SET ARGUMENTS
 	   if (icenter.eq.7) then
 	     call ncep_grid_num (gfld%igdtnum)
 	   endif
+
+           ! Deallocate arrays decoding GRIB2 record.
+           call gf_free(gfld)
          endif
 
          ! ----
