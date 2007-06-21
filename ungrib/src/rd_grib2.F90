@@ -77,7 +77,6 @@
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 C  SET ARGUMENTS
 
-      call start()
       unpack=.true.
       expand=.true.
       hdate = '0000-00-00_00:00:00'
@@ -567,29 +566,29 @@ C  SET ARGUMENTS
 
          enddo MATCH_LOOP
 
-         enddo ! 1,numfields
-
-
          ! Deallocate arrays decoding GRIB2 record.
          call gf_free(gfld)
+
+         enddo ! 1,numfields
+
 
       enddo VERSION ! skgb
 
 
-      if ( debug_level .gt. 100 ) then
+       if ( debug_level .gt. 100 ) then
 	 call mprintf (.true.,DEBUG,
      &     "G2 total number of fields found = %i ",i1=itot)
-         call summary()
-      end if
+       end if
 
-      CALL BACLOSE(junit,IOS)
+       CALL BACLOSE(junit,IOS)
 
+       nullify(gfld%local)            ! must be nullified before opening next file
        ireaderr=1
       else 
-       call mprintf (.true.,DEBUG,"open status failed because %i ",
+        call mprintf (.true.,DEBUG,"open status failed because %i ",
      &    i1=ios)
-       hdate = '9999-99-99_99:99:99'
-       ireaderr=2
+        hdate = '9999-99-99_99:99:99'
+        ireaderr=2
       endif ! ireaderr check 
 
       END subroutine rd_grib2
@@ -649,7 +648,6 @@ C  SET ARGUMENTS
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 C  SET ARGUMENTS
 
-      call start()
       itot=0
       icount=0
       iseek=0
@@ -716,7 +714,6 @@ C  SET ARGUMENTS
          call gbyte(cgrib,grib_edition,iofst,8)   ! GRIB edition number
 
          print *, 'ungrib - grib edition num',  grib_edition
-         call summary()
          CALL BACLOSE(junit,IOS)
          ireaderr=1
       else if (ios .eq. -4) then
