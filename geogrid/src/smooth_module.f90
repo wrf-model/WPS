@@ -434,7 +434,6 @@ module smooth_module
       integer :: ix, iy, iz, ipass
       real, pointer, dimension(:,:,:) :: scratch
       integer, dimension(start_y:end_y) :: ihe, ihw, istart
-      real, dimension(start_x:end_x, start_y:end_y, start_z:end_z) :: hold
       real, parameter :: cenwgt = 1.52
       real, parameter :: endwgt = 0.26
 
@@ -484,7 +483,6 @@ module smooth_module
 
          do iy=start_y,end_y
          do ix=start_x,end_x
-            hold(ix,iy,1)=array(ix,iy,1)
             scratch(ix,iy,1)=array(ix,iy,1) ! for points used in 2nd computation but 
                                             !    not defined in 1st
          end do
