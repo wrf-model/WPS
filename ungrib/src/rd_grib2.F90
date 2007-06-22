@@ -171,7 +171,7 @@ C  SET ARGUMENTS
            ! and time information, including forecast time information:
 
            n=1
-           call gf_getfld(cgrib,lengrib,n,unpack,expand,gfld,ierr)
+           call gf_getfld(cgrib,lengrib,n,.FALSE.,expand,gfld,ierr)
            year  =gfld%idsect(6)     !(FOUR-DIGIT) YEAR OF THE DATA
            month =gfld%idsect(7)     ! MONTH OF THE DATA
            day   =gfld%idsect(8)     ! DAY OF THE DATA
@@ -378,7 +378,7 @@ C  SET ARGUMENTS
 
          ! Continue to unpack GRIB2 field.
          do n=1,numfields ! e.g. U and V would =2, otherwise its usually =1
-           call gf_getfld(cgrib,lengrib,n,unpack,expand,gfld,ierr)
+           call gf_getfld(cgrib,lengrib,n,.FALSE.,expand,gfld,ierr)
            if (ierr.ne.0) then
              write(*,*) ' ERROR extracting field gf_getfld = ',ierr
              cycle
@@ -386,7 +386,7 @@ C  SET ARGUMENTS
 
 ! ------------------------------------
          ! Additional print information for developer.
-         if ( debug_level .GT. 100 ) then
+         if ( debug_level .GT. 1000 ) then
 !MGD           print *
 !MGD           print *,'G2 FIELD ',n
 !MGD           if (n==1) then
@@ -470,6 +470,8 @@ C  SET ARGUMENTS
      &          gfld%ipdtmpl(2) .eq. g2code(3,i) .and.   !Parameter
      &          gfld%ipdtmpl(10) .eq. g2code(4,i)) then  !Elevation
 
+            call gf_free(gfld)
+            call gf_getfld(cgrib,lengrib,n,.TRUE.,expand,gfld,ierr)
             pabbrev=param_get_abbrev(gfld%discipline,gfld%ipdtmpl(1),
      &                               gfld%ipdtmpl(2))
 
