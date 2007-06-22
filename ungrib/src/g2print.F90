@@ -191,7 +191,11 @@ end program g2print
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 !  SET ARGUMENTS
 
-      unpack=.true.
+      if (debug_level .gt. 50 ) then
+        unpack=.true.
+      else
+        unpack=.false.
+      endif
       expand=.true.
       hdate = '0000-00-00_00:00:00'
       ierr=0
@@ -538,6 +542,7 @@ end program g2print
               print*, 'see Code Table 3.1: Grid Definition Template No'
            endif
          
+	    call gf_free(gfld)
          endif
 
          ! ----
