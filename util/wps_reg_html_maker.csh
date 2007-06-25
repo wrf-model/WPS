@@ -13,6 +13,8 @@ if ( -d /mmm/users/gill/DATA/WPS_regression_data/TEST_001 ) then
 	set DATA_DIR = /mmm/users/gill/DATA/WPS_regression_data
 else if ( -d /standalone/users/gill/DATA/WPS_regression_data/TEST_001 ) then
         set DATA_DIR = /standalone/users/gill/DATA/WPS_regression_data
+else if ( -d /stink/gill/DATA/WPS_regression_data/TEST_001 ) then
+        set DATA_DIR = /stink/gill/DATA/WPS_regression_data
 else if ( -d /data3a/mp/gill/DATA/WPS_regression_data/TEST_001 ) then
         set DATA_DIR = /data3a/mp/gill/DATA/WPS_regression_data
 else
@@ -34,14 +36,14 @@ endif
 
 echo "<HTML>" > $HTML
 echo "<HEAD>" >> $HTML
-echo "<TITLE> WPS, ARW Real, and WRF Forecast Regression Test Status Page </title>" >> $HTML
+echo "<TITLE> WPS, ARW Real, and WRF Forecast Regression Test Status Page for `uname`</title>" >> $HTML
 echo " " >> $HTML
 echo "</HEAD>" >> $HTML
 echo " " >> $HTML
 echo "<BODY bgcolor='#FFFFFF'>" >> $HTML
 echo " " >> $HTML
 echo "<CENTER>" >> $HTML
-echo "<H2><B>WPS, ARW Real, and WRF Forecast Regression Test Status Page</B> </H2><BR>" >> $HTML
+echo "<H2><B>WPS, ARW Real, and WRF Forecast Regression Test Status Page for `uname`</B> </H2><BR>" >> $HTML
 echo "</CENTER>" >> $HTML
 echo " " >> $HTML
 echo "<center>" >> $HTML
