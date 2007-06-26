@@ -605,6 +605,47 @@ CPPFLAGS	=	-DAIX -DMACOS -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -DBIT32
 RANLIB		=	ranlib
 
 ###########################################################
+#ARCH	Darwin	serial, xlf gcc3.3 SystemStubs, NO GRIB2
+#
+COMPRESSION_LIBS	=
+COMPRESSION_INC		=
+FDEFS			=
+NCARG_LIBS	=	-L$(NCARG_ROOT)/lib -lncarg -lcgm -lncarg_gks -lncarg_c \
+			-L/usr/X11R6/lib -lX11 \
+			-L/opt/ibmcmp/xlf/8.1/lib -lg2c
+FC		=	xlf90_r
+SFC		=	xlf90_r
+FFLAGS		=	-qfree
+F77FLAGS	=	-qfixed
+FNGFLAGS	=	$(FFLAGS) -qextname
+LDFLAGS		=	-Wl,-stack_size,10000000,-stack_addr,0xc0000000 -L/usr/lib -lSystemStubs
+CC		=	gcc-3.3
+SCC		=	$(CC)
+CFLAGS		=	-O
+CPP		=	/usr/bin/cpp -C -P
+CPPFLAGS	=	-DAIX -DMACOS -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -DBIT32
+RANLIB		=	ranlib
+
+###########################################################
+#ARCH	Darwin	serial, xlf gcc3.3 SystemStubs
+#
+NCARG_LIBS	=	-L$(NCARG_ROOT)/lib -lncarg -lcgm -lncarg_gks -lncarg_c \
+			-L/usr/X11R6/lib -lX11 \
+			-L/opt/ibmcmp/xlf/8.1/lib -lg2c
+FC		=	xlf90_r
+SFC		=	xlf90_r
+FFLAGS		=	-qfree
+F77FLAGS	=	-qfixed
+FNGFLAGS	=	$(FFLAGS) -qextname
+LDFLAGS		=	-Wl,-stack_size,10000000,-stack_addr,0xc0000000 -L/usr/lib -lSystemStubs
+CC		=	gcc-3.3
+SCC		=	$(CC)
+CFLAGS		=	-O
+CPP		=	/usr/bin/cpp -C -P
+CPPFLAGS	=	-DAIX -DMACOS -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -DBIT32
+RANLIB		=	ranlib
+
+###########################################################
 #ARCH	Darwin	serial, g95 compiler, NO GRIB2
 #
 COMPRESSION_LIBS	=
