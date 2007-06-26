@@ -251,7 +251,7 @@ contains
 !=============================================================================!
 !=============================================================================!
 !
-  integer function gribsize(trec, ilen)
+  integer function gribsize(trec, ilen, ierr)
 !-----------------------------------------------------------------------------!
 ! Return the size of a single GRIB record.                                    !
 !                                                                             !
@@ -261,6 +261,7 @@ contains
 !                                                                             !
 ! Output                                                                      !
 !    GRIBSIZE: The size of the full GRIB record                               !
+!    IERR    : 0= no errors, 1 = read error
 !                                                                             !
 ! Side Effects:                                                               !
 !    * Module variable IED is set to the GRIB Edition number.                 !
@@ -280,7 +281,9 @@ contains
     integer :: isz4 = 0
     integer :: isz5 = 32
     integer :: iflag
+    integer :: ierr
 
+    ierr = 0
 ! Unpack the GRIB Edition number, located in the eighth byte (bits 57-64)     !
 ! of array TREC.                                                              !
 
@@ -319,7 +322,7 @@ contains
        ! Total the sizes of sections 0 through 5.
        gribsize = (isz0+isz1+isz2+isz3+isz4+isz5) / 8
 
-    else
+    elseif (ied.eq.2) then
        ! Grib2
        write(*,'("I was expecting a Grib1 file, but this is a Grib2 file.")')
        write(*,'("Most likely this is because your GRIBFILE.XXX files")')
@@ -328,6 +331,12 @@ contains
        write(*,'("job must be run for each Grib type.")')
        write(*,'("\t*** stopping gribcode ***")')
        stop
+    else
+       write(*,'("Error trying to read grib edition number in gribsize.")')
+       write(*,'("Possible corrupt grib file.")')
+       write(6,*) 'Incorrect edition number  = ',ied
+       write(6,*) 'Skipping the rest of the file and continuing.'
+       ierr = 1
     endif
   end function gribsize
 !
@@ -422,7 +431,7 @@ contains
 #ifdef BYTESWAP
       call swap4(trec, isz)
 #endif
-    isize = gribsize(trec, isz)
+    isize = gribsize(trec, isz, ierr)
 
   end subroutine findgrib
 !
@@ -1263,7 +1272,7 @@ subroutine gribheader(debug_level,ierr)
      call gbyte_g1(grec, sec0(1), 32, 24)
      iskip = 64
   elseif (ied.eq.0) then
-     sec0(1) = gribsize(grec,200)
+     sec0(1) = gribsize(grec,200, ierr)
      iskip = 32
   endif
 
