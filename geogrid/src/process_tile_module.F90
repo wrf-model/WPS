@@ -477,24 +477,24 @@ module process_tile_module
                if (grid_type == 'C') then
                   if (smth_opt == ONETWOONE) then
                      call one_two_one(field,                      &
-                                      start_dom_i, end_dom_i,     &
-                                      start_dom_j, end_dom_j,     &
+                                      start_patch_i, end_patch_i, &
+                                      start_patch_j, end_patch_j, &
                                       start_mem_i, end_mem_i,     &
                                       start_mem_j, end_mem_j,     &
                                       min_category, max_category, &
                                       smth_passes, msg_fill_val)
                   else if (smth_opt == SMTHDESMTH) then
                      call smth_desmth(field,                      &
-                                      start_dom_i, end_dom_i,     &
-                                      start_dom_j, end_dom_j,     &
+                                      start_patch_i, end_patch_i, &
+                                      start_patch_j, end_patch_j, &
                                       start_mem_i, end_mem_i,     &
                                       start_mem_j, end_mem_j,     &
                                       min_category, max_category, &
                                       smth_passes, msg_fill_val)
                   else if (smth_opt == SMTHDESMTH_SPECIAL) then
                      call smth_desmth_special(field,              &
-                                      start_dom_i, end_dom_i,     &
-                                      start_dom_j, end_dom_j,     &
+                                      start_patch_i, end_patch_i, &
+                                      start_patch_j, end_patch_j, &
                                       start_mem_i, end_mem_i,     &
                                       start_mem_j, end_mem_j,     &
                                       min_category, max_category, &
@@ -503,8 +503,8 @@ module process_tile_module
                else if (grid_type == 'E') then
                   if (smth_opt == ONETWOONE) then
                      call one_two_one_egrid(field,                &
-                                      start_dom_i, end_dom_i,     &
-                                      start_dom_j, end_dom_j,     &
+                                      start_patch_i, end_patch_i, &
+                                      start_patch_j, end_patch_j, &
                                       start_mem_i, end_mem_i,     &
                                       start_mem_j, end_mem_j,     &
                                       min_category, max_category, &
@@ -517,6 +517,9 @@ module process_tile_module
                                       start_mem_j, end_mem_j,     &
                                       min_category, max_category, &
                                       smth_passes, msg_fill_val, 1.0)
+                  else if (smth_opt == SMTHDESMTH_SPECIAL) then
+                     call mprintf(.true.,WARN,'smth-desmth_special is not currently implemented for NMM. '// &
+                                              'No smoothing will be done.')
                   end if
                end if
 
@@ -663,28 +666,28 @@ module process_tile_module
 
                      if (grid_type == 'C') then
                         if (smth_opt == ONETWOONE) then
-                           call one_two_one(field,                &
-                                            start_dom_i, end_dom_i,     &
-                                            start_dom_j, end_dom_j,     &
+                           call one_two_one(field,                      &
+                                            start_patch_i, end_patch_i, &
+                                            start_patch_j, end_patch_j, &
                                             sm1,         em1,           &
                                             sm2,         em2,           &
-                                            min_level, max_level, &
+                                            min_level, max_level,       &
                                             smth_passes, msg_fill_val)
                         else if (smth_opt == SMTHDESMTH) then
-                           call smth_desmth(field,                &
-                                            start_dom_i, end_dom_i,     &
-                                            start_dom_j, end_dom_j,     &
+                           call smth_desmth(field,                      &
+                                            start_patch_i, end_patch_i, &
+                                            start_patch_j, end_patch_j, &
                                             sm1,         em1,           &
                                             sm2,         em2,           &
-                                            min_level, max_level, &
+                                            min_level, max_level,       &
                                             smth_passes, msg_fill_val)
                         else if (smth_opt == SMTHDESMTH_SPECIAL) then
-                           call smth_desmth_special(field,        &
-                                            start_dom_i, end_dom_i,     &
-                                            start_dom_j, end_dom_j,     &
+                           call smth_desmth_special(field,              &
+                                            start_patch_i, end_patch_i, &
+                                            start_patch_j, end_patch_j, &
                                             sm1,         em1,           &
                                             sm2,         em2,           &
-                                            min_level, max_level, &
+                                            min_level, max_level,       &
                                             smth_passes, msg_fill_val)
                        end if
   
@@ -701,21 +704,24 @@ module process_tile_module
                         end if
   
                         if (smth_opt == ONETWOONE) then
-                           call one_two_one_egrid(field,          &
-                                            start_dom_i, end_dom_i,     &
-                                            start_dom_j, end_dom_j,     &
-                                            sm1,         em1,           &
-                                            sm2,         em2,           &
-                                            min_level, max_level, &
-                                            smth_passes, topo_flag_val, mass_flag)
-                        else if (smth_opt == SMTHDESMTH) then
-                           call smth_desmth_egrid(field,          &
+                           call one_two_one_egrid(field,                &
                                             start_patch_i, end_patch_i, &
                                             start_patch_j, end_patch_j, &
                                             sm1,         em1,           &
                                             sm2,         em2,           &
-                                            min_level, max_level, &
+                                            min_level, max_level,       &
                                             smth_passes, topo_flag_val, mass_flag)
+                        else if (smth_opt == SMTHDESMTH) then
+                           call smth_desmth_egrid(field,                &
+                                            start_patch_i, end_patch_i, &
+                                            start_patch_j, end_patch_j, &
+                                            sm1,         em1,           &
+                                            sm2,         em2,           &
+                                            min_level, max_level,       &
+                                            smth_passes, topo_flag_val, mass_flag)
+                        else if (smth_opt == SMTHDESMTH_SPECIAL) then
+                           call mprintf(.true.,WARN,'smth-desmth_special is not currently implemented for NMM. '// &
+                                                    'No smoothing will be done.')
                         end if
   
                      end if
@@ -825,24 +831,24 @@ module process_tile_module
                         if (grid_type == 'C') then
                            if (smth_opt == ONETWOONE) then
                               call one_two_one(field,                    &
-                                             start_dom_i, end_dom_i,     &
-                                             start_dom_j, end_dom_j,     &
+                                             start_patch_i, end_patch_i, &
+                                             start_patch_j, end_patch_j, &
                                              sm1,         em1,           &
                                              sm2,         em2,           &
                                              min_category, max_category, &
                                              smth_passes, msg_fill_val)
                            else if (smth_opt == SMTHDESMTH) then
                               call smth_desmth(field,                    &
-                                             start_dom_i, end_dom_i,     &
-                                             start_dom_j, end_dom_j,     &
+                                             start_patch_i, end_patch_i, &
+                                             start_patch_j, end_patch_j, &
                                              sm1,         em1,           &
                                              sm2,         em2,           &
                                              min_category, max_category, &
                                              smth_passes, msg_fill_val)
                            else if (smth_opt == SMTHDESMTH_SPECIAL) then
                               call smth_desmth_special(field,            &
-                                             start_dom_i, end_dom_i,     &
-                                             start_dom_j, end_dom_j,     &
+                                             start_patch_i, end_patch_i, &
+                                             start_patch_j, end_patch_j, &
                                              sm1,         em1,           &
                                              sm2,         em2,           &
                                              min_category, max_category, &
@@ -851,8 +857,8 @@ module process_tile_module
                         else if (grid_type == 'E') then
                            if (smth_opt == ONETWOONE) then
                               call one_two_one_egrid(field,              &
-                                             start_dom_i, end_dom_i,     &
-                                             start_dom_j, end_dom_j,     &
+                                             start_patch_i, end_patch_i, &
+                                             start_patch_j, end_patch_j, &
                                              sm1,         em1,           &
                                              sm2,         em2,           &
                                              min_category, max_category, &
@@ -865,6 +871,9 @@ module process_tile_module
                                              sm2,         em2,           &
                                              min_category, max_category, &
                                              smth_passes, msg_fill_val, 1.0)
+                           else if (smth_opt == SMTHDESMTH_SPECIAL) then
+                              call mprintf(.true.,WARN,'smth-desmth_special is not currently implemented for NMM. '// &
+                                                       'No smoothing will be done.')
                            end if
                         end if
                      end if

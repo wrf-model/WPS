@@ -36,6 +36,7 @@ module smooth_module
       allocate(scratch(start_x+1:end_x-1, start_y:end_y, start_z:end_z))
   
       do ipass=1,npass
+
          do iy=start_y,end_y
             do ix=start_x+1,end_x-1
                do iz=start_z,end_z
@@ -51,6 +52,11 @@ module smooth_module
                end do
              end do
           end do
+
+         call exchange_halo_r(array, &
+                              start_x, end_x, start_y, end_y, start_z, end_z, &
+                              start_dom_x, end_dom_x, start_dom_y, end_dom_y, start_z, end_z)
+
       end do
   
       deallocate(scratch)
@@ -83,6 +89,7 @@ module smooth_module
       allocate(scratch(start_x+1:end_x-1, start_y:end_y, start_z:end_z))
   
       do ipass=1,npass
+
          !
          ! Smoothing pass
          !
@@ -101,6 +108,10 @@ module smooth_module
                end do
             end do
          end do
+
+         call exchange_halo_r(array, &
+                              start_x, end_x, start_y, end_y, start_z, end_z, &
+                              start_dom_x, end_dom_x, start_dom_y, end_dom_y, start_z, end_z)
    
          !
          ! Desmoothing pass
@@ -120,6 +131,10 @@ module smooth_module
                end do
             end do
          end do
+
+         call exchange_halo_r(array, &
+                              start_x, end_x, start_y, end_y, start_z, end_z, &
+                              start_dom_x, end_dom_x, start_dom_y, end_dom_y, start_z, end_z)
 
       end do
   
@@ -158,6 +173,7 @@ module smooth_module
       orig_array = array
 
       do ipass=1,npass
+
          !
          ! Smoothing pass
          !
@@ -177,6 +193,10 @@ module smooth_module
             end do
          end do
 
+         call exchange_halo_r(array, &
+                              start_x, end_x, start_y, end_y, start_z, end_z, &
+                              start_dom_x, end_dom_x, start_dom_y, end_dom_y, start_z, end_z)
+
          !
          ! Desmoothing pass
          !
@@ -195,6 +215,10 @@ module smooth_module
                end do
             end do
          end do
+
+         call exchange_halo_r(array, &
+                              start_x, end_x, start_y, end_y, start_z, end_z, &
+                              start_dom_x, end_dom_x, start_dom_y, end_dom_y, start_z, end_z)
 
       end do
 
@@ -302,6 +326,10 @@ module smooth_module
                end do
             end do
          end do
+
+         call exchange_halo_r(array, &
+                              start_x, end_x, start_y, end_y, start_z, end_z, &
+                              start_dom_x, end_dom_x, start_dom_y, end_dom_y, start_z, end_z)
 
       end do
 
