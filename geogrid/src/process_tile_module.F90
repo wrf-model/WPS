@@ -1725,32 +1725,32 @@ module process_tile_module
          do k=start_mem_k,end_mem_k
             do i=start_mem_i, end_mem_i
                do j=start_mem_j+1, end_mem_j-1
-                  dst_arr(i,j,k) = (src_arr(i,j+1,k) - src_arr(i,j-1,k))/(2.*dykm*1000.*mapfac(i,j))
+                  dst_arr(i,j,k) = (src_arr(i,j+1,k) - src_arr(i,j-1,k))/(2.*dykm*mapfac(i,j))
                end do
             end do
      
             do i=start_mem_i, end_mem_i
-               dst_arr(i,start_mem_j,k) = (src_arr(i,start_mem_j+1,k) - src_arr(i,start_mem_j,k))/(dykm*1000.*mapfac(i,j))
+               dst_arr(i,start_mem_j,k) = (src_arr(i,start_mem_j+1,k) - src_arr(i,start_mem_j,k))/(dykm*mapfac(i,j))
             end do
      
             do i=start_mem_i, end_mem_i
-               dst_arr(i,end_mem_j,k) = (src_arr(i,end_mem_j,k) - src_arr(i,end_mem_j-1,k))/(dykm*1000.*mapfac(i,j))
+               dst_arr(i,end_mem_j,k) = (src_arr(i,end_mem_j,k) - src_arr(i,end_mem_j-1,k))/(dykm*mapfac(i,j))
             end do
          end do
       else
          do k=start_mem_k,end_mem_k
             do i=start_mem_i, end_mem_i
                do j=start_mem_j+1, end_mem_j-1
-                  dst_arr(i,j,k) = (src_arr(i,j+1,k) - src_arr(i,j-1,k))/(2.*dykm*1000.)
+                  dst_arr(i,j,k) = (src_arr(i,j+1,k) - src_arr(i,j-1,k))/(2.*dykm)
                end do
             end do
      
             do i=start_mem_i, end_mem_i
-               dst_arr(i,start_mem_j,k) = (src_arr(i,start_mem_j+1,k) - src_arr(i,start_mem_j,k))/(dykm*1000.)
+               dst_arr(i,start_mem_j,k) = (src_arr(i,start_mem_j+1,k) - src_arr(i,start_mem_j,k))/(dykm)
             end do
      
             do i=start_mem_i, end_mem_i
-               dst_arr(i,end_mem_j,k) = (src_arr(i,end_mem_j,k) - src_arr(i,end_mem_j-1,k))/(dykm*1000.)
+               dst_arr(i,end_mem_j,k) = (src_arr(i,end_mem_j,k) - src_arr(i,end_mem_j-1,k))/(dykm)
             end do
          end do
       end if
@@ -1785,32 +1785,32 @@ module process_tile_module
          do k=start_mem_k, end_mem_k
             do i=start_mem_i+1, end_mem_i-1
                do j=start_mem_j, end_mem_j
-                  dst_arr(i,j,k) = (src_arr(i+1,j,k) - src_arr(i-1,j,k))/(2.*dxkm*1000.*mapfac(i,j))
+                  dst_arr(i,j,k) = (src_arr(i+1,j,k) - src_arr(i-1,j,k))/(2.*dxkm*mapfac(i,j))
                end do
             end do
      
             do j=start_mem_j, end_mem_j
-               dst_arr(start_mem_i,j,k) = (src_arr(start_mem_i+1,j,k) - src_arr(start_mem_i,j,k))/(dxkm*1000.*mapfac(i,j))
+               dst_arr(start_mem_i,j,k) = (src_arr(start_mem_i+1,j,k) - src_arr(start_mem_i,j,k))/(dxkm*mapfac(i,j))
             end do
      
             do j=start_mem_j, end_mem_j
-               dst_arr(end_mem_i,j,k) = (src_arr(end_mem_i,j,k) - src_arr(end_mem_i-1,j,k))/(dxkm*1000.*mapfac(i,j))
+               dst_arr(end_mem_i,j,k) = (src_arr(end_mem_i,j,k) - src_arr(end_mem_i-1,j,k))/(dxkm*mapfac(i,j))
             end do
          end do
       else
          do k=start_mem_k, end_mem_k
             do i=start_mem_i+1, end_mem_i-1
                do j=start_mem_j, end_mem_j
-                  dst_arr(i,j,k) = (src_arr(i+1,j,k) - src_arr(i-1,j,k))/(2.*dxkm*1000.)
+                  dst_arr(i,j,k) = (src_arr(i+1,j,k) - src_arr(i-1,j,k))/(2.*dxkm)
                end do
             end do
      
             do j=start_mem_j, end_mem_j
-               dst_arr(start_mem_i,j,k) = (src_arr(start_mem_i+1,j,k) - src_arr(start_mem_i,j,k))/(dxkm*1000.)
+               dst_arr(start_mem_i,j,k) = (src_arr(start_mem_i+1,j,k) - src_arr(start_mem_i,j,k))/(dxkm)
             end do
      
             do j=start_mem_j, end_mem_j
-               dst_arr(end_mem_i,j,k) = (src_arr(end_mem_i,j,k) - src_arr(end_mem_i-1,j,k))/(dxkm*1000.)
+               dst_arr(end_mem_i,j,k) = (src_arr(end_mem_i,j,k) - src_arr(end_mem_i-1,j,k))/(dxkm)
             end do
          end do
       end if
