@@ -457,6 +457,33 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_level, out_f
            endif
         endif
 
+!
+! If surface SNOW is missing, see if we can compute SNOW from SNOWRUC
+! (From Wei Wang, 2007 June 21)
+!
+        if (.not. is_there(200100, 'SNOW') .and. &
+             is_there(200100, 'SNOWRUC')) then
+           call get_dims(200100, 'SNOWRUC')
+           allocate(scr2d(map%nx,map%ny))
+           call get_storage(200100, 'SNOWRUC', scr2d, map%nx, map%ny)
+           scr2d = scr2d * 1000.
+           call put_storage(200100, 'SNOW',   scr2d, map%nx, map%ny)
+           deallocate(scr2d)
+        endif
+!
+! Check to see if we need to fill SOILHGT from SOILGEO.
+! (From Wei Wang, 2007 June 21)
+!
+        if (.not. is_there(200100, 'SOILHGT') .and. &
+             is_there(200100, 'SOILGEO')) then
+           call get_dims(200100, 'SOILGEO')
+           allocate(scr2d(map%nx,map%ny))
+           call get_storage(200100, 'SOILGEO', scr2d, map%nx, map%ny)
+           scr2d = scr2d / 9.81
+           call put_storage(200100, 'SOILHGT', scr2d, map%nx, map%ny)
+           deallocate(scr2d)
+        endif
+
 ! If we've got a SEAICE field, make sure that it is all Zeros and Ones:
 
         if (is_there(200100, 'SEAICE')) then
