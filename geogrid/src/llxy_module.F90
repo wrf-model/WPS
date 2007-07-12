@@ -76,6 +76,14 @@ module llxy_module
                       dx=user_dxkm, &
                       r_earth=earth_radius)
   
+      else if (iprojection == PROJ_CYL) then
+         call mprintf(.true.,ERROR,'Should not have PROJ_CYL as projection for ' &
+                          //'source data in push_source_projection()')
+  
+      else if (iprojection == PROJ_CASSINI) then
+         call mprintf(.true.,ERROR,'Should not have PROJ_CASSINI as projection for ' &
+                          //'source data in push_source_projection()')
+  
       else if (iprojection == PROJ_LC) then
          call map_set(iprojection, proj_stack(SOURCE_PROJ), &
                       truelat1=user_truelat1, &
@@ -164,7 +172,8 @@ module llxy_module
    subroutine set_domain_projection(iprojection, user_stand_lon, user_truelat1, user_truelat2, &
                                   user_dxkm, user_dykm, user_dlat, user_dlon, &
                                   user_xdim, user_ydim, user_known_x, &
-                                  user_known_y, user_known_lat, user_known_lon, earth_radius)
+                                  user_known_y, user_known_lat, user_known_lon, &
+                                  user_pole_lat, user_pole_lon, earth_radius)
  
       implicit none
   
@@ -173,7 +182,8 @@ module llxy_module
       integer, intent(in) :: user_xdim, user_ydim
       real, intent(in) :: user_stand_lon, user_truelat1, user_truelat2, &
                           user_dxkm, user_dykm, user_dlat, user_dlon, &
-                          user_known_x, user_known_y, user_known_lat, user_known_lon
+                          user_known_x, user_known_y, user_known_lat, user_known_lon, &
+                          user_pole_lat, user_pole_lon
       real, intent(in), optional :: earth_radius
   
       current_nest_number = 1
@@ -196,6 +206,26 @@ module llxy_module
                       knowni=user_known_x, &
                       knownj=user_known_y, &
                       dx=user_dxkm, &
+                      r_earth=earth_radius)
+  
+      else if (iprojection == PROJ_CYL) then
+         call map_set(iprojection, proj_stack(current_nest_number), &
+                      latinc=user_dlat, &
+                      loninc=user_dlon, &
+                      stdlon=user_stand_lon, &
+                      r_earth=earth_radius)
+  
+      else if (iprojection == PROJ_CASSINI) then
+         call map_set(iprojection, proj_stack(current_nest_number), &
+                      latinc=user_dlat, &
+                      loninc=user_dlon, &
+                      stdlon=user_stand_lon, &
+                      lat1=user_known_lat, &
+                      lon1=user_known_lon, &
+                      lat0=user_pole_lat, &
+                      lon0=user_pole_lon, &
+                      knowni=user_known_x, &
+                      knownj=user_known_y, &
                       r_earth=earth_radius)
   
       else if (iprojection == PROJ_LC) then
@@ -281,7 +311,8 @@ module llxy_module
   
       ! Local variables
       integer :: i
-      real :: temp_known_x, temp_known_y, temp_known_lat, temp_known_lon, temp_dxkm, temp_dykm
+      real :: temp_known_x, temp_known_y, temp_known_lat, temp_known_lon, &
+              temp_dxkm, temp_dykm
   
       ! Set location of coarse/mother domain
       call map_init(proj_stack(1))
@@ -301,6 +332,24 @@ module llxy_module
                       knowni=known_x, &
                       knownj=known_y, &
                       dx=dxkm)
+  
+      else if (iproj_type == PROJ_CYL) then
+         call map_set(iproj_type, proj_stack(1), &
+                      latinc=dlatdeg, &
+                      loninc=dlondeg, &
+                      stdlon=stand_lon)
+  
+      else if (iproj_type == PROJ_CASSINI) then
+         call map_set(iproj_type, proj_stack(1), &
+                      latinc=dlatdeg, &
+                      loninc=dlondeg, &
+                      stdlon=stand_lon, &
+                      knowni=known_x, &
+                      knownj=known_y, &
+                      lat0=pole_lat, &
+                      lon0=pole_lon, &
+                      lat1=known_lat, &
+                      lon1=known_lon)
   
       else if (iproj_type == PROJ_LC) then
          call map_set(iproj_type, proj_stack(1), &
@@ -372,6 +421,7 @@ module llxy_module
   
          temp_known_x = real(ixdim(i))/2.
          temp_known_y = real(jydim(i))/2.
+
          call find_known_latlon(i, temp_known_x, temp_known_y, &
                                 temp_known_lat, temp_known_lon, &
                                 temp_dxkm, temp_dykm)      
@@ -391,6 +441,22 @@ module llxy_module
                          knowni=temp_known_x, &
                          knownj=temp_known_y, &
                          dx=temp_dxkm)
+    
+         else if (iproj_type == PROJ_CYL) then
+            call mprintf(.true.,ERROR,'Don''t know how to do nesting with PROJ_CYL ' &
+                                      //'in compute_nest_locations()')
+  
+         else if (iproj_type == PROJ_CASSINI) then
+            call map_set(iproj_type, proj_stack(i), &
+                         latinc=temp_dykm, &
+                         loninc=temp_dxkm, &
+                         stdlon=stand_lon, &
+                         knowni=temp_known_x, &
+                         knownj=temp_known_y, &
+                         lat0=pole_lat, &
+                         lon0=pole_lon, &
+                         lat1=temp_known_lat, &
+                         lon1=temp_known_lon)
     
          else if (iproj_type == PROJ_LC) then
             call map_set(iproj_type, proj_stack(i), &

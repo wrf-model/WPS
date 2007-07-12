@@ -142,6 +142,8 @@ MODULE map_utils
       INTEGER          :: code     ! Integer code for projection TYPE
       INTEGER          :: nlat     ! For Gaussian -- number of latitude points 
                                    !  north of the equator 
+      INTEGER          :: nlon     !
+                                   !
       INTEGER          :: ixdim    ! For Rotated Lat/Lon -- number of mass points
                                    !  in an odd row
       INTEGER          :: jydim    ! For Rotated Lat/Lon -- number of rows
@@ -152,7 +154,11 @@ MODULE map_utils
                                    !  degrees longitude
       REAL             :: lat1     ! SW latitude (1,1) in degrees (-90->90N)
       REAL             :: lon1     ! SW longitude (1,1) in degrees (-180->180E)
+      REAL             :: lat0     ! For Cassini, latitude of projection pole
+      REAL             :: lon0     ! For Cassini, longitude of projection pole
       REAL             :: dx       ! Grid spacing in meters at truelats, used
+                                   !  only for ps, lc, and merc projections
+      REAL             :: dy       ! Grid spacing in meters at truelats, used
                                    !  only for ps, lc, and merc projections
       REAL             :: latinc   ! Latitude increment for cylindrical lat/lon
       REAL             :: loninc   ! Longitude increment for cylindrical lat/lon
@@ -194,7 +200,10 @@ MODULE map_utils
   
       proj%lat1     = -999.9
       proj%lon1     = -999.9
+      proj%lat0     = -999.9
+      proj%lon0     = -999.9
       proj%dx       = -999.9
+      proj%dy       = -999.9
       proj%latinc   = -999.9
       proj%loninc   = -999.9
       proj%stdlon   = -999.9
@@ -206,6 +215,7 @@ MODULE map_utils
       proj%jydim    = -999.9
       proj%stagger  = HH
       proj%nlat     = 0
+      proj%nlon     = 0
       proj%hemi     = 0.0
       proj%cone     = -999.9
       proj%polei    = -999.9
@@ -224,8 +234,8 @@ MODULE map_utils
    END SUBROUTINE map_init
 
 
-   SUBROUTINE map_set(proj_code, proj, lat1, lon1, knowni, knownj, dx, latinc, &
-                      loninc, stdlon, truelat1, truelat2, nlat, ixdim, jydim, &
+   SUBROUTINE map_set(proj_code, proj, lat1, lon1, lat0, lon0, knowni, knownj, dx, latinc, &
+                      loninc, stdlon, truelat1, truelat2, nlat, nlon, ixdim, jydim, &
                       stagger, phi, lambda, r_earth)
       ! Given a partially filled proj_info structure, this routine computes
       ! polei, polej, rsw, and cone (if LC projection) to complete the 
@@ -242,6 +252,7 @@ MODULE map_utils
       ! Declare arguments
       INTEGER, INTENT(IN)               :: proj_code
       INTEGER, INTENT(IN), OPTIONAL     :: nlat
+      INTEGER, INTENT(IN), OPTIONAL     :: nlon
       INTEGER, INTENT(IN), OPTIONAL     :: ixdim
       INTEGER, INTENT(IN), OPTIONAL     :: jydim
       INTEGER, INTENT(IN), OPTIONAL     :: stagger
@@ -249,6 +260,8 @@ MODULE map_utils
       REAL, INTENT(IN), OPTIONAL        :: loninc
       REAL, INTENT(IN), OPTIONAL        :: lat1
       REAL, INTENT(IN), OPTIONAL        :: lon1
+      REAL, INTENT(IN), OPTIONAL        :: lat0
+      REAL, INTENT(IN), OPTIONAL        :: lon0
       REAL, INTENT(IN), OPTIONAL        :: dx
       REAL, INTENT(IN), OPTIONAL        :: stdlon
       REAL, INTENT(IN), OPTIONAL        :: truelat1
@@ -262,6 +275,7 @@ MODULE map_utils
 
       INTEGER :: iter
       REAL :: dummy_lon1
+      REAL :: dummy_lon0
       REAL :: dummy_stdlon
   
       ! First, verify that mandatory parameters are present for the specified proj_code
@@ -337,6 +351,28 @@ MODULE map_utils
             PRINT '(A)', ' latinc, loninc, knowni, knownj, lat1, lon1'
             call mprintf(.true.,ERROR,'MAP_INIT')
          END IF
+      ELSE IF ( proj_code == PROJ_CYL ) THEN
+         IF ( .NOT.PRESENT(latinc) .OR. &
+              .NOT.PRESENT(loninc) .OR. &
+              .NOT.PRESENT(stdlon) ) THEN
+            PRINT '(A,I2)', 'The following are mandatory parameters for projection code : ', proj_code
+            PRINT '(A)', ' latinc, loninc, stdlon'
+            call mprintf(.true.,ERROR,'MAP_INIT')
+         END IF
+      ELSE IF ( proj_code == PROJ_CASSINI ) THEN
+         IF ( .NOT.PRESENT(latinc) .OR. &
+              .NOT.PRESENT(loninc) .OR. &
+              .NOT.PRESENT(lat1) .OR. &
+              .NOT.PRESENT(lon1) .OR. &
+              .NOT.PRESENT(lat0) .OR. &
+              .NOT.PRESENT(lon0) .OR. &
+              .NOT.PRESENT(knowni) .OR. &
+              .NOT.PRESENT(knownj) .OR. &
+              .NOT.PRESENT(stdlon) ) THEN
+            PRINT '(A,I2)', 'The following are mandatory parameters for projection code : ', proj_code
+            PRINT '(A)', ' latinc, loninc, lat1, lon1, knowni, knownj, lat0, lon0, stdlon'
+            call mprintf(.true.,ERROR,'MAP_INIT')
+         END IF
       ELSE IF ( proj_code == PROJ_GAUSS ) THEN
          IF ( .NOT.PRESENT(nlat) .OR. &
               .NOT.PRESENT(lat1) .OR. &
@@ -389,6 +425,23 @@ MODULE map_utils
          ENDIF
       ENDIF
   
+      IF ( PRESENT(lon0) ) THEN
+         dummy_lon0 = lon0
+         IF ( ABS(dummy_lon0) .GT. 180.) THEN
+            iter = 0 
+            DO WHILE (ABS(dummy_lon0) > 180. .AND. iter < 10)
+               IF (dummy_lon0 < -180.) dummy_lon0 = dummy_lon0 + 360.
+               IF (dummy_lon0 > 180.) dummy_lon0 = dummy_lon0 - 360.
+               iter = iter + 1
+            END DO
+            IF (abs(dummy_lon0) > 180.) THEN
+               PRINT '(A)', 'Longitude of pole required as follows:'
+               PRINT '(A)', '   -180E <= lon0 <= 180W'
+               call mprintf(.true.,ERROR,'MAP_INIT')
+            ENDIF
+         ENDIF
+      ENDIF
+  
       IF ( PRESENT(dx) ) THEN
          IF ((dx .LE. 0.).AND.(proj_code .NE. PROJ_LATLON)) THEN
             PRINT '(A)', 'Require grid spacing (dx) in meters be positive!'
@@ -424,6 +477,8 @@ MODULE map_utils
       proj%code  = proj_code
       IF ( PRESENT(lat1) )     proj%lat1     = lat1
       IF ( PRESENT(lon1) )     proj%lon1     = dummy_lon1
+      IF ( PRESENT(lat0) )     proj%lat0     = lat0
+      IF ( PRESENT(lon0) )     proj%lon0     = dummy_lon0
       IF ( PRESENT(latinc) )   proj%latinc   = latinc
       IF ( PRESENT(loninc) )   proj%loninc   = loninc
       IF ( PRESENT(knowni) )   proj%knowni   = knowni
@@ -433,6 +488,7 @@ MODULE map_utils
       IF ( PRESENT(truelat1) ) proj%truelat1 = truelat1
       IF ( PRESENT(truelat2) ) proj%truelat2 = truelat2
       IF ( PRESENT(nlat) )     proj%nlat     = nlat
+      IF ( PRESENT(nlon) )     proj%nlon     = nlon
       IF ( PRESENT(ixdim) )    proj%ixdim    = ixdim
       IF ( PRESENT(jydim) )    proj%jydim    = jydim
       IF ( PRESENT(stagger) )  proj%stagger  = stagger
@@ -467,8 +523,6 @@ MODULE map_utils
    
          CASE(PROJ_LC)
             IF (ABS(proj%truelat2) .GT. 90.) THEN
-!               PRINT '(A)', 'Second true latitude not set, assuming a tangent'
-!               PRINT '(A,F10.3)', 'projection at truelat1: ', proj%truelat1
                proj%truelat2=proj%truelat1
             ENDIF
             CALL set_lc(proj)
@@ -480,6 +534,12 @@ MODULE map_utils
    
          CASE (PROJ_GAUSS)
             CALL set_gauss(proj)
+      
+         CASE (PROJ_CYL)
+            CALL set_cyl(proj)
+      
+         CASE (PROJ_CASSINI)
+            CALL set_cassini(proj)
       
          CASE (PROJ_ROTLL)
      
@@ -530,6 +590,12 @@ MODULE map_utils
          CASE(PROJ_GAUSS)
             CALL llij_gauss(lat,lon,proj,i,j)
    
+         CASE(PROJ_CYL)
+            CALL llij_cyl(lat,lon,proj,i,j)
+
+         CASE(PROJ_CASSINI)
+            CALL llij_cassini(lat,lon,proj,i,j)
+
          CASE(PROJ_ROTLL)
             CALL llij_rotlatlon(lat,lon,proj,i,j)
    
@@ -578,6 +644,12 @@ MODULE map_utils
    
          CASE (PROJ_LC)
             CALL ijll_lc(i, j, proj, lat, lon)
+   
+         CASE (PROJ_CYL)
+            CALL ijll_cyl(i, j, proj, lat, lon)
+   
+         CASE (PROJ_CASSINI)
+            CALL ijll_cassini(i, j, proj, lat, lon)
    
          CASE (PROJ_ROTLL)
             CALL ijll_rotlatlon(i, j, proj, lat, lon)
@@ -1286,7 +1358,6 @@ MODULE map_utils
   
       REAL                         :: deltalat
       REAL                         :: deltalon
-      REAL                         :: lon360
   
       ! Compute deltalat and deltalon as the difference between the input 
       ! lat/lon and the origin lat/lon
@@ -1318,7 +1389,6 @@ MODULE map_utils
       REAL                         :: i_work, j_work
       REAL                         :: deltalat
       REAL                         :: deltalon
-      REAL                         :: lon360
   
       i_work = i - proj%knowni
       j_work = j - proj%knownj
@@ -1333,6 +1403,227 @@ MODULE map_utils
       RETURN
 
    END SUBROUTINE ijll_latlon
+
+
+   SUBROUTINE set_cyl(proj)
+
+      implicit none
+
+      ! Arguments
+      type(proj_info), intent(inout) :: proj
+
+      proj%hemi = 1.0
+
+   END SUBROUTINE set_cyl
+
+
+   SUBROUTINE llij_cyl(lat, lon, proj, i, j)
+
+      implicit none
+    
+      ! Arguments
+      real, intent(in) :: lat, lon
+      real, intent(out) :: i, j
+      type(proj_info), intent(in) :: proj
+
+      ! Local variables
+      real :: deltalat
+      real :: deltalon
+
+      ! Compute deltalat and deltalon as the difference between the input
+      ! lat/lon and the origin lat/lon
+      deltalat = lat - proj%lat1
+!      deltalon = lon - proj%stdlon
+      deltalon = lon - proj%lon1
+
+      if (deltalon <   0.) deltalon = deltalon + 360.
+      if (deltalon > 360.) deltalon = deltalon - 360.
+
+      ! Compute i/j
+      i = deltalon/proj%loninc
+      j = deltalat/proj%latinc
+
+      if (i <= 0.)              i = i + 360./proj%loninc
+      if (i > 360./proj%loninc) i = i - 360./proj%loninc
+
+      i = i + proj%knowni
+      j = j + proj%knowni
+
+   END SUBROUTINE llij_cyl
+
+
+   SUBROUTINE ijll_cyl(i, j, proj, lat, lon)
+   
+      implicit none
+    
+      ! Arguments
+      real, intent(in) :: i, j
+      real, intent(out) :: lat, lon
+      type(proj_info), intent(in) :: proj
+
+      ! Local variables
+      real :: deltalat
+      real :: deltalon
+      real :: i_work, j_work
+
+      i_work = i - proj%knowni 
+      j_work = j - proj%knownj
+
+      if (i_work < 0.)              i_work = i_work + 360./proj%loninc
+      if (i_work >= 360./proj%loninc) i_work = i_work - 360./proj%loninc
+
+      ! Compute deltalat and deltalon
+      deltalat = j_work*proj%latinc
+      deltalon = i_work*proj%loninc
+
+      lat = deltalat + proj%lat1
+!      lon = deltalon + proj%stdlon
+      lon = deltalon + proj%lon1
+
+      if (lon < -180.) lon = lon + 360.
+      if (lon >  180.) lon = lon - 360.
+
+   END SUBROUTINE ijll_cyl
+
+
+   SUBROUTINE set_cassini(proj)
+
+      implicit none
+
+      ! Arguments
+      type(proj_info), intent(inout) :: proj
+
+      ! Local variables
+      real :: comp_lat, comp_lon
+      logical :: global_domain
+
+      proj%hemi = 1.0
+
+      ! Try to determine whether this domain has global coverage
+      if (abs(proj%lat1 - proj%latinc/2. + 90.) < 0.001 .and. &
+          abs(mod(proj%lon1 - proj%loninc/2. - proj%stdlon,360.)) < 0.001) then
+         global_domain = .true.
+      else
+         global_domain = .false.
+      end if
+
+      if (abs(proj%lat0) /= 90. .and. .not.global_domain) then
+         call rotate_coords(proj%lat1,proj%lon1,comp_lat,comp_lon,proj%lat0,proj%lon0,proj%stdlon,-1)
+         proj%lat1 = comp_lat
+         proj%lon1 = comp_lon
+      end if
+
+   END SUBROUTINE set_cassini
+
+
+   SUBROUTINE llij_cassini(lat, lon, proj, i, j)
+
+      implicit none
+    
+      ! Arguments
+      real, intent(in) :: lat, lon
+      real, intent(out) :: i, j
+      type(proj_info), intent(in) :: proj
+
+      ! Local variables
+      real :: comp_lat, comp_lon
+
+      ! Convert geographic to computational lat/lon
+      if (abs(proj%lat0) /= 90.) then
+         call rotate_coords(lat,lon,comp_lat,comp_lon,proj%lat0,proj%lon0,proj%stdlon,-1)
+      else
+         comp_lat = lat
+         comp_lon = lon
+      end if
+
+      ! Convert computational lat/lon to i/j
+      call llij_cyl(comp_lat, comp_lon, proj, i, j)
+
+   END SUBROUTINE llij_cassini
+
+
+   SUBROUTINE ijll_cassini(i, j, proj, lat, lon)
+   
+      implicit none
+    
+      ! Arguments
+      real, intent(in) :: i, j
+      real, intent(out) :: lat, lon
+      type(proj_info), intent(in) :: proj
+
+      ! Local variables
+      real :: comp_lat, comp_lon
+
+      ! Convert i/j to computational lat/lon
+      call ijll_cyl(i, j, proj, comp_lat, comp_lon)
+
+      ! Convert computational to geographic lat/lon
+      if (abs(proj%lat0) /= 90.) then
+         call rotate_coords(comp_lat,comp_lon,lat,lon,proj%lat0,proj%lon0,proj%stdlon,1)
+      else
+         lat = comp_lat
+         lon = comp_lon
+      end if
+
+   END SUBROUTINE ijll_cassini
+
+
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
+   ! Purpose: Converts between computational and geographic lat/lon for Cassini
+   !          
+   ! Notes: This routine was provided by Bill Skamarock, 2007-03-27
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
+   SUBROUTINE rotate_coords(ilat,ilon,olat,olon,lat_np,lon_np,lon_0,direction)
+
+      IMPLICIT NONE
+
+      REAL, INTENT(IN   ) :: ilat, ilon
+      REAL, INTENT(  OUT) :: olat, olon
+      REAL, INTENT(IN   ) :: lat_np, lon_np, lon_0
+      INTEGER, INTENT(IN  ), OPTIONAL :: direction
+      ! >=0, default : computational -> geographical
+      ! < 0          : geographical  -> computational
+
+      REAL :: rlat, rlon
+      REAL :: phi_np, lam_np, lam_0, dlam
+      REAL :: sinphi, cosphi, coslam, sinlam
+
+      ! Convert all angles to radians
+      phi_np = lat_np * rad_per_deg
+      lam_np = lon_np * rad_per_deg
+      lam_0  = lon_0  * rad_per_deg
+      rlat = ilat * rad_per_deg
+      rlon = ilon * rad_per_deg
+
+      IF (PRESENT(direction) .AND. (direction < 0)) THEN
+         ! The equations are exactly the same except for one small difference
+         ! with respect to longitude ...
+         dlam = PI - lam_0
+      ELSE
+         dlam = lam_np
+      END IF
+      sinphi = COS(phi_np)*COS(rlat)*COS(rlon-dlam) + SIN(phi_np)*SIN(rlat)
+      cosphi = SQRT(1.-sinphi*sinphi)
+      coslam = SIN(phi_np)*COS(rlat)*COS(rlon-dlam) - COS(phi_np)*SIN(rlat)
+      sinlam = COS(rlat)*SIN(rlon-dlam)
+      IF ( cosphi /= 0. ) THEN
+         coslam = coslam/cosphi
+         sinlam = sinlam/cosphi
+      END IF
+      olat = deg_per_rad*ASIN(sinphi)
+      olon = deg_per_rad*(ATAN2(sinlam,coslam)-dlam-lam_0+lam_np)
+      ! Both of my F90 text books prefer the DO-EXIT form, and claim it is faster
+      ! when optimization is turned on (as we will always do...)
+      DO
+         IF (olon >= -180.) EXIT
+         olon = olon + 360.
+      END DO
+      DO
+         IF (olon <=  180.) EXIT
+         olon = olon - 360.
+      END DO
+
+   END SUBROUTINE rotate_coords
 
 
    SUBROUTINE llij_rotlatlon(lat, lon, proj, i, j)

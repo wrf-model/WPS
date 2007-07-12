@@ -306,7 +306,8 @@ module process_domain_module
       call set_domain_projection(map_proj, stand_lon, truelat1, truelat2, &
                                  dom_dx, dom_dy, dom_dx, dom_dy, west_east_dim, &
                                  south_north_dim, real(west_east_dim)/2., &
-                                 real(south_north_dim)/2.,cen_lat, cen_lon)
+                                 real(south_north_dim)/2.,cen_lat, cen_lon, &
+                                 cen_lat, cen_lon)
    
       ! Read static fields using the input module; we know that there are no more
       !   fields to be read when read_next_field() returns a non-zero status.
@@ -931,7 +932,7 @@ integer, parameter :: BDR_WIDTH = 3
                                            we_mem_stag_e, sn_mem_e, &
                                            we_mem_s, sn_mem_stag_s, &
                                            we_mem_e, sn_mem_stag_e, &
-                                           xlon_u, xlon_v)
+                                           xlon_u, xlon_v, xlat_u, xlat_v)
                         else if (gridtype == 'E') then
                            call map_to_met_nmm(u_field%r_arr, u_field%modified_mask, &
                                                v_field%r_arr, v_field%modified_mask, &
@@ -998,7 +999,7 @@ integer, parameter :: BDR_WIDTH = 3
                                we_mem_stag_e, sn_mem_e, &
                                we_mem_s, sn_mem_stag_s, &
                                we_mem_e, sn_mem_stag_e, &
-                               xlon_u, xlon_v)
+                               xlon_u, xlon_v, xlat_u, xlat_v)
             else if (gridtype == 'E') then
                call met_to_map_nmm(u_field%r_arr, u_field%valid_mask, &
                                    v_field%r_arr, v_field%valid_mask, &
