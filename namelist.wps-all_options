@@ -10,6 +10,18 @@
 /
  start_date = '2000-01-24_12:00:00','2000-01-24_12:00:00',
  end_date   = '2000-01-25_12:00:00','2000-01-24_12:00:00',
+ start_year   = 2006, 2006,
+ start_month  =   08,   08,
+ start_day    =   16,   16,
+ start_hour   =   12,   12,
+ start_minute =   00,   00,
+ start_second =   00,   00,
+ end_year     = 2006, 2006,
+ end_month    =   08,   08,
+ end_day      =   16,   16,
+ end_hour     =   18,   12,
+ end_minute   =   00,   00,
+ end_second   =   00,   00,
 
 &geogrid
  parent_id         =   1,   1,
