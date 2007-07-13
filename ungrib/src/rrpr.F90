@@ -300,13 +300,28 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_level, out_f
            endif
         enddo
 
+!
+! If upper-air SPECHUMD is missing, see if we can compute SPECHUMD from QVAPOR:
+!--- Tanya's change for initializing WRF with RUC
+
+        do k = 1, nlvl
+           if (plvl(k).lt.200000.) then
+              if (.not. is_there(nint(plvl(k)), 'SPECHUMD').and. &
+                   is_there(nint(plvl(k)), 'QV')) then
+                 call get_dims(nint(plvl(k)), 'QV')
+                 call compute_spechumd_qvapor(map%nx, map%ny, plvl(k))
+              endif
+           endif
+        enddo
+
 !--- Tanya's change for initializing WRF with RUC
 !   This allows for the ingestion for RUC isentropic data
 !
         do k = 1, nlvl
            if (plvl(k).lt.200000.) then
               if (.not. is_there(nint(plvl(k)), 'TT').and. &
-                   is_there(nint(plvl(k)), 'VPTMP')) then
+                   is_there(nint(plvl(k)), 'VPTMP').and. &
+                   is_there(nint(plvl(k)), 'SPECHUMD')) then
                  call get_dims(nint(plvl(k)), 'VPTMP')
                  call compute_t_vptmp(map%nx, map%ny, plvl(k))
               endif
@@ -326,20 +341,6 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_level, out_f
                    ( is_there(nint(plvl(k+1)), 'TT')) ) then
                  call get_dims(nint(plvl(k+1)), 'TT')
                  call vntrp(plvl, maxlvl, k, "TT      ", map%nx, map%ny)
-              endif
-           endif
-        enddo
-
-!
-! If upper-air SPECHUMD is missing, see if we can compute SPECHUMD from QVAPOR:
-!--- Tanya's change for initializing WRF with RUC
-
-        do k = 1, nlvl
-           if (plvl(k).lt.200000.) then
-              if (.not. is_there(nint(plvl(k)), 'SPECHUMD').and. &
-                   is_there(nint(plvl(k)), 'QV')) then
-                 call get_dims(nint(plvl(k)), 'QV')
-                 call compute_spechumd_qvapor(map%nx, map%ny, plvl(k))
               endif
            endif
         enddo
