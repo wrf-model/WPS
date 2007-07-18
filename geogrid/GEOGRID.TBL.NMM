@@ -60,7 +60,6 @@ name=SOILTEMP
         rel_path=default:soiltemp_1deg/
 ===============================
 name=SOILCTOP
-        dominant=SOILCAT
         priority=1
         dest_type=categorical
         z_dim_name=soil_cat
