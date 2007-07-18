@@ -25,7 +25,7 @@ program plotgrid
    character (len=3) :: memorder
    character (len=25) :: units
    character (len=46) :: desc
-   character (len=128) :: cname, stagger, cunits, cdesc, title, startdate, grid_type, mminlu
+   character (len=128) :: init_date, cname, stagger, cunits, cdesc, title, startdate, grid_type, mminlu
    character (len=128), dimension(3) :: dimnames
 
    call opngks
@@ -90,7 +90,7 @@ program plotgrid
          stop
       end if
 
-      call read_global_attrs(title, start_date, grid_type, dyn_opt, &
+      call read_global_attrs(title, init_date, grid_type, dyn_opt, &
                              west_east_dim, south_north_dim, bottom_top_dim, &
                              we_patch_s, we_patch_e, we_patch_s_stag, we_patch_e_stag, &
                              sn_patch_s, sn_patch_e, sn_patch_s_stag, sn_patch_e_stag, &
@@ -187,7 +187,7 @@ program plotgrid
          stop
       end if
 
-      call read_global_attrs(title, start_date, grid_type, dyn_opt, &
+      call read_global_attrs(title, init_date, grid_type, dyn_opt, &
                              west_east_dim, south_north_dim, bottom_top_dim, &
                              we_patch_s, we_patch_e, we_patch_s_stag, we_patch_e_stag, &
                              sn_patch_s, sn_patch_e, sn_patch_s_stag, sn_patch_e_stag, &
