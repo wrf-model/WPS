@@ -11,8 +11,8 @@ Param| Type |Level1|Level2| Name     |  Units   | Description                   
      | 109  |   *  |      | RH       | %        | Relative Humidity                       |  0  |  1  |  1  | 105 |
      | 109  |   *  |      | TT       | K        | Temperature                             |  0  |  0  |  0  | 105 |
  129 | 102  |   0  |      | PMSL     | Pa       | Sea-level Pressure                      |  0  |  3  | 198 | 101 |
-  65 |  1   |   0  |      | WEASD    | kg m-2   | Water Equivalent Snow Depth             |  0  |  1  | 13  |   1 |
-  66 |  1   |   0  |      | SNOW     | kg m-2   | Snow Depth                              |  0  |  1  | 11  |   1 |
+  65 |  1   |   0  |      | SNOW     | kg m-2   | Water Equivalent Snow Depth             |  0  |  1  | 13  |   1 |
+  66 |  1   |   0  |      | SNOWH    | m        | Snow Depth                              |  0  |  1  | 11  |   1 |
   11 | 105  |   2  |      | TT       | K        | Temperature                             |  0  |  0  |  0  | 103 |
      | 105  |   2  |      | RH       | %        | Relative Humidity                       |  0  |  1  |  1  | 103 |
   53 | 105  |   2  |      | SPECHUMD | kg kg-1  |                                         |  0  |  1  |  0  | 103 |
