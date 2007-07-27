@@ -113,9 +113,9 @@ module proc_point_module
       type (bitarray), intent(inout) :: processed_pts, new_pts
   
       ! Local variables
-      integer :: field_idx, istatus, i, j, ilat, ilon
+      integer :: istatus, i, j
       integer, pointer, dimension(:,:,:) :: where_maps_to
-      real :: rlat, rlon, rx, ry
+      real :: rlat, rlon
 
       rlat = xlat
       if (xlon >= 180.) then
@@ -426,9 +426,9 @@ module proc_point_module
       type (bitarray), intent(inout) :: processed_pts, new_pts
   
       ! Local variables
-      integer :: field_idx, istatus, i, j, ilat, ilon
+      integer :: istatus, i, j
       integer, pointer, dimension(:,:,:) :: where_maps_to
-      real :: rlat, rlon, rx, ry
+      real :: rlat, rlon
 
       rlat = xlat
       if (xlon >= 180.) then
@@ -707,11 +707,9 @@ module proc_point_module
    ! Name: get_point 
    !
    ! Purpose: For a specified lat/lon and level, return the value of the field
-   !   interpolated to or nearest the lat/lon. When ifieldtype = CATEGORICAL,
-   !   the source data point nearest the lat/lon is returned, and when 
-   !   ifieldtype = CONTINUOUS, the source data is interpolated to the lat/lon.
+   !   interpolated to or nearest the lat/lon.
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
-   function get_point(xlat, xlon, istagger, lvl, fieldname, ifieldtype, &
+   function get_point(xlat, xlon, lvl, fieldname, &
                       ilevel, interp_type, msgval)
  
       ! Modules
@@ -721,7 +719,7 @@ module proc_point_module
       implicit none
   
       ! Arguments
-      integer, intent(in) :: istagger, lvl, ifieldtype, ilevel
+      integer, intent(in) :: lvl, ilevel
       real, intent(in) :: xlat, xlon, msgval
       character (len=128), intent(in) :: fieldname
       integer, dimension(:), intent(in) :: interp_type
@@ -730,7 +728,7 @@ module proc_point_module
       real :: get_point
   
       ! Local variables
-      integer :: ilat, ilon, field_idx, istatus, current_domain
+      integer :: istatus, current_domain
       real :: rlat, rlon, rx, ry
   
       rlat = xlat
@@ -741,7 +739,7 @@ module proc_point_module
       end if
 
       ! If tile is in memory, interpolate
-      if (ilevel == src_level .and. is_point_in_tile(rlat, rlon, istagger, ilevel) .and. fieldname == src_fieldname) then
+      if (ilevel == src_level .and. is_point_in_tile(rlat, rlon, ilevel) .and. fieldname == src_fieldname) then
   
          current_domain = iget_selected_domain()
          call select_domain(SOURCE_PROJ)
@@ -786,12 +784,12 @@ module proc_point_module
    ! Purpose: This funtion returns .true. if the tile of data for 
    !   the specified field has already been processed, and .false. otherwise.
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
-   function have_processed_tile(xlat, xlon, istagger, fieldname, ilevel)
+   function have_processed_tile(xlat, xlon, fieldname, ilevel)
  
       implicit none
   
       ! Arguments
-      integer, intent(in) :: istagger, ilevel
+      integer, intent(in) :: ilevel
       real, intent(in) :: xlat, xlon
       character (len=128), intent(in) :: fieldname
   
@@ -799,7 +797,7 @@ module proc_point_module
       logical :: have_processed_tile
   
       ! Local variables
-      integer :: field_idx, ilat, ilon, istatus
+      integer :: istatus
       character (len=256) :: test_fname
   
       call get_tile_fname(test_fname, xlat, xlon, ilevel, fieldname, istatus)
@@ -816,14 +814,14 @@ module proc_point_module
    ! Purpose: Returns whether the specified lat/lon could be processed
    !   without incurring a file access.
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
-   function is_point_in_tile(xlat, xlon, istagger, ilevel)
+   function is_point_in_tile(xlat, xlon, ilevel)
  
       use llxy_module
     
       implicit none
   
       ! Arguments
-      integer, intent(in) :: istagger, ilevel
+      integer, intent(in) :: ilevel
       real, intent(in) :: xlat, xlon
   
       ! Return value

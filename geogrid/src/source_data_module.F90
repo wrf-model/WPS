@@ -72,7 +72,7 @@ module source_data_module
       integer, parameter :: BUFSIZE = 256
   
       ! Local variables
-      integer :: nparams, idx, eos, ispace, isep, i, iquoted, funit
+      integer :: nparams, idx, eos, ispace, i, funit
       logical :: have_specification, is_used
       character (len=128) :: res_string, path_string, interp_string
       character (len=BUFSIZE) :: buffer
@@ -2374,7 +2374,7 @@ module source_data_module
       call get_row_order(field_name, ilevel, irow_order, istatus)
       if (istatus /= 0) irow_order = BOTTOM_TOP
   
-      call read_dem(29, file_name, end_x_dim-start_x_dim+1, &
+      call read_dem(file_name, end_x_dim-start_x_dim+1, &
                     end_y_dim-start_y_dim+1, end_z_dim-start_z_dim+1, &
                     local_wordsize, local_endian, array, sign_convention, irow_order, istatus)
   
@@ -2753,7 +2753,7 @@ module source_data_module
       integer :: i, j, istatus
       integer, pointer, dimension(:) :: priorities
       real :: rmissing
-      logical :: begin_priority, have_masked, have_missing, have_bad_interp, halt
+      logical :: begin_priority, halt
       character (len=128) :: cur_name
   
       check_data_specification = .false.
@@ -3085,19 +3085,19 @@ module source_data_module
    ! NOTE: This routine adapted from a routine of the same name in the 
    !       original FSL WRF SI.
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
-   subroutine read_dem(unit_no, unit_name, nn1, nn2, nn3, i1, endianness, datarr, &
+   subroutine read_dem(unit_name, nn1, nn2, nn3, i1, endianness, datarr, &
                        sign_convention, row_order, istat)
  
       implicit none
   
       ! Arguments
-      integer, intent(in) :: unit_no, nn1, nn2, nn3, i1, endianness, sign_convention, row_order
+      integer, intent(in) :: nn1, nn2, nn3, i1, endianness, sign_convention, row_order
       integer, intent(out) :: istat
       real, dimension(nn1,nn2,nn3), intent(out) :: datarr
       character (len=*), intent(in) :: unit_name
   
       ! Local variables
-      integer :: strlen, countx, county, countz
+      integer :: strlen
       integer :: j, k
       real, allocatable, dimension(:) :: temprow
   

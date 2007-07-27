@@ -420,11 +420,10 @@ module output_module
 #include "wrf_status_codes.h"
   
       ! Local variables
-      integer :: i, istagger, istatus, iunit_status, idomstatus, ifieldstatus, &
+      integer :: i, istagger, ifieldstatus, &
                  nfields, min_category, max_category
       integer :: ndims
-      logical :: only_save_dominant
-      character (len=128) :: fieldname, domname, gradname, z_dim_name
+      character (len=128) :: fieldname
       character (len=128) :: memorder, units, description
       character (len=128), dimension(3) :: dimnames 
   
@@ -852,11 +851,9 @@ module output_module
   
       ! Local variables
       integer :: i
-      integer :: istatus, iunit_status, comm_1, comm_2, domain_desc
+      integer :: istatus, comm_1, comm_2, domain_desc
       integer, dimension(3) :: sd, ed, sp, ep, sm, em
       real, pointer, dimension(:,:,:) :: real_dom_array
-      character (len=128) :: cunits
-      character (len=128) :: cdescr
       logical :: allocated_real_locally
   
       allocated_real_locally = .false.
@@ -1039,8 +1036,8 @@ module output_module
                  local_we_patch_e, local_we_patch_e_stag, &
                  local_sn_patch_s, local_sn_patch_s_stag, &
                  local_sn_patch_e, local_sn_patch_e_stag
+      integer :: i
       real, dimension(16) :: local_corner_lats, local_corner_lons
-      integer :: istatus, i
 
       local_we_patch_s      = we_patch_s
       local_we_patch_s_stag = we_patch_s_stag 

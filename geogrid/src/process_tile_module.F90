@@ -43,7 +43,7 @@ module process_tile_module
       character (len=1), intent(in) :: grid_type
     
       ! Local variables
-      integer :: i, j, k, ix, iy, istatus, ifieldstatus, idomcatstatus, field_count
+      integer :: i, j, k, istatus, ifieldstatus, idomcatstatus, field_count
       integer :: landmask_value, min_category, max_category, min_level, max_level, &
                  smth_opt, smth_passes
       integer :: start_dom_i, end_dom_i, start_dom_j, end_dom_j, end_dom_stag_i, end_dom_stag_j
@@ -155,11 +155,11 @@ module process_tile_module
       call mprintf(.true.,STDOUT,'  Processing XLAT and XLONG')
     
       if (grid_type == 'C') then
-         call get_lat_lon_fields(which_domain, xlat_array, xlon_array, start_mem_i, &
+         call get_lat_lon_fields(xlat_array, xlon_array, start_mem_i, &
                                start_mem_j, end_mem_i, end_mem_j, M)
-         call get_lat_lon_fields(which_domain, xlat_array_v, xlon_array_v, start_mem_i, &
+         call get_lat_lon_fields(xlat_array_v, xlon_array_v, start_mem_i, &
                                start_mem_j, end_mem_i, end_mem_stag_j, V)
-         call get_lat_lon_fields(which_domain, xlat_array_u, xlon_array_u, start_mem_i, &
+         call get_lat_lon_fields(xlat_array_u, xlon_array_u, start_mem_i, &
                                start_mem_j, end_mem_stag_i, end_mem_j, U)
 
          corner_lats(1) = xlat_array(start_patch_i,start_patch_j)
@@ -198,9 +198,9 @@ module process_tile_module
          corner_lons(12) = xlon_array_v(end_patch_i,start_patch_j)
      
       else if (grid_type == 'E') then
-         call get_lat_lon_fields(which_domain, xlat_array, xlon_array, start_mem_i, &
+         call get_lat_lon_fields(xlat_array, xlon_array, start_mem_i, &
                                start_mem_j, end_mem_i, end_mem_j, HH)
-         call get_lat_lon_fields(which_domain, xlat_array_v, xlon_array_v, start_mem_i, &
+         call get_lat_lon_fields(xlat_array_v, xlon_array_v, start_mem_i, &
                                start_mem_j, end_mem_i, end_mem_stag_j, VV)
    
          corner_lats(1) = xlat_array(start_patch_i,start_patch_j)
@@ -277,7 +277,7 @@ module process_tile_module
     
          allocate(mapfac_array_m_x(start_mem_i:end_mem_i, start_mem_j:end_mem_j))
          allocate(mapfac_array_m_y(start_mem_i:end_mem_i, start_mem_j:end_mem_j))
-         call get_map_factor(which_domain, xlat_array, xlon_array, mapfac_array_m_x, mapfac_array_m_y, start_mem_i, &
+         call get_map_factor(xlat_array, xlon_array, mapfac_array_m_x, mapfac_array_m_y, start_mem_i, &
                              start_mem_j, end_mem_i, end_mem_j)
 ! Global WRF uses map scale factors in X and Y directions, but "regular" WRF uses a single MSF
 !    on each staggering. In the case of regular WRF, we can assume that MAPFAC_MX = MAPFAC_MY = MAPFAC_M,
@@ -293,7 +293,7 @@ module process_tile_module
     
          allocate(mapfac_array_v_x(start_mem_i:end_mem_i, start_mem_j:end_mem_stag_j))
          allocate(mapfac_array_v_y(start_mem_i:end_mem_i, start_mem_j:end_mem_stag_j))
-         call get_map_factor(which_domain, xlat_array_v, xlon_array_v, mapfac_array_v_x, mapfac_array_v_y, start_mem_i, &
+         call get_map_factor(xlat_array_v, xlon_array_v, mapfac_array_v_x, mapfac_array_v_y, start_mem_i, &
                              start_mem_j, end_mem_i, end_mem_stag_j)
          call write_field(start_mem_i, end_mem_i, start_mem_j, end_mem_stag_j, 1, 1, 'MAPFAC_V',  &
                           datestr, real_array = mapfac_array_v_x)
@@ -304,7 +304,7 @@ module process_tile_module
     
          allocate(mapfac_array_u_x(start_mem_i:end_mem_stag_i, start_mem_j:end_mem_j))
          allocate(mapfac_array_u_y(start_mem_i:end_mem_stag_i, start_mem_j:end_mem_j))
-         call get_map_factor(which_domain, xlat_array_u, xlon_array_u, mapfac_array_u_x, mapfac_array_u_y, start_mem_i, &
+         call get_map_factor(xlat_array_u, xlon_array_u, mapfac_array_u_x, mapfac_array_u_y, start_mem_i, &
                              start_mem_j, end_mem_stag_i, end_mem_j)
          call write_field(start_mem_i, end_mem_stag_i, start_mem_j, end_mem_j, 1, 1, 'MAPFAC_U',  &
                           datestr, real_array = mapfac_array_u_x)
@@ -324,7 +324,7 @@ module process_tile_module
       allocate(f_array(start_mem_i:end_mem_i, start_mem_j:end_mem_j))
       allocate(e_array(start_mem_i:end_mem_i, start_mem_j:end_mem_j))
     
-      call get_coriolis_parameters(which_domain, xlat_array, f_array, e_array, &
+      call get_coriolis_parameters(xlat_array, f_array, e_array, &
                                    start_mem_i, start_mem_j, end_mem_i, end_mem_j)
     
       call write_field(start_mem_i, end_mem_i, start_mem_j, end_mem_j, 1, 1, 'E', &
@@ -345,7 +345,7 @@ module process_tile_module
          allocate(sina_array(start_mem_i:end_mem_i, start_mem_j:end_mem_j))
          allocate(cosa_array(start_mem_i:end_mem_i, start_mem_j:end_mem_j))
     
-         call get_rotang(which_domain, xlat_array, xlon_array, cosa_array, sina_array, &
+         call get_rotang(xlat_array, xlon_array, cosa_array, sina_array, &
                          start_mem_i, start_mem_j, end_mem_i, end_mem_j)
     
          call write_field(start_mem_i, end_mem_i, start_mem_j, end_mem_j, 1, 1, 'SINALPHA', &
@@ -1027,7 +1027,7 @@ module process_tile_module
       character (len=128) :: interp_string
       type (bitarray) :: bit_domain, level_domain
       type (queue)    :: point_queue, tile_queue
-      type (q_data)   :: current_pt, process_pt
+      type (q_data)   :: current_pt
 
       ! If this is the first trip through this routine, we need to allocate the bit array that
       !  will persist through all recursive calls, tracking which grid points have been assigned
@@ -1138,7 +1138,7 @@ module process_tile_module
             !   accum_categorical. 
             if (.not. bitarray_test(bit_domain, current_pt%x-start_i+1, current_pt%y-start_j+1)) then
                call q_insert(point_queue, current_pt) 
-               if (.not. have_processed_tile(current_pt%lat, current_pt%lon, istagger, fieldname, ilevel)) then
+               if (.not. have_processed_tile(current_pt%lat, current_pt%lon, fieldname, ilevel)) then
                   call accum_categorical(current_pt%lat, current_pt%lon, istagger, field, &
                                          start_i, end_i, start_j, end_j, start_k, end_k, &
                                          fieldname, processed_domain, level_domain, &
@@ -1154,7 +1154,7 @@ module process_tile_module
             !   accum_continuous. 
             if (.not. bitarray_test(bit_domain, current_pt%x-start_i+1, current_pt%y-start_j+1)) then
                call q_insert(point_queue, current_pt) 
-               if (.not. have_processed_tile(current_pt%lat, current_pt%lon, istagger, fieldname, ilevel)) then
+               if (.not. have_processed_tile(current_pt%lat, current_pt%lon, fieldname, ilevel)) then
                   call accum_continuous(current_pt%lat, current_pt%lon, istagger, field, data_count, &
                                          start_i, end_i, start_j, end_j, start_k, end_k, &
                                          fieldname, processed_domain, level_domain, &
@@ -1197,8 +1197,8 @@ module process_tile_module
                      if (present(landmask) .and. (istagger == M .or. istagger == HH)) then
                         if (landmask(ix,iy) /= mask_val) then
                            do k=start_src_k,end_src_k
-                              temp = get_point(current_pt%lat, current_pt%lon, istagger, k, &
-                                               fieldname, itype, ilevel, interp_type, msg_val)
+                              temp = get_point(current_pt%lat, current_pt%lon, k, &
+                                               fieldname, ilevel, interp_type, msg_val)
                               if (temp /= msg_val) then
                                  field(ix, iy, k) = temp
                                  call bitarray_set(level_domain, ix-start_i+1, iy-start_j+1)
@@ -1213,8 +1213,8 @@ module process_tile_module
                         end if
                      else
                         do k=start_src_k,end_src_k
-                           temp = get_point(current_pt%lat, current_pt%lon, istagger, k, &
-                                            fieldname, itype, ilevel, interp_type, msg_val)
+                           temp = get_point(current_pt%lat, current_pt%lon, k, &
+                                            fieldname, ilevel, interp_type, msg_val)
                            if (temp /= msg_val) then
                               field(ix, iy, k) = temp
                               call bitarray_set(level_domain, ix-start_i+1, iy-start_j+1)
@@ -1242,8 +1242,8 @@ module process_tile_module
                   else
                      if (present(landmask) .and. (istagger == M .or. istagger == HH)) then
                         if (landmask(ix,iy) /= mask_val) then
-                           temp = get_point(current_pt%lat, current_pt%lon, istagger, 1, &
-                                            fieldname, itype, ilevel, interp_type, msg_val)
+                           temp = get_point(current_pt%lat, current_pt%lon, 1, &
+                                            fieldname, ilevel, interp_type, msg_val)
       
                            do k=start_k,end_k
                               field(ix,iy,k) = 0.
@@ -1265,8 +1265,8 @@ module process_tile_module
                            end do
                         end if
                      else
-                        temp = get_point(current_pt%lat, current_pt%lon, istagger, 1, &
-                                         fieldname, itype, ilevel, interp_type, msg_val)
+                        temp = get_point(current_pt%lat, current_pt%lon, 1, &
+                                         fieldname, ilevel, interp_type, msg_val)
       
                         do k=start_k,end_k
                            field(ix,iy,k) = 0.
@@ -1294,18 +1294,18 @@ module process_tile_module
         
                   ! Neighbor with relative position (-1,-1)
                   call process_neighbor(ix-1, iy-1, bit_domain, point_queue, tile_queue, &
-                                        xlat_array, xlon_array, istagger, start_i, end_i, start_j, end_j, ilevel)
+                                        xlat_array, xlon_array, start_i, end_i, start_j, end_j, ilevel)
                end if
        
                ! Neighbor with relative position (0,-1) 
                call process_neighbor(ix, iy-1, bit_domain, point_queue, tile_queue, &
-                                     xlat_array, xlon_array, istagger, start_i, end_i, start_j, end_j, ilevel)
+                                     xlat_array, xlon_array, start_i, end_i, start_j, end_j, ilevel)
        
                if (ix < end_i) then
        
                   ! Neighbor with relative position (+1,-1)
                   call process_neighbor(ix+1, iy-1, bit_domain, point_queue, tile_queue, &
-                                        xlat_array, xlon_array, istagger, start_i, end_i, start_j, end_j, ilevel)
+                                        xlat_array, xlon_array, start_i, end_i, start_j, end_j, ilevel)
                end if
             end if
       
@@ -1313,14 +1313,14 @@ module process_tile_module
       
                ! Neighbor with relative position (-1,0)
                call process_neighbor(ix-1, iy, bit_domain, point_queue, tile_queue, &
-                                     xlat_array, xlon_array, istagger, start_i, end_i, start_j, end_j, ilevel)
+                                     xlat_array, xlon_array, start_i, end_i, start_j, end_j, ilevel)
             end if
       
             if (ix < end_i) then
       
                ! Neighbor with relative position (+1,0)
                call process_neighbor(ix+1, iy, bit_domain, point_queue, tile_queue, &
-                                     xlat_array, xlon_array, istagger, start_i, end_i, start_j, end_j, ilevel)
+                                     xlat_array, xlon_array, start_i, end_i, start_j, end_j, ilevel)
             end if
       
             if (iy < end_j) then
@@ -1328,17 +1328,17 @@ module process_tile_module
        
                   ! Neighbor with relative position (-1,+1)
                   call process_neighbor(ix-1, iy+1, bit_domain, point_queue, tile_queue, &
-                                        xlat_array, xlon_array, istagger, start_i, end_i, start_j, end_j, ilevel)
+                                        xlat_array, xlon_array, start_i, end_i, start_j, end_j, ilevel)
                end if
        
                ! Neighbor with relative position (0,+1)
                call process_neighbor(ix, iy+1, bit_domain, point_queue, tile_queue, &
-                                     xlat_array, xlon_array, istagger, start_i, end_i, start_j, end_j, ilevel)
+                                     xlat_array, xlon_array, start_i, end_i, start_j, end_j, ilevel)
                if (ix < end_i) then
        
                   ! Neighbor with relative position (+1,+1)
                   call process_neighbor(ix+1, iy+1, bit_domain, point_queue, tile_queue, &
-                                        xlat_array, xlon_array, istagger, start_i, end_i, start_j, end_j, ilevel)
+                                        xlat_array, xlon_array, start_i, end_i, start_j, end_j, ilevel)
                end if
             end if
       
@@ -1445,11 +1445,11 @@ module process_tile_module
    ! Name: get_lat_lon_fields
    !
    ! Purpose: To calculate the latitude and longitude for every gridpoint in the
-   !   specified tile of the model domain which_domain. The caller may specify 
-   !   that the grid for which values are computed is staggered or unstaggered
-   !   using the "stagger" argument.
+   !   tile of the model domain. The caller may specify that the grid for which 
+   !   values are computed is staggered or unstaggered using the "stagger" 
+   !   argument.
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-   subroutine get_lat_lon_fields(which_domain, xlat_arr, xlon_arr, start_mem_i, &
+   subroutine get_lat_lon_fields(xlat_arr, xlon_arr, start_mem_i, &
                                  start_mem_j, end_mem_i, end_mem_j, stagger)
    
       use llxy_module
@@ -1458,7 +1458,7 @@ module process_tile_module
       implicit none
     
       ! Arguments
-      integer, intent(in) :: which_domain, start_mem_i, start_mem_j, end_mem_i, &
+      integer, intent(in) :: start_mem_i, start_mem_j, end_mem_i, &
                              end_mem_j, stagger
       real, dimension(start_mem_i:end_mem_i, start_mem_j:end_mem_j), intent(out) :: xlat_arr, xlon_arr
 
@@ -1483,7 +1483,7 @@ module process_tile_module
    !   E grid), the latitude array should provide the latitudes of the points for
    !   which map factors are to be calculated. 
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-   subroutine get_map_factor(which_domain, xlat_arr, xlon_arr, mapfac_arr_x, mapfac_arr_y, &
+   subroutine get_map_factor(xlat_arr, xlon_arr, mapfac_arr_x, mapfac_arr_y, &
                              start_mem_i, start_mem_j, end_mem_i, end_mem_j)
    
       use constants_module
@@ -1494,7 +1494,7 @@ module process_tile_module
       implicit none
     
       ! Arguments
-      integer, intent(in) :: which_domain, start_mem_i, start_mem_j, end_mem_i, end_mem_j
+      integer, intent(in) :: start_mem_i, start_mem_j, end_mem_i, end_mem_j
       real, dimension(start_mem_i:end_mem_i, start_mem_j:end_mem_j), intent(in) :: xlat_arr, xlon_arr
       real, dimension(start_mem_i:end_mem_i, start_mem_j:end_mem_j), intent(out) :: mapfac_arr_x
       real, dimension(start_mem_i:end_mem_i, start_mem_j:end_mem_j), intent(out) :: mapfac_arr_y
@@ -1631,9 +1631,9 @@ module process_tile_module
    ! Name: get_coriolis_parameters
    !
    ! Purpose: To calculate the Coriolis parameters f and e for every gridpoint in
-   !   the specified tile of the model domain which_domain
+   !   the tile of the model domain 
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-   subroutine get_coriolis_parameters(which_domain, xlat_arr, f, e, &
+   subroutine get_coriolis_parameters(xlat_arr, f, e, &
                                       start_mem_i, start_mem_j, end_mem_i, end_mem_j)
      
       use constants_module
@@ -1641,7 +1641,7 @@ module process_tile_module
       implicit none
     
       ! Arguments
-      integer, intent(in) :: which_domain, start_mem_i, start_mem_j, end_mem_i, end_mem_j
+      integer, intent(in) :: start_mem_i, start_mem_j, end_mem_i, end_mem_j
       real, dimension(start_mem_i:end_mem_i, start_mem_j:end_mem_j), intent(in) :: xlat_arr
       real, dimension(start_mem_i:end_mem_i, start_mem_j:end_mem_j), intent(out) :: f, e
     
@@ -1668,7 +1668,7 @@ module process_tile_module
    ! NOTES: The formulas used in this routine come from those in the 
    !   vecrot_rotlat() routine of the original WRF SI.
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-   subroutine get_rotang(which_domain, xlat_arr, xlon_arr, cosa, sina, &
+   subroutine get_rotang(xlat_arr, xlon_arr, cosa, sina, &
                          start_mem_i, start_mem_j, end_mem_i, end_mem_j)
    
       use constants_module
@@ -1677,7 +1677,7 @@ module process_tile_module
       implicit none
     
       ! Arguments
-      integer, intent(in) :: which_domain, start_mem_i, start_mem_j, end_mem_i, end_mem_j
+      integer, intent(in) :: start_mem_i, start_mem_j, end_mem_i, end_mem_j
       real, dimension(start_mem_i:end_mem_i, start_mem_j:end_mem_j), intent(in) :: xlat_arr, xlon_arr
       real, dimension(start_mem_i:end_mem_i, start_mem_j:end_mem_j), intent(out) :: cosa, sina
     
@@ -1740,7 +1740,7 @@ module process_tile_module
    !   the point should be placed in.
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
    subroutine process_neighbor(ix, iy, bit_domain, point_queue, tile_queue, &
-                               xlat_array, xlon_array, istagger, &
+                               xlat_array, xlon_array, &
                                start_i, end_i, start_j, end_j, ilevel)
    
       use bitarray_module
@@ -1751,7 +1751,7 @@ module process_tile_module
       implicit none
     
       ! Arguments
-      integer, intent(in) :: ix, iy, istagger, start_i, end_i, start_j, end_j, ilevel
+      integer, intent(in) :: ix, iy, start_i, end_i, start_j, end_j, ilevel
       real, dimension(start_i:end_i, start_j:end_j), intent(in) :: xlat_array, xlon_array
       type (bitarray), intent(inout) :: bit_domain
       type (queue), intent(inout) :: point_queue, tile_queue
@@ -1769,7 +1769,7 @@ module process_tile_module
          process_pt%x = ix
          process_pt%y = iy
      
-         is_in_tile = is_point_in_tile(process_pt%lat, process_pt%lon, istagger, ilevel)
+         is_in_tile = is_point_in_tile(process_pt%lat, process_pt%lon, ilevel)
      
          ! If the point is in the current tile, add it to the list of points
          !   to be processed in the inner loop

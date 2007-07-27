@@ -33,10 +33,9 @@ module input_module
 #include "wrf_status_codes.h"
   
       ! Local variables
-      integer :: i, ipx, ipy
+      integer :: i
       integer :: comm_1, comm_2
-      character (len=128) :: coption, input_fname
-      logical :: supports_training, supports_3d_fields
+      character (len=128) :: input_fname
   
       istatus = 0
   
@@ -132,11 +131,10 @@ module input_module
 #include "wrf_status_codes.h"
   
       ! Local variables
-      integer :: i, ndim, wrftype
+      integer :: ndim, wrftype
       integer :: sm1, em1, sm2, em2, sm3, em3, sp1, ep1, sp2, ep2, sp3, ep3
       integer, dimension(3) :: domain_start, domain_end
       real, pointer, dimension(:,:,:) :: real_domain
-      integer, pointer, dimension(:,:,:) :: int_domain
       character (len=20) :: datestr
       type (q_data) :: qd
   
@@ -355,7 +353,7 @@ module input_module
       character (len=128), intent(out) :: title, start_date, grid_type, mminlu
   
       ! Local variables
-      integer :: outcount, istatus, i
+      integer :: istatus, i
       character (len=128) :: cunits, cdesc, cstagger
       type (q_data) :: qd
   

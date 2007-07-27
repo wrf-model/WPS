@@ -211,8 +211,8 @@ MODULE map_utils
       proj%truelat2 = -999.9
       proj%phi      = -999.9
       proj%lambda   = -999.9
-      proj%ixdim    = -999.9
-      proj%jydim    = -999.9
+      proj%ixdim    = -999
+      proj%jydim    = -999
       proj%stagger  = HH
       proj%nlat     = 0
       proj%nlon     = 0
@@ -940,7 +940,7 @@ MODULE map_utils
       TYPE(proj_info), INTENT(INOUT)    :: proj
   
       ! Local variables
-      real :: h, m1, m2, q1, q2, rho, theta, q, sinphi
+      real :: h, m1, m2, q1, q2, theta, q, sinphi
 
       h = proj%hemi
 
@@ -1637,7 +1637,7 @@ MODULE map_utils
       
       ! Local variables
       REAL(KIND=HIGH) :: dphd,dlmd !Grid increments, degrees
-      INTEGER :: ii,imt,jj,jmt,k,krows,ncol,nrow,iri
+      INTEGER :: ii,jj,jmt,ncol,nrow
       REAL(KIND=HIGH) :: glatd  !Geographic latitude, positive north
       REAL(KIND=HIGH) :: glond  !Geographic longitude, positive west
       REAL(KIND=HIGH) :: col,d1,d2,d2r,dlm,dlm1,dlm2,dph,glat,glon,    &
@@ -1654,7 +1654,6 @@ MODULE map_utils
       d2r = pi/180.
       r2d = 1./d2r
   
-      imt = 2*proj%ixdim-1
       jmt = proj%jydim/2+1
 
       glat = glatd*d2r
@@ -1782,7 +1781,7 @@ MODULE map_utils
       
       ! Local variables
       INTEGER :: ih,jh
-      INTEGER :: midcol,midrow,ncol,iadd1,iadd2,imt,jh2,knrow,krem,kv,nrow
+      INTEGER :: midcol,midrow,ncol
       REAL :: dphd,dlmd !Grid increments, degrees
       REAL(KIND=HIGH) :: arg1,arg2,d2r,fctr,glatr,glatd,glond,pi, &
               r2d,tlatd,tlond,tlatr,tlonr,tlm0,tph0
@@ -1887,8 +1886,7 @@ MODULE map_utils
    
       INTEGER                            :: nlat , i
       REAL (KIND=HIGH) , PARAMETER       :: pi = 3.141592653589793
-      REAL (KIND=HIGH)                   :: sum1, sum2, sum3, sum4, xn, a, b
-      REAL (KIND=HIGH) , DIMENSION(nlat) :: cosc , gwt , sinc , colat , wos2 , lat , mlat
+      REAL (KIND=HIGH) , DIMENSION(nlat) :: cosc , gwt , sinc , colat , wos2 , lat
       REAL             , DIMENSION(nlat) :: lat_sp
    
       CALL lggaus(nlat, cosc, gwt, sinc, colat, wos2)

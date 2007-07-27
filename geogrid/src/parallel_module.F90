@@ -286,9 +286,9 @@ include 'mpif.h'
       integer, dimension(ds1:de1,ds2:de2,ds3:de3), intent(inout) :: domain_array
   
       ! Local variables
+#ifdef _MPI
       integer :: i, ii, j, jj, kk
       integer, dimension(2) :: idims, jdims
-#ifdef _MPI
       integer :: mpi_ierr
       integer, dimension(MPI_STATUS_SIZE) :: mpi_stat
 
@@ -347,9 +347,9 @@ include 'mpif.h'
       real, dimension(ds1:de1,ds2:de2,ds3:de3), intent(inout) :: domain_array
   
       ! Local variables
+#ifdef _MPI
       integer :: i, ii, j, jj, kk
       integer, dimension(2) :: idims, jdims
-#ifdef _MPI
       integer :: mpi_ierr
       integer, dimension(MPI_STATUS_SIZE) :: mpi_stat
   
@@ -409,9 +409,9 @@ include 'mpif.h'
       integer, dimension(ds1:de1,ds2:de2,ds3:de3), intent(in) :: domain_array
   
       ! Local variables
+#ifdef _MPI
       integer :: i, ii, j, jj, kk
       integer, dimension(2) :: idims, jdims
-#ifdef _MPI
       integer :: mpi_ierr
       integer, dimension(MPI_STATUS_SIZE) :: mpi_stat
   
@@ -470,9 +470,9 @@ include 'mpif.h'
       real, dimension(ds1:de1,ds2:de2,ds3:de3), intent(in) :: domain_array
   
       ! Local variables
+#ifdef _MPI
       integer :: i, ii, j, jj, kk
       integer, dimension(2) :: idims, jdims
-#ifdef _MPI
       integer :: mpi_ierr
       integer, dimension(MPI_STATUS_SIZE) :: mpi_stat
   
@@ -529,8 +529,8 @@ include 'mpif.h'
       real, dimension(ms1:me1,ms2:me2,ms3:me3), intent(inout) :: patch_array
 
       ! Local variables
-      integer :: jj, kk
 #ifdef _MPI
+      integer :: jj, kk
       integer :: mpi_ierr
       integer, dimension(MPI_STATUS_SIZE) :: mpi_stat
 
@@ -715,8 +715,8 @@ include 'mpif.h'
       integer, dimension(ms1:me1,ms2:me2,ms3:me3), intent(inout) :: patch_array
 
       ! Local variables
-      integer :: jj, kk
 #ifdef _MPI
+      integer :: jj, kk
       integer :: mpi_ierr
       integer, dimension(MPI_STATUS_SIZE) :: mpi_stat
 

@@ -352,7 +352,6 @@ call mprintf(.true.,WARN,'PLEASE REPORT THIS BUG TO THE DEVELOPER!')
 #include "wrf_status_codes.h"
 
       ! Local variables
-      character (len=64) :: fname
       type (data_node), pointer :: data_cursor
 
       istatus = 1
@@ -437,8 +436,7 @@ call mprintf(.true.,WARN,'PLEASE REPORT THIS BUG TO THE DEVELOPER!')
 #include "wrf_status_codes.h"
 
       ! Local variables
-      integer :: i, j, k
-      character (len=64) :: fname
+      integer :: k
       type (data_node), pointer :: data_cursor
       type (fg_input) :: temp_field
 
@@ -800,7 +798,6 @@ call mprintf(.true.,WARN,'PLEASE REPORT THIS BUG TO THE DEVELOPER!')
       ! Local variables
       integer :: nheaders
       type (head_node), pointer :: name_cursor
-      type (data_node), pointer :: data_cursor
 
       nullify(header_list)
 
@@ -848,7 +845,6 @@ call mprintf(.true.,WARN,'PLEASE REPORT THIS BUG TO THE DEVELOPER!')
       ! Local variables
       integer :: nheaders
       type (head_node), pointer :: name_cursor
-      type (data_node), pointer :: data_cursor
 
       nullify(header_list)
 

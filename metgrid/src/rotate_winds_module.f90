@@ -93,7 +93,8 @@ module rotate_winds_module
       type (bitarray), intent(in) :: u_mask, v_mask
 
       ! Local variables
-      integer :: i, j, u_weight, v_weight
+      integer :: i, j
+      real :: u_weight, v_weight
       real :: u_map, v_map, alpha, diff
       real, pointer, dimension(:,:) :: u_new, v_new, u_mult, v_mult
       logical :: do_last_col_u, do_last_row_u, do_last_col_v, do_last_row_v

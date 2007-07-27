@@ -35,13 +35,12 @@ module process_domain_module
                  grid_id, parent_id, i_parent_start, j_parent_start, &
                  i_parent_end, j_parent_end, parent_grid_ratio
       real :: cen_lat, moad_cen_lat, cen_lon, stand_lon, truelat1, truelat2, &
-              rx, ry, xfcst, xlvl, startlat, startlon, starti, startj, deltalat, deltalon, &
               dom_dx, dom_dy
       real, dimension(16) :: corner_lats, corner_lons
       real, pointer, dimension(:,:) :: landmask
       real, pointer, dimension(:,:) :: xlat, xlon, xlat_u, xlon_u, xlat_v, xlon_v
       character (len=19) :: valid_date, temp_date
-      character (len=128) :: cname, stagger, cunits, cdesc, title, mminlu
+      character (len=128) :: title, mminlu
       character (len=128), pointer, dimension(:) :: output_flags, td_output_flags
 
       ! Compute number of times that we will process
@@ -557,8 +556,8 @@ integer, parameter :: BDR_WIDTH = 3
    
       ! Local variables
       integer :: istatus, iqstatus, fg_idx, idx, idxt, i, j, bottom_top_dim, &
-                 sm1, em1, em1_stag, sm2, em2, em2_stag, sm3, em3, &
-                 sp1, ep1, ep1_stag, sp2, ep2, ep2_stag, sp3, ep3, &
+                 sm1, em1, sm2, em2, sm3, em3, &
+                 sp1, ep1, sp2, ep2, sp3, ep3, &
                  sd1, ed1, sd2, ed2, sd3, ed3, met_map_proj, &
                  version, nx, ny, u_idx, bdr_wdth
       real :: rx, ry, xfcst, xlvl, startlat, startlon, starti, startj, deltalat, deltalon, earth_radius
@@ -566,10 +565,9 @@ integer, parameter :: BDR_WIDTH = 3
       real :: met_cen_lon, met_truelat1, met_truelat2
       logical :: is_wind_grid_rel, do_gcell_interp
       integer, pointer, dimension(:) :: u_levels, v_levels
-      real, pointer, dimension(:,:) :: slab, data_count, halo_slab
+      real, pointer, dimension(:,:) :: slab, halo_slab
       real, pointer, dimension(:,:,:) :: real_array
       logical, pointer, dimension(:) :: got_this_field
-      character (len=3) :: memorder
       character (len=9) :: short_fieldnm
       character (len=19) :: output_date
       character (len=24) :: hdate
@@ -577,7 +575,6 @@ integer, parameter :: BDR_WIDTH = 3
       character (len=32) :: map_src
       character (len=46) :: desc
       character (len=128) :: cname, title, input_name
-      character (len=128), dimension(3) :: dimnames
       type (fg_input) :: field, u_field, v_field
 
       allocate(got_this_field(num_entries))
@@ -1694,11 +1691,10 @@ integer, parameter :: BDR_WIDTH = 3
       character (len=128), dimension(:), intent(inout) :: output_flags
    
       ! Local variables
-      integer :: i, ii, j, ix, jx, k, lower, upper, temp, fill_src_level, istatus
+      integer :: i, ii, j, ix, jx, k, lower, upper, temp, istatus
       integer, pointer, dimension(:) :: union_levels, field_levels
-      real :: fill_const
       real, pointer, dimension(:) :: r_union_levels
-      character (len=128) :: clevel, fill_src
+      character (len=128) :: clevel
       type (fg_input) :: lower_field, upper_field, new_field, search_field
       type (fg_input), pointer, dimension(:) :: headers, all_headers
       type (list) :: temp_levels
@@ -1886,13 +1882,8 @@ integer, parameter :: BDR_WIDTH = 3
       character (len=128), dimension(:), intent(inout) :: output_flags
 
       ! Local variables
-      integer :: idx, i, j, istatus, isrclevel
-      integer, pointer, dimension(:) :: all_list
-      real :: rfillconst, rlevel, rsrclevel
-      type (fg_input) :: field, query_field
-      type (list_item), pointer, dimension(:) :: keys
-      character (len=128) :: asrcname
-      logical :: filled_all_lev
+      integer :: idx, i, j, istatus
+      type (fg_input) :: field
 
       ! Initialize fg_input structure to store the field
       field%header%version = 1
@@ -2292,7 +2283,7 @@ integer, parameter :: BDR_WIDTH = 3
       type (bitarray), intent(inout) :: new_pts
    
       ! Local variables
-      integer :: istatus, i, j
+      integer :: i, j
       integer, pointer, dimension(:,:,:) :: where_maps_to
    
       allocate(where_maps_to(src_min_x:src_max_x,src_min_y:src_max_y,2))
@@ -2350,7 +2341,7 @@ integer, parameter :: BDR_WIDTH = 3
       type (bitarray), intent(inout) :: new_pts
    
       ! Local variables
-      integer :: orig_selected_domain, x_dest, y_dest, i, j, k, center_i, center_j, current_domain
+      integer :: orig_selected_domain, x_dest, y_dest, i, j, k, center_i, center_j
       real :: lat_corner, lon_corner, rx, ry
    
       ! Compute the model grid point that the corners of the rectangle to be 
