@@ -880,6 +880,88 @@ call mprintf(.true.,WARN,'PLEASE REPORT THIS BUG TO THE DEVELOPER!')
 
 
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   ! Name: storage_print_fields
+   !
+   ! Purpose: 
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   subroutine storage_print_fields()
+
+      implicit none
+
+      ! Local variables
+      integer :: i, j, k, lmax, n_fields, n_levels, max_levels
+      logical, allocatable, dimension(:,:) :: field_has_level
+      integer, allocatable, dimension(:) :: all_levels
+      integer, pointer, dimension(:) :: ilevels
+      character (len=128), allocatable, dimension(:) :: fieldname_list
+      type (fg_input), pointer, dimension(:) :: header_list
+
+      call storage_get_td_headers(header_list)
+      n_fields = size(header_list)
+      
+      allocate(fieldname_list(n_fields))
+
+      max_levels = 0
+
+      do i=1,n_fields
+         fieldname_list(i) = header_list(i)%header%field
+         call storage_get_levels(header_list(i), ilevels)
+         n_levels = size(ilevels)
+         if (n_levels > max_levels) max_levels = n_levels
+         if (associated(ilevels)) deallocate(ilevels)
+      end do 
+
+! BUG: max_levels needs to be computed from union of all levels
+
+      allocate(all_levels(max_levels))
+      allocate(field_has_level(n_fields,max_levels))
+
+      field_has_level(:,:) = .false.
+
+      lmax = 0
+      do i=1,n_fields
+         call storage_get_levels(header_list(i), ilevels)
+         n_levels = size(ilevels)
+         do j=1,n_levels
+            do k=1,lmax 
+               if (all_levels(k) == ilevels(j)) exit
+            end do 
+            if (k > lmax) then
+               all_levels(k) = ilevels(j)
+               lmax = lmax + 1
+            end if
+            field_has_level(i,k) = .true.
+         end do 
+         if (associated(ilevels)) deallocate(ilevels)
+      end do 
+
+      write(6,'(a8)',advance='no') '        '
+      do i=1,n_fields
+         write(6,'(a10)',advance='no') fieldname_list(i)(1:9)//' '
+      end do
+      write(6,*) ' '
+      do j=1,max_levels
+         write(6,'(i7,a1)',advance='no') all_levels(j),' '
+         do i=1,n_fields
+            if (field_has_level(i,j)) then
+               write(6,'(a10)',advance='no') '    X    '
+            else
+               write(6,'(a10)',advance='no') '    -    '
+            end if
+         end do
+         write(6,*) ' '
+      end do
+
+      deallocate(all_levels)
+      deallocate(field_has_level)
+      deallocate(fieldname_list)
+
+! BUG: Do something here to free up header_list
+
+   end subroutine storage_print_fields
+
+
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
    ! Name: storage_print_headers
    !
    ! Purpose: 
