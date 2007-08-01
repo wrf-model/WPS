@@ -17,6 +17,13 @@ module module_debug
 
    logical :: have_set_logname = .false.
 
+   logical :: continuing_line_logfile = .false.
+   logical :: continuing_line_debug   = .false.
+   logical :: continuing_line_inform  = .false.
+   logical :: continuing_line_warn    = .false.
+   logical :: continuing_line_error   = .false.
+   logical :: continuing_line_stdout  = .false.
+
 
    contains
 
@@ -41,6 +48,7 @@ module module_debug
    !
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
    subroutine mprintf(assertion, level, fmtstring, &
+                      newline, &
                       i1, i2, i3, i4, i5, i6, &
                       f1, f2, f3, f4, f5, f6, &
                       s1, s2, s3, s4, s5, s6)
@@ -51,6 +59,7 @@ module module_debug
       integer, intent(in) :: level
       logical, intent(in) :: assertion
       character (len=*), intent(in) :: fmtstring
+      logical, intent(in), optional :: newline
       integer, intent(in), optional :: i1, i2, i3, i4, i5, i6
       real, intent(in), optional :: f1, f2, f3, f4, f5, f6
       character (len=*), intent(in), optional :: s1, s2, s3, s4, s5, s6
@@ -58,6 +67,7 @@ module module_debug
       ! Local variables 
       integer :: idxi, idxf, idxs, istart, i, iend, ia
       real :: fa
+      logical :: continuing_line
       character (len=8) :: cur_date
       character (len=10) :: cur_time
       character (len=10) :: print_date
@@ -110,26 +120,43 @@ module module_debug
 
          if (level /= STDOUT) then 
             call date_and_time(date=cur_date,time=cur_time)
+         end if
+
+         if (level == LOGFILE .and. .not.continuing_line_logfile) then
             write(print_date,'(a10)') cur_date(1:4)//'-'//cur_date(5:6)//'-'//cur_date(7:8)
             write(print_time,'(a12)') cur_time(1:2)//':'//cur_time(3:4)//':'//cur_time(5:10)
             write(ctemp,'(a)') print_date//' '//print_time//' --- '
             call cio_prints(1,ctemp,len(print_date//' '//print_time//' --- '))
-         end if
-
-         if (level == DEBUG) then
+         else if (level == DEBUG .and. .not.continuing_line_debug) then
+            write(print_date,'(a10)') cur_date(1:4)//'-'//cur_date(5:6)//'-'//cur_date(7:8)
+            write(print_time,'(a12)') cur_time(1:2)//':'//cur_time(3:4)//':'//cur_time(5:10)
+            write(ctemp,'(a)') print_date//' '//print_time//' --- '
+            call cio_prints(1,ctemp,len(print_date//' '//print_time//' --- '))
             write(ctemp,'(a)') 'DEBUG: '
             call cio_prints(1,ctemp,7)
-         else if (level == INFORM) then
+         else if (level == INFORM .and. .not.continuing_line_inform) then
+            write(print_date,'(a10)') cur_date(1:4)//'-'//cur_date(5:6)//'-'//cur_date(7:8)
+            write(print_time,'(a12)') cur_time(1:2)//':'//cur_time(3:4)//':'//cur_time(5:10)
+            write(ctemp,'(a)') print_date//' '//print_time//' --- '
+            call cio_prints(1,ctemp,len(print_date//' '//print_time//' --- '))
             write(ctemp,'(a)') 'INFORM: '
             if (level >= the_debug_level) &
                call cio_prints(0,ctemp,8)
             call cio_prints(1,ctemp,8)
-         else if (level == WARN) then
+         else if (level == WARN .and. .not.continuing_line_warn) then
+            write(print_date,'(a10)') cur_date(1:4)//'-'//cur_date(5:6)//'-'//cur_date(7:8)
+            write(print_time,'(a12)') cur_time(1:2)//':'//cur_time(3:4)//':'//cur_time(5:10)
+            write(ctemp,'(a)') print_date//' '//print_time//' --- '
+            call cio_prints(1,ctemp,len(print_date//' '//print_time//' --- '))
             write(ctemp,'(a)') 'WARNING: '
             if (level >= the_debug_level) &
                call cio_prints(0,ctemp,9)
             call cio_prints(1,ctemp,9)
-         else if (level == ERROR) then
+         else if (level == ERROR .and. .not.continuing_line_error) then
+            write(print_date,'(a10)') cur_date(1:4)//'-'//cur_date(5:6)//'-'//cur_date(7:8)
+            write(print_time,'(a12)') cur_time(1:2)//':'//cur_time(3:4)//':'//cur_time(5:10)
+            write(ctemp,'(a)') print_date//' '//print_time//' --- '
+            call cio_prints(1,ctemp,len(print_date//' '//print_time//' --- '))
             write(ctemp,'(a)') 'ERROR: '
             if (level >= the_debug_level) &
                call cio_prints(0,ctemp,7)
@@ -224,7 +251,33 @@ module module_debug
             i = index(fmtstring(istart:iend),'%')
          end do
    
-         write(ctemp,'(a)') fmtstring(istart:iend)//achar(10)  ! Add newline character 0xA
+         continuing_line = .false.
+         if (present(newline)) then
+            if (.not.newline) then
+               continuing_line = .true.
+            end if
+         end if
+ 
+         if (continuing_line) then
+            write(ctemp,'(a)') fmtstring(istart:iend)
+         else
+            write(ctemp,'(a)') fmtstring(istart:iend)//achar(10)  ! Add newline character 0xA
+         end if
+
+         if (level == LOGFILE) then
+            continuing_line_logfile = continuing_line
+         else if (level == DEBUG) then
+            continuing_line_debug   = continuing_line
+         else if (level == INFORM) then
+            continuing_line_inform  = continuing_line
+         else if (level == WARN) then
+            continuing_line_warn    = continuing_line
+         else if (level == ERROR) then
+            continuing_line_error   = continuing_line
+         else if (level == STDOUT) then
+            continuing_line_stdout  = continuing_line
+         end if
+
          if (level >= the_debug_level .and. level /= DEBUG) &
             call cio_prints(0,ctemp,iend-istart+2)
          if (level /= STDOUT) &

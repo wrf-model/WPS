@@ -935,21 +935,21 @@ call mprintf(.true.,WARN,'PLEASE REPORT THIS BUG TO THE DEVELOPER!')
          if (associated(ilevels)) deallocate(ilevels)
       end do 
 
-      write(6,'(a8)',advance='no') '        '
+      call mprintf(.true.,DEBUG,'        ',newline=.false.)
       do i=1,n_fields
-         write(6,'(a10)',advance='no') fieldname_list(i)(1:9)//' '
+         call mprintf(.true.,DEBUG,fieldname_list(i)(1:9)//' ',newline=.false.)
       end do
-      write(6,*) ' '
+      call mprintf(.true.,DEBUG,' ',newline=.true.)
       do j=1,max_levels
-         write(6,'(i7,a1)',advance='no') all_levels(j),' '
+         call mprintf(.true.,DEBUG,'%i ',i1=all_levels(j),newline=.false.)
          do i=1,n_fields
             if (field_has_level(i,j)) then
-               write(6,'(a10)',advance='no') '    X    '
+               call mprintf(.true.,DEBUG,'    X    ',newline=.false.)
             else
-               write(6,'(a10)',advance='no') '    -    '
+               call mprintf(.true.,DEBUG,'    -    ',newline=.false.)
             end if
          end do
-         write(6,*) ' '
+         call mprintf(.true.,DEBUG,' ',newline=.true.)
       end do
 
       deallocate(all_levels)

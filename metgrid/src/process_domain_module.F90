@@ -1038,6 +1038,13 @@ integer, parameter :: BDR_WIDTH = 3
       deallocate(got_this_field)
        
       !
+      ! Before we begin to write fields, if debug_level is set high enough, we 
+      !    write a table of which fields are available at which levels to the
+      !    metgrid.log file
+      !
+!      call storage_print_fields()
+
+      !
       ! All of the processing is now done for this time period for this domain;
       !   now we simply output every field from the storage module.
       !
