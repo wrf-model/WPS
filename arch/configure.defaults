@@ -736,5 +736,38 @@ CFLAGS          =       -w
 CPP             =       cpp -C -P -traditional
 CPPFLAGS        =       -D_UNDERSCORE -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -D_MPI -DBIT32 -UCRAY
 
+###########################################################
+#ARCH	PC Linux x86_64, g95 compiler,	serial, NO GRIB2
+#
+COMPRESSION_LIBS	=
+COMPRESSION_INC		=
+FDEFS			=
+FC              =       g95
+SFC             =       g95
+FFLAGS          =       -ffree-form -g -fno-second-underscore
+F77FLAGS        =       -ffixed-form -g -fno-second-underscore
+FNGFLAGS	=	$(FFLAGS)
+LDFLAGS         =       -g
+CC              =       gcc
+SCC             =       gcc
+CFLAGS          =       -g
+CPP             =       /usr/bin/cpp -C -P -traditional
+CPPFLAGS        =       -D_UNDERSCORE -DBYTESWAP -DLINUXG95 -DIO_NETCDF -DBIT32
+
+###########################################################
+#ARCH	PC Linux x86_64, g95 compiler,	serial
+#
+FC              =       g95
+SFC             =       g95
+FFLAGS          =       -ffree-form -g -fno-second-underscore
+F77FLAGS        =       -ffixed-form -g -fno-second-underscore
+FNGFLAGS	=	$(FFLAGS)
+LDFLAGS         =       -g
+CC              =       gcc
+SCC             =       gcc
+CFLAGS          =       -g
+CPP             =       /usr/bin/cpp -C -P -traditional
+CPPFLAGS        =       -D_UNDERSCORE -DBYTESWAP -DLINUXG95 -DIO_NETCDF -DBIT32
+
 ##################################################################
 #ARCH	NULL
