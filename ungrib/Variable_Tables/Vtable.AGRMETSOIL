@@ -18,5 +18,5 @@ Code | Code |   1  |   2  | Name     |  Units   | Description                   
  85  | 112  |  10  | 200  | ST010200 | K        | T of 10-200 cm ground layer                 |
  81  |  1   |   0  |      | LANDSEA  | 0/1 Flag | Land/Sea flag                               |
  161 |  1   |   0  |      | SOILHGT  | m        | Terrain field of source analysis            |
- 207 |  1   |   0  |      | CANOPYM  | m        | Canopy Moisture Content                     |
+ 207 |  1   |   0  |      | CANWAT   | kg m-2   | Canopy Moisture Content                     |
 -----+------+------+------+----------+----------+---------------------------------------------+
