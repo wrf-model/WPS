@@ -226,6 +226,7 @@ module llxy_module
                       lon0=user_pole_lon, &
                       knowni=user_known_x, &
                       knownj=user_known_y, &
+                      dx=user_dxkm,        &
                       r_earth=earth_radius)
   
       else if (iprojection == PROJ_LC) then
@@ -346,6 +347,7 @@ module llxy_module
                       stdlon=stand_lon, &
                       knowni=known_x, &
                       knownj=known_y, &
+                      dx=dxkm,       &
                       lat0=pole_lat, &
                       lon0=pole_lon, &
                       lat1=known_lat, &
@@ -453,6 +455,7 @@ module llxy_module
                          stdlon=stand_lon, &
                          knowni=temp_known_x, &
                          knownj=temp_known_y, &
+                         dx=temp_dxkm,  &
                          lat0=pole_lat, &
                          lon0=pole_lon, &
                          lat1=temp_known_lat, &

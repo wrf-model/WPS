@@ -6,6 +6,7 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 module gridinfo_module
 
+   use constants_module
    use misc_definitions_module
    use module_debug
  
@@ -407,8 +408,8 @@ module gridinfo_module
             known_y = 1.
             known_lon = stand_lon + dlondeg/2.
             known_lat = -90. + dlatdeg/2.
-            dxkm = dlondeg      ! Set dxkm and dykm for possible use by nested domains
-            dykm = dlatdeg 
+            dxkm = EARTH_RADIUS_M * PI * 2.0 / (e_we(1)-s_we(1))
+            dykm = EARTH_RADIUS_M * PI * 2.0 / (e_sn(1)-s_sn(1))
 
          ! If dx,dy specified, however, assume regional grid
          else
