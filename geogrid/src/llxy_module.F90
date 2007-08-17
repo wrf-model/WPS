@@ -219,6 +219,7 @@ module llxy_module
          call map_set(iprojection, proj_stack(current_nest_number), &
                       latinc=user_dlat, &
                       loninc=user_dlon, &
+                      dx=user_dxkm,        &
                       stdlon=user_stand_lon, &
                       lat1=user_known_lat, &
                       lon1=user_known_lon, &
@@ -226,7 +227,6 @@ module llxy_module
                       lon0=user_pole_lon, &
                       knowni=user_known_x, &
                       knownj=user_known_y, &
-                      dx=user_dxkm,        &
                       r_earth=earth_radius)
   
       else if (iprojection == PROJ_LC) then
@@ -313,7 +313,7 @@ module llxy_module
       ! Local variables
       integer :: i
       real :: temp_known_x, temp_known_y, temp_known_lat, temp_known_lon, &
-              temp_dxkm, temp_dykm
+              temp_dxkm, temp_dykm, temp_dlat, temp_dlon
   
       ! Set location of coarse/mother domain
       call map_init(proj_stack(1))
@@ -344,10 +344,10 @@ module llxy_module
          call map_set(iproj_type, proj_stack(1), &
                       latinc=dlatdeg, &
                       loninc=dlondeg, &
+                      dx=dxkm,       &
                       stdlon=stand_lon, &
                       knowni=known_x, &
                       knownj=known_y, &
-                      dx=dxkm,       &
                       lat0=pole_lat, &
                       lon0=pole_lon, &
                       lat1=known_lat, &
@@ -426,14 +426,14 @@ module llxy_module
 
          call find_known_latlon(i, temp_known_x, temp_known_y, &
                                 temp_known_lat, temp_known_lon, &
-                                temp_dxkm, temp_dykm)      
+                                temp_dxkm, temp_dykm, temp_dlat, temp_dlon)
    
          if (iproj_type == PROJ_LATLON) then
             call map_set(iproj_type, proj_stack(i), &
                          lat1=temp_known_lat, &
                          lon1=temp_known_lon, &
-                         latinc=temp_dykm, &
-                         loninc=temp_dxkm)
+                         latinc=temp_dlat, &
+                         loninc=temp_dlon)
    
          else if (iproj_type == PROJ_MERC) then
             call map_set(iproj_type, proj_stack(i), &
@@ -450,12 +450,12 @@ module llxy_module
   
          else if (iproj_type == PROJ_CASSINI) then
             call map_set(iproj_type, proj_stack(i), &
-                         latinc=temp_dykm, &
-                         loninc=temp_dxkm, &
+                         latinc=temp_dlat, &
+                         loninc=temp_dlon, &
+                         dx=temp_dxkm,  &
                          stdlon=stand_lon, &
                          knowni=temp_known_x, &
                          knownj=temp_known_y, &
-                         dx=temp_dxkm,  &
                          lat0=pole_lat, &
                          lon0=pole_lon, &
                          lat1=temp_known_lat, &
@@ -530,14 +530,14 @@ module llxy_module
    ! NOTE: This routine assumes that xytoll will work correctly for the 
    !       coarse domain.
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
-   recursive subroutine find_known_latlon(n, rx, ry, rlat, rlon, dx, dy)
+   recursive subroutine find_known_latlon(n, rx, ry, rlat, rlon, dx, dy, dlat, dlon)
  
       implicit none
   
       ! Arguments
       integer, intent(in) :: n
       real, intent(in) :: rx, ry
-      real, intent(out) :: rlat, rlon, dx, dy
+      real, intent(out) :: rlat, rlon, dx, dy, dlat, dlon
   
       ! Local variables
       real :: x_in_parent, y_in_parent
@@ -546,6 +546,8 @@ module llxy_module
   
          dx = dxkm 
          dy = dykm 
+         dlat = dlatdeg 
+         dlon = dlondeg 
          call ij_to_latlon(proj_stack(current_nest_number), rx, ry, rlat, rlon)
   
          return
@@ -557,10 +559,12 @@ module llxy_module
          y_in_parent = (ry - ((parent_grid_ratio(n)+1.)/2.)) &
                       / parent_grid_ratio(n) + parent_ll_y(n)
    
-         call find_known_latlon(parent_id(n), x_in_parent, y_in_parent, rlat, rlon, dx, dy)
+         call find_known_latlon(parent_id(n), x_in_parent, y_in_parent, rlat, rlon, dx, dy, dlat, dlon)
    
          dx = dx / parent_grid_ratio(n)
          dy = dy / parent_grid_ratio(n)
+         dlat = dlat / parent_grid_ratio(n)
+         dlon = dlon / parent_grid_ratio(n)
       end if 
  
    end subroutine find_known_latlon

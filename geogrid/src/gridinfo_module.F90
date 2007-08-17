@@ -415,6 +415,8 @@ module gridinfo_module
          else
             dlatdeg = dy
             dlondeg = dx
+            dxkm = dlondeg * EARTH_RADIUS_M * PI * 2.0 / 360.0
+            dykm = dlatdeg * EARTH_RADIUS_M * PI * 2.0 / 360.0
             if (known_lat == NAN .or. known_lon == NAN) then
                call mprintf(.true.,ERROR,'For Cassini projection, if dx/dy are specified, '// &
                         'a regional domain is assumed, and a ref_lat,ref_lon must also be specified')
