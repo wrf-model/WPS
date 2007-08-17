@@ -660,8 +660,8 @@ integer, parameter :: BDR_WIDTH = 3
                   end if
 
                   ! Do a simple check to see whether this is a global lat/lon dataset
-                  if (met_map_proj == PROJ_LATLON .and. &
-                      nx * deltalon == 360.) then
+                  if ( (met_map_proj == PROJ_LATLON .or. met_map_proj == PROJ_GAUSS) .and. &
+                      abs(nx * deltalon - 360.) < 0.0001) then
                      bdr_wdth = BDR_WIDTH
                      allocate(halo_slab(1-BDR_WIDTH:nx+BDR_WIDTH,1:ny))
                      halo_slab(1:nx,              1:ny) = slab(1:nx,              1:ny)
@@ -1221,8 +1221,8 @@ integer, parameter :: BDR_WIDTH = 3
                   mask_field%map%stagger = M
 
                   ! Do a simple check to see whether this is a global lat/lon dataset
-                  if (iproj == PROJ_LATLON .and. &
-                      nx * deltalon == 360.) then
+                  if ( (iproj == PROJ_LATLON .or. iproj == PROJ_GAUSS) .and. &
+                      abs(nx * deltalon - 360.) < 0.0001) then
                      allocate(mask_field%r_arr(1-BDR_WIDTH:nx+BDR_WIDTH,1:ny))
                      mask_field%r_arr(1:nx,              1:ny) = slab(1:nx,              1:ny)
                      mask_field%r_arr(1-BDR_WIDTH:0,     1:ny) = slab(nx-BDR_WIDTH+1:nx, 1:ny)
