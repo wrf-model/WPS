@@ -962,6 +962,60 @@ call mprintf(.true.,WARN,'PLEASE REPORT THIS BUG TO THE DEVELOPER!')
 
 
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   ! Name: find_missing_values
+   !
+   ! Purpose: 
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   subroutine find_missing_values()
+
+      implicit none
+
+      ! Local variables
+      integer :: i, j
+      logical :: found_missing
+      type (head_node), pointer :: name_cursor
+      type (data_node), pointer :: data_cursor
+
+      found_missing = .false.
+
+      name_cursor => head
+      do while (associated(name_cursor))
+
+         if (associated(name_cursor%fieldlist_head)) then
+            data_cursor => name_cursor%fieldlist_head
+            do while ( associated(data_cursor) )
+               if (.not. associated(data_cursor%fg_data%valid_mask)) then
+                  call mprintf(.true.,INFORM, &
+                               'Field %s does not have a valid mask and will not be checked for missing values', &
+                               s1=data_cursor%fg_data%header%field)
+               else
+                  ILOOP: do i=1,data_cursor%fg_data%header%dim1(2)-data_cursor%fg_data%header%dim1(1)+1
+                  JLOOP: do j=1,data_cursor%fg_data%header%dim2(2)-data_cursor%fg_data%header%dim2(1)+1
+                     if (.not. bitarray_test(data_cursor%fg_data%valid_mask,i,j)) then
+                        found_missing = .true.
+                        call mprintf(.true.,WARN,'Field %s has missing values at level %i at (i,j)=(%i,%i)', &
+                                     s1=data_cursor%fg_data%header%field, &
+                                     i1=data_cursor%fg_data%header%vertical_level, &
+                                     i2=i+data_cursor%fg_data%header%dim1(1)-1, &
+                                     i3=j+data_cursor%fg_data%header%dim2(1)-1)
+                        exit ILOOP
+                     end if
+                  end do JLOOP
+                  end do ILOOP
+               end if
+               data_cursor => data_cursor%next
+            end do
+         end if
+
+         name_cursor => name_cursor%next
+      end do
+
+      call mprintf(found_missing,ERROR,'Missing values encountered in interpolated fields. Stopping.')
+
+   end subroutine find_missing_values
+
+
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
    ! Name: storage_print_headers
    !
    ! Purpose: 

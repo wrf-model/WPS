@@ -884,7 +884,7 @@ integer, parameter :: BDR_WIDTH = 3
                   end if
    
                   call bitarray_merge(field%valid_mask, field%modified_mask)
-      
+
                   deallocate(halo_slab)
                                
                   ! Store the interpolated field
@@ -1043,6 +1043,7 @@ integer, parameter :: BDR_WIDTH = 3
       !    metgrid.log file
       !
 !      call storage_print_fields()
+!      call find_missing_values()
 
       !
       ! All of the processing is now done for this time period for this domain;
@@ -1413,6 +1414,7 @@ integer, parameter :: BDR_WIDTH = 3
                      end if
                   else
                      field%r_arr(i,j) = fill_missing(idx)
+                     call bitarray_set(new_pts, i-sm1+1, j-sm2+1)
                   end if
 
                   if (.not. bitarray_test(new_pts, i-sm1+1, j-sm2+1) .and. &
@@ -1522,6 +1524,9 @@ integer, parameter :: BDR_WIDTH = 3
 
                if (temp /= missing_value(idx)) then
                   field%r_arr(i,j) = temp
+                  call bitarray_set(new_pts, i-sm1+1, j-sm2+1)
+               else if (landmask(i,j) == masked(idx)) then
+                  field%r_arr(i,j) = fill_missing(idx)
                   call bitarray_set(new_pts, i-sm1+1, j-sm2+1)
                end if
 
@@ -1804,9 +1809,6 @@ integer, parameter :: BDR_WIDTH = 3
                            if (.not. bitarray_test(search_field%valid_mask, &
                                                    ix-search_field%header%dim1(1)+1, &
                                                    jx-search_field%header%dim2(1)+1)) then
-                              call bitarray_set(search_field%valid_mask, &
-                                                ix-search_field%header%dim1(1)+1, &
-                                                jx-search_field%header%dim2(1)+1)
 
                               call dup(search_field, lower_field)
                               do lower=k-1,1,-1
@@ -1836,6 +1838,9 @@ integer, parameter :: BDR_WIDTH = 3
                                                            + real(abs(field_levels(k)-field_levels(lower))) &
                                                            / real(abs(field_levels(upper)-field_levels(lower))) &
                                                            * upper_field%r_arr(ix,jx)
+                                 call bitarray_set(search_field%valid_mask, &
+                                                   ix-search_field%header%dim1(1)+1, &
+                                                   jx-search_field%header%dim2(1)+1)
                               end if
                            end if
                         end do ILOOP
