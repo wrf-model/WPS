@@ -1,4 +1,4 @@
-program pltfmt
+program plotfmt
 
   use read_met_module
 
@@ -41,6 +41,12 @@ program pltfmt
 #endif
 
   call getarg(1,flnm)
+
+   IF ( flnm(1:1) == ' ' ) THEN
+      print *,'USAGE: plotfmt.exe <filename>'
+      print *,'       where <filename> is the name of an intermediate-format file'
+      STOP
+   END IF
 
   call gopks(6,idum)
   call gopwk(1,55,1)
@@ -100,7 +106,7 @@ program pltfmt
 
   call stopit
 
-end program pltfmt
+end program plotfmt
 
 subroutine plt2d(scr2d, ix, jx, llflag, &
      lat1, lon1, dx, dy, lov, truelat1, truelat2, &
