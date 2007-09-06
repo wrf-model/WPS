@@ -14,7 +14,7 @@ Code | Code |   1  |   2  | Name     |  Units   | Description                   
  172 |  1   |   0  |      | LANDSEA  | 0/1 Flag | Land/Sea flag                            |
  129 |  1   |   0  |      | SOILGEO  | m2 s-2   |                                          |
      |  1   |   0  |      | SOILHGT  | m        | Terrain field of source analysis         |
- 134 |  1   |   0  |      | PSFC     | Pa       |                                          |
+ 134 |  1   |   0  |      | PSFC     | Pa       | Surface Pressure                         |
  151 |  1   |   0  |      | PMSL     | Pa       | Sea-level Pressure                       |
  235 |  1   |   0  |      | SKINTEMP | K        | Sea-Surface Temperature                  |
   31 |  1   |   0  |      | SEAICE   | 0/1 Flag | Sea-Ice-Flag                             |
