@@ -423,6 +423,13 @@ module gridinfo_module
             end if
          end if
       end if
+
+      ! Manually set truelat2 = truelat1 if truelat2 not specified for Lambert
+      if (iproj_type == PROJ_LC .and. truelat2 == NAN) then
+         call mprintf ((truelat1 == NAN), ERROR, "No TRUELAT1 specified for Lambert conformal projection.") 
+         truelat2 = truelat1
+      end if
+
   
       n_domains = max_dom
   
