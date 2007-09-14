@@ -157,40 +157,42 @@ module proc_point_module
 
       ! If a grid cell has less than half of its area covered by data from this source,
       !   then clear the cell and let another source fill in the cell
-      do i=start_i,end_i
-         do j=start_j,end_j
-            if (bitarray_test(new_pts, i-start_i+1, j-start_j+1) .and. &
-                .not. bitarray_test(processed_pts, i-start_i+1, j-start_j+1)) then
-               rarea = 0.
-               do k=start_k,end_k
-                  rarea = rarea + array(i,j,k)
-               end do
-               current_domain = iget_selected_domain()
-               call select_domain(SOURCE_PROJ)
-               if (proj_stack(current_nest_number)%dx < 0.) then
-                  rarea = rarea * (proj_stack(current_nest_number)%latinc*111000.)**2.0
-               else
-                  rarea = rarea * proj_stack(current_nest_number)%dx**2.0
+      if (ilevel > 1) then
+         do i=start_i,end_i
+            do j=start_j,end_j
+               if (bitarray_test(new_pts, i-start_i+1, j-start_j+1) .and. &
+                   .not. bitarray_test(processed_pts, i-start_i+1, j-start_j+1)) then
+                  rarea = 0.
+                  do k=start_k,end_k
+                     rarea = rarea + array(i,j,k)
+                  end do
+                  current_domain = iget_selected_domain()
+                  call select_domain(SOURCE_PROJ)
+                  if (proj_stack(current_nest_number)%dx < 0.) then
+                     rarea = rarea * (proj_stack(current_nest_number)%latinc*111000.)**2.0
+                  else
+                     rarea = rarea * proj_stack(current_nest_number)%dx**2.0
+                  end if
+                  call select_domain(current_domain)
+                  if (proj_stack(current_nest_number)%dx < 0.) then
+                     if ((proj_stack(current_nest_number)%latinc*111000.)**2.0 > 2.0*rarea) then
+                        do k=start_k,end_k
+                           array(i,j,k) = 0.
+                        end do
+                        call bitarray_clear(new_pts, i-start_i+1, j-start_j+1)
+                     end if 
+                  else
+                     if (proj_stack(current_nest_number)%dx**2.0 > 2.0*rarea) then
+                        do k=start_k,end_k
+                           array(i,j,k) = 0.
+                        end do
+                        call bitarray_clear(new_pts, i-start_i+1, j-start_j+1)
+                     end if 
+                  end if
                end if
-               call select_domain(current_domain)
-               if (proj_stack(current_nest_number)%dx < 0.) then
-                  if ((proj_stack(current_nest_number)%latinc*111000.)**2.0 > 2.0*rarea) then
-                     do k=start_k,end_k
-                        array(i,j,k) = 0.
-                     end do
-                     call bitarray_clear(new_pts, i-start_i+1, j-start_j+1)
-                  end if 
-               else
-                  if (proj_stack(current_nest_number)%dx**2.0 > 2.0*rarea) then
-                     do k=start_k,end_k
-                        array(i,j,k) = 0.
-                     end do
-                     call bitarray_clear(new_pts, i-start_i+1, j-start_j+1)
-                  end if 
-               end if
-            end if
+            end do
          end do
-      end do
+      end if
   
       deallocate(where_maps_to)
  
