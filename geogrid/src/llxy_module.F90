@@ -291,6 +291,8 @@ module llxy_module
                       lat1=user_known_lat, &
                       lon1=user_known_lon, &
                       stagger=HH, &
+                      latinc=user_dykm, &
+                      loninc=user_dxkm, &
                       r_earth=earth_radius)
   
       end if
@@ -410,6 +412,8 @@ module llxy_module
                       lambda=lambda, &
                       lat1=known_lat, &
                       lon1=known_lon, &
+                      latinc=dykm, &
+                      loninc=dxkm, &
                       stagger=HH)
    
       end if
@@ -596,6 +600,8 @@ module llxy_module
                    lambda=lambda, &
                    lat1=known_lat, &
                    lon1=known_lon, &
+                   latinc=dykm, &
+                   loninc=dxkm, &
                    stagger=HH)
 
       parent_ur_x(1) = real(ixdim(1))
@@ -622,6 +628,8 @@ module llxy_module
                          lambda = lambda, &
                          lat1=known_lat, &
                          lon1=known_lon, &
+                         latinc=(dykm/real((3**(nest_level-1)))), &
+                         loninc=(dxkm/real((3**(nest_level-1)))), &
                          stagger=HH)
          end if
 
