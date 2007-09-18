@@ -11,27 +11,15 @@ program avg_tsfc
 
    ! Local variables
    integer :: idiff, n_times, t, istatus, fg_idx, discardtimes
-   integer :: met_map_proj, version, nx, ny, t_nx, t_ny, t_met_map_proj
-   real :: xfcst, xlvl, startlat, startlon, starti, startj, deltalat, deltalon, earth_radius
-   real :: t_startlat, t_startlon, t_starti, t_startj, t_deltalat, t_deltalon, t_earth_radius
-   real :: met_dx, met_dy
-   real :: t_met_dx, t_met_dy
-   real :: met_cen_lon, met_truelat1, met_truelat2
-   real :: t_met_cen_lon, t_met_truelat1, t_met_truelat2
-   real, pointer, dimension(:,:) :: slab
-   real, pointer, dimension(:,:) :: mean
-   logical :: is_rotated
-   character (len=9) :: short_fieldnm
    character (len=19) :: valid_date, temp_date
-   character (len=24) :: hdate
-   character (len=25) :: units, t_units
-   character (len=32) :: map_src, t_map_src
-   character (len=46) :: desc, t_desc
    character (len=128) :: input_name
+   type (met_data) :: fg_data, avg_data
 
    call get_namelist_params()
 
    call set_debug_level(WARN)
+
+   nullify(avg_data%slab)
 
    ! Compute number of times that we will process
    call geth_idts(end_date(1), start_date(1), idiff)
@@ -71,48 +59,33 @@ program avg_tsfc
             do while (istatus == 0)
 
 
-               call read_next_met_field(version, short_fieldnm, hdate, xfcst, xlvl, units, desc, &
-                                   met_map_proj, startlat, startlon, starti, startj, deltalat, &
-                                   deltalon, met_dx, met_dy, met_cen_lon, met_truelat1, met_truelat2, &
-                                   earth_radius, nx, ny, &
-                                   map_src, slab, is_rotated, istatus)
+               call read_next_met_field(fg_data, istatus)
 
                if (istatus == 0) then
 
-                  if (trim(short_fieldnm) == 'TT' .and. xlvl == 200100.) then
-                     t_units = units
-                     t_desc  = desc
-                     if (.not. associated(mean)) then
-                        t_nx = nx
-                        t_ny = ny
-                        t_startlat = startlat
-                        t_startlon = startlon
-                        t_starti = starti
-                        t_startj = startj
-                        t_deltalat = deltalat
-                        t_deltalon = deltalon
-                        t_met_dx = met_dx
-                        t_met_dy = met_dy
-                        t_met_dy = met_dy
-                        t_met_map_proj = met_map_proj
-                        t_met_cen_lon = met_cen_lon
-                        t_met_truelat1 = met_truelat1
-                        t_met_truelat2 = met_truelat2
-                        t_earth_radius = earth_radius
-                        t_map_src = map_src
-                        allocate(mean(nx,ny))
-                        mean = 0.
+                  if (trim(fg_data%field) == 'TT' .and. fg_data%xlvl == 200100.) then
+                     if (.not. associated(avg_data%slab)) then
+                        avg_data = fg_data
+                        avg_data%hdate = '0000-00-00_00:00:00     '
+                        avg_data%xfcst = 0.
+                        avg_data%xlvl = 200100.
+                        avg_data%field = 'TAVGSFC  '
+                        nullify(avg_data%slab)
+                        allocate(avg_data%slab(avg_data%nx,avg_data%ny))
+                        avg_data%slab = 0.
                      end if
 
-! BUG: Should check here whether projection matches from previous read of the TT field
-                     if (t_nx /= nx .or. t_ny /= ny) &
+                     if (avg_data%nx    /= fg_data%nx .or. &
+                         avg_data%ny    /= fg_data%ny .or. &
+                         avg_data%iproj /= fg_data%iproj) then
                         call mprintf(.true.,ERROR,'Mismatch in Tsfc field dimensions in file %s', &
                                      s1=trim(input_name)//':'//temp_date(1:13))
+                     end if
                       
-                     mean = mean + slab
+                     avg_data%slab = avg_data%slab + fg_data%slab
                   end if
    
-                  if (associated(slab)) deallocate(slab)
+                  if (associated(fg_data%slab)) deallocate(fg_data%slab)
    
                end if
    
@@ -126,20 +99,16 @@ program avg_tsfc
 
       end do 
 
-      if (associated(mean)) then
-         mean = mean /real(n_times-discardtimes+1)
+      if (associated(avg_data%slab)) then
+         avg_data%slab = avg_data%slab /real(n_times-discardtimes+1)
 
          call write_met_init('TAVGSFC', .true., temp_date(1:13), istatus)
-         hdate = '0000-00-00_00:00:00     '
-         xfcst = 0.
-         call write_next_met_field(version, 'TAVGSFC  ', hdate, xfcst, 200100., t_units, t_desc, &
-                             t_met_map_proj, t_startlat, t_startlon, t_starti, t_startj, t_deltalat, &
-                             t_deltalon, t_met_dx, t_met_dy, t_met_cen_lon, t_met_truelat1, t_met_truelat2, &
-                             t_earth_radius, t_nx, t_ny, &
-                             t_map_src, mean, is_rotated, istatus)
+
+         call write_next_met_field(avg_data, istatus) 
+
          call write_met_close()
   
-         deallocate(mean)
+         deallocate(avg_data%slab)
       end if
 
       fg_idx = fg_idx + 1

@@ -18,18 +18,10 @@ PROGRAM mod_levs_prog
 
    CHARACTER ( LEN =132 )            :: flnm, flnm2
 
-   INTEGER :: istatus, iop, version, nx, ny, iproj
+   INTEGER :: istatus, iop
    integer :: idum, ilev
-   REAL :: xfcst, xlvl, startlat, startlon, starti, startj, &
-           deltalat, deltalon, dx, dy, xlonc, truelat1, truelat2, earth_radius
-   REAL, POINTER, DIMENSION(:,:) :: slab
-   LOGICAL :: is_wind_grid_rel
 
-   CHARACTER ( LEN = 24 )            :: hdate
-   CHARACTER ( LEN =  9 )            :: field
-   CHARACTER ( LEN = 25 )            :: units
-   CHARACTER ( LEN = 46 )            :: desc
-   CHARACTER ( LEN = 32 )            :: map_source
+   TYPE (met_data)                   :: fg_data
 
    !  The namelist has a pressure array that we want.
 
@@ -96,42 +88,30 @@ PROGRAM mod_levs_prog
 
       IF ( istatus == 0 ) THEN
 
-         CALL read_next_met_field(version, field, hdate, xfcst, xlvl, units, desc, &
-                           iproj, startlat, startlon, starti, startj, deltalat, &
-                           deltalon, dx, dy, xlonc, truelat1, truelat2, earth_radius, &
-                           nx, ny, map_source, &
-                           slab, is_wind_grid_rel, istatus)
+         CALL read_next_met_field(fg_data, istatus)
 
          DO WHILE (istatus == 0)
    
    
             keep_this_one = .FALSE.
             DO l = 1 , max_pres_keep
-               IF ( xlvl .EQ. press_pa(l) ) THEN
+               IF ( fg_data%xlvl .EQ. press_pa(l) ) THEN
                   keep_this_one = .TRUE.
                   EXIT
                END IF
             END DO 
 
             IF (keep_this_one) THEN
-               CALL write_next_met_field(version, field, hdate, xfcst, xlvl, units, desc, &
-                                      iproj, startlat, startlon, starti, startj, deltalat, &
-                                      deltalon, dx, dy, xlonc, truelat1, truelat2, earth_radius, &
-                                      nx, ny, map_source, &
-                                      slab, is_wind_grid_rel, istatus)
+               CALL write_next_met_field(fg_data, istatus)
             ELSE
-               CALL mprintf(.true.,STDOUT,'Deleting level %f Pa',f1=xlvl)
+               CALL mprintf(.true.,STDOUT,'Deleting level %f Pa',f1=fg_data%xlvl)
             END IF
 
             CALL mprintf(.true.,STDOUT,'Processed %s at level %f for time %s', &
-                         s1=field, f1=xlvl, s2=hdate)
-            IF (ASSOCIATED(slab)) DEALLOCATE(slab)
+                         s1=fg_data%field, f1=fg_data%xlvl, s2=fg_data%hdate)
+            IF (ASSOCIATED(fg_data%slab)) DEALLOCATE(fg_data%slab)
    
-            CALL read_next_met_field(version, field, hdate, xfcst, xlvl, units, desc, &
-                                iproj, startlat, startlon, starti, startj, deltalat, &
-                                deltalon, dx, dy, xlonc, truelat1, truelat2, earth_radius, &
-                                nx, ny, map_source, &
-                                slab, is_wind_grid_rel, istatus)
+            CALL read_next_met_field(fg_data, istatus)
          END DO
 
          CALL write_met_close()

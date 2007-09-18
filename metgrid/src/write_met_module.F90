@@ -2,6 +2,7 @@ module write_met_module
 
    use module_debug
    use misc_definitions_module
+   use met_data_module
 
    ! State variables?
    integer :: output_unit
@@ -57,174 +58,333 @@ module write_met_module
    ! Name: write_next_met_field
    !
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
-   subroutine write_next_met_field(version, field, hdate, xfcst, xlvl, units, desc, &
-                          iproj, startlat, startlon, starti, startj, deltalat, deltalon, &
-                          dx, dy, xlonc, truelat1, truelat2, earth_radius, nx, ny, map_source, &
-                          slab, is_wind_grid_rel, istatus)
+   subroutine write_next_met_field(fg_data, istatus)
  
       implicit none
   
       ! Arguments
-      integer, intent(in) :: version, nx, ny, iproj
+      type (met_data), intent(in) :: fg_data
       integer, intent(out) :: istatus
-      real, intent(in) :: xfcst, xlvl, startlat, startlon, starti, startj, &
-                           deltalat, deltalon, dx, dy, xlonc, truelat1, truelat2, earth_radius
-      real, dimension(nx,ny) :: slab
-      logical, intent(in) :: is_wind_grid_rel
-      character (len=9), intent(in) :: field
-      character (len=24), intent(in) :: hdate
-      character (len=25), intent(in) :: units
-      character (len=32), intent(in) :: map_source
-      character (len=46), intent(in) :: desc
   
       ! Local variables
-      real :: local_dx, local_dy
       character (len=8) :: startloc
       character (len=9) :: local_field
   
       istatus = 1
   
       !  1) WRITE FORMAT VERSION
-      write(unit=output_unit) version
+      write(unit=output_unit) fg_data % version
 
-      local_field = field
-      if (field == 'GHT      ') local_field = 'HGT      '
-
-#if (defined _GEOGRID) || (defined _METGRID)
-      local_dx = dx / 1000.
-      local_dy = dy / 1000.
-#endif
+      local_field = fg_data % field
+      if (local_field == 'GHT      ') local_field = 'HGT      '
 
       ! PREGRID
-      if (version == 3) then
+      if (fg_data % version == 3) then
 
          ! Cylindrical equidistant
-         if (iproj == PROJ_LATLON) then
-            write(unit=output_unit) hdate, xfcst, local_field, units, desc, xlvl, nx, ny, 0
-            write(unit=output_unit) startlat, startlon, deltalat, deltalon
+         if (fg_data % iproj == PROJ_LATLON) then
+            write(unit=output_unit) fg_data % hdate, &
+                                    fg_data % xfcst, &
+                                    local_field,     &
+                                    fg_data % units, &
+                                    fg_data % desc,  &
+                                    fg_data % xlvl,  &
+                                    fg_data % nx,    &
+                                    fg_data % ny,    &
+                                    0
+            write(unit=output_unit) fg_data % startlat, &
+                                    fg_data % startlon, &
+                                    fg_data % deltalat, &
+                                    fg_data % deltalon
      
          ! Mercator
-         else if (iproj == PROJ_MERC) then
-            write(unit=output_unit) hdate, xfcst, local_field, units, desc, xlvl, nx, ny, 1
-            write(unit=output_unit) startlat, startlon, dx, dy, truelat1
+         else if (fg_data % iproj == PROJ_MERC) then
+            write(unit=output_unit) fg_data % hdate, &
+                                    fg_data % xfcst, &
+                                    local_field,     &
+                                    fg_data % units, &
+                                    fg_data % desc,  &
+                                    fg_data % xlvl,  &
+                                    fg_data % nx,    &
+                                    fg_data % ny,    &
+                                    1
+            write(unit=output_unit) fg_data % startlat, &
+                                    fg_data % startlon, &
+                                    fg_data % dx,       &
+                                    fg_data % dy,       &
+                                    fg_data % truelat1
      
          ! Lambert conformal
-         else if (iproj == PROJ_LC) then
-            write(unit=output_unit) hdate, xfcst, local_field, units, desc, xlvl, nx, ny, 3
-            write(unit=output_unit) startlat, startlon, dx, dy, xlonc, truelat1, truelat2
+         else if (fg_data % iproj == PROJ_LC) then
+            write(unit=output_unit) fg_data % hdate, &
+                                    fg_data % xfcst, &
+                                    local_field,     &
+                                    fg_data % units, &
+                                    fg_data % desc,  &
+                                    fg_data % xlvl,  &
+                                    fg_data % nx,    &
+                                    fg_data % ny,    &
+                                    3
+            write(unit=output_unit) fg_data % startlat, &
+                                    fg_data % startlon, &
+                                    fg_data % dx,       &
+                                    fg_data % dy,       &
+                                    fg_data % xlonc,    &
+                                    fg_data % truelat1, &
+                                    fg_data % truelat2
      
          ! Polar stereographic
-         else if (iproj == PROJ_PS) then
-            write(unit=output_unit) hdate, xfcst, local_field, units, desc, xlvl, nx, ny, 5
-            write(unit=output_unit) startlat, startlon, dx, dy, xlonc, truelat1
+         else if (fg_data % iproj == PROJ_PS) then
+            write(unit=output_unit) fg_data % hdate, &
+                                    fg_data % xfcst, &
+                                    local_field,     &
+                                    fg_data % units, &
+                                    fg_data % desc,  &
+                                    fg_data % xlvl,  &
+                                    fg_data % nx,    &
+                                    fg_data % ny,    &
+                                    5
+            write(unit=output_unit) fg_data % startlat, &
+                                    fg_data % startlon, &
+                                    fg_data % dx,       &
+                                    fg_data % dy,       &
+                                    fg_data % xlonc,    &
+                                    fg_data % truelat1
 
          ! ?????????
          else
-            call mprintf(.true.,ERROR,'Unrecognized projection code %i when reading from %s.', i1=iproj,s1=met_out_filename)
+            call mprintf(.true.,ERROR,'Unrecognized projection code %i when reading from %s.', &
+                         i1=fg_data % iproj,s1=met_out_filename)
      
          end if
      
-         write(unit=output_unit) slab
+         write(unit=output_unit) fg_data % slab
      
          istatus = 0 
     
       ! GRIB_PREP
-      else if (version == 4) then
+      else if (fg_data % version == 4) then
 
-         if (starti == 1.0 .and. startj == 1.0) then
+         if (fg_data % starti == 1.0 .and. fg_data % startj == 1.0) then
             startloc='SWCORNER'
          else
             startloc='CENTER  '
          end if
 
-#if (defined _GEOGRID) || (defined _METGRID)
-      local_dx = dx / 1000.
-      local_dy = dy / 1000.
-#endif
-  
          ! Cylindrical equidistant
-         if (iproj == PROJ_LATLON) then
-            write(unit=output_unit) hdate, xfcst, map_source, local_field, units, desc, xlvl, nx, ny, 0
-            write(unit=output_unit) startloc, startlat, startlon, deltalat, deltalon
+         if (fg_data % iproj == PROJ_LATLON) then
+            write(unit=output_unit) fg_data % hdate,      &
+                                    fg_data % xfcst,      &
+                                    fg_data % map_source, &
+                                    local_field,          &
+                                    fg_data % units,      &
+                                    fg_data % desc,       &
+                                    fg_data % xlvl,       &
+                                    fg_data % nx,         &
+                                    fg_data % ny,         &
+                                    0
+            write(unit=output_unit) startloc, &
+                                    fg_data % startlat, &
+                                    fg_data % startlon, &
+                                    fg_data % deltalat, &
+                                    fg_data % deltalon
 
          ! Mercator
-         else if (iproj == PROJ_MERC) then
-            write(unit=output_unit) hdate, xfcst, map_source, local_field, units, desc, xlvl, nx, ny, 1
-            write(unit=output_unit) startloc, startlat, startlon, dx, dy, truelat1
+         else if (fg_data % iproj == PROJ_MERC) then
+            write(unit=output_unit) fg_data % hdate,      &
+                                    fg_data % xfcst,      &
+                                    fg_data % map_source, &
+                                    local_field,          &
+                                    fg_data % units,      &
+                                    fg_data % desc,       &
+                                    fg_data % xlvl,       &
+                                    fg_data % nx,         &
+                                    fg_data % ny,         &
+                                    1
+            write(unit=output_unit) startloc, &
+                                    fg_data % startlat, &
+                                    fg_data % startlon, &
+                                    fg_data % dx,       &
+                                    fg_data % dy,       &
+                                    fg_data % truelat1
 
          ! Lambert conformal
-         else if (iproj == PROJ_LC) then
-            write(unit=output_unit) hdate, xfcst, map_source, local_field, units, desc, xlvl, nx, ny, 3
-            write(unit=output_unit) startloc, startlat, startlon, dx, dy, xlonc, truelat1, truelat2
+         else if (fg_data % iproj == PROJ_LC) then
+            write(unit=output_unit) fg_data % hdate,      &
+                                    fg_data % xfcst,      &
+                                    fg_data % map_source, &
+                                    local_field,          &
+                                    fg_data % units,      &
+                                    fg_data % desc,       &
+                                    fg_data % xlvl,       &
+                                    fg_data % nx,         &
+                                    fg_data % ny,         &
+                                    3
+            write(unit=output_unit) startloc, &
+                                    fg_data % startlat, &
+                                    fg_data % startlon, &
+                                    fg_data % dx,       &
+                                    fg_data % dy,       &
+                                    fg_data % xlonc,    &
+                                    fg_data % truelat1, &
+                                    fg_data % truelat2
 
          ! Polar stereographic
-         else if (iproj == PROJ_PS) then
-            write(unit=output_unit) hdate, xfcst, map_source, local_field, units, desc, xlvl, nx, ny, 5
-            write(unit=output_unit) startloc, startlat, startlon, dx, dy, xlonc, truelat1
+         else if (fg_data % iproj == PROJ_PS) then
+            write(unit=output_unit) fg_data % hdate,      &
+                                    fg_data % xfcst,      &
+                                    fg_data % map_source, &
+                                    local_field,          &
+                                    fg_data % units,      &
+                                    fg_data % desc,       &
+                                    fg_data % xlvl,       &
+                                    fg_data % nx,         &
+                                    fg_data % ny,         &
+                                    5
+            write(unit=output_unit) startloc, &
+                                    fg_data % startlat, &
+                                    fg_data % startlon, &
+                                    fg_data % dx,       &
+                                    fg_data % dy,       &
+                                    fg_data % xlonc,    &
+                                    fg_data % truelat1
      
          ! ?????????
          else
-            call mprintf(.true.,ERROR,'Unrecognized projection code %i when reading from %s.', i1=iproj,s1=met_out_filename)
+            call mprintf(.true.,ERROR,'Unrecognized projection code %i when reading from %s.', &
+                         i1=fg_data % iproj,s1=met_out_filename)
      
          end if
   
-         write(unit=output_unit) slab
+         write(unit=output_unit) fg_data % slab
       
          istatus = 0
 
       ! WPS
-      else if (version == 5) then
+      else if (fg_data % version == 5) then
 
-         if (starti == 1.0 .and. startj == 1.0) then
+         if (fg_data % starti == 1.0 .and. fg_data % startj == 1.0) then
             startloc='SWCORNER'
          else
             startloc='CENTER  '
          end if
 
-#if (defined _GEOGRID) || (defined _METGRID)
-      local_dx = dx / 1000.
-      local_dy = dy / 1000.
-#endif
-  
          ! Cylindrical equidistant
-         if (iproj == PROJ_LATLON) then
-            write(unit=output_unit) hdate, xfcst, map_source, local_field, units, desc, xlvl, nx, ny, 0
-            write(unit=output_unit) startloc, startlat, startlon, deltalat, deltalon, earth_radius
+         if (fg_data % iproj == PROJ_LATLON) then
+            write(unit=output_unit) fg_data % hdate,      &
+                                    fg_data % xfcst,      &
+                                    fg_data % map_source, &
+                                    local_field,          &
+                                    fg_data % units,      &
+                                    fg_data % desc,       &
+                                    fg_data % xlvl,       &
+                                    fg_data % nx,         &
+                                    fg_data % ny,         &
+                                    0
+            write(unit=output_unit) startloc, &
+                                    fg_data % startlat, &
+                                    fg_data % startlon, &
+                                    fg_data % deltalat, &
+                                    fg_data % deltalon, &
+                                    fg_data % earth_radius
 
          ! Mercator
-         else if (iproj == PROJ_MERC) then
-            write(unit=output_unit) hdate, xfcst, map_source, local_field, units, desc, xlvl, nx, ny, 1
-            write(unit=output_unit) startloc, startlat, startlon, dx, dy, truelat1, earth_radius
+         else if (fg_data % iproj == PROJ_MERC) then
+            write(unit=output_unit) fg_data % hdate,      &
+                                    fg_data % xfcst,      &
+                                    fg_data % map_source, &
+                                    local_field,          &
+                                    fg_data % units,      &
+                                    fg_data % desc,       &
+                                    fg_data % xlvl,       &
+                                    fg_data % nx,         &
+                                    fg_data % ny,         &
+                                    1
+            write(unit=output_unit) startloc, &
+                                    fg_data % startlat, &
+                                    fg_data % startlon, &
+                                    fg_data % dx,       &
+                                    fg_data % dy,       &
+                                    fg_data % truelat1, &
+                                    fg_data % earth_radius
 
          ! Lambert conformal
-         else if (iproj == PROJ_LC) then
-            write(unit=output_unit) hdate, xfcst, map_source, local_field, units, desc, xlvl, nx, ny, 3
-            write(unit=output_unit) startloc, startlat, startlon, dx, dy, xlonc, truelat1, truelat2, earth_radius
+         else if (fg_data % iproj == PROJ_LC) then
+            write(unit=output_unit) fg_data % hdate,      &
+                                    fg_data % xfcst,      &
+                                    fg_data % map_source, &
+                                    local_field,          &
+                                    fg_data % units,      &
+                                    fg_data % desc,       &
+                                    fg_data % xlvl,       &
+                                    fg_data % nx,         &
+                                    fg_data % ny,         &
+                                    3
+            write(unit=output_unit) startloc, &
+                                    fg_data % startlat, &
+                                    fg_data % startlon, &
+                                    fg_data % dx,       &
+                                    fg_data % dy,       &
+                                    fg_data % xlonc,    &
+                                    fg_data % truelat1, &
+                                    fg_data % truelat2, &
+                                    fg_data % earth_radius
 
          ! Gaussian
-         else if (iproj == PROJ_GAUSS) then
-            write(unit=output_unit) hdate, xfcst, map_source, local_field, units, desc, xlvl, nx, ny, 4
-            write(unit=output_unit) startloc, startlat, startlon, deltalat, deltalon, earth_radius
+         else if (fg_data % iproj == PROJ_GAUSS) then
+            write(unit=output_unit) fg_data % hdate,      &
+                                    fg_data % xfcst,      &
+                                    fg_data % map_source, &
+                                    local_field,          &
+                                    fg_data % units,      &
+                                    fg_data % desc,       &
+                                    fg_data % xlvl,       &
+                                    fg_data % nx,         &
+                                    fg_data % ny,         &
+                                    4
+            write(unit=output_unit) startloc, &
+                                    fg_data % startlat, &
+                                    fg_data % startlon, &
+                                    fg_data % deltalat, &
+                                    fg_data % deltalon, &
+                                    fg_data % earth_radius
 
          ! Polar stereographic
-         else if (iproj == PROJ_PS) then
-            write(unit=output_unit) hdate, xfcst, map_source, local_field, units, desc, xlvl, nx, ny, 5
-            write(unit=output_unit) startloc, startlat, startlon, dx, dy, xlonc, truelat1, earth_radius
+         else if (fg_data % iproj == PROJ_PS) then
+            write(unit=output_unit) fg_data % hdate,      &
+                                    fg_data % xfcst,      &
+                                    fg_data % map_source, &
+                                    local_field,          &
+                                    fg_data % units,      &
+                                    fg_data % desc,       &
+                                    fg_data % xlvl,       &
+                                    fg_data % nx,         &
+                                    fg_data % ny,         &
+                                    5
+            write(unit=output_unit) startloc, &
+                                    fg_data % startlat, &
+                                    fg_data % startlon, &
+                                    fg_data % dx,       &
+                                    fg_data % dy,       &
+                                    fg_data % xlonc,    &
+                                    fg_data % truelat1, &
+                                    fg_data % earth_radius
      
          ! ?????????
          else
-            call mprintf(.true.,ERROR,'Unrecognized projection code %i when reading from %s.', i1=iproj,s1=met_out_filename)
+            call mprintf(.true.,ERROR,'Unrecognized projection code %i when reading from %s.', &
+                         i1=fg_data % iproj,s1=met_out_filename)
      
          end if
   
-         write(unit=output_unit) is_wind_grid_rel
+         write(unit=output_unit) fg_data % is_wind_grid_rel
 
-         write(unit=output_unit) slab
+         write(unit=output_unit) fg_data % slab
       
          istatus = 0
 
       else
-         call mprintf(.true.,ERROR,'Didn''t recognize format number %i.', i1=version)
+         call mprintf(.true.,ERROR,'Didn''t recognize format number %i.', i1=fg_data % version)
       end if
   
       return

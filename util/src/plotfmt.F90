@@ -8,20 +8,12 @@ program plotfmt
 ! Uses NCAR graphics routines.  If you don't have NCAR Graphics, you're 
 ! out of luck.
 !
-   INTEGER :: istatus, version, nx, ny, iproj
+   INTEGER :: istatus
    integer :: idum, ilev
-   REAL :: xfcst, xlvl, startlat, startlon, starti, startj, &
-           deltalat, deltalon, dx, dy, xlonc, truelat1, truelat2, earth_radius
-   REAL, POINTER, DIMENSION(:,:) :: slab
-   LOGICAL :: is_wind_grid_rel
 
    CHARACTER ( LEN =132 )            :: flnm
 
-   CHARACTER ( LEN = 24 )            :: hdate
-   CHARACTER ( LEN =  9 )            :: field
-   CHARACTER ( LEN = 25 )            :: units
-   CHARACTER ( LEN = 46 )            :: desc
-   CHARACTER ( LEN = 32 )            :: map_source
+   TYPE (met_data)                   :: fg_data
 
 !
 !   Set up the graceful stop (Sun, SGI, DEC).
@@ -64,34 +56,28 @@ program plotfmt
 
    IF ( istatus == 0 ) THEN
 
-      CALL  read_next_met_field(version, field, hdate, xfcst, xlvl, units, desc, &
-                          iproj, startlat, startlon, starti, startj, deltalat, &
-                          deltalon, dx, dy, xlonc, truelat1, truelat2, earth_radius, &
-                          nx, ny, map_source, &
-                          slab, is_wind_grid_rel, istatus)
+      CALL  read_next_met_field(fg_data, istatus)
 
       DO WHILE (istatus == 0)
 
-         ilev = nint(xlvl)
+         ilev = nint(fg_data%xlvl)
 
-         if (iproj == PROJ_LATLON) then
-            call plt2d(slab, nx, ny, iproj, &
-                       startlat, startlon, deltalon, deltalat, xlonc, truelat1, truelat2, &
-                       field, ilev, units, version, desc, map_source)
+         if (fg_data%iproj == PROJ_LATLON) then
+            call plt2d(fg_data%slab, fg_data%nx, fg_data%ny, fg_data%iproj, &
+                       fg_data%startlat, fg_data%startlon, fg_data%deltalon, &
+                       fg_data%deltalat, fg_data%xlonc, fg_data%truelat1, fg_data%truelat2, &
+                       fg_data%field, ilev, fg_data%units, fg_data%version, fg_data%desc, fg_data%map_source)
          else
-            call plt2d(slab, nx, ny, iproj, &
-                       startlat, startlon, dx, dy, xlonc, truelat1, truelat2, &
-                       field, ilev, units, version, desc, map_source)
+            call plt2d(fg_data%slab, fg_data%nx, fg_data%ny, fg_data%iproj, &
+                       fg_data%startlat, fg_data%startlon, fg_data%dx, fg_data%dy, fg_data%xlonc, &
+                       fg_data%truelat1, fg_data%truelat2, fg_data%field, ilev, fg_data%units, &
+                       fg_data%version, fg_data%desc, fg_data%map_source)
          end if
 
 
-         IF (ASSOCIATED(slab)) DEALLOCATE(slab)
+         IF (ASSOCIATED(fg_data%slab)) DEALLOCATE(fg_data%slab)
 
-         CALL  read_next_met_field(version, field, hdate, xfcst, xlvl, units, desc, &
-                             iproj, startlat, startlon, starti, startj, deltalat, &
-                             deltalon, dx, dy, xlonc, truelat1, truelat2, earth_radius, &
-                             nx, ny, map_source, &
-                             slab, is_wind_grid_rel, istatus)
+         CALL  read_next_met_field(fg_data, istatus)
       END DO
 
       CALL read_met_close()
