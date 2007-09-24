@@ -7,6 +7,9 @@ module coefficients
 
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
    ! Name: read_coeffs
+   !
+   ! Notes: Obtain table of coefficients for input by this routine from
+   !        http://www.ecmwf.int/products/data/technical/model_levels/index.html
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
    subroutine read_coeffs()
       
@@ -23,10 +26,10 @@ module coefficients
          return
       end if
 
-      read(21,'(i5)',iostat=istatus) nlvl
+      read(21,*,iostat=istatus) nlvl
       do while (istatus == 0)
          n_levels = n_levels + 1
-         read(21,'(i5)',iostat=istatus) nlvl
+         read(21,*,iostat=istatus) nlvl
       end do
       
       rewind(21)
@@ -37,7 +40,7 @@ module coefficients
       write(6,*) ' '
       write(6,*) 'Coefficients for each level:',n_levels
       do i=1,n_levels
-         read(21,'(i5,5x,f12.6,2x,f12.10)',iostat=istatus) nlvl, a(i), b(i)
+         read(21,*,iostat=istatus) nlvl, a(i), b(i)
          write(6,'(i5,5x,f12.6,2x,f12.10)') nlvl, a(i), b(i)
       end do
       write(6,*) ' '
@@ -86,6 +89,7 @@ program calc_ecmwf_p
 
    ! Local variables
    integer :: i, idiff, n_times, t, istatus, fg_idx
+   real :: a_full, b_full
    character (len=19) :: valid_date, temp_date
    character (len=128) :: input_name
    type (met_data) :: psfc_data, p_data
@@ -149,11 +153,14 @@ program calc_ecmwf_p
 
                if (istatus == 0) then
 
-                  ! If we have found the PSFC field, we can quit reading from this file
-                  if (trim(psfc_data%field) == 'PSFC' .and. psfc_data%xlvl == 200100.) then
+                  ! If we have found the PSFC or LOGSFP field, we can quit reading from this file
+                  if ((trim(psfc_data%field) == 'PSFC' .or. trim(psfc_data%field) == 'LOGSFP') &
+                       .and. psfc_data%xlvl == 200100.) then
                      p_data = psfc_data
-                     p_data%field = 'PRES'
-                     call mprintf(.true.,STDOUT,'Found PSFC field in %s:%s',s1=input_name,s2=temp_date(1:13))
+                     p_data%field = 'PRESSURE '
+                     p_data%desc  = 'Pressure'
+                     call mprintf(.true.,STDOUT,'Found %s field in %s:%s', &
+                                  s1=psfc_data%field, s2=input_name, s3=temp_date(1:13))
                      exit
                   end if
                   
@@ -165,6 +172,7 @@ program calc_ecmwf_p
    
             call read_met_close()
 
+
             ! Now write out, for each level, the pressure field
             if (trim(psfc_data%field) == 'PSFC') then
 
@@ -172,10 +180,35 @@ program calc_ecmwf_p
 
                call write_met_init('PRES', .false., temp_date(1:13), istatus)
 
-               do i = 1, n_levels
+               do i = 1, n_levels-1
 
-                  p_data%xlvl = real(i)
-                  p_data%slab = a(i) + psfc_data%slab * b(i)
+                  a_full = 0.5 * (a(i) + a(i+1))
+                  b_full = 0.5 * (b(i) + b(i+1))
+
+                  p_data%xlvl = real(n_levels-i)
+                  p_data%slab = a_full + psfc_data%slab * b_full
+
+                  call write_next_met_field(p_data, istatus) 
+
+               end do
+
+               call write_met_close()
+  
+               deallocate(p_data%slab)
+
+            else if (trim(psfc_data%field) == 'LOGSFP') then
+
+               allocate(p_data%slab(p_data%nx,p_data%ny))
+
+               call write_met_init('PRES', .false., temp_date(1:13), istatus)
+
+               do i = 1, n_levels-1
+
+                  a_full = 0.5 * (a(i) + a(i+1))
+                  b_full = 0.5 * (b(i) + b(i+1))
+
+                  p_data%xlvl = real(n_levels-i)
+                  p_data%slab = a_full + exp(psfc_data%slab) * b_full
 
                   call write_next_met_field(p_data, istatus) 
 
