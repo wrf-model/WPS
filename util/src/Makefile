@@ -1,6 +1,6 @@
 include ../../configure.wps
 
-OBJS	=	plotgrids.o avg_tsfc.o calc_ecmwf_p.o plotfmt.o rd_intermediate.o mod_levs.o \
+OBJS	=	plotgrids.o avg_tsfc.o calc_ecmwf_p.o elev_angle.o plotfmt.o rd_intermediate.o mod_levs.o \
 		cio.o gridinfo_module.o misc_definitions_module.o module_debug.o \
 		read_met_module.o write_met_module.o module_date_pack.o met_data_module.o
 
@@ -34,6 +34,15 @@ avg_tsfc.exe: avg_tsfc.o cio.o module_debug.o gridinfo_module.o read_met_module.
 
 avg_tsfc.o: avg_tsfc.F90 cio.o module_debug.o gridinfo_module.o read_met_module.o \
 		write_met_module.o module_date_pack.o misc_definitions_module.o
+
+elev_angle.exe: elev_angle.o cio.o module_debug.o gridinfo_module.o \
+		write_met_module.o misc_definitions_module.o met_data_module.o
+	$(SFC) $(LDFLAGS) -o $@ elev_angle.o cio.o module_debug.o gridinfo_module.o \
+		write_met_module.o misc_definitions_module.o met_data_module.o \
+		-L$(NETCDF)/lib -I$(NETCDF)/include -lnetcdf
+
+elev_angle.o: elev_angle.F90 cio.o module_debug.o gridinfo_module.o \
+		write_met_module.o misc_definitions_module.o
 
 calc_ecmwf_p.exe: calc_ecmwf_p.o cio.o module_debug.o gridinfo_module.o read_met_module.o \
 		write_met_module.o module_date_pack.o misc_definitions_module.o met_data_module.o
@@ -80,6 +89,6 @@ module_date_pack.o: module_date_pack.f90
 
 clean:
 	$(RM) $(OBJS) *.mod
-	$(RM) plotgrids.exe plotfmt.exe avg_tsfc.exe calc_ecmwf_p.exe rd_intermediate.exe mod_levs.exe
+	$(RM) plotgrids.exe plotfmt.exe avg_tsfc.exe elev_angle.exe calc_ecmwf_p.exe rd_intermediate.exe mod_levs.exe
 
 superclean:	clean
