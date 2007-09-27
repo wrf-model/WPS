@@ -468,7 +468,7 @@ C  SET ARGUMENTS
 !MGD     &       gfld%ipdtmpl(2),gfld%ipdtmpl(10)
 !MGD          endif
 
-         ! Test this data record again list of desired variables 
+         ! Test this data record against list of desired variables 
          ! found in Vtable.
          ! ----
          MATCH_LOOP: do i=1,maxvar ! Max variables found in Vtable,
@@ -511,6 +511,7 @@ C  SET ARGUMENTS
 		  write(6,'(a,i6,a,i6,a)') 'Subsoil level ',
      &               gfld%ipdtmpl(12),' to ',gfld%ipdtmpl(15),
      &           ' in the GRIB2 file, was not found in the Vtable'
+		  cycle MATCH_LOOP
 		endif
 !MGD         if (debug_level .gt. 50) write(6,*) 'my_field is now ',my_field
 	      endif
