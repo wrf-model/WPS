@@ -34,12 +34,14 @@ module coefficients
       
       rewind(21)
 
-      allocate(a(n_levels))
-      allocate(b(n_levels))
+      n_levels = n_levels - 1
+
+      allocate(a(0:n_levels))
+      allocate(b(0:n_levels))
 
       write(6,*) ' '
       write(6,*) 'Coefficients for each level:',n_levels
-      do i=1,n_levels
+      do i=0,n_levels
          read(21,*,iostat=istatus) nlvl, a(i), b(i)
          write(6,'(i5,5x,f12.6,2x,f12.10)') nlvl, a(i), b(i)
       end do
@@ -154,8 +156,8 @@ program calc_ecmwf_p
                if (istatus == 0) then
 
                   ! If we have found the PSFC or LOGSFP field, we can quit reading from this file
-                  if ((trim(psfc_data%field) == 'PSFC' .or. trim(psfc_data%field) == 'LOGSFP') &
-                       .and. psfc_data%xlvl == 200100.) then
+                  if ((trim(psfc_data%field) == 'PSFC' .and. psfc_data%xlvl == 200100.) &
+                      .or. trim(psfc_data%field) == 'LOGSFP') then
                      p_data = psfc_data
                      p_data%field = 'PRESSURE '
                      p_data%desc  = 'Pressure'
@@ -180,12 +182,12 @@ program calc_ecmwf_p
 
                call write_met_init('PRES', .false., temp_date(1:13), istatus)
 
-               do i = 1, n_levels-1
+               do i = 1, n_levels
 
-                  a_full = 0.5 * (a(i) + a(i+1))
-                  b_full = 0.5 * (b(i) + b(i+1))
+                  a_full = 0.5 * (a(i-1) + a(i))   ! A and B are dimensioned (0:n_levels)
+                  b_full = 0.5 * (b(i-1) + b(i))
 
-                  p_data%xlvl = real(n_levels-i)
+                  p_data%xlvl = real(i)
                   p_data%slab = a_full + psfc_data%slab * b_full
 
                   call write_next_met_field(p_data, istatus) 
@@ -202,12 +204,12 @@ program calc_ecmwf_p
 
                call write_met_init('PRES', .false., temp_date(1:13), istatus)
 
-               do i = 1, n_levels-1
+               do i = 1, n_levels
 
-                  a_full = 0.5 * (a(i) + a(i+1))
-                  b_full = 0.5 * (b(i) + b(i+1))
+                  a_full = 0.5 * (a(i-1) + a(i))   ! A and B are dimensioned (0:n_levels)
+                  b_full = 0.5 * (b(i-1) + b(i))
 
-                  p_data%xlvl = real(n_levels-i)
+                  p_data%xlvl = real(i)
                   p_data%slab = a_full + exp(psfc_data%slab) * b_full
 
                   call write_next_met_field(p_data, istatus) 
