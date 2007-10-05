@@ -43,6 +43,7 @@ elev_angle.exe: elev_angle.o cio.o module_debug.o gridinfo_module.o \
 
 elev_angle.o: elev_angle.F90 cio.o module_debug.o gridinfo_module.o \
 		write_met_module.o misc_definitions_module.o
+	$(SFC) -c elev_angle.F90 -I$(NETCDF)/include
 
 calc_ecmwf_p.exe: calc_ecmwf_p.o cio.o module_debug.o gridinfo_module.o read_met_module.o \
 		write_met_module.o module_date_pack.o misc_definitions_module.o met_data_module.o

@@ -1,20 +1,14 @@
 program elev_angle
 
-   use write_met_module
-   use netcdf
-
    implicit none
 
    integer, external :: iargc
 
    integer :: istatus
-   integer :: i, j, n_bins
-   integer :: ncid, topo_varid, we_dimid, we_dim, sn_dimid, sn_dim
-   real, allocatable, dimension(:,:) :: hgt
+   integer :: i, j, n_bins, we_dim, sn_dim
+   real, pointer, dimension(:,:) :: hgt
    real, allocatable, dimension(:,:,:) :: topo_angle
-   character (len=NF90_MAX_NAME) :: toponame, we_name, sn_name
    character (len=1024) :: filename
-   type (met_data) :: met_angle
 
    if (iargc() /= 1) then
       write(6,*) ' '
@@ -25,12 +19,65 @@ program elev_angle
 
    call getarg(1,filename)
 
+   !
+   ! Read in topography field from geogrid output file
+   !
+   call read_topo_field(filename, hgt, we_dim, sn_dim, istatus)
+   if (istatus /= 0) stop
+
+   write(6,*) 'Read HGT_M field dimensioned ',we_dim,sn_dim
+   do j=1,sn_dim,10
+   do i=1,we_dim,10
+      write(6,'(a6,i3,a1,i3,a2,f13.5)') 'HGT_M(',i,',',j,')=',hgt(i,j)
+   end do
+   end do
+
+   n_bins = 180
+   allocate(topo_angle(we_dim, sn_dim, n_bins))
+
+   ! 
+   ! Compute elevation angles for each azimuth angle bin
+   !
+   topo_angle = 10.0 
+
+   !
+   ! Write elevation angle data to intermediate file
+   !
+   call write_elev_angles(topo_angle, we_dim, sn_dim, n_bins, istatus)
+
+
+   deallocate(topo_angle)
+   deallocate(hgt)
+
+   stop
+
+end program elev_angle
+
+
+subroutine read_topo_field(filename, hgt, we_dim, sn_dim, istatus)
+
+   use netcdf
+
+   implicit none
+
+   ! Arguments
+   character (len=*), intent(in) :: filename
+   real, pointer, dimension(:,:) :: hgt
+   integer, intent(out)          :: we_dim, sn_dim
+   integer, intent(out)          :: istatus
+
+   ! Local variables
+   integer :: ncid, topo_varid, we_dimid, sn_dimid
+   character (len=NF90_MAX_NAME) :: toponame, we_name, sn_name
+
+
    istatus = nf90_open(trim(filename), 0, ncid) 
    if (istatus /= NF90_NOERR) then
       write(6,*) ' '
       write(6,*) 'Error: Could not open file '//trim(filename)
       write(6,*) ' '
-      stop
+      istatus = 1
+      return
    end if
 
    sn_name = 'south_north'
@@ -39,7 +86,8 @@ program elev_angle
       write(6,*) ' '
       write(6,*) 'Error: Could not get ID of dimension south_north'
       write(6,*) ' '
-      stop
+      istatus = 1
+      return
    end if
 
    istatus = nf90_inquire_dimension(ncid, sn_dimid, sn_name, sn_dim)
@@ -47,7 +95,8 @@ program elev_angle
       write(6,*) ' '
       write(6,*) 'Error: Could not get south_north dimension'
       write(6,*) ' '
-      stop
+      istatus = 1
+      return
    end if
 
    we_name = 'west_east'
@@ -56,7 +105,8 @@ program elev_angle
       write(6,*) ' '
       write(6,*) 'Error: Could not get ID of dimension west_east'
       write(6,*) ' '
-      stop
+      istatus = 1
+      return
    end if
 
    istatus = nf90_inquire_dimension(ncid, we_dimid, we_name, we_dim)
@@ -64,7 +114,8 @@ program elev_angle
       write(6,*) ' '
       write(6,*) 'Error: Could not get west_east dimension'
       write(6,*) ' '
-      stop
+      istatus = 1
+      return
    end if
 
    toponame = 'HGT_M'
@@ -73,7 +124,8 @@ program elev_angle
       write(6,*) ' '
       write(6,*) 'Error: Could not get ID of variable HGT_M'
       write(6,*) ' '
-      stop
+      istatus = 1
+      return
    end if
 
    allocate(hgt(we_dim,sn_dim))
@@ -83,31 +135,72 @@ program elev_angle
       write(6,*) ' '
       write(6,*) 'Error: Could not read HGT_M field'
       write(6,*) ' '
+      istatus = 1
       deallocate(hgt)
-      stop
+      return
    end if
 
-   write(6,*) 'Read HGT_M field dimensioned ',we_dim,sn_dim
-   do j=1,sn_dim,10
-   do i=1,we_dim,10
-      write(6,'(a6,i3,a1,i3,a2,f13.5)') 'HGT_M(',i,',',j,')=',hgt(i,j)
-   end do
-   end do
-
    istatus = nf90_close(ncid)
+  
+   istatus = 0
+
+end subroutine read_topo_field
+
+
+subroutine write_elev_angles(field, we_dim, sn_dim, kdim, istatus)
+
+   use write_met_module
+
+   implicit none
+
+   ! Arguments
+   real, dimension(we_dim, sn_dim, kdim), intent(in) :: field
+   integer, intent(in)                               :: we_dim, sn_dim, kdim 
+   integer, intent(out)                              :: istatus
+
+   ! Local variables
+   integer :: i
+   type (met_data) :: met_angle
 
    call write_met_init('ELEVANGLES', .true., '0000-00-00_00:00:00', istatus)
 
-   do i=1,n_bins
+   if (istatus /= 0) then
+      write(6,*) ' '
+      write(6,*) 'Error opening output file ELEVANGLES'
+      write(6,*) ' '
+      istatus = 1
+      return
+   end if
 
-!      call write_next_met_field(met_angle, istatus)
+   met_angle%version = 5
+   met_angle%iproj = PROJ_MERC
+   met_angle%field = 'TOPO_ELEV'
+   met_angle%units = 'degrees'
+   met_angle%desc  = 'Topography elevation'
+!   met_angle%iproj = ...
+!   met_angle%truelat1 = ...
+!   met_angle%blah = ...
+!   met_angle%blah2 = ...
+
+   allocate(met_angle%slab(we_dim, sn_dim))
+
+   do i=1,kdim
+
+      met_angle%xlvl = real(i)
+      met_angle%slab(:,:) = field(:,:,i)
+      call write_next_met_field(met_angle, istatus)
+
+      if (istatus /= 0) then
+         write(6,*) 'Error writing data to output file ELEVANGLES'
+         istatus = 1
+         deallocate(met_angle%slab)
+         return
+      end if
 
    end do
 
    call write_met_close()
 
-   deallocate(hgt)
+   istatus = 0
 
-   stop
-
-end program elev_angle
+end subroutine write_elev_angles
