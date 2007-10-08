@@ -72,7 +72,8 @@ module module_debug
       character (len=10) :: cur_time
       character (len=10) :: print_date
       character (len=12) :: print_time
-      character (len=128) :: sa
+!BUG: sa should be as long as the largest string length used anywhere in WPS
+      character (len=1024) :: sa
       character (len=1024) :: ctemp
 
       if (.not. have_set_logname) then

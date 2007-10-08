@@ -18,6 +18,7 @@ subroutine output(hdate, nlvl, maxlvl, plvl, interval, iflag, out_format, prefix
   use storage_module
   use filelist
   use module_debug
+  use misc_definitions_module
   use stringutil
 
   implicit none
@@ -25,7 +26,7 @@ subroutine output(hdate, nlvl, maxlvl, plvl, interval, iflag, out_format, prefix
   character(LEN=19) :: hdate
   character(LEN=24) :: hdate_output
   character(LEN=3)  :: out_format
-  character(LEN=256)  :: prefix
+  character(LEN=MAX_FILENAME_LEN)  :: prefix
   integer :: iunit = 13
 
   real, pointer, dimension(:,:) :: scr2d
@@ -39,7 +40,7 @@ subroutine output(hdate, nlvl, maxlvl, plvl, interval, iflag, out_format, prefix
   integer :: interval
   integer :: iflag
 ! Local Miscellaneous
-  integer :: k, n, m, ilev
+  integer :: k, n, mm, ilev
   integer :: ii, jj
   real :: maxv, minv
   real :: xplv
@@ -86,12 +87,12 @@ subroutine output(hdate, nlvl, maxlvl, plvl, interval, iflag, out_format, prefix
      if ( debug_level .ge. 0 ) then
      write(*, advance='NO', FMT='(F6.1)') plvl(k)/100.
      end if
-     MLOOP : do m = 1, maxvar
-        do n = 1, m-1
-           if (namvar(m).eq.namvar(n)) cycle MLOOP
+     MLOOP : do mm = 1, maxvar
+        do n = 1, mm-1
+           if (namvar(mm).eq.namvar(n)) cycle MLOOP
         enddo
         if ( debug_level .ge. 0 ) then
-        if (is_there(ilev,namvar(m))) then
+        if (is_there(ilev,namvar(mm))) then
            write(*, advance='NO', FMT='("  X      ")')
         else
 	   if ( plvl(k).gt.200000 ) then
@@ -144,9 +145,9 @@ subroutine output(hdate, nlvl, maxlvl, plvl, interval, iflag, out_format, prefix
 !MGD  if ( debug_level .gt. 100 ) then
 !MGD     write(6,*) 'begin outloop'
 !MGD  end if
-     OUTLOOP : do m = 1, maxvar
-        field = namvar(m)
-        do k = 1, m-1
+     OUTLOOP : do mm = 1, maxvar
+        field = namvar(mm)
+        do k = 1, mm-1
            if (field.eq.namvar(k)) cycle OUTLOOP
         enddo
         level = plvl(n)
@@ -154,11 +155,11 @@ subroutine output(hdate, nlvl, maxlvl, plvl, interval, iflag, out_format, prefix
            cycle NLOOP
         endif
         ilev = nint(level)
-        desc = ddesc(m)
+        desc = ddesc(mm)
         if (iflag.eq.2) then
            if (desc.eq.' ') cycle OUTLOOP
         endif
-        units = dunits(m)
+        units = dunits(mm)
         if ((iflag.eq.1).or.(iflag.eq.2.and.desc(1:1).ne.' ')) then
           if (is_there(ilev,field)) then 
             call get_dims(ilev, field)

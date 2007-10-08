@@ -13,6 +13,7 @@ subroutine file_delete(hdates, ndates, root, interval)
 !                 This change also requires changes to pregrid_grib.F,        !
 !                 output.F, rrpr.F, datint.F                                  !
 
+  use misc_definitions_module
 
   implicit none
   integer :: ndates
@@ -22,9 +23,7 @@ subroutine file_delete(hdates, ndates, root, interval)
 
   logical :: lexist
   integer :: idate
-  character(len=120) :: flnm
-
-  character(len=120) :: fmt
+  character(len=MAX_FILENAME_LEN) :: flnm
 
 ! DATELEN:  length of date strings to use for our output file names.
   integer :: datelen
@@ -45,8 +44,7 @@ subroutine file_delete(hdates, ndates, root, interval)
 
   do idate = 1, ndates
      flnm=trim(root)//hdates(idate)(1:datelen)
-     fmt = '(10x,"Deleting file:  '//trim(flnm)//'")'
-     write(*, fmt)
+     write(*, '(A)') 'Deleting file:  '//trim(flnm)
 
      inquire(file=flnm, exist = lexist)
      if (lexist) then

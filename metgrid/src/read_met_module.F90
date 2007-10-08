@@ -7,7 +7,7 @@ module read_met_module
 
    ! State variables?
    integer :: input_unit
-   character (len=128) :: filename
+   character (len=MAX_FILENAME_LEN) :: filename
  
    contains
  

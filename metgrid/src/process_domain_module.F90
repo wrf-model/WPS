@@ -568,7 +568,8 @@ integer, parameter :: BDR_WIDTH = 3
       real, pointer, dimension(:,:,:) :: real_array
       logical, pointer, dimension(:) :: got_this_field
       character (len=19) :: output_date
-      character (len=128) :: cname, title, input_name
+      character (len=128) :: cname, title
+      character (len=MAX_FILENAME_LEN) :: input_name
       type (fg_input) :: field, u_field, v_field
       type (met_data) :: fg_data
 
@@ -1272,7 +1273,7 @@ integer, parameter :: BDR_WIDTH = 3
       real, dimension(sm1:em1,sm2:em2), intent(in), optional :: landmask
       logical, intent(in) :: do_gcell_interp
       character (len=9), intent(in) :: short_fieldnm
-      character (len=128), intent(in) :: input_name
+      character (len=MAX_FILENAME_LEN), intent(in) :: input_name
       type (fg_input), intent(inout) :: field
       type (bitarray), intent(inout) :: new_pts
 

@@ -6,7 +6,7 @@ module write_met_module
 
    ! State variables?
    integer :: output_unit
-   character (len=128) :: met_out_filename
+   character (len=MAX_FILENAME_LEN) :: met_out_filename
  
    contains
 

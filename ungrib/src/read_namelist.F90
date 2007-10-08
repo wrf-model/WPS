@@ -1,6 +1,9 @@
 subroutine read_namelist(hstart, hend, delta_time, ntimes,&
      ordered_by_date, debug_level, out_format, prefix)
+
+  use misc_definitions_module
   use module_debug
+
   implicit none
   integer , parameter :: maxim_doms = 21
   character(len=200) :: extdataroot, file_name_namelist
@@ -30,13 +33,13 @@ subroutine read_namelist(hstart, hend, delta_time, ntimes,&
   integer , dimension(maxim_doms) :: end_second
 
   character (len=128) , dimension(maxim_doms) :: start_date, end_date
-  character (len=128) :: opt_output_from_geogrid_path
+  character (len=MAX_FILENAME_LEN) :: opt_output_from_geogrid_path
   integer :: interval_seconds = 0
   character (len=3) :: wrf_core = 'ARW'
   integer :: max_dom, io_form_geogrid
 
   character(len=3) :: out_format
-  character(len=256) :: prefix
+  character(len=MAX_FILENAME_LEN) :: prefix
 
   namelist /share/ wrf_core, max_dom, &
        start_year, start_month, start_day, start_hour, &

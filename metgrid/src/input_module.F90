@@ -35,7 +35,7 @@ module input_module
       ! Local variables
       integer :: i
       integer :: comm_1, comm_2
-      character (len=128) :: input_fname
+      character (len=MAX_FILENAME_LEN) :: input_fname
   
       istatus = 0
   

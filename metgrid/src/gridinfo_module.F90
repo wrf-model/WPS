@@ -14,10 +14,10 @@ module gridinfo_module
  
    ! Variables
    integer :: interval_seconds, max_dom, io_form_input, io_form_output, debug_level
-   character (len=128) :: opt_output_from_geogrid_path, &
+   character (len=MAX_FILENAME_LEN) :: opt_output_from_geogrid_path, &
                           opt_output_from_metgrid_path, opt_metgrid_tbl_path 
-   character (len=128), dimension(MAX_DOMAINS) :: start_date, end_date, fg_name, &
-                          constants_name
+   character (len=128), dimension(MAX_DOMAINS) :: start_date, end_date
+   character (len=MAX_FILENAME_LEN), dimension(MAX_DOMAINS) :: fg_name, constants_name
    logical :: do_tiled_input, do_tiled_output, opt_ignore_dom_center
    character (len=1) :: gridtype
  

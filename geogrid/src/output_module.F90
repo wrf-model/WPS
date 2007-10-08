@@ -81,7 +81,8 @@ module output_module
       integer :: i, istatus, save_domain, comm_1, comm_2
       integer :: sp1, ep1, sp2, ep2, ep1_stag, ep2_stag
       real :: dx, dy, cen_lat, cen_lon, moad_cen_lat
-      character (len=128) :: coption, output_fname
+      character (len=128) :: coption
+      character (len=MAX_FILENAME_LEN) :: output_fname
       logical :: supports_training, supports_3d_fields
   
       call init_output_fields(grid_type, &

@@ -48,6 +48,7 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_level, out_f
   use storage_module
   use table
   use module_debug
+  use misc_definitions_module
   use stringutil
 
   implicit none
@@ -83,13 +84,13 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_level, out_f
   real, allocatable, dimension(:,:) :: scr2d
   real, pointer, dimension(:,:) :: ptr2d
 
-  integer :: k, kk, m, n, ierr, ifv
+  integer :: k, kk, mm, n, ierr, ifv
   integer :: iunit=13
 
   character(LEN=19) :: hdate, hend
   character(LEN=24) :: hdate_output
   character(LEN=3)  :: out_format
-  character(LEN=256)  :: prefix
+  character(LEN=MAX_FILENAME_LEN)  :: prefix
   real :: xfcst, level
   character(LEN=9) :: field
 
@@ -243,20 +244,20 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_level, out_f
            if ((plvl(k).gt.200100) .and. (plvl(k).lt.200200)) then
            ! We found a level between 200100 and 200200, now find the field
            ! corresponding to that level.
-              MLOOP : do m = 1, maxvar
-                 if (is_there(nint(plvl(k)), namvar(m))) then
+              MLOOP : do mm = 1, maxvar
+                 if (is_there(nint(plvl(k)), namvar(mm))) then
                     INLOOP : do kk = 200101, nint(plvl(k))
-                       if (is_there(kk, namvar(m))) then
+                       if (is_there(kk, namvar(mm))) then
                           if ( debug_level .gt. 100 ) then
                             call mprintf(.true.,DEBUG, &
-               "Copying %s at level %i to level 200100.",s1=namvar(m),i1=kk)
+               "Copying %s at level %i to level 200100.",s1=namvar(mm),i1=kk)
                           end if
-                          call get_dims(kk, namvar(m))
+                          call get_dims(kk, namvar(mm))
                           allocate(scr2d(map%nx,map%ny))
                           call get_storage &
-                               (kk, namvar(m), scr2d, map%nx, map%ny)
+                               (kk, namvar(mm), scr2d, map%nx, map%ny)
                           call put_storage &
-                               (200100,namvar(m), scr2d,map%nx,map%ny)
+                               (200100,namvar(mm), scr2d,map%nx,map%ny)
                           deallocate(scr2d)
                           EXIT INLOOP
                        endif

@@ -6,9 +6,12 @@ subroutine datint(fuldates, nful, hstart, ntimes, interval, out_format, prefix)
 !    out_format: requested output format
 !                                                                             !
 !*****************************************************************************!
+
   use gridinfo
   use storage_module
   use module_debug
+  use misc_definitions_module
+
   implicit none
   integer :: nful
   integer :: interval
@@ -22,7 +25,7 @@ subroutine datint(fuldates, nful, hstart, ntimes, interval, out_format, prefix)
   character(len=25) :: units
   character(len=46) :: desc
   character(LEN=3)  :: out_format
-  character(LEN=256)  :: prefix
+  character(LEN=MAX_FILENAME_LEN)  :: prefix
   real :: xfcst
 
   real :: level

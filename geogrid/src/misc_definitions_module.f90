@@ -7,6 +7,8 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 module misc_definitions_module
 
+   integer, parameter :: MAX_FILENAME_LEN = 1024
+
    real, parameter :: NAN=1.E20
 
    real, parameter :: NOT_MASKED   = -2.,  &

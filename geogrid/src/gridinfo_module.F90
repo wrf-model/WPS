@@ -20,7 +20,7 @@ module gridinfo_module
            known_x, known_y, dxkm, dykm, phi, lambda, ref_lat, ref_lon, ref_x, ref_y, &
            dlatdeg, dlondeg
    real, dimension(MAX_DOMAINS) :: parent_ll_x, parent_ll_y, parent_ur_x, parent_ur_y
-   character (len=128) :: geog_data_path, opt_output_from_geogrid_path, opt_geogrid_tbl_path
+   character (len=MAX_FILENAME_LEN) :: geog_data_path, opt_output_from_geogrid_path, opt_geogrid_tbl_path
 
    character (len=128), dimension(MAX_DOMAINS) :: geog_data_res 
    character (len=1) :: gridtype
@@ -305,7 +305,7 @@ module gridinfo_module
          call mprintf(.true.,ERROR,'In namelist, geog_data_path must be specified.')
       end if
       j = len_trim(geog_data_path)
-      if (j >= 128) then
+      if (j >= MAX_FILENAME_LEN) then
          call mprintf(.true.,ERROR, &
                       'In namelist, geog_data_path must be strictly less '// &
                       'than 128 characters in length.')

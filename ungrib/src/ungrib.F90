@@ -49,6 +49,7 @@ program ungrib
   use filelist
   use datarray
   use module_debug
+  use misc_definitions_module
   use stringutil
 
   implicit none
@@ -69,7 +70,7 @@ program ungrib
   real :: level
   character (LEN=9) ::  field
   character (LEN=3) ::  out_format
-  character (LEN=256) ::  prefix
+  character (LEN=MAX_FILENAME_LEN) ::  prefix
 
   logical :: readit
 

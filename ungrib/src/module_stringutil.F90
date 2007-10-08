@@ -1,6 +1,7 @@
 module stringutil
 
-   integer, parameter :: STRSIZE = 256
+!BUG: STRSIZE should be as large as the longest string length used in WPS
+   integer, parameter :: STRSIZE = 1024
 
    contains
 
