@@ -301,7 +301,8 @@ include 'mpif.h'
                   call MPI_Recv(idims, 2, MPI_INTEGER, processors(i,j), MPI_ANY_TAG, comm, mpi_stat, mpi_ierr)
                   do kk=ds3,de3
 ! BUG: Check on mpi_stat and mpi_ierr
-                     call MPI_Recv(domain_array(idims(1):idims(2),jdims(1):jdims(2),kk), (idims(2)-idims(1)+1)*(jdims(2)-jdims(1)+1), &
+                     call MPI_Recv(domain_array(idims(1):idims(2),jdims(1):jdims(2),kk), &
+                                               (idims(2)-idims(1)+1)*(jdims(2)-jdims(1)+1), &
                                    MPI_INTEGER, processors(i,j), MPI_ANY_TAG, comm, mpi_stat, mpi_ierr)
                   end do
                else
@@ -424,7 +425,8 @@ include 'mpif.h'
                   call MPI_Recv(idims, 2, MPI_INTEGER, processors(i,j), MPI_ANY_TAG, comm, mpi_stat, mpi_ierr)
                   do kk=ds3,de3
 ! BUG: Check on mpi_stat and mpi_ierr
-                     call MPI_Send(domain_array(idims(1):idims(2),jdims(1):jdims(2),kk), (idims(2)-idims(1)+1)*(jdims(2)-jdims(1)+1), &
+                     call MPI_Send(domain_array(idims(1):idims(2),jdims(1):jdims(2),kk), &
+                                               (idims(2)-idims(1)+1)*(jdims(2)-jdims(1)+1), &
                                    MPI_INTEGER, processors(i,j), my_proc_id, comm, mpi_ierr)
                   end do
                else
@@ -442,7 +444,8 @@ include 'mpif.h'
          idims(2) = pe1
          call MPI_Send(idims, 2, MPI_INTEGER, 0, my_proc_id, comm, mpi_ierr)
          do kk=ps3,pe3
-            call MPI_Recv(patch_array(ps1:pe1,ps2:pe2,kk), (pe1-ps1+1)*(pe2-ps2+1), MPI_INTEGER, 0, MPI_ANY_TAG, comm, mpi_stat, mpi_ierr)
+            call MPI_Recv(patch_array(ps1:pe1,ps2:pe2,kk), (pe1-ps1+1)*(pe2-ps2+1), &
+                          MPI_INTEGER, 0, MPI_ANY_TAG, comm, mpi_stat, mpi_ierr)
 ! BUG: Check on mpi_ierr
          end do
      end if
@@ -485,7 +488,8 @@ include 'mpif.h'
                   call MPI_Recv(idims, 2, MPI_INTEGER, processors(i,j), MPI_ANY_TAG, comm, mpi_stat, mpi_ierr)
                   do kk=ds3,de3
 ! BUG: Check on mpi_stat and mpi_ierr
-                     call MPI_Send(domain_array(idims(1):idims(2),jdims(1):jdims(2),kk), (idims(2)-idims(1)+1)*(jdims(2)-jdims(1)+1), &
+                     call MPI_Send(domain_array(idims(1):idims(2),jdims(1):jdims(2),kk), &
+                                               (idims(2)-idims(1)+1)*(jdims(2)-jdims(1)+1), &
                                    MPI_REAL, processors(i,j), my_proc_id, comm, mpi_ierr)
                   end do
                else
@@ -503,7 +507,8 @@ include 'mpif.h'
          idims(2) = pe1
          call MPI_Send(idims, 2, MPI_INTEGER, 0, my_proc_id, comm, mpi_ierr)
          do kk=ps3,pe3
-            call MPI_Recv(patch_array(ps1:pe1,ps2:pe2,kk), (pe1-ps1+1)*(pe2-ps2+1), MPI_REAL, 0, MPI_ANY_TAG, comm, mpi_stat, mpi_ierr)
+            call MPI_Recv(patch_array(ps1:pe1,ps2:pe2,kk), (pe1-ps1+1)*(pe2-ps2+1), &
+                          MPI_REAL, 0, MPI_ANY_TAG, comm, mpi_stat, mpi_ierr)
 ! BUG: Check on mpi_ierr
          end do
      end if
