@@ -5,7 +5,7 @@ Param| Type |Level1|Level2| Name     |  Units   | Description                   
    7 | 109  |   *  |      | HGT      | m        | Height                                  |  0  |  3  |  5  | 105 |
    1 | 109  |   *  |      | PRESSURE | Pa       | Pressure                                |  0  |  3  |  0  | 105 |
  189 | 109  |   *  |      | VPTMP    | K        |                                         |  0  |  0  | 15  | 105 |
-  53 | 109  |   *  |      | SPECHUMD | kg kg-1  |                                         |  0  |  1  |  2  | 105 |
+  53 | 109  |   *  |      | QV       | kg kg-1  |                                         |  0  |  1  |  2  | 105 |
   33 | 109  |   *  |      | UU       | m s-1    | U                                       |  0  |  2  |  2  | 105 |
   34 | 109  |   *  |      | VV       | m s-1    | V                                       |  0  |  2  |  3  | 105 |
      | 109  |   *  |      | RH       | %        | Relative Humidity                       |  0  |  1  |  1  | 105 |
@@ -15,7 +15,7 @@ Param| Type |Level1|Level2| Name     |  Units   | Description                   
   66 |  1   |   0  |      | SNOWH    | m        | Snow Depth                              |  0  |  1  | 11  |   1 |
   11 | 105  |   2  |      | TT       | K        | Temperature                             |  0  |  0  |  0  | 103 |
      | 105  |   2  |      | RH       | %        | Relative Humidity                       |  0  |  1  |  1  | 103 |
-  53 | 105  |   2  |      | SPECHUMD | kg kg-1  |                                         |  0  |  1  |  0  | 103 |
+  53 | 105  |   2  |      | QV       | kg kg-1  |                                         |  0  |  1  |  0  | 103 |
   33 | 105  |  10  |      | UU       | m s-1    | U                                       |  0  |  2  |  2  | 103 |
   34 | 105  |  10  |      | VV       | m s-1    | V                                       |  0  |  2  |  3  | 103 |
  144 |   1  |   0  |      | SOILM000 | kg m-3   | Soil Moist   0 cm below ground          |  2  |  0  | 192 | 106 |
