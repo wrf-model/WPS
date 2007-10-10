@@ -474,6 +474,11 @@ name=WEASD
         masked=water 
         fill_missing=0.
 ========================================
+name=SNOWH
+        interp_option=four_pt+average_4pt
+        masked=water 
+        fill_missing=0.
+========================================
 name=SOILHGT
         interp_option=four_pt+average_4pt
         flag_in_output=FLAG_SOILHGT
