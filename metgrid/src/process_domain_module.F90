@@ -39,9 +39,10 @@ module process_domain_module
       real, dimension(16) :: corner_lats, corner_lons
       real, pointer, dimension(:,:) :: landmask
       real, pointer, dimension(:,:) :: xlat, xlon, xlat_u, xlon_u, xlat_v, xlon_v
+      logical, allocatable, dimension(:) :: got_this_field, got_const_field
       character (len=19) :: valid_date, temp_date
       character (len=128) :: title, mminlu
-      character (len=128), pointer, dimension(:) :: output_flags, td_output_flags
+      character (len=128), allocatable, dimension(:) :: output_flags, td_output_flags
 
       ! Compute number of times that we will process
       call geth_idts(end_date(n), start_date(n), idiff)
@@ -77,9 +78,13 @@ module process_domain_module
                     dom_dx, dom_dy, landmask, xlat, xlon, xlat_u, xlon_u, xlat_v, xlon_v, corner_lats, &
                     corner_lons, title)
 
+
       allocate(output_flags(num_entries))
+      allocate(got_const_field(num_entries))
+
       do i=1,num_entries
-         output_flags(i) = ' '
+         output_flags(i)    = ' '
+         got_const_field(i) = .false.
       end do
    
       ! This call is to process the constant met fields (SST or SEAICE, for example)
@@ -93,6 +98,7 @@ module process_domain_module
                           sn_patch_s, sn_patch_e, sn_patch_stag_s, sn_patch_stag_e, &
                           we_mem_s, we_mem_e, we_mem_stag_s, we_mem_stag_e, &
                           sn_mem_s, sn_mem_e, sn_mem_stag_s, sn_mem_stag_e, &
+                          got_const_field, &
                           map_proj, mminlu, is_water, is_ice, is_urban, i_soilwater, &
                           grid_id, parent_id, i_parent_start, &
                           j_parent_start, i_parent_end, j_parent_end, dom_dx, dom_dy, &
@@ -102,6 +108,9 @@ module process_domain_module
       !
       ! Begin time-dependent processing
       !
+
+      allocate(td_output_flags(num_entries))
+      allocate(got_this_field (num_entries))
    
       ! Loop over all times to be processed for this domain
       do t=0,n_times
@@ -120,9 +129,9 @@ module process_domain_module
          call mprintf(.true.,STDOUT, ' Processing %s', s1=trim(temp_date))
          call mprintf(.true.,LOGFILE, 'Preparing to process output time %s', s1=temp_date)
    
-         allocate(td_output_flags(num_entries))
          do i=1,num_entries
             td_output_flags(i) = output_flags(i)
+            got_this_field(i)  = got_const_field(i)
          end do
    
          call process_single_met_time(.false., temp_date, n, extra_row, extra_col, xlat, xlon, &
@@ -134,17 +143,21 @@ module process_domain_module
                              sn_patch_s, sn_patch_e, sn_patch_stag_s, sn_patch_stag_e, &
                              we_mem_s, we_mem_e, we_mem_stag_s, we_mem_stag_e, &
                              sn_mem_s, sn_mem_e, sn_mem_stag_s, sn_mem_stag_e, &
+                             got_this_field, &
                              map_proj, mminlu, is_water, is_ice, is_urban, i_soilwater, &
                              grid_id, parent_id, i_parent_start, &
                              j_parent_start, i_parent_end, j_parent_end, dom_dx, dom_dy, &
                              cen_lat, moad_cen_lat, cen_lon, stand_lon, truelat1, &
                              truelat2, parent_grid_ratio, corner_lats, corner_lons, td_output_flags)
-
-         deallocate(td_output_flags)
    
       end do  ! Loop over n_times
 
+
+      deallocate(td_output_flags)
+      deallocate(got_this_field)
+
       deallocate(output_flags)
+      deallocate(got_const_field)
    
       call storage_delete_all()
    
@@ -509,6 +522,7 @@ module process_domain_module
                              sn_patch_s, sn_patch_e, sn_patch_stag_s, sn_patch_stag_e, &
                              we_mem_s, we_mem_e, we_mem_stag_s, we_mem_stag_e, &
                              sn_mem_s, sn_mem_e, sn_mem_stag_s, sn_mem_stag_e, &
+                             got_this_field, &
                              map_proj, mminlu, is_water, is_ice, is_urban, i_soilwater, &
                              grid_id, parent_id, i_parent_start, &
                              j_parent_start, i_parent_end, j_parent_end, dom_dx, dom_dy, &
@@ -547,9 +561,10 @@ module process_domain_module
       real, dimension(16), intent(in) :: corner_lats, corner_lons
       real, pointer, dimension(:,:) :: xlat, xlon, xlat_u, xlon_u, xlat_v, xlon_v
       logical, intent(in) :: extra_row, extra_col
+      logical, dimension(:), intent(inout) :: got_this_field
       character (len=19), intent(in) :: temp_date
       character (len=128), intent(in) :: mminlu
-      character (len=128), pointer, dimension(:) :: output_flags
+      character (len=128), dimension(:), intent(inout) :: output_flags
 
 ! BUG: Move this constant to misc_definitions_module?
 integer, parameter :: BDR_WIDTH = 3
@@ -566,17 +581,12 @@ integer, parameter :: BDR_WIDTH = 3
       integer, pointer, dimension(:) :: u_levels, v_levels
       real, pointer, dimension(:,:) :: halo_slab
       real, pointer, dimension(:,:,:) :: real_array
-      logical, pointer, dimension(:) :: got_this_field
       character (len=19) :: output_date
       character (len=128) :: cname, title
       character (len=MAX_FILENAME_LEN) :: input_name
       type (fg_input) :: field, u_field, v_field
       type (met_data) :: fg_data
 
-      allocate(got_this_field(num_entries))
-      do i=1,num_entries
-         got_this_field(i) = .false.
-      end do
 
       ! For this time, we need to process all first-guess filename roots. When we 
       !   hit a root containing a '*', we assume we have hit the end of the list
@@ -1032,7 +1042,6 @@ integer, parameter :: BDR_WIDTH = 3
             call mprintf(.true.,ERROR,'The mandatory field %s was not found in any input data.',s1=fieldname(i))
          end if
       end do
-      deallocate(got_this_field)
        
       !
       ! Before we begin to write fields, if debug_level is set high enough, we 
