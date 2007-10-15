@@ -2352,7 +2352,11 @@ module source_data_module
       character (len=256), intent(out) :: file_name
   
       ! Local variables
-      integer :: local_wordsize, local_endian, sign_convention, irow_order
+      integer :: j, k
+      integer :: local_wordsize, local_endian, sign_convention, irow_order, strlen
+      integer :: xdim,ydim,zdim
+      real :: scalefac
+      real, allocatable, dimension(:) :: temprow
   
       call get_tile_fname(file_name, xlat, xlon, ilevel, field_name, istatus)
 
@@ -2368,15 +2372,35 @@ module source_data_module
                       start_z_dim, end_z_dim, npts_bdr, local_wordsize, local_endian, &
                       sign_convention, ilevel, field_name, istatus)
   
+      xdim = (end_x_dim-start_x_dim+1)
+      ydim = (end_y_dim-start_y_dim+1)
+      zdim = (end_z_dim-start_z_dim+1)
+
       if (associated(array)) deallocate(array)
-      allocate(array(start_x_dim:end_x_dim,start_y_dim:end_y_dim,start_z_dim:end_z_dim))
+      allocate(array(xdim,ydim,zdim))
   
       call get_row_order(field_name, ilevel, irow_order, istatus)
       if (istatus /= 0) irow_order = BOTTOM_TOP
   
-      call read_dem(file_name, end_x_dim-start_x_dim+1, &
-                    end_y_dim-start_y_dim+1, end_z_dim-start_z_dim+1, &
-                    local_wordsize, local_endian, array, sign_convention, irow_order, istatus)
+      call s_len(file_name,strlen)
+
+      scalefac = 1.0
+
+      call read_geogrid(file_name, strlen, array, xdim, ydim, zdim, &
+                        sign_convention, local_endian, scalefac, local_wordsize, istatus)
+
+      if (irow_order == TOP_BOTTOM) then
+         allocate(temprow(xdim))
+         do k=1,zdim
+            do j=1,ydim
+               if (ydim-j+1 <= j) exit               
+               temprow(1:xdim)          = array(1:xdim,j,k)
+               array(1:xdim,j,k)        = array(1:xdim,ydim-j+1,k)
+               array(1:xdim,ydim-j+1,k) = temprow(1:xdim)
+            end do
+         end do
+         deallocate(temprow)
+      end if
   
       if (istatus /= 0) then
          start_x_dim = INVALID
@@ -3077,47 +3101,5 @@ module source_data_module
       enddo
  
    end subroutine s_len
- 
- 
-   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
-   ! Name: read_dem
-   !
-   ! NOTE: This routine adapted from a routine of the same name in the 
-   !       original FSL WRF SI.
-   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
-   subroutine read_dem(unit_name, nn1, nn2, nn3, i1, endianness, datarr, &
-                       sign_convention, row_order, istat)
- 
-      implicit none
-  
-      ! Arguments
-      integer, intent(in) :: nn1, nn2, nn3, i1, endianness, sign_convention, row_order
-      integer, intent(out) :: istat
-      real, dimension(nn1,nn2,nn3), intent(out) :: datarr
-      character (len=*), intent(in) :: unit_name
-  
-      ! Local variables
-      integer :: strlen
-      integer :: j, k
-      real, allocatable, dimension(:) :: temprow
-  
-      call s_len(unit_name,strlen)
-  
-      call read_binary_field(datarr,i1,endianness,nn1*nn2*nn3,unit_name,strlen,sign_convention,istat)
-
-      if (row_order == TOP_BOTTOM) then
-         allocate(temprow(nn1))
-         do k=1,nn3
-            do j=1,nn2 
-               if (nn2-j+1 <= j) exit               
-               temprow(1:nn1) = datarr(1:nn1,j,k)
-               datarr(1:nn1,j,k) = datarr(1:nn1,nn2-j+1,k)
-               datarr(1:nn1,nn2-j+1,k) = temprow(1:nn1)
-            end do
-         end do
-         deallocate(temprow)
-      end if
- 
-   end subroutine read_dem
  
 end module source_data_module
