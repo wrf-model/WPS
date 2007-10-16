@@ -53,7 +53,7 @@ int read_geogrid(
    local_fname[*len]='\0';
 
    /* Attempt to open file for reading */
-   if (!(bfile = fopen(local_fname,"r+")))
+   if (!(bfile = fopen(local_fname,"rb")))
    {
       *status = 1;
       return 1;

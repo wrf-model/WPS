@@ -111,7 +111,7 @@ int write_geogrid(
    sprintf(fname,"%5.5i-%5.5i.%5.5i-%5.5i",1,*nx,1,*ny);
 
    /* Write array to file */
-   bfile = fopen(fname,"w+");
+   bfile = fopen(fname,"wb");
    fwrite(barray,sizeof(unsigned char),narray*(*wordsize),bfile);
    fclose(bfile);
 
