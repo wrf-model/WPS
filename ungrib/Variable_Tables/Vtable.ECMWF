@@ -11,6 +11,7 @@ Code | Code |   1  |   2  | Name     |  Units   | Description                   
  166 |  1   |   0  |      | VV       | m s-1    | V                                        | At 10 m
  167 |  1   |   0  |      | TT       | K        | Temperature                              | At 2 m
  168 |  1   |   0  |      | DEWPT    | K        |                                          | At 2 m
+     |  1   |   0  |      | RH       | %        | Relative Humidity                        | At 2 m
  172 |  1   |   0  |      | LANDSEA  | 0/1 Flag | Land/Sea flag                            |
  129 |  1   |   0  |      | SOILGEO  | m2 s-2   |                                          |
      |  1   |   0  |      | SOILHGT  | m        | Terrain field of source analysis         |
