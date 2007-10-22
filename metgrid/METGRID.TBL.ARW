@@ -469,11 +469,6 @@ name=HGTT
         output=no
         interp_option=nearest_neighbor
 ========================================
-name=WEASD
-        interp_option=four_pt+average_4pt
-        masked=water 
-        fill_missing=0.
-========================================
 name=SNOWH
         interp_option=four_pt+average_4pt
         masked=water 

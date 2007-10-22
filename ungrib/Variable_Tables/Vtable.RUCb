@@ -8,11 +8,19 @@ Param| Type |Level1|Level2| Name     |  Units   | Description                   
   53 | 109  |   *  |      | QV       | kg kg-1  | QV                                      |  0  |  1  |  2  | 105 |
   33 | 109  |   *  |      | UU       | m s-1    | U                                       |  0  |  2  |  2  | 105 |
   34 | 109  |   *  |      | VV       | m s-1    | V                                       |  0  |  2  |  3  | 105 |
-     | 109  |   *  |      | RH       | %        | Relative Humidity                       |  0  |  1  |  1  | 105 |
-     | 109  |   *  |      | TT       | K        | Temperature                             |  0  |  0  |  0  | 105 |
+ 153 | 109  |   *  |      | QC       | kg kg-1  | QC                                      |  0  |  1  | 22  | 105 |
+ 170 | 109  |   *  |      | QR       | kg kg-1  | QR                                      |  0  |  1  | 24  | 105 |
+ 178 | 109  |   *  |      | QI       | kg kg-1  | QI                                      |  0  |  1  | 23  | 105 |
+ 171 | 109  |   *  |      | QS       | kg kg-1  | QSN                                     |  0  |  1  | 25  | 105 |
+ 179 | 109  |   *  |      | QG       | kg kg-1  | QG                                      |  0  |  1  | 32  | 105 |
+ 198 | 109  |   *  |      | QNI      | m-3      | QNI                                     |  0  |  1  | 207 | 105 |
+     | 109  |   *  |      | RH       | %        | Relative Humidity                       |  0  |  1  |     | 105 |
+     | 109  |   *  |      | TT       | K        | Temperature                             |  0  |  0  |     | 105 |
  129 | 102  |   0  |      | PMSL     | Pa       | Sea-level Pressure                      |  0  |  3  | 198 | 101 |
-  65 |  1   |   0  |      | SNOW     | kg m-2   | Water Equivalent Snow Depth             |  0  |  1  | 13  |   1 |
-  66 |  1   |   0  |      | SNOWH    | m        | Snow Depth                              |  0  |  1  | 11  |   1 |
+     |  1   |   0  |      | SNOW     | kg m-2   | Water Equivalent Snow Depth             |  0  |  1  |     |   1 |
+     |  1   |   0  |      | SNOWH    | m        | Snow Depth                              |  0  |  1  |     |   1 |
+  66 |  1   |   0  |      | SNOWRUC  | m        |                                         |  0  |  1  | 11  |   1 |
+  89 | 111  |   5  |      | RHOSN    | kg m-3   | Snow density                            |  0  |  1  | 61  |   1 |
   11 | 105  |   2  |      | TT       | K        | Temperature                             |  0  |  0  |  0  | 103 |
      | 105  |   2  |      | RH       | %        | Relative Humidity                       |  0  |  1  |  1  | 103 |
   53 | 105  |   2  |      | QV       | kg kg-1  | Water vapor mixing ratio at 2 m         |  0  |  1  |  2  | 103 |
@@ -31,5 +39,9 @@ Param| Type |Level1|Level2| Name     |  Units   | Description                   
   85 | 111  | 160  |      | SOILT160 | K        | Soil Temp  160 cm below ground          |  2  |  0  |  2  | 106 |
   85 | 111  | 300  |      | SOILT300 | K        | Soil Temp  300 cm below ground          |  2  |  0  |  2  | 106 |
  223 |   1  |   0  |      | CANWAT   | kg m-2   | Plant Canopy Surface Water              |  2  |  0  | 196 |   1 |
-  85 |   1  |   0  |      | SKINTEMP | K        | Temperature at ground sfc (from s file) |  0  |  0  |  0  |   1 |
+  11 | 111  |   5  |      | SKINTEMP | K        | Temperature at ground sfc (from s file) |  0  |  0  |  0  |   1 |
+ 239 | 111  |  10  |      | TSNOW    | K        | Temperature inside snow                 |  0  |  1  | 208 | 106 |
+  53 |  1   |   0  |      | QVG      | kg kg-1  | Water vapor mixing ratio at the surface |  0  |  1  |  2  |   1 |
+  91 |  1   |   0  |      | SEAICE   |          | Ice flag                                | 10  |  2  |  0  |   1 |
+ 223 |   1  |   0  |      | CANWAT   | kg m-2   | Plant Canopy Surface Water              |  2  |  0  | 196 |   1 |
 -----+------+------+------+----------+----------+-----------------------------------------+-----------------------+
