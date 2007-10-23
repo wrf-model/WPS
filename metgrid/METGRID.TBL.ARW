@@ -375,6 +375,11 @@ name=RH
         fill_missing=0.
         fill_lev=200100:const(0.)
 ========================================
+name=SPECHUMD
+        interp_option=sixteen_pt+four_pt+average_4pt
+        fill_missing=0.
+        fill_lev=200100:const(0.)
+========================================
 name=TAVGSFC
         interp_option=four_pt
         fill_missing=0.
