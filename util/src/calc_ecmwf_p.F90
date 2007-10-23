@@ -94,7 +94,10 @@ program calc_ecmwf_p
    real :: a_full, b_full
    character (len=19) :: valid_date, temp_date
    character (len=128) :: input_name
-   type (met_data) :: psfc_data, p_data
+   real, allocatable, dimension(:,:) :: psfc
+   real, allocatable, dimension(:,:,:) :: tt, qv
+   logical :: is_psfc
+   type (met_data) :: ecmwf_data, p_data, rh_data
 
 
    !
@@ -144,6 +147,8 @@ program calc_ecmwf_p
          ! Initialize the module for reading in the met fields
          call read_met_init(trim(input_name), .false., temp_date(1:13), istatus)
 
+         is_psfc = .false.
+
          if (istatus == 0) then
             call mprintf(.true.,STDOUT,'Reading from %s at time %s', s1=input_name, s2=temp_date(1:13))
 
@@ -151,22 +156,66 @@ program calc_ecmwf_p
             !   will return a non-zero status when there are no more fields to be read.
             do while (istatus == 0)
 
-               call read_next_met_field(psfc_data, istatus)
+               call read_next_met_field(ecmwf_data, istatus)
 
                if (istatus == 0) then
 
-                  ! If we have found the PSFC or LOGSFP field, we can quit reading from this file
-                  if ((trim(psfc_data%field) == 'PSFC' .and. psfc_data%xlvl == 200100.) &
-                      .or. trim(psfc_data%field) == 'LOGSFP') then
-                     p_data = psfc_data
+                  ! Have we found either PSFC or LOGSFP?
+                  if ((trim(ecmwf_data%field) == 'PSFC' .and. ecmwf_data%xlvl == 200100.) &
+                      .or. trim(ecmwf_data%field) == 'LOGSFP') then
+                     p_data = ecmwf_data
                      p_data%field = 'PRESSURE '
                      p_data%desc  = 'Pressure'
+
+                     rh_data = ecmwf_data
+                     rh_data%field = 'RH       '
+                     rh_data%units = '%'
+                     rh_data%desc  = 'Relative humidity'
+
+                     if (.not. allocated(psfc)) then
+                        allocate(psfc(ecmwf_data%nx,ecmwf_data%ny))
+                     end if
                      call mprintf(.true.,STDOUT,'Found %s field in %s:%s', &
-                                  s1=psfc_data%field, s2=input_name, s3=temp_date(1:13))
-                     exit
+                                  s1=ecmwf_data%field, s2=input_name, s3=temp_date(1:13))
+
+                     is_psfc   = .true.
+                     if (trim(ecmwf_data%field) == 'LOGSFP') then
+                        psfc(:,:) = exp(ecmwf_data%slab(:,:))
+                     else
+                        psfc(:,:) = ecmwf_data%slab(:,:)
+                     end if
+
+                  ! Have we found temperature?
+                  else if (trim(ecmwf_data%field) == 'TT') then
+
+                     if (.not. allocated(tt)) then
+                        allocate(tt(ecmwf_data%nx,ecmwf_data%ny,n_levels+1))  ! Extra level is for surface
+                     end if
+
+                     if (nint(ecmwf_data%xlvl) >= 1 .and. &
+                         nint(ecmwf_data%xlvl) <= n_levels) then 
+                        tt(:,:,nint(ecmwf_data%xlvl)) = ecmwf_data%slab
+                     else if (nint(ecmwf_data%xlvl) == 200100) then
+                        tt(:,:,n_levels+1) = ecmwf_data%slab
+                     end if
+
+                  ! Have we found specific humidity?
+                  else if (trim(ecmwf_data%field) == 'SPECHUMD') then
+
+                     if (.not. allocated(qv)) then
+                        allocate(qv(ecmwf_data%nx,ecmwf_data%ny,n_levels+1))  ! Extra level is for surface
+                     end if
+
+                     if (nint(ecmwf_data%xlvl) >= 1 .and. &
+                         nint(ecmwf_data%xlvl) <= n_levels) then 
+                        qv(:,:,nint(ecmwf_data%xlvl)) = ecmwf_data%slab
+                     else if (nint(ecmwf_data%xlvl) == 200100) then
+                        qv(:,:,n_levels+1) = ecmwf_data%slab
+                     end if
+
                   end if
                   
-                  if (associated(psfc_data%slab)) deallocate(psfc_data%slab)
+                  if (associated(ecmwf_data%slab)) deallocate(ecmwf_data%slab)
    
                end if
    
@@ -176,11 +225,23 @@ program calc_ecmwf_p
 
 
             ! Now write out, for each level, the pressure field
-            if (trim(psfc_data%field) == 'PSFC') then
+            if (is_psfc) then
 
                allocate(p_data%slab(p_data%nx,p_data%ny))
+               allocate(rh_data%slab(rh_data%nx,rh_data%ny))
 
                call write_met_init('PRES', .false., temp_date(1:13), istatus)
+
+               if (allocated(tt) .and. allocated(qv)) then
+                  rh_data%xlvl = 200100.
+                  p_data%xlvl  = 200100.
+                  p_data%slab  = psfc
+                  call calc_rh(tt(:,:,n_levels+1), qv(:,:,n_levels+1), psfc, rh_data%slab, rh_data%nx, rh_data%ny)
+                  call write_next_met_field(rh_data, istatus) 
+                  call write_next_met_field(p_data, istatus) 
+               else
+                  call mprintf(.true.,WARN,'Either TT or SPECHUMD not found. No RH will be computed.')
+               end if
 
                do i = 1, n_levels
 
@@ -188,7 +249,13 @@ program calc_ecmwf_p
                   b_full = 0.5 * (b(i-1) + b(i))
 
                   p_data%xlvl = real(i)
-                  p_data%slab = a_full + psfc_data%slab * b_full
+                  p_data%slab = a_full + psfc * b_full
+
+                  if (allocated(tt) .and. allocated(qv)) then
+                     rh_data%xlvl = real(i)
+                     call calc_rh(tt(:,:,i), qv(:,:,i), p_data%slab, rh_data%slab, rh_data%nx, rh_data%ny)
+                     call write_next_met_field(rh_data, istatus) 
+                  end if
 
                   call write_next_met_field(p_data, istatus) 
 
@@ -197,30 +264,13 @@ program calc_ecmwf_p
                call write_met_close()
   
                deallocate(p_data%slab)
-
-            else if (trim(psfc_data%field) == 'LOGSFP') then
-
-               allocate(p_data%slab(p_data%nx,p_data%ny))
-
-               call write_met_init('PRES', .false., temp_date(1:13), istatus)
-
-               do i = 1, n_levels
-
-                  a_full = 0.5 * (a(i-1) + a(i))   ! A and B are dimensioned (0:n_levels)
-                  b_full = 0.5 * (b(i-1) + b(i))
-
-                  p_data%xlvl = real(i)
-                  p_data%slab = a_full + exp(psfc_data%slab) * b_full
-
-                  call write_next_met_field(p_data, istatus) 
-
-               end do
-
-               call write_met_close()
-  
-               deallocate(p_data%slab)
+               deallocate(rh_data%slab)
 
             end if
+
+            if (allocated(tt))   deallocate(tt)
+            if (allocated(qv))   deallocate(qv)
+            if (allocated(psfc)) deallocate(psfc)
 
          else
             call mprintf(.true.,ERROR,'Problem opening %s at time %s', s1=input_name, s2=temp_date(1:13))
@@ -238,3 +288,34 @@ program calc_ecmwf_p
    stop
 
 end program calc_ecmwf_p
+
+
+subroutine calc_rh(t, qv, p, rh, nx, ny)
+
+   implicit none
+
+   ! Arguments
+   integer, intent(in) :: nx, ny
+   real, dimension(nx, ny), intent(in)  :: t, qv, p
+   real, dimension(nx, ny), intent(out) :: rh
+
+   ! Constants
+   real, parameter :: svp1=0.6112
+   real, parameter :: svp2=17.67
+   real, parameter :: svp3=29.65
+   real, parameter :: svpt0=273.15
+   real, parameter :: eps = 0.622
+
+   ! Local variables
+   integer :: i, j
+   real :: es, qs
+
+   do j=1,ny
+   do i=1,nx
+      es=svp1*10.*exp(svp2*(t(i,j)-svpt0)/(t(i,j)-svp3))
+      qs=eps*es/(p(i,j)/100.-es)
+      rh(i,j) = 100.0 * qv(i,j) / qs
+   end do
+   end do
+
+end subroutine calc_rh
