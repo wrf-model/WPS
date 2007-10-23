@@ -79,13 +79,14 @@ end module coefficients
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 program calc_ecmwf_p
 
+   use coefficients
    use date_pack
    use gridinfo_module
-   use read_met_module
-   use write_met_module
    use misc_definitions_module
    use module_debug
-   use coefficients
+   use read_met_module
+   use stringutil
+   use write_met_module
 
    implicit none
 
@@ -230,14 +231,15 @@ program calc_ecmwf_p
                allocate(p_data%slab(p_data%nx,p_data%ny))
                allocate(rh_data%slab(rh_data%nx,rh_data%ny))
 
-               call write_met_init('PRES', .false., temp_date(1:13), istatus)
+               call write_met_init(trim(get_path(input_name))//'PRES', .false., temp_date(1:13), istatus)
 
                if (allocated(tt) .and. allocated(qv)) then
-                  rh_data%xlvl = 200100.
                   p_data%xlvl  = 200100.
                   p_data%slab  = psfc
-                  call calc_rh(tt(:,:,n_levels+1), qv(:,:,n_levels+1), psfc, rh_data%slab, rh_data%nx, rh_data%ny)
-                  call write_next_met_field(rh_data, istatus) 
+! Surface RH should be computed from surface DEWPT by ungrib
+!                  rh_data%xlvl = 200100.
+!                  call calc_rh(tt(:,:,n_levels+1), qv(:,:,n_levels+1), psfc, rh_data%slab, rh_data%nx, rh_data%ny)
+!                  call write_next_met_field(rh_data, istatus) 
                   call write_next_met_field(p_data, istatus) 
                else
                   call mprintf(.true.,WARN,'Either TT or SPECHUMD not found. No RH will be computed.')
