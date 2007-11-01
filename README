@@ -1,12 +1,10 @@
-WRF Pre-Processing System Version 2.2 (December 2006)
+WRF Pre-Processing System Version 2.2.1 (October 2007)
 http://www.mmm.ucar.edu/wrf/users/
 
-The WRF Pre-Processing System (WPS) is a collection
-of Fortran and C programs that provides data which are
-input to the real.exe program.  There are three main
-programs and a number of auxillary programs that
-are part of WPS.  Both the ARW and NMM dynamical cores
-in WRF are supported by WPS.
+The WRF Pre-Processing System (WPS) is a collection of Fortran and C programs
+that provides data which are input to the real.exe program. There are three 
+main programs and a number of auxillary programs that are part of WPS. Both 
+the ARW and NMM dynamical cores in WRF are supported by WPS.
 
 For questions and help to run the program, please see the 
 User's Guide at http://www.mmm.ucar.edu/wrf/users/docs/user_guide/contents.html
@@ -16,18 +14,15 @@ and send email to wrfhelp@ucar.edu.
 
 Main programs: geogrid.exe, ungrib.exe, metgrid.exe
 
-Input to the main programs is through the namelist
-file "namelist.wps".  Each main program has an 
-exclusive namelist record (named "geogrid", "ungrib",
-or "metgrid", respectively), and the three programs 
-have a group record (named "share") that each program
-reads.
+Input to the main programs is through the namelist file "namelist.wps". Each 
+main program has an exclusive namelist record (named "geogrid", "ungrib",
+or "metgrid", respectively), and the three programs have a group record 
+(named "share") that each program reads.
 
 geogrid
 -------
 1) Defines the model horizontal domain
-2) Horizontally interpolates static data to the model
-domain
+2) Horizontally interpolates static data to the model domain
 3) Output conforms to the WRF IO API
 
 ungrib
@@ -41,33 +36,26 @@ ungrib
 metgrid
 -------
 1) Ingest static data and raw met fields
-2) Horizontally interpolate met fields to the model
-   domain
+2) Horizontally interpolate met fields to the model domain
 3) Output conforms to WRF IO API
-
 
 
 
 Parallelism
 
-The geogrid and metgrid programs may be run as
-distributed memory parallel jobs to reduce the 
-time-to-solution.  These two programs use MPI calls
-directly, compared to WRF which has an abstraction
-layer (RSL or RSL_LITE).
-
+The geogrid and metgrid programs may be run as distributed memory parallel 
+jobs to reduce the time-to-solution. These two programs use MPI calls
+directly, compared to WRF which has an abstraction layer (RSL or RSL_LITE).
 
 
 
 Grib Edition 2
 
-The Grib Edition 2 compression requires three libraries
-external to the WPS source code: zlib, png, and jasper.
-It is recommended that users request support from their
-system administrators when installing these packages.
-Users can compile the code without these libraries by 
-selecting the "no GRIB2" options in the build.
-
+The Grib Edition 2 compression requires three libraries external to the WPS 
+source code: zlib, png, and jasper. It is recommended that users request 
+support from their system administrators when installing these packages. Users
+can compile the code without these libraries by selecting the "no GRIB2" 
+options in the build.
 
 
 
@@ -76,25 +64,21 @@ Building WPS
 Similar to the WRF package, WPS uses a two-step:
 ./configure
 ./compile
-build mechanism, which directs the unix make underneath.
-If the user is on a recognized architecture, the
-configure script will display a list of available
-compile options (usually serial vs parallel, Grib 2
-enabled vs a "no Grib 2" option).  For some OS options,
-there are multiple compilers that are supported.
+build mechanism, which directs the unix make underneath. If the user is on a 
+recognized architecture, the configure script will display a list of available
+compile options (usually serial vs parallel, Grib 2 enabled vs a "no Grib 2" 
+option). For some OS options, there are multiple compilers that are supported.
 
-The configure option lists both "build Grib2" and
-"do not build Grib2" options.  It is suggested that
-the first builds be without the Grib Edition 2
-capability.
+The configure option lists both "build Grib2" and "do not build Grib2" options.
+It is suggested that the first builds be without the Grib Edition 2 capability.
 
-There are a number of utility programs that will be
-built in WPS/util/ directory:
+There are a number of utility programs that will be built in WPS/util/ 
+directory:
 
 avg_tsfc.exe
 ------------
-purpose: computes a daily mean of the surface air 
-temperature, reads the namelist.wps file
+purpose: computes a daily mean of the surface air temperature, reads the 
+namelist.wps file
 
 usage:
 ./avg_tsfc.exe
@@ -102,8 +86,7 @@ usage:
 
 g1print.exe
 -----------
-purpose: read a Grib Edition 1 file, output 
-information to build a Vtable
+purpose: read a Grib Edition 1 file, output information to build a Vtable
 
 usage:
 ./g1print.exe GRIB1_file
@@ -111,8 +94,7 @@ usage:
 
 g2print.exe
 -----------
-purpose: read a Grib Edition 2 file, output
-information to build a Vtable
+purpose: read a Grib Edition 2 file, output information to build a Vtable
 
 usage:
 ./g2print.exe GRIB2_file
@@ -120,21 +102,20 @@ usage:
 
 mod_levs.exe
 ------------
-purpose: reduce levels in a intermediate file
-so that different Grib sources may be used
-for the initial and lateral boundary time periods
+purpose: reduce levels in a intermediate file so that different Grib sources 
+may be used for the initial and lateral boundary time periods
 
 usage:
 ./mod_levs.exe OLD_intermetdiate:date_string \
                NEW_intermetdiate:date_string
-Processes a single file at a time, uses the 
-pressure levels defined in the namelist.wps file.
+Processes a single file at a time, uses the pressure levels defined in the 
+namelist.wps file.
+
 
 plotfmt.exe
 -----------
-purpose: generate NCAR Graphics metacode 2d
-horizontal plots of each field and level in the
-intermediate file
+purpose: generate NCAR Graphics metacode 2d horizontal plots of each field 
+and level in the intermediate file
 
 usage:
 ./plotfmt.exe intermediate_file:date_string
@@ -142,10 +123,9 @@ usage:
 
 plotgrids.exe
 -------------
-purpose: generate an NCEAR Graphics metacode
-plot of the domain locations, one frame with
-all of the domain locations plotted, reads the
-namelist.wps file to get the domain information
+purpose: generate an NCEAR Graphics metacode plot of the domain locations, 
+one frame with all of the domain locations plotted, reads the namelist.wps 
+file to get the domain information
 
 usage:
 ./plotgrids.exe
@@ -153,36 +133,32 @@ usage:
 
 rd_intermediate.exe
 -------------------
-purpose: read an intermediate file and print
-the information to the screen
+purpose: read an intermediate file and print the information to the screen
 
 usage:
 ./rd_intermediate.exe intermediate_file:date_string
 
 
 
-
 Static Input Data
 
-The static input data is provided in two tar files: one
-contains full resolution data (30", 2', 5' and 10') and the other
-contains only 10' low resolution data. The data may be downloaded 
-from http://www.mmm.ucar.edu/wrf/users/download/get_source.html.
-
+The static input data is provided in two tar files: one contains full 
+resolution data (30", 2', 5' and 10') and the other contains only 10' low 
+resolution data. The data may be downloaded from 
+http://www.mmm.ucar.edu/wrf/users/download/get_source.html.
 
 
 
 Meteorological Input Data
 
-The meteorological input data for WPS is the Grib
-Edition 1 GFS data from NCEP.  A test
-data set (Jan 2000, 24/12Z to 25/12Z) is available from
+The meteorological input data for WPS is the Grib Edition 1 GFS data from NCEP.
+A test data set (Jan 2000, 24/12Z to 25/12Z) is available from 
 http://www.mmm.ucar.edu/wrf/users/download/get_source.html.
 
 
 
 Sample WPS output data for WRF
 
-Samples of the output data from WPS for use in WRF for the
-Jan 2000 and June 2001 cases are provided from
+Samples of the output data from WPS for use in WRF for the Jan 2000 and 
+June 2001 cases are provided from
 http://www.mmm.ucar.edu/wrf/users/download/get_source.html.
