@@ -4,44 +4,6 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_level, out_f
 !                                                                             !
 !*****************************************************************************!
 !                                                                             !
-! Recent changes:                                                             !
-!                                                                             !
-!    2004-10-29:                                                              !
-!               - Sync rrpr.F WRFSI v2.0.1 with MM5 v3.5                      !
-!                 Added DATELEN: length of date strings to use for            !
-!                 our output file names.                                      !
-!                 Added MM5 interpolation from surrounding levels             !
-!                 if upper-air U or V are missing                             !
-!                 Added test to see if we've got a SEAICE field,              ! 
-!                 make sure that it is all Zeros and Ones:                    !
-!                                                                             !
-!    2002-05-16:                                                              !
-!               - Handle the Mercator projection.                             !
-!                 This change also required changes to output.F, rd_grib.F,   !
-!                 datint.F, gribcode.F                                        !
-!                                                                             !
-!    2002-02-13:                                                              !
-!               - Added vertical interpolation in pressure in case of missing !
-!                 U, V, T (the check for RH was already there)                !
-!                                                                             !
-!    2001-02-14:                                                              !
-!               - Allow file names to have date stamps out to minutes or      !
-!                 seconds, if the user requests a time interval (in seconds)  !
-!                 that is not evenly divisible into hours or minutes.         !
-!                 INTERVAL is checked for divisibility into 3600 (for hours)  !
-!                 or 60 (for minutes).  The local variable DATELEN is set     !
-!                 to be the number of characters to use in our character      !
-!                 dates.  Valid values for DATELEN are 13 (for hours),        !
-!                 16 (for minutes), and 19 (for seconds).                     !
-!                                                                             !
-!                 This change also requires changes to pregrid_grib.F,        !
-!                 output.F, datint.F, file_delete.F                           !
-!                                                                             !
-!               - Do processing not just if the requested date matches one we !
-!                 want, but if the requested date falls between the startdate !
-!                 and the enddate.                                            !
-!                                                                             !
-!*****************************************************************************!
 
   use filelist
   use gridinfo

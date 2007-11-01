@@ -65,5 +65,12 @@ g2lib-1.0.7 - April 2005 - Fixed bug causing seg fault when using JPEG2000
                            encoding algorithm on a grid with an insanely large
                            number of data points bitmapped out.
 
-gslib-1.0.7.1 - December 2006
-			- Added new local parameter conversion entries
+g2lib-1.0.8 - October 2006 - Modified Product Definition Templates 4.5 and 4.9
+                             to allow negative scale factors and limits.
+                           - Fixed several rounding error bugs during encoding.
+                           - Added new local parameter conversion entries
+
+g2lib-1.0.9 - MAY  2007    - Modified Grid Definition Template 3.igds(5) (3.204)
+                             to add Curvilinear Orthogonal grids.
+                           - Added new local parameter conversion entries
+
