@@ -170,6 +170,7 @@
 !  Fill in ref value and number of bits in Template 5.0
 !
       call mkieee(rmin,ref,1)   ! ensure reference value is IEEE format
+      !print *,'SAGref = ',rmin,ref
 !      call gbyte(ref,idrstmpl(1),0,32)
       iref=transfer(ref,iref)
       idrstmpl(1)=iref

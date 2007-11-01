@@ -157,7 +157,7 @@
 !
 !$$$
 
-      character(len=12) :: G2_VERSION="g2lib-1.0.7"
+      character(len=12) :: G2_VERSION="g2lib-1.0.9"
 
       type gribfield
           integer :: version,discipline

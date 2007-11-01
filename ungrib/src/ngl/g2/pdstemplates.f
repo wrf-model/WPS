@@ -37,6 +37,8 @@
 ! 2000-05-11  Gilbert
 ! 2001-12-04  Gilbert  -  Added Templates 4.12, 4.12, 4.14,
 !                         4.1000, 4.1001, 4.1002, 4.1100 and 4.1101
+! 2005-12-08  Gilbert  -  Allow negative scale factors and limits for
+!                         Templates 4.5 and 4.9
 !
 ! USAGE:    use pdstemplates
 !
@@ -93,7 +95,7 @@
       data templates(6)%mappdslen /22/
       data templates(6)%needext /.false./
       data (templates(6)%mappds(j),j=1,22)
-     &               /1,1,1,1,1,2,1,1,4,1,-1,-4,1,-1,-4,1,1,1,1,4,1,4/
+     &          /1,1,1,1,1,2,1,1,4,1,-1,-4,1,-1,-4,1,1,1,-1,-4,-1,-4/
 
       data templates(7)%template_num /6/     !  Percentile fcst at level/layer
       data templates(7)%mappdslen /16/
@@ -117,8 +119,8 @@
       data templates(10)%mappdslen /36/
       data templates(10)%needext /.true./
       data (templates(10)%mappds(j),j=1,36)
-     &  /1,1,1,1,1,2,1,1,4,1,-1,-4,1,-1,-4,1,1,1,-1,4,-1,4,2,1,1,1,1,1,
-     &   1,4,1,1,1,4,1,4/
+     &  /1,1,1,1,1,2,1,1,4,1,-1,-4,1,-1,-4,1,1,1,-1,-4,-1,-4,2,1,1,1,
+     &   1,1,1,4,1,1,1,4,1,4/
 
       data templates(11)%template_num /10/     !  Percentile over time interval
       data templates(11)%mappdslen /30/

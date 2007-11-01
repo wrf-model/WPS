@@ -68,7 +68,20 @@
 !
 !  Determine exponent n with base 2
 !
-        n=floor(alog(atemp)/alog2)
+        if ( atemp .ge. 1.0 ) then
+           n = 0
+           do while ( 2.0**(n+1) .le. atemp )
+              n = n + 1
+           enddo
+        else
+           n = -1
+           do while ( 2.0**n .gt. atemp )
+              n = n - 1
+           enddo
+        endif
+!        n=floor(alog(atemp)/alog2)
+        !write(6,*) ' logstuff ',alog(atemp)/alog2
+        !write(6,*) ' logstuffn ',n
         iexp=n+127
         if (n.gt.127) iexp=255     ! overflow
         if (n.lt.-127) iexp=0

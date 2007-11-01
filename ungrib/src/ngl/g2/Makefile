@@ -26,6 +26,18 @@ LIB	=	libg2_4.a
 #FFLAGS=-O3 -g -qnosave -qarch=auto
 #CFLAGS=-O3 -q64 -g -qcpluscmt -qarch=auto $(DEFS) $(INCDIR)
 #ARFLAGS=-X64
+#--------------------------------------
+# The following was used for G95 on LINUX
+#
+#DEFS=-DLINUXG95
+#FC=g95
+#CC=cc
+#CPP=cpp -P -C
+#MODDIR=.
+#FFLAGS=-O3 -g -I $(MODDIR)
+#CFLAGS=-O3 $(DEFS) $(INCDIR)
+#ARFLAGS=
+#--------------------------------------
 
 OBJS	=	gridtemplates.o pdstemplates.o drstemplates.o gribmod.o realloc.o addfield.o  \
 		addgrid.o addlocal.o getfield.o gb_info.o gf_getfld.o gf_free.o gf_unpack1.o  \
@@ -35,7 +47,7 @@ OBJS	=	gridtemplates.o pdstemplates.o drstemplates.o gribmod.o realloc.o addfiel
 		reduce.o comunpack.o specpack.o specunpack.o jpcpack.o jpcunpack.o enc_jpeg2000.o \
 		dec_jpeg2000.o pngpack.o pngunpack.o enc_png.o dec_png.o gbytesc.o skgb.o ixgb2.o \
 		getidx.o getg2i.o getg2ir.o getgb2s.o getgb2r.o getgb2l.o getgb2.o getgb2p.o getgb2rp.o \
-		putgb2.o g2grids.o gdt2gds.o params.o mova2i.o
+		putgb2.o g2grids.o gdt2gds.o params.o params_ecmwf.o mova2i.o
 
 all:	$(LIB)
 
