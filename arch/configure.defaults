@@ -646,7 +646,7 @@ CPPFLAGS	=	-DAIX -DMACOS -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -DBIT32
 RANLIB		=	ranlib
 
 ###########################################################
-#ARCH	Darwin	serial, g95 compiler, NO GRIB2
+#ARCH	Darwin	serial, PPC, g95 compiler, NO GRIB2
 #
 COMPRESSION_LIBS	=
 COMPRESSION_INC		=
@@ -665,7 +665,7 @@ CPPFLAGS        =       -D_UNDERSCORE -DBYTESWAP -DLINUXG95 -DIO_NETCDF -DBIT32
 RANLIB		=	ranlib
 
 ###########################################################
-#ARCH	Darwin	serial, g95 compiler
+#ARCH	Darwin	serial, PPC, g95 compiler
 #
 FC              =       g95
 SFC             =       g95
@@ -688,8 +688,8 @@ COMPRESSION_INC		=
 FDEFS			=
 FC              =       g95
 SFC             =       g95
-FFLAGS          =       -ffree-form -g 
-F77FLAGS        =       -ffixed-form -g
+FFLAGS          =       -ffree-form -g -fendian=big
+F77FLAGS        =       -ffixed-form -g -fendian=big
 FNGFLAGS	=	$(FFLAGS)
 LDFLAGS         =       -g
 CC              =       gcc
@@ -707,8 +707,8 @@ COMPRESSION_LIBS	=	-L/stink/gill/WPS_LIBS/local/lib \
 COMPRESSION_INC		=	-I/stink/gill/WPS_LIBS/local/include
 FC              =       g95
 SFC             =       g95
-FFLAGS          =       -ffree-form -g
-F77FLAGS        =       -ffixed-form -g
+FFLAGS          =       -ffree-form -g -fendian=big
+F77FLAGS        =       -ffixed-form -g -fendian=big
 FNGFLAGS	=	$(FFLAGS)
 LDFLAGS         =       -g
 CC              =       gcc
