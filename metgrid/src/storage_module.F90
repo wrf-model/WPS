@@ -886,16 +886,22 @@ call mprintf(.true.,WARN,'PLEASE REPORT THIS BUG TO THE DEVELOPER!')
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
    subroutine storage_print_fields()
 
+      use list_module
+
       implicit none
 
       ! Local variables
-      integer :: i, j, k, lmax, n_fields, n_levels, max_levels
+      integer :: i, j, k, lmax, n_fields, n_levels, max_levels, itemp
       logical, allocatable, dimension(:,:) :: field_has_level
       integer, allocatable, dimension(:) :: all_levels
       integer, pointer, dimension(:) :: ilevels
       character (len=128), allocatable, dimension(:) :: fieldname_list
+      character (len=9) :: ctemp
       type (fg_input), pointer, dimension(:) :: header_list
 
+      type (list) :: all_levs
+
+      call list_init(all_levs)
       call storage_get_td_headers(header_list)
       n_fields = size(header_list)
       
@@ -906,12 +912,17 @@ call mprintf(.true.,WARN,'PLEASE REPORT THIS BUG TO THE DEVELOPER!')
       do i=1,n_fields
          fieldname_list(i) = header_list(i)%header%field
          call storage_get_levels(header_list(i), ilevels)
+         do j=1,size(ilevels)
+            if (.not. list_search(all_levs, ikey=ilevels(j), ivalue=itemp)) then
+               call list_insert(all_levs, ikey=ilevels(j), ivalue=ilevels(j))
+            end if
+         end do
          n_levels = size(ilevels)
          if (n_levels > max_levels) max_levels = n_levels
          if (associated(ilevels)) deallocate(ilevels)
       end do 
 
-! BUG: max_levels needs to be computed from union of all levels
+      max_levels = list_length(all_levs)
 
       allocate(all_levels(max_levels))
       allocate(field_has_level(n_fields,max_levels))
@@ -935,18 +946,21 @@ call mprintf(.true.,WARN,'PLEASE REPORT THIS BUG TO THE DEVELOPER!')
          if (associated(ilevels)) deallocate(ilevels)
       end do 
 
-      call mprintf(.true.,DEBUG,'        ',newline=.false.)
+      call mprintf(.true.,DEBUG,'        .',newline=.false.)
       do i=1,n_fields
-         call mprintf(.true.,DEBUG,fieldname_list(i)(1:9)//' ',newline=.false.)
+         write(ctemp,'(a9)') fieldname_list(i)(1:9)
+         call right_justify(ctemp,9)
+         call mprintf(.true.,DEBUG,ctemp,newline=.false.)
       end do
       call mprintf(.true.,DEBUG,' ',newline=.true.)
       do j=1,max_levels
-         call mprintf(.true.,DEBUG,'%i ',i1=all_levels(j),newline=.false.)
+         write(ctemp,'(i9)') all_levels(j)
+         call mprintf(.true.,DEBUG,'%s ',s1=ctemp,newline=.false.)
          do i=1,n_fields
             if (field_has_level(i,j)) then
-               call mprintf(.true.,DEBUG,'    X    ',newline=.false.)
+               call mprintf(.true.,DEBUG,'        X',newline=.false.)
             else
-               call mprintf(.true.,DEBUG,'    -    ',newline=.false.)
+               call mprintf(.true.,DEBUG,'        -',newline=.false.)
             end if
          end do
          call mprintf(.true.,DEBUG,' ',newline=.true.)
@@ -955,8 +969,9 @@ call mprintf(.true.,WARN,'PLEASE REPORT THIS BUG TO THE DEVELOPER!')
       deallocate(all_levels)
       deallocate(field_has_level)
       deallocate(fieldname_list)
+      deallocate(header_list)
 
-! BUG: Do something here to free up header_list
+      call list_destroy(all_levs)
 
    end subroutine storage_print_fields
 
@@ -1013,6 +1028,32 @@ call mprintf(.true.,WARN,'PLEASE REPORT THIS BUG TO THE DEVELOPER!')
       call mprintf(found_missing,ERROR,'Missing values encountered in interpolated fields. Stopping.')
 
    end subroutine find_missing_values
+
+
+   subroutine right_justify(s,n)
+
+      implicit none
+
+      ! Arguments
+      integer, intent(in) :: n
+      character (len=*), intent(inout) :: s
+
+      ! Local variables
+      integer :: i, l
+
+      l = len_trim(s)
+
+      if (l >= n) return
+
+      do i=l,1,-1 
+         s(i+n-l:i+n-l) = s(i:i)
+      end do
+
+      do i=1,n-l
+         s(i:i) = ' '
+      end do
+
+   end subroutine right_justify
 
 
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

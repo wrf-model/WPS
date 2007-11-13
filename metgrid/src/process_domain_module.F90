@@ -1048,7 +1048,7 @@ integer, parameter :: BDR_WIDTH = 3
       !    write a table of which fields are available at which levels to the
       !    metgrid.log file
       !
-!      call storage_print_fields()
+      call storage_print_fields()
 !      call find_missing_values()
 
       !
