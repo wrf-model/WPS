@@ -65,6 +65,7 @@ module source_data_module
    subroutine get_datalist()
  
       use gridinfo_module
+      use stringutil
   
       implicit none
   
@@ -540,6 +541,7 @@ module source_data_module
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
    subroutine get_source_params(res_string)
  
+      use stringutil
  
       implicit none
   

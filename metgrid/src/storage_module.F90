@@ -887,6 +887,7 @@ call mprintf(.true.,WARN,'PLEASE REPORT THIS BUG TO THE DEVELOPER!')
    subroutine storage_print_fields()
 
       use list_module
+      use stringutil
 
       implicit none
 
@@ -1028,32 +1029,6 @@ call mprintf(.true.,WARN,'PLEASE REPORT THIS BUG TO THE DEVELOPER!')
       call mprintf(found_missing,ERROR,'Missing values encountered in interpolated fields. Stopping.')
 
    end subroutine find_missing_values
-
-
-   subroutine right_justify(s,n)
-
-      implicit none
-
-      ! Arguments
-      integer, intent(in) :: n
-      character (len=*), intent(inout) :: s
-
-      ! Local variables
-      integer :: i, l
-
-      l = len_trim(s)
-
-      if (l >= n) return
-
-      do i=l,1,-1 
-         s(i+n-l:i+n-l) = s(i:i)
-      end do
-
-      do i=1,n-l
-         s(i:i) = ' '
-      end do
-
-   end subroutine right_justify
 
 
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

@@ -4,6 +4,7 @@ module interp_option_module
    use list_module
    use misc_definitions_module
    use module_debug
+   use stringutil
 
    integer, parameter :: BUFSIZE=128
 
