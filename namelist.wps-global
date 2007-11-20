@@ -12,12 +12,12 @@
  parent_grid_ratio =   1,   3,
  i_parent_start    =   1,  31,
  j_parent_start    =   1,  17,
- e_we              =  128, 127,
- e_sn              =  64,  64,
+ e_we              =  129, 127,
+ e_sn              =  65,  64,
  geog_data_res     = '10m','10m',
  map_proj = 'cassini',
  stand_lon = 0.
- pole_lat = 0.0
+ pole_lat = 90.0
  pole_lon = 0.0
  geog_data_path = '/mmm/users/wrfhelp/WPS_GEOG'
 /
