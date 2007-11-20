@@ -19,6 +19,7 @@ module source_data_module
                          RETURN_DOMCAT = 5, &
                          RETURN_DFDX = 6, &
                          RETURN_DFDY = 7
+   integer, parameter :: MAX_LANDMASK_CATEGORIES = 100
  
    ! Module variables
    integer :: num_entries
@@ -27,9 +28,9 @@ module source_data_module
    integer, pointer, dimension(:) :: source_proj, source_wordsize, source_endian, source_fieldtype, &
                   source_dest_fieldtype, source_priority, source_tile_x, source_tile_y, &
                   source_tile_z, source_tile_z_start, source_tile_z_end, source_tile_bdr, &
-                  source_category_min, source_category_max, source_landmask_water, &
-                  source_landmask_land, source_smooth_option, &
+                  source_category_min, source_category_max, source_smooth_option, &
                   source_smooth_passes, source_output_stagger, source_row_order
+   integer, pointer, dimension(:,:) :: source_landmask_water, source_landmask_land
    integer :: source_iswater, source_isice, source_isurban, source_isoilwater
    real, pointer, dimension(:) :: source_dx, source_dy, source_known_x, source_known_y, &
                   source_known_lat, source_known_lon, source_masked, source_truelat1, source_truelat2, &
@@ -73,7 +74,7 @@ module source_data_module
       integer, parameter :: BUFSIZE = 256
   
       ! Local variables
-      integer :: nparams, idx, eos, ispace, i, funit
+      integer :: nparams, idx, eos, ispace, comma, i, j, funit
       logical :: have_specification, is_used
       character (len=128) :: res_string, path_string, interp_string
       character (len=BUFSIZE) :: buffer
@@ -150,8 +151,8 @@ module source_data_module
       allocate(source_category_min(num_entries))
       allocate(source_category_max(num_entries))
       allocate(source_tile_bdr(num_entries))
-      allocate(source_landmask_water(num_entries))
-      allocate(source_landmask_land(num_entries))
+      allocate(source_landmask_water(num_entries,MAX_LANDMASK_CATEGORIES))
+      allocate(source_landmask_land(num_entries,MAX_LANDMASK_CATEGORIES))
       allocate(source_masked(num_entries))
       allocate(source_output_stagger(num_entries))
       allocate(source_row_order(num_entries))
@@ -259,6 +260,8 @@ module source_data_module
             is_smooth_option(i) = .false.
             is_smooth_passes(i) = .false.
             is_fill_missing(i) = .false.
+            source_landmask_land(i,:) = INVALID
+            source_landmask_water(i,:) = INVALID
          end if
   
       else
@@ -428,12 +431,29 @@ module source_data_module
                else if ((index('landmask_water',trim(buffer(1:idx-1))) /= 0) .and. &
                         (len_trim(buffer(1:idx-1)) == 14)) then
                   is_landmask_water(i) = .true.
-                  read(buffer(idx+1:eos-1),'(i10)') source_landmask_water(i)
+                  j = 1
+!BUG: What we really need is a routine to parse a comma-separated list
+                  comma = index(buffer(idx+1:eos-1),',')
+                  do while (comma /= 0)
+                     read(buffer(idx+1:idx+comma-1),'(i10)') source_landmask_water(i,j)
+                     idx = idx + comma
+                     comma = index(buffer(idx+1:eos-1),',')
+                     j = j + 1
+                  end do
+                  read(buffer(idx+1:eos-1),'(i10)') source_landmask_water(i,j)
      
                else if ((index('landmask_land',trim(buffer(1:idx-1))) /= 0) .and. &
                         (len_trim(buffer(1:idx-1)) == 13)) then
                   is_landmask_land(i) = .true.
-                  read(buffer(idx+1:eos-1),'(i10)') source_landmask_land(i)
+                  j = 1
+                  comma = index(buffer(idx+1:eos-1),',')
+                  do while (comma /= 0)
+                     read(buffer(idx+1:idx+comma-1),'(i10)') source_landmask_land(i,j)
+                     idx = idx + comma
+                     comma = index(buffer(idx+1:eos-1),',')
+                     j = j + 1
+                  end do
+                  read(buffer(idx+1:eos-1),'(i10)') source_landmask_land(i,j)
      
                else if ((index('masked',trim(buffer(1:idx-1))) /= 0) .and. &
                         (len_trim(buffer(1:idx-1)) == 6)) then
@@ -1049,7 +1069,8 @@ module source_data_module
       character (len=128), dimension(3), intent(out) :: dimnames
   
       ! Local variables
-      integer :: landmask, temp_fieldtype
+      integer :: temp_fieldtype
+      integer, dimension(MAX_LANDMASK_CATEGORIES) :: landmask
       logical :: is_water_mask, is_dom_only
       character (len=128) :: domcat_name, dfdx_name, dfdy_name
       character (len=256) :: temphash
@@ -1419,11 +1440,13 @@ module source_data_module
       implicit none
   
       ! Arguments
-      integer, intent(out) :: landmask, istatus
+      integer, dimension(:), intent(out) :: landmask
+      integer, intent(out) :: istatus
       logical, intent(out) :: is_water_mask
       character (len=128), intent(out) :: landmask_name
   
       ! Local variables
+      integer :: ilen
       integer :: idx
   
       istatus = 1
@@ -1432,14 +1455,16 @@ module source_data_module
   
          if (is_landmask_water(idx)) then
             is_water_mask = .true.
-            landmask = source_landmask_water(idx) 
+            ilen = min(size(source_landmask_water(idx,:)),size(landmask))
+            landmask(1:ilen) = source_landmask_water(idx,1:ilen) 
             landmask_name = source_fieldname(idx)
             istatus = 0
             exit
    
          else if (is_landmask_land(idx)) then
             is_water_mask = .false.
-            landmask = source_landmask_land(idx) 
+            ilen = min(size(source_landmask_land(idx,:)),size(landmask))
+            landmask(1:ilen) = source_landmask_land(idx,1:ilen) 
             landmask_name = source_fieldname(idx)
             istatus = 0
             exit

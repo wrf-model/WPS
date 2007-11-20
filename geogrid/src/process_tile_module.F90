@@ -43,15 +43,16 @@ module process_tile_module
       character (len=1), intent(in) :: grid_type
     
       ! Local variables
-      integer :: i, j, k, istatus, ifieldstatus, idomcatstatus, field_count
-      integer :: landmask_value, min_category, max_category, min_level, max_level, &
-                 smth_opt, smth_passes
+      integer :: i, j, k, kk, istatus, ifieldstatus, idomcatstatus, field_count
+      integer :: min_category, max_category, min_level, max_level, &
+                 smth_opt, smth_passes, num_landmask_categories
       integer :: start_dom_i, end_dom_i, start_dom_j, end_dom_j, end_dom_stag_i, end_dom_stag_j
       integer :: start_patch_i, end_patch_i, start_patch_j, end_patch_j, end_patch_stag_i, end_patch_stag_j
       integer :: start_mem_i, end_mem_i, start_mem_j, end_mem_j, end_mem_stag_i, end_mem_stag_j
       integer :: sm1, em1, sm2, em2
       integer :: istagger
-      real :: sum, dominant, msg_fill_val, topo_flag_val, mass_flag
+      integer, dimension(MAX_LANDMASK_CATEGORIES) :: landmask_value
+      real :: sum, dominant, msg_fill_val, topo_flag_val, mass_flag, land_total, water_total
       real, dimension(16) :: corner_lats, corner_lons
       real, pointer, dimension(:,:) :: xlat_array,   xlon_array, &
                                        xlat_array_u, xlon_array_u, &
@@ -365,6 +366,15 @@ module process_tile_module
       ! First process the field that we will derive a landmask from
       !
       call get_landmask_field(landmask_name, is_water_mask, landmask_value, istatus)
+
+      do kk=1,MAX_LANDMASK_CATEGORIES
+         if (landmask_value(kk) == INVALID) then
+            num_landmask_categories = kk-1
+            exit
+         end if
+      end do
+      if (kk > MAX_LANDMASK_CATEGORIES) num_landmask_categories = MAX_LANDMASK_CATEGORIES
+
       if (istatus /= 0) then
          call mprintf(.true.,WARN,'No field specified for landmask calculation. Will set landmask=1 at every grid point.')
      
@@ -448,19 +458,35 @@ module process_tile_module
          end if
      
          if (is_water_mask) then
-            call mprintf(.true.,STDOUT,'  Calculating landmask from %s (WATER = %i)', &
-                         s1=trim(landmask_name), i1=landmask_value)
+            call mprintf(.true.,STDOUT,'  Calculating landmask from %s ( WATER =', &
+                         newline=.false.,s1=trim(landmask_name))
          else
-            call mprintf(.true.,STDOUT,'  Calculating landmask from %s (LAND = %i)', &
-                         s1=trim(landmask_name), i1=landmask_value)
+            call mprintf(.true.,STDOUT,'  Calculating landmask from %s ( LAND =', &
+                         newline=.false.,s1=trim(landmask_name))
          end if
+         do k = 1, num_landmask_categories
+            call mprintf(.true.,STDOUT,' %i',newline=.false.,i1=landmask_value(k))
+            if (k == num_landmask_categories) call mprintf(.true.,STDOUT,')')
+         end do
      
          ! Calculate landmask
          if (is_water_mask) then
             do i=start_mem_i, end_mem_i
                do j=start_mem_j, end_mem_j
-                  if (field(i,j,landmask_value) /= msg_fill_val) then
-                     if (field(i,j,landmask_value) < 0.50) then
+                  water_total = -1.
+                  do k=1,num_landmask_categories
+                     if (landmask_value(k) >= min_category .and. landmask_value(k) <= max_category) then 
+                        if (field(i,j,landmask_value(k)) /= msg_fill_val) then
+                           if (water_total < 0.) water_total = 0.
+                           water_total = water_total + field(i,j,landmask_value(k)) 
+                        else
+                           water_total = -1.
+                           exit
+                        end if
+                     end if
+                  end do
+                  if (water_total >= 0.0) then
+                     if (water_total < 0.50) then
                         landmask(i,j) = 1.
                      else
                         landmask(i,j) = 0.
@@ -473,8 +499,20 @@ module process_tile_module
          else
             do i=start_mem_i, end_mem_i
                do j=start_mem_j, end_mem_j
-                  if (field(i,j,landmask_value) /= msg_fill_val) then
-                     if (field(i,j,landmask_value) >= 0.50) then
+                  land_total = -1.
+                  do k=1,num_landmask_categories
+                     if (landmask_value(k) >= min_category .and. landmask_value(k) <= max_category) then 
+                        if (field(i,j,landmask_value(k)) /= msg_fill_val) then
+                           if (land_total < 0.) land_total = 0.
+                           land_total = land_total + field(i,j,landmask_value(k)) 
+                        else
+                           land_total = -1.
+                           exit
+                        end if
+                     end if
+                  end do
+                  if (land_total >= 0.0) then
+                     if (land_total > 0.50) then
                         landmask(i,j) = 1.
                      else
                         landmask(i,j) = 0.
@@ -565,17 +603,28 @@ module process_tile_module
                do j=start_mem_j, end_mem_j
                   if ((landmask(i,j) == 1. .and. is_water_mask) .or. &
                       (landmask(i,j) == 0. .and. .not.is_water_mask)) then
-                    dominant = 0.
-                    dominant_field(i,j) = real(min_category-1)
-                    do k=min_category,max_category
-                       if ((field(i,j,k) > dominant) .and. &
-                            (k /= landmask_value)) then
-                          dominant_field(i,j) = real(k)
-                          dominant = field(i,j,k)
-                       end if
-                    end do
+                     dominant = 0.
+                     dominant_field(i,j) = real(min_category-1)
+                     do k=min_category,max_category
+                        do kk=1,num_landmask_categories
+                           if (k == landmask_value(kk)) exit 
+                        end do
+                        if (field(i,j,k) > dominant .and. kk > num_landmask_categories) then
+                           dominant_field(i,j) = real(k)
+                           dominant = field(i,j,k)
+                        end if
+                     end do
                   else
-                     dominant_field(i,j) = real(landmask_value)
+                     dominant = 0.
+                     dominant_field(i,j) = real(min_category-1)
+                     do k=min_category,max_category
+                        do kk=1,num_landmask_categories
+                           if (field(i,j,k) > dominant .and. k == landmask_value(kk)) then
+                              dominant_field(i,j) = real(k)
+                              dominant = field(i,j,k)
+                           end if
+                        end do
+                     end do
                   end if
                end do
             end do
