@@ -14,7 +14,7 @@ WRF_INCLUDE	=	-I$(WRF_DIR)/external/io_netcdf \
 			-I$(WRF_DIR)/inc
 
 .IGNORE:
-.SUFFIXES: .c .f90 .F90 .f .F .o
+.SUFFIXES: .c .f .F .o
 
 #	There is probably no reason to modify these rules
 
@@ -22,24 +22,24 @@ WRF_INCLUDE	=	-I$(WRF_DIR)/external/io_netcdf \
 	$(RM) $@
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c $<	
 
-.f90.o:
-	$(RM) $@ $*.mod
-	$(CP) $< $*.f
-	$(FC) $(FFLAGS) -c $*.f $(WRF_INCLUDE)
-	$(RM) $*.f
+#.f90.o:
+#	$(RM) $@ $*.mod
+#	$(CP) $< $*.f
+#	$(FC) $(FFLAGS) -c $*.f $(WRF_INCLUDE)
+#	$(RM) $*.f
 
 .f.o:
 	$(RM) $@ $*.mod
 	$(FC) $(F77FLAGS) -c $< $(WRF_INCLUDE)
 
-.F90.o:
-	$(RM) $@ $*.mod
-	$(CPP) $(CPPFLAGS) $(FDEFS) $(WRF_INCLUDE) $< > $*.f
-	$(FC) $(FFLAGS) -c $*.f $(WRF_INCLUDE)
-	$(RM) $*.f
+#.F90.o:
+#	$(RM) $@ $*.mod
+#	$(CPP) $(CPPFLAGS) $(FDEFS) $(WRF_INCLUDE) $< > $*.f
+#	$(FC) $(FFLAGS) -c $*.f $(WRF_INCLUDE)
+#	$(RM) $*.f
 
 .F.o:
 	$(RM) $@ $*.mod
-	$(CPP) $(CPPFLAGS) $(FDEFS) $(WRF_INCLUDE) $< > $*.f
-	$(FC) $(FFLAGS) -c $*.f $(WRF_INCLUDE)
-	$(RM) $*.f
+	$(CPP) $(CPPFLAGS) $(FDEFS) $(WRF_INCLUDE) $< > $*.f90
+	$(FC) $(FFLAGS) -c $*.f90 $(WRF_INCLUDE)
+	$(RM) $*.f90

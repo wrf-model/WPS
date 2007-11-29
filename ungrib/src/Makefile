@@ -37,54 +37,54 @@ g2print.exe:		filelist.o gridinfo.o g2print.o
 				$(COMPRESSION_LIBS)
 
 g2print.o:		table.o gridinfo.o new_storage.o filelist.o module_datarray.o \
-				ngl/g2/gribmod.o ngl/g2/params.o g2print.F90
-			$(CPP) $(CPPFLAGS) $*.F90 > $*.f
-			$(FC) -c $(FFLAGS) $*.f -I. -I./ngl/g2
-			$(RM) $*.f
+				ngl/g2/gribmod.o ngl/g2/params.o g2print.F
+			$(CPP) $(CPPFLAGS) $*.F > $*.f90
+			$(FC) -c $(FFLAGS) $*.f90 -I. -I./ngl/g2
+			$(RM) $*.f90
 
 rd_grib2.o:		ngl/g2/gribmod.o module_debug.o table.o gridinfo.o ngl/g2/params.o new_storage.o \
-				rd_grib2.F90
-			$(CPP) $(CPPFLAGS) $*.F90 > $*.f
-			$(FC) -c $(F77FLAGS) $*.f -I. -I./ngl/g2
-			$(RM) $*.f
+				rd_grib2.F
+			$(CPP) $(CPPFLAGS) $*.F > $*.f90
+			$(FC) -c $(F77FLAGS) $*.f90 -I. -I./ngl/g2
+			$(RM) $*.f90
 
-datint.o:		misc_definitions_module.o module_debug.o gridinfo.o new_storage.o datint.F90
+datint.o:		misc_definitions_module.o module_debug.o gridinfo.o new_storage.o datint.F
 
-module_debug.o:		debug_cio.o module_debug.F90
+module_debug.o:		debug_cio.o module_debug.F
 
-misc_definitions_module.o: misc_definitions_module.f90
+misc_definitions_module.o: misc_definitions_module.F
 
-file_delete.o: 		misc_definitions_module.o file_delete.F90
+file_delete.o: 		misc_definitions_module.o file_delete.F
 
-new_storage.o:		gridinfo.o new_storage.F90
+new_storage.o:		gridinfo.o new_storage.F
 
-output.o:		misc_definitions_module.o module_debug.o table.o gridinfo.o module_stringutil.o new_storage.o filelist.o output.F90
+output.o:		misc_definitions_module.o module_debug.o table.o gridinfo.o module_stringutil.o new_storage.o filelist.o output.F
 
-parse_table.o:		module_debug.o table.o parse_table.F90
+parse_table.o:		module_debug.o table.o parse_table.F
 
-rd_grib1.o:		module_debug.o table.o gridinfo.o module_datarray.o rd_grib1.F90
+rd_grib1.o:		module_debug.o table.o gridinfo.o module_datarray.o rd_grib1.F
 
-gribcode.o:		module_debug.o gribcode.F90
+gribcode.o:		module_debug.o gribcode.F
 
-rrpr.o:			misc_definitions_module.o module_debug.o filelist.o gridinfo.o module_stringutil.o table.o new_storage.o rrpr.F90
+rrpr.o:			misc_definitions_module.o module_debug.o filelist.o gridinfo.o module_stringutil.o table.o new_storage.o rrpr.F
 
-read_namelist.o:	misc_definitions_module.o module_debug.o read_namelist.F90
+read_namelist.o:	misc_definitions_module.o module_debug.o read_namelist.F
 
-.F90.o:
-			$(CPP) $(CPPFLAGS) $(FDEFS) $< > $*.f
-			$(FC) -c $(FFLAGS) $*.f
-			$(RM) $*.f
+.F.o:
+			$(CPP) $(CPPFLAGS) $(FDEFS) $< > $*.f90
+			$(FC) -c $(FFLAGS) $*.f90
+			$(RM) $*.f90
 
-.f90.o:
-			$(CPP) $(CPPFLAGS) $(FDEFS) $< > $*.f
-			$(FC) -c $(FFLAGS) $*.f
-			$(RM) $*.f
+#.f90.o:
+#			$(CPP) $(CPPFLAGS) $(FDEFS) $< > $*.f
+#			$(FC) -c $(FFLAGS) $*.f
+#			$(RM) $*.f
 .c.o:
 	$(RM) $@
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c $<
 
 
 clean:
-			$(RM) *.f *.o *.i *.mod *.M lib$(LIBTARGET).a *exe
+			$(RM) *.o *.i *.mod *.M lib$(LIBTARGET).a *exe
 
 superclean:		clean

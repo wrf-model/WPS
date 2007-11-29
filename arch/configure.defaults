@@ -167,7 +167,7 @@ FDEFS			=
 FC		=	pgf90
 SFC		=	pgf90
 FFLAGS		=	-Mfree -byteswapio -O
-F77FLAGS	=	-byteswapio -O
+F77FLAGS	=	-Mfixed -byteswapio -O
 FNGFLAGS	=	$(FFLAGS)
 LDFLAGS		=	
 CC		=	pgcc
@@ -184,7 +184,7 @@ NCARG_LIBS2	=	-L${PGI}/linux86/6.1/lib -lpgftnrtl -lpgc \
 FC		=	pgf90
 SFC		=	pgf90
 FFLAGS		=	-Mfree -byteswapio -O
-F77FLAGS	=	-byteswapio -O
+F77FLAGS	=	-Mfixed -byteswapio -O
 FNGFLAGS	=	$(FFLAGS)
 LDFLAGS		=	
 CC		=	pgcc
@@ -204,7 +204,7 @@ FDEFS			=
 FC		=	mpif90 -f90=pgf90
 SFC		=	pgf90
 FFLAGS		=	-Mfree -byteswapio -O
-F77FLAGS	=	-byteswapio -O
+F77FLAGS	=	-Mfixed -byteswapio -O
 FNGFLAGS	=	$(FFLAGS)
 LDFLAGS		=	
 CC		=	mpicc -cc=gcc
@@ -220,7 +220,7 @@ NCARG_LIBS2	=	-L${PGI}/linux86/6.1/lib -lpgftnrtl -lpgc \
 FC		=	mpif90 -f90=pgf90
 SFC		=	pgf90
 FFLAGS		=	-Mfree -byteswapio -O
-F77FLAGS	=	-byteswapio -O
+F77FLAGS	=	-Mfixed -byteswapio -O
 FNGFLAGS	=	$(FFLAGS)
 LDFLAGS		=	
 CC		=	mpicc -cc=gcc
@@ -240,7 +240,7 @@ FDEFS			=
 FC		=	ifort
 SFC		=	ifort
 FFLAGS		=	-FR -convert big_endian
-F77FLAGS	=	-convert big_endian
+F77FLAGS	=	-FI -convert big_endian
 FNGFLAGS	=	$(FFLAGS)
 LDFLAGS		=	
 CC		=	gcc
@@ -255,7 +255,7 @@ CPPFLAGS	=	-D_UNDERSCORE -DBYTESWAP -DLINUX -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -
 FC		=	ifort
 SFC		=	ifort
 FFLAGS		=	-FR -convert big_endian
-F77FLAGS	=	-convert big_endian
+F77FLAGS	=	-FI -convert big_endian
 FNGFLAGS	=	$(FFLAGS)
 LDFLAGS		=	
 CC		=	gcc
@@ -273,7 +273,7 @@ FDEFS			=
 FC		=	mpif90 -f90=ifort
 SFC		=	ifort
 FFLAGS		=	-FR -convert big_endian
-F77FLAGS	=	-convert big_endian
+F77FLAGS	=	-FI -convert big_endian
 FNGFLAGS	=	$(FFLAGS)
 LDFLAGS		=	
 CC		=	mpicc -cc=icc
@@ -288,7 +288,7 @@ CPPFLAGS	=	-D_UNDERSCORE -DBYTESWAP -DLINUX -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -
 FC		=	mpif90 -f90=ifort
 SFC		=	ifort
 FFLAGS		=	-FR -convert big_endian
-F77FLAGS	=	-convert big_endian
+F77FLAGS	=	-FI -convert big_endian
 FNGFLAGS	=	$(FFLAGS)
 LDFLAGS		=	
 CC		=	mpicc -cc=icc
@@ -339,7 +339,7 @@ FDEFS			=
 FC		=	pgf90
 SFC		=	pgf90
 FFLAGS		=	-Mfree -byteswapio -O
-F77FLAGS	=	-byteswapio -O
+F77FLAGS	=	-Mfixed -byteswapio -O
 FNGFLAGS	=	$(FFLAGS)
 LDFLAGS		=	
 CC		=	pgcc
@@ -362,7 +362,7 @@ COMPRESSION_INC		=	-I/contrib/zlib/include \
 FC		=	pgf90
 SFC		=	pgf90
 FFLAGS		=	-Mfree -byteswapio -O
-F77FLAGS	=	-byteswapio -O
+F77FLAGS	=	-Mfixed -byteswapio -O
 FNGFLAGS	=	$(FFLAGS)
 LDFLAGS		=	
 CC		=	pgcc
@@ -382,7 +382,7 @@ FDEFS                   =
 FC              =       ftn
 SFC             =       pgf90
 FFLAGS          =       -Mfree -byteswapio -O3 -fastsse
-F77FLAGS        =       -byteswapio -O3
+F77FLAGS        =       -Mfixed -byteswapio -O3
 FNGFLAGS        =       $(FFLAGS)
 LDFLAGS         =
 CC              =       gcc
@@ -402,7 +402,7 @@ FDEFS			=
 FC		=	mpif90 -f90=pgf90
 SFC		=	pgf90
 FFLAGS		=	-Mfree -byteswapio -O
-F77FLAGS	=	-byteswapio -O
+F77FLAGS	=	-Mfixed -byteswapio -O
 FNGFLAGS	=	$(FFLAGS)
 LDFLAGS		=	
 CC		=	mpicc -cc=pgcc
@@ -425,7 +425,7 @@ COMPRESSION_INC		=	-I/contrib/zlib/include \
 FC		=	mpif90 -f90=pgf90
 SFC		=	pgf90
 FFLAGS		=	-Mfree -byteswapio -O
-F77FLAGS	=	-byteswapio -O
+F77FLAGS	=	-Mfixed -byteswapio -O
 FNGFLAGS	=	$(FFLAGS)
 LDFLAGS		=	
 CC		=	mpicc -cc=pgcc
@@ -519,7 +519,7 @@ CPPFLAGS	=	-D_UNDERSCORE -DSGI -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -DBIT32
 FC		=	ifort -lmpi
 SFC		=	ifort
 FFLAGS		=	-FR -convert big_endian
-F77FLAGS	=	-convert big_endian
+F77FLAGS	=	-FI -convert big_endian
 FNGFLAGS	=	$(FFLAGS)
 LDFLAGS		=
 CC		=	icc -lmpi

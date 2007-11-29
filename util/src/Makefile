@@ -15,16 +15,16 @@ rd_intermediate.exe: rd_intermediate.o read_met_module.o module_debug.o misc_def
 	$(SFC) -o $(@) $(LDFLAGS) rd_intermediate.o read_met_module.o \
 		module_debug.o misc_definitions_module.o cio.o met_data_module.o
 
-rd_intermediate.o: module_debug.o read_met_module.o rd_intermediate.F90
+rd_intermediate.o: module_debug.o read_met_module.o rd_intermediate.F
 
 plotgrids.exe: plotgrids.o
 	$(SFC) -o $(@) $(LDFLAGS) module_map_utils.o module_debug.o cio.o constants_module.o misc_definitions_module.o \
 		plotgrids.o $(NCARG_LIBS) $(NCARG_LIBS2)
 
-plotgrids.o: plotgrids.f90 module_map_utils.o
-	$(CP) $< $*.f
-	$(SFC) $(FNGFLAGS) -c $*.f
-	$(RM) $*.f
+plotgrids.o: plotgrids.F module_map_utils.o
+	$(CP) $< $*.f90
+	$(SFC) $(FNGFLAGS) -c $*.f90
+	$(RM) $*.f90
 
 avg_tsfc.exe: avg_tsfc.o cio.o module_debug.o gridinfo_module.o read_met_module.o \
 		write_met_module.o module_date_pack.o misc_definitions_module.o met_data_module.o
@@ -32,7 +32,7 @@ avg_tsfc.exe: avg_tsfc.o cio.o module_debug.o gridinfo_module.o read_met_module.
 		read_met_module.o write_met_module.o module_date_pack.o \
 		misc_definitions_module.o met_data_module.o
 
-avg_tsfc.o: avg_tsfc.F90 cio.o module_debug.o gridinfo_module.o read_met_module.o \
+avg_tsfc.o: avg_tsfc.F cio.o module_debug.o gridinfo_module.o read_met_module.o \
 		write_met_module.o module_date_pack.o misc_definitions_module.o
 
 elev_angle.exe: elev_angle.o cio.o module_debug.o gridinfo_module.o \
@@ -41,9 +41,9 @@ elev_angle.exe: elev_angle.o cio.o module_debug.o gridinfo_module.o \
 		write_met_module.o misc_definitions_module.o met_data_module.o \
 		-L$(NETCDF)/lib -I$(NETCDF)/include -lnetcdf
 
-elev_angle.o: elev_angle.F90 cio.o module_debug.o gridinfo_module.o \
+elev_angle.o: elev_angle.F cio.o module_debug.o gridinfo_module.o \
 		write_met_module.o misc_definitions_module.o
-	$(SFC) -c elev_angle.F90 -I$(NETCDF)/include
+	$(SFC) -c elev_angle.F -I$(NETCDF)/include
 
 calc_ecmwf_p.exe: calc_ecmwf_p.o cio.o module_debug.o module_stringutil.o gridinfo_module.o read_met_module.o \
 		write_met_module.o module_date_pack.o misc_definitions_module.o met_data_module.o
@@ -51,7 +51,7 @@ calc_ecmwf_p.exe: calc_ecmwf_p.o cio.o module_debug.o module_stringutil.o gridin
 		read_met_module.o write_met_module.o module_date_pack.o \
 		misc_definitions_module.o met_data_module.o
 
-calc_ecmwf_p.o: calc_ecmwf_p.F90 cio.o module_debug.o module_stringutil.o gridinfo_module.o read_met_module.o \
+calc_ecmwf_p.o: calc_ecmwf_p.F cio.o module_debug.o module_stringutil.o gridinfo_module.o read_met_module.o \
 		write_met_module.o module_date_pack.o misc_definitions_module.o
 
 plotfmt.exe: plotfmt.o read_met_module.o met_data_module.o
@@ -59,36 +59,36 @@ plotfmt.exe: plotfmt.o read_met_module.o met_data_module.o
 		misc_definitions_module.o cio.o met_data_module.o \
 		$(NCARG_LIBS) $(NCARG_LIBS2)
 
-plotfmt.o: plotfmt.F90 misc_definitions_module.o read_met_module.o
-	$(CPP) $(CPPFLAGS) $< > $*.f
-	$(SFC) $(FNGFLAGS) -c $*.f
-	$(RM) $*.f
+plotfmt.o: plotfmt.F misc_definitions_module.o read_met_module.o
+	$(CPP) $(CPPFLAGS) $< > $*.f90
+	$(SFC) $(FNGFLAGS) -c $*.f90
+	$(RM) $*.f90
 
 mod_levs.exe: mod_levs.o module_debug.o read_met_module.o write_met_module.o misc_definitions_module.o met_data_module.o
 	$(SFC) -o $(@) $(LDFLAGS) mod_levs.o module_debug.o read_met_module.o \
 		write_met_module.o misc_definitions_module.o cio.o met_data_module.o
 
-mod_levs.o: module_debug.o read_met_module.o write_met_module.o mod_levs.F90
+mod_levs.o: module_debug.o read_met_module.o write_met_module.o mod_levs.F
 
-module_map_utils.o: module_map_utils.f90 misc_definitions_module.o constants_module.o module_debug.o
+module_map_utils.o: module_map_utils.F misc_definitions_module.o constants_module.o module_debug.o
 
 cio.o: cio.c
 
-met_data_module.o: met_data_module.f90
+met_data_module.o: met_data_module.F
 
-module_stringutil.o: module_stringutil.F90
+module_stringutil.o: module_stringutil.F
 
-gridinfo_module.o: gridinfo_module.F90 misc_definitions_module.o module_debug.o
+gridinfo_module.o: gridinfo_module.F misc_definitions_module.o module_debug.o
 
-misc_definitions_module.o: misc_definitions_module.f90
+misc_definitions_module.o: misc_definitions_module.F
 
-module_debug.o: module_debug.F90 cio.o
+module_debug.o: module_debug.F cio.o
 
-read_met_module.o: read_met_module.F90 met_data_module.o constants_module.o module_debug.o misc_definitions_module.o
+read_met_module.o: read_met_module.F met_data_module.o constants_module.o module_debug.o misc_definitions_module.o
 
-write_met_module.o: write_met_module.F90 met_data_module.o module_debug.o misc_definitions_module.o
+write_met_module.o: write_met_module.F met_data_module.o module_debug.o misc_definitions_module.o
 
-module_date_pack.o: module_date_pack.f90
+module_date_pack.o: module_date_pack.F
 
 clean:
 	$(RM) $(OBJS) *.mod

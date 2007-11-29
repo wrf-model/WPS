@@ -11,7 +11,7 @@
 # then rerun configure.
 #
 
-.SUFFIXES: .F90 .f90 .F .f .c .o
+.SUFFIXES: .F .f .c .o
 
 SHELL           	=       /bin/sh
 
