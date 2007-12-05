@@ -167,40 +167,40 @@ module rotate_winds_module
                   ! Calculate the rotation angle, alpha, in radians
                   if (proj_stack(current_nest_number)%code == PROJ_LC) then
                      alpha = diff * proj_stack(current_nest_number)%cone * rad_per_deg * proj_stack(current_nest_number)%hemi 
+                  else if (proj_stack(current_nest_number)%code == PROJ_CASSINI) then
+                     if (j == ue2) then
+                        diff = xlon_u(i,j)-xlon_u(i,j-1)
+                        if (diff > 180.) then
+                           diff = diff - 360.
+                        else if (diff < -180.) then
+                           diff = diff + 360.
+                        end if
+                        alpha = atan2(   (-cos(xlat_u(i,j)*rad_per_deg) * diff*rad_per_deg),   &
+                                                        (xlat_u(i,j)-xlat_u(i,j-1))*rad_per_deg    &
+                                     )
+                     else if (j == us2) then
+                        diff = xlon_u(i,j+1)-xlon_u(i,j)
+                        if (diff > 180.) then
+                           diff = diff - 360.
+                        else if (diff < -180.) then
+                           diff = diff + 360.
+                        end if
+                        alpha = atan2(   (-cos(xlat_u(i,j)*rad_per_deg) * diff*rad_per_deg),   &
+                                                        (xlat_u(i,j+1)-xlat_u(i,j))*rad_per_deg    &
+                                     )
+                     else
+                        diff = xlon_u(i,j+1)-xlon_u(i,j-1)
+                        if (diff > 180.) then
+                           diff = diff - 360.
+                        else if (diff < -180.) then
+                           diff = diff + 360.
+                        end if
+                        alpha = atan2(   (-cos(xlat_u(i,j)*rad_per_deg) * diff*rad_per_deg),   &
+                                                        (xlat_u(i,j+1)-xlat_u(i,j-1))*rad_per_deg    &
+                                     )
+                     end if
                   else
                      alpha = diff * rad_per_deg * proj_stack(current_nest_number)%hemi 
-                  end if
-
-                  if (j == ue2) then
-                     diff = xlon_u(i,j)-xlon_u(i,j-1)
-                     if (diff > 180.) then
-                        diff = diff - 360.
-                     else if (diff < -180.) then
-                        diff = diff + 360.
-                     end if
-                     alpha = atan2(   (-cos(xlat_u(i,j)*rad_per_deg) * diff*rad_per_deg),   &
-                                                     (xlat_u(i,j)-xlat_u(i,j-1))*rad_per_deg    &
-                                  )
-                  else if (j == us2) then
-                     diff = xlon_u(i,j+1)-xlon_u(i,j)
-                     if (diff > 180.) then
-                        diff = diff - 360.
-                     else if (diff < -180.) then
-                        diff = diff + 360.
-                     end if
-                     alpha = atan2(   (-cos(xlat_u(i,j)*rad_per_deg) * diff*rad_per_deg),   &
-                                                     (xlat_u(i,j+1)-xlat_u(i,j))*rad_per_deg    &
-                                  )
-                  else
-                     diff = xlon_u(i,j+1)-xlon_u(i,j-1)
-                     if (diff > 180.) then
-                        diff = diff - 360.
-                     else if (diff < -180.) then
-                        diff = diff + 360.
-                     end if
-                     alpha = atan2(   (-cos(xlat_u(i,j)*rad_per_deg) * diff*rad_per_deg),   &
-                                                     (xlat_u(i,j+1)-xlat_u(i,j-1))*rad_per_deg    &
-                                  )
                   end if
                  
                   v_weight = 0.
@@ -257,40 +257,40 @@ module rotate_winds_module
 
                   if (proj_stack(current_nest_number)%code == PROJ_LC) then
                      alpha = diff * proj_stack(current_nest_number)%cone * rad_per_deg * proj_stack(current_nest_number)%hemi 
+                  else if (proj_stack(current_nest_number)%code == PROJ_CASSINI) then
+                     if (j == ve2) then
+                        diff = xlon_v(i,j)-xlon_v(i,j-1)
+                        if (diff > 180.) then
+                           diff = diff - 360.
+                        else if (diff < -180.) then
+                           diff = diff + 360.
+                        end if
+                        alpha = atan2(   (-cos(xlat_v(i,j)*rad_per_deg) * diff*rad_per_deg),   &
+                                                        (xlat_v(i,j)-xlat_v(i,j-1))*rad_per_deg    &
+                                     )
+                     else if (j == vs2) then
+                        diff = xlon_v(i,j+1)-xlon_v(i,j)
+                        if (diff > 180.) then
+                           diff = diff - 360.
+                        else if (diff < -180.) then
+                           diff = diff + 360.
+                        end if
+                        alpha = atan2(   (-cos(xlat_v(i,j)*rad_per_deg) * diff*rad_per_deg),   &
+                                                        (xlat_v(i,j+1)-xlat_v(i,j))*rad_per_deg    &
+                                     )
+                     else
+                        diff = xlon_v(i,j+1)-xlon_v(i,j-1)
+                        if (diff > 180.) then
+                           diff = diff - 360.
+                        else if (diff < -180.) then
+                           diff = diff + 360.
+                        end if
+                        alpha = atan2(   (-cos(xlat_v(i,j)*rad_per_deg) * diff*rad_per_deg),   &
+                                                        (xlat_v(i,j+1)-xlat_v(i,j-1))*rad_per_deg    &
+                                     )
+                     end if
                   else
                      alpha = diff * rad_per_deg * proj_stack(current_nest_number)%hemi 
-                  end if
-
-                  if (j == ve2) then
-                     diff = xlon_v(i,j)-xlon_v(i,j-1)
-                     if (diff > 180.) then
-                        diff = diff - 360.
-                     else if (diff < -180.) then
-                        diff = diff + 360.
-                     end if
-                     alpha = atan2(   (-cos(xlat_v(i,j)*rad_per_deg) * diff*rad_per_deg),   &
-                                                     (xlat_v(i,j)-xlat_v(i,j-1))*rad_per_deg    &
-                                  )
-                  else if (j == vs2) then
-                     diff = xlon_v(i,j+1)-xlon_v(i,j)
-                     if (diff > 180.) then
-                        diff = diff - 360.
-                     else if (diff < -180.) then
-                        diff = diff + 360.
-                     end if
-                     alpha = atan2(   (-cos(xlat_v(i,j)*rad_per_deg) * diff*rad_per_deg),   &
-                                                     (xlat_v(i,j+1)-xlat_v(i,j))*rad_per_deg    &
-                                  )
-                  else
-                     diff = xlon_v(i,j+1)-xlon_v(i,j-1)
-                     if (diff > 180.) then
-                        diff = diff - 360.
-                     else if (diff < -180.) then
-                        diff = diff + 360.
-                     end if
-                     alpha = atan2(   (-cos(xlat_v(i,j)*rad_per_deg) * diff*rad_per_deg),   &
-                                                     (xlat_v(i,j+1)-xlat_v(i,j-1))*rad_per_deg    &
-                                  )
                   end if
 
                   u_weight = 0.
