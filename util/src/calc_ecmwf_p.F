@@ -310,13 +310,13 @@ subroutine calc_rh(t, qv, p, rh, nx, ny)
 
    ! Local variables
    integer :: i, j
-   real :: es, qs
+   real :: es, e
 
    do j=1,ny
    do i=1,nx
       es=svp1*10.*exp(svp2*(t(i,j)-svpt0)/(t(i,j)-svp3))
-      qs=eps*es/(p(i,j)/100.-es)
-      rh(i,j) = 100.0 * qv(i,j) / qs
+      e=qv(i,j)*p(i,j)/100./(eps+qv(i,j)*(1.-eps)) ! qv is specific humidity
+      rh(i,j) = 100.0 * e/es
    end do
    end do
 
