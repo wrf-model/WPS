@@ -46,7 +46,7 @@
  geog_data_path = '/mmm/users/wrfhelp/WPS_GEOG'
  opt_geogrid_tbl_path = 'geogrid/'
 /
- geog_data_path = '/data3a/mp/gill/DATA/GEOG'
+ geog_data_path = '/data3/mp/wrfhelp/WPS_GEOG'
  geog_data_path = '/standalone/users/gill/DATA/GEOG'
 
 &ungrib
