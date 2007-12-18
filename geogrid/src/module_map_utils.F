@@ -1447,7 +1447,7 @@ MODULE map_utils
       if (i > 360./proj%loninc) i = i - 360./proj%loninc
 
       i = i + proj%knowni
-      j = j + proj%knowni
+      j = j + proj%knownj
 
    END SUBROUTINE llij_cyl
 
