@@ -96,7 +96,7 @@ program gribscan
         cycle
      endif
 
-     if ( sec1(3) .ne. 7 ) then  ! gc defined only for NCEP
+     if ( sec1(3) .ne. 7 ) then  ! special handling for some non-NCEP grids
        do cc = 128, 254
          gc(cc) = '     '
        enddo
@@ -137,8 +137,107 @@ program gribscan
        gc(213) = 'GREEN'
        gc(234) = 'BGRUN'
        gc(235) = 'SSRUN'
-     endif
-     endif
+     endif  ! afwa
+     if ( sec1(3) .eq. 98 ) then  ! ECMWF
+       do cc = 1, 254
+         gc(cc) = '     '
+       enddo
+       if (sec1(2) .eq. 128 ) then  ! set ECMWF table 128
+! from http://www.ecmwf.int/products/data/technical/GRIB_tables/table_128.html
+         gc(27) = 'CVL  '
+         gc(28) = 'CVH  '
+         gc(29) = 'TVL  '
+         gc(30) = 'TVH  '
+         gc(31) = 'CI   '
+         gc(34) = 'SSTK '
+         gc(35) = 'ISTL1'
+         gc(36) = 'ISTL2'
+         gc(37) = 'ISTL3'
+         gc(38) = 'ISTL4'
+         gc(39) = 'SWVL1'
+         gc(40) = 'SWVL2'
+         gc(41) = 'SWVL3'
+         gc(42) = 'SWVL4'
+         gc(44) = 'ES   '
+         gc(45) = 'SMLT '
+         gc(60) = 'PV   '
+         gc(129) = 'Z    '
+         gc(130) = 'T    '
+         gc(131) = 'U    '
+         gc(132) = 'V    '
+         gc(133) = 'Q    '
+         gc(134) = 'SP   '
+         gc(135) = 'W    '
+         gc(136) = 'TCW  '
+         gc(137) = 'TCWV '
+         gc(138) = 'VO   '
+         gc(139) = 'STL1 '
+         gc(140) = 'SWL1 '
+         gc(141) = 'SD   '
+         gc(142) = 'LSP  '
+         gc(143) = 'CP   '
+         gc(144) = 'SF   '
+         gc(145) = 'BLD  '
+         gc(146) = 'SSHF '
+         gc(147) = 'SLHF '
+         gc(151) = 'MSL  '
+         gc(152) = 'LNSP '
+         gc(155) = 'D    '
+         gc(157) = 'R    '
+         gc(159) = 'BLH  '
+         gc(160) = 'SDOR '
+         gc(161) = 'ISOR '
+         gc(162) = 'ANOR '
+         gc(163) = 'SLOR '
+         gc(164) = 'TCC  '
+         gc(165) = '10U  '
+         gc(166) = '10V  '
+         gc(167) = '2T   '
+         gc(168) = '2D   '
+         gc(169) = 'SSRD '
+         gc(170) = 'STL2 '
+         gc(171) = 'SWL2 '
+         gc(172) = 'LSM  '
+         gc(173) = 'SR   '
+         gc(174) = 'AL   '
+         gc(175) = 'STRD '
+         gc(176) = 'SSR  '
+         gc(177) = 'STR  '
+         gc(178) = 'TSR  '
+         gc(179) = 'TTR  '
+         gc(180) = 'EWSS '
+         gc(181) = 'NSSS '
+         gc(182) = 'E    '
+         gc(183) = 'STL3 '
+         gc(184) = 'SWL3 '
+         gc(185) = 'CCC  '
+         gc(186) = 'LCC  '
+         gc(187) = 'MCC  '
+         gc(188) = 'HCC  '
+         gc(189) = 'SUND '
+         gc(195) = 'LGWS '
+         gc(196) = 'MGWS '
+         gc(203) = 'O3   '
+         gc(204) = 'PAW  '
+         gc(205) = 'RO   '
+         gc(206) = 'TCO3 '
+         gc(207) = '10SI '
+         gc(208) = 'TSRC '
+         gc(209) = 'TTRC '
+         gc(210) = 'STRC '
+         gc(211) = 'STRC '
+         gc(229) = 'IEWS '
+         gc(230) = 'INSS '
+         gc(231) = 'ISHF '
+         gc(232) = 'IE   '
+         gc(233) = 'ASQ  '
+         gc(234) = 'LSRH '
+         gc(235) = 'SKT  '
+         gc(236) = 'STL4 '
+         gc(238) = 'TSN  '
+       endif   ! table 128
+     endif  ! ecmwf
+     endif  ! not ncep
 
      if (ivb) then
         call gribprint(0)
