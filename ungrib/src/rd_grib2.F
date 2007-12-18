@@ -215,7 +215,9 @@ C  SET ARGUMENTS
              if (iprocess.eq.83 .or. iprocess.eq.84) then
                map%source = 'NCEP NAM Model'
              elseif (iprocess.eq.81) then
-               map%source = 'NCEP GFS Model'
+               map%source = 'NCEP GFS Analysis'
+             elseif (iprocess.eq.82) then
+               map%source = 'NCEP GFS GDAS'
              elseif (iprocess.eq.96) then
                map%source = 'NCEP GFS Model'
              elseif (iprocess.eq.109) then
@@ -226,6 +228,8 @@ C  SET ARGUMENTS
                map%source = 'NCEP NARR'
              elseif (iprocess.eq.44) then
                map%source = 'NCEP SST Analysis'
+             elseif (iprocess.eq.70) then
+               map%source = 'GFDL Hurricane Model'
              else
                map%source = 'unknown model from NCEP'
 	       call mprintf(.true.,STDOUT,

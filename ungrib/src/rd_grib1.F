@@ -145,7 +145,9 @@ SUBROUTINE rd_grib1(IUNIT, gribflnm, level, field, hdate,  &
     if (iprocess.eq.83 .or. iprocess.eq.84) then
       map%source = 'NCEP NAM Model'
     elseif (iprocess.eq.81) then
-      map%source = 'NCEP GFS Model'
+      map%source = 'NCEP GFS Analysis'
+    elseif (iprocess.eq.82) then
+      map%source = 'NCEP GFS GDAS/FNL'
     elseif (iprocess.eq.96) then
       map%source = 'NCEP GFS Model'
     elseif (iprocess.eq.109) then
