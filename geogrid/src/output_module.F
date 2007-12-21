@@ -80,8 +80,10 @@ module output_module
       ! Local variables
       integer :: i, istatus, save_domain, comm_1, comm_2
       integer :: sp1, ep1, sp2, ep2, ep1_stag, ep2_stag
+      integer :: ngeo_flags
       real :: dx, dy, cen_lat, cen_lon, moad_cen_lat
       character (len=128) :: coption
+      character (len=128), dimension(1) :: geo_flags
       character (len=MAX_FILENAME_LEN) :: output_fname
       logical :: supports_training, supports_3d_fields
   
@@ -363,24 +365,30 @@ module output_module
          call xytoll(real(ixdim(nest_number))/2.,real(jydim(nest_number))/2., cen_lat, cen_lon, M)
 
          call select_domain(save_domain)
+
+         ngeo_flags = 1
+         geo_flags(1) = 'FLAG_MF_XY' 
       else if (grid_type == 'E') then
          dx = dxkm / 3**(nest_number-1)   ! For NMM, nest_number is really nesting level
          dy = dykm / 3**(nest_number-1)
          moad_cen_lat = 0.
          cen_lat=known_lat
          cen_lon=known_lon
+
+         ngeo_flags = 0
       end if
   
       ! We may now write global attributes to the file
-      call write_global_attrs(title, datestr, grid_type, dynopt, ixdim(nest_number), jydim(nest_number), 0, &
-                              sp1, ep1, sp1, ep1_stag, sp2, ep2, sp2, ep2_stag, &
-                              iproj_type, source_mminlu, source_iswater, source_isice, source_isurban, &
-                              source_isoilwater, nest_number, parent_id(nest_number), &
-                              nint(parent_ll_x(nest_number)), nint(parent_ll_y(nest_number)), &
-                              nint(parent_ur_x(nest_number)), nint(parent_ur_y(nest_number)), &
-                              dx, dy, cen_lat, moad_cen_lat, &
-                              cen_lon, stand_lon, truelat1, truelat2, &
-                              parent_grid_ratio(nest_number), corner_lats, corner_lons)
+      call write_global_attrs(title, datestr, grid_type, dynopt, ixdim(nest_number), jydim(nest_number), &
+                              0, sp1, ep1, sp1, ep1_stag, sp2, ep2, sp2, ep2_stag,                       &
+                              iproj_type, source_mminlu, source_iswater, source_isice, source_isurban,   &
+                              source_isoilwater, nest_number, parent_id(nest_number),                    &
+                              nint(parent_ll_x(nest_number)), nint(parent_ll_y(nest_number)),            &
+                              nint(parent_ur_x(nest_number)), nint(parent_ur_y(nest_number)),            &
+                              dx, dy, cen_lat, moad_cen_lat,                                             &
+                              cen_lon, stand_lon, truelat1, truelat2,                                    &
+                              parent_grid_ratio(nest_number), corner_lats, corner_lons,                  &
+                              flags=geo_flags, nflags=ngeo_flags)
 #endif
  
    end subroutine output_init

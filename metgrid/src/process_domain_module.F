@@ -575,6 +575,7 @@ integer, parameter :: BDR_WIDTH = 3
                  sp1, ep1, sp2, ep2, sp3, ep3, &
                  sd1, ed1, sd2, ed2, sd3, ed3, &
                  u_idx, bdr_wdth
+      integer :: nmet_flags
       real :: rx, ry
       real :: threshold
       logical :: do_gcell_interp
@@ -584,6 +585,7 @@ integer, parameter :: BDR_WIDTH = 3
       character (len=19) :: output_date
       character (len=128) :: cname, title
       character (len=MAX_FILENAME_LEN) :: input_name
+      character (len=128), allocatable, dimension(:) :: met_flags
       type (fg_input) :: field, u_field, v_field
       type (met_data) :: fg_data
 
@@ -1074,6 +1076,18 @@ integer, parameter :: BDR_WIDTH = 3
                        extra_col, extra_row)
    
       call get_bottom_top_dim(bottom_top_dim)
+
+      ! Add in a flag to tell real that we have seven new msf fields
+      nmet_flags = num_entries + 1
+      allocate(met_flags(nmet_flags))
+      do i=1,num_entries
+         met_flags(i) = output_flags(i)
+      end do 
+      if (gridtype == 'C') then
+         met_flags(num_entries+1) = 'FLAG_MF_XY'
+      else
+         met_flags(num_entries+1) = ' '
+      end if
    
       ! First write out global attributes
       call mprintf(.true.,LOGFILE,'Writing global attributes to output.')
@@ -1085,7 +1099,9 @@ integer, parameter :: BDR_WIDTH = 3
                               grid_id, parent_id, i_parent_start, &
                               j_parent_start, i_parent_end, j_parent_end, dom_dx, dom_dy, &
                               cen_lat, moad_cen_lat, cen_lon, stand_lon, truelat1, &
-                              truelat2, parent_grid_ratio, corner_lats, corner_lons, output_flags, num_entries)
+                              truelat2, parent_grid_ratio, corner_lats, corner_lons, met_flags, nmet_flags)
+
+      deallocate(met_flags)
     
       call reset_next_field()
 
