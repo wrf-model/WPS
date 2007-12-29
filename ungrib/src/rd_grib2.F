@@ -481,7 +481,8 @@ C  SET ARGUMENTS
            if ( gfld%discipline .eq. g2code(1,i) .and.   !Discipline 
      &          gfld%ipdtmpl(1) .eq. g2code(2,i) .and.   !Category
      &          gfld%ipdtmpl(2) .eq. g2code(3,i) .and.   !Parameter
-     &          gfld%ipdtmpl(10) .eq. g2code(4,i)) then  !Elevation
+     &          gfld%ipdtmpl(10) .eq. g2code(4,i) .and.  !Elevation
+     &          gfld%ipdtnum    .eq. g2code(5,i)) then   !Template
 
             call gf_free(gfld)
             call gf_getfld(cgrib,lengrib,n,.TRUE.,expand,gfld,ierr)

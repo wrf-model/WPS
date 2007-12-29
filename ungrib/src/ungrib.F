@@ -107,7 +107,7 @@ program ungrib
   call edition_num(nunit1, gribflnm, grib_version, ierr)
   call mprintf((ierr.eq.3),ERROR,"GRIB file problem")
   if (grib_version.eq.2) then
-     vtable_columns=11 
+     vtable_columns=12 
 #if defined (USE_PNG) && (USE_JPEG2000)
      call mprintf(.true.,INFORM, &
         "Linked in png and jpeg libraries for Grib Edition 2")

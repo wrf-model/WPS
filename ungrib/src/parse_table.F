@@ -366,6 +366,33 @@ subroutine parse_table(debug_level,vtable_columns)
                  read(string(istart:ibar), *) g2code(4,maxvar)
               endif
 
+           elseif (i.eq.12) then
+           ! The twelfth field is the Grib2 Product Definition Template number
+           ! Defaults to template 4.0, an instantaneous horizontal field.
+           ! The only other supported value is 8 - an accumulated or averaged field.
+
+            if (istart .lt. ibar) then
+              if (string(istart:ibar) == ' ') then
+                 g2code(5,maxvar) = 0
+              elseif (scan(string(istart:ibar),'*') /= 0) then
+                 call mprintf(.true.,STDOUT, &
+                  " ERROR reading Grib2 Parameter Number ")
+                 call mprintf(.true.,STDOUT,  &
+                    "This Grib2 Vtable line is incorrectly specified:")
+                 call mprintf(.true.,STDOUT," %s",s1=string)
+                 call mprintf(.true.,LOGFILE, &
+                  " ERROR reading Grib2 Parameter Number ")
+                 call mprintf(.true.,LOGFILE,  &
+                    "This Grib2 Vtable line is incorrectly specified:")
+                 call mprintf(.true.,LOGFILE," %s",s1=string)
+                 call mprintf(.true.,ERROR,"Stopping in PARSE_TABLE")
+              else
+                 read(string(istart:ibar), * ) g2code(5,maxvar)
+              endif
+             else     ! occurs when 11 columns are in the Vtable rather than 12.
+               g2code(5,maxvar) = 0
+             endif
+
            endif
 
            istart = ibar + 2

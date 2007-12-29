@@ -40,7 +40,7 @@ module Table
 
 ! Array G2_GCODE holds the GRIB2 param numbers of the fields we want to access
 ! and the GRIB2 level types of the params we want to access:
-  integer, dimension(4,maxlines) :: g2code
+  integer, dimension(5,maxlines) :: g2code
 
 ! Array LEVEL1 holds the Level-1 values of the fields we want:
 ! If the Vtable has a '*' for the Level-1 value, LEVEL1 has 
