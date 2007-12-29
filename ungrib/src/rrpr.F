@@ -442,17 +442,15 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_level, out_f
         endif
 
 !
-! If surface SNOW is missing, see if we can compute SNOW and SNOWH from SNOWRUC
-! (From Wei Wang, 2007 June 21, modified 10/20/2007)
+! If surface SNOW is missing, see if we can compute SNOW from SNOWRUC
+! (From Wei Wang, 2007 June 21, modified 12/28/2007)
 !
         if (.not. is_there(200100, 'SNOW') .and. &
              is_there(200100, 'SNOWRUC')) then
            call get_dims(200100, 'SNOWRUC')
            allocate(scr2d(map%nx,map%ny))
            call get_storage(200100, 'SNOWRUC', scr2d, map%nx, map%ny)
-           scr2d = scr2d / 20.
-           call put_storage(200100, 'SNOWH',   scr2d, map%nx, map%ny)
-           scr2d = scr2d / 6.
+           scr2d = scr2d * 100. 
            call put_storage(200100, 'SNOW',   scr2d, map%nx, map%ny)
            deallocate(scr2d)
         endif

@@ -149,7 +149,7 @@ end program g2print
 
       use grib_mod
       use params
-      use table          ! Included to define cg2code
+      use table          ! Included to define g2code
       use gridinfo       ! Included to define map%
       use storage_module ! Included sub put_storage
 

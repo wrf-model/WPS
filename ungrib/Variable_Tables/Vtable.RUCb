@@ -1,7 +1,7 @@
 GRIB1| Level| From |  To  | metgrid  |  metgrid | metgrid                                 |GRIB2|GRIB2|GRIB2|GRIB2|
 Param| Type |Level1|Level2| Name     |  Units   | Description                             |Discp|Catgy|Param|Level|
 -----+------+------+------+----------+----------+-----------------------------------------+-----------------------+
-   1 | 109  |   *  |      | PSFC     | Pa       | Surface Pressure                        |  0  |  3  |  0  |   1 |
+   1 |   1  |   0  |      | PSFC     | Pa       | Surface Pressure                        |  0  |  3  |  0  |   1 |
    7 | 109  |   *  |      | HGT      | m        | Height                                  |  0  |  3  |  5  | 105 |
    1 | 109  |   *  |      | PRESSURE | Pa       | Pressure                                |  0  |  3  |  0  | 105 |
  189 | 109  |   *  |      | VPTMP    | K        |                                         |  0  |  0  | 15  | 105 |
@@ -18,8 +18,8 @@ Param| Type |Level1|Level2| Name     |  Units   | Description                   
      | 109  |   *  |      | TT       | K        | Temperature                             |  0  |  0  |     | 105 |
  129 | 102  |   0  |      | PMSL     | Pa       | Sea-level Pressure                      |  0  |  3  | 198 | 101 |
      |  1   |   0  |      | SNOW     | kg m-2   | Water Equivalent Snow Depth             |  0  |  1  |     |   1 |
-     |  1   |   0  |      | SNOWH    | m        | Snow Depth                              |  0  |  1  |     |   1 |
-  66 |  1   |   0  |      | SNOWRUC  | m        |                                         |  0  |  1  | 11  |   1 |
+  65 |  1   |   0  |      | SNOWRUC  | m        |                                         |  0  |  1  |  13 |   1 |
+  66 |  1   |   0  |      | SNOWDPTH | m        | Snow Depth                              |  0  |  1  | 11  |   1 |
   89 | 111  |   5  |      | RHOSN    | kg m-3   | Snow density                            |  0  |  1  | 61  |   1 |
   11 | 105  |   2  |      | TT       | K        | Temperature                             |  0  |  0  |  0  | 103 |
      | 105  |   2  |      | RH       | %        | Relative Humidity                       |  0  |  1  |  1  | 103 |
@@ -39,9 +39,9 @@ Param| Type |Level1|Level2| Name     |  Units   | Description                   
   85 | 111  | 160  |      | SOILT160 | K        | Soil Temp  160 cm below ground          |  2  |  0  |  2  | 106 |
   85 | 111  | 300  |      | SOILT300 | K        | Soil Temp  300 cm below ground          |  2  |  0  |  2  | 106 |
  223 |   1  |   0  |      | CANWAT   | kg m-2   | Plant Canopy Surface Water              |  2  |  0  | 196 |   1 |
-  11 | 111  |   5  |      | SKINTEMP | K        | Temperature at ground sfc (from s file) |  0  |  0  |  0  |   1 |
- 239 | 111  |  10  |      | TSNOW    | K        | Temperature inside snow                 |  0  |  1  | 208 | 106 |
+ 239 | 111  |   5  |      | SKINTEMP | K        | Snow Temp    5 cm below sfc ( = TSK )   |  0  |  1  | 208 | 106 |
+ 239 | 111  |  10  |      | TSNOW    | K        | Snow Temp   10 cm below sfc             |  0  |  1  | 208 | 106 |
   53 |  1   |   0  |      | QVG      | kg kg-1  | Water vapor mixing ratio at the surface |  0  |  1  |  2  |   1 |
   91 |  1   |   0  |      | SEAICE   |          | Ice flag                                | 10  |  2  |  0  |   1 |
- 223 |   1  |   0  |      | CANWAT   | kg m-2   | Plant Canopy Surface Water              |  2  |  0  | 196 |   1 |
+ 223 |  1   |   0  |      | CANWAT   | kg m-2   | Plant Canopy Surface Water              |  2  |  0  | 196 |   1 |
 -----+------+------+------+----------+----------+-----------------------------------------+-----------------------+
