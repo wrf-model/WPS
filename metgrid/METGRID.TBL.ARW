@@ -369,6 +369,7 @@ name=SOILT300
 ========================================
 name=PMSL
         interp_option=sixteen_pt+four_pt+average_4pt
+        flag_in_output=FLAG_SLP
 ========================================
 name=RH
         interp_option=sixteen_pt+four_pt+average_4pt
