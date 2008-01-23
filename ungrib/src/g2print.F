@@ -174,7 +174,7 @@ end program g2print
       ! For subroutine put_storage
       real :: level
       real :: scale_factor
-      integer :: iplvl
+      integer :: iplvl, lvl2
       character (len=9) :: my_field
       ! For subroutine outout
       integer , parameter :: maxlvl = 100
@@ -420,6 +420,8 @@ end program g2print
                map%source = 'NCEP NAM Model'
              elseif (iprocess.eq.81) then
                map%source = 'NCEP GFS Model'
+             elseif (iprocess.eq.82) then
+               map%source = 'NCEP GFS GDAS'
              elseif (iprocess.eq.96) then
                map%source = 'NCEP GFS Model'
              elseif (iprocess.eq.86 .or. iprocess.eq.100) then
@@ -432,6 +434,10 @@ end program g2print
                map%source = 'NCEP RTMA'
              elseif (iprocess.eq.140) then
                map%source = 'NCEP NARR'
+             elseif (iprocess.eq.44) then
+               map%source = 'NCEP SST Analysis'
+             elseif (iprocess.eq.70) then
+               map%source = 'GFDL Hurricane Model'
              else
                map%source = 'unknown model from NCEP'
                write (6,*) 'unknown NCEP model, iprocess = ',iprocess
@@ -444,6 +450,8 @@ end program g2print
              endif
            else if (icenter .eq. 98) then
              map%source = 'ECMWF'
+           else if (icenter .eq. 34) then
+             map%source = 'JMA'
            else
              map%source = 'unknown model and orig center'
            end if
@@ -841,9 +849,23 @@ end program g2print
          endif ! Additional Print information 
 ! ------------------------------------
 	 if ( debug_level .le. 50) then
+           if(gfld%ipdtmpl(10).eq.100) then    ! pressure level
+             level=gfld%ipdtmpl(12) *  &
+                     (10. ** (-1. * gfld%ipdtmpl(11)))
+           else if(gfld%ipdtmpl(10).eq.101 .or.&    ! sea level, sfc, or trop
+	        gfld%ipdtmpl(10).eq.1 .or. gfld%ipdtmpl(10).eq.7) then 
+             level = 0
+           else
+             level=gfld%ipdtmpl(12)
+           endif
+	   if (gfld%ipdtmpl(13) .eq. 255) then
+	     lvl2 = 0
+	   else
+	     lvl2 = gfld%ipdtmpl(15)
+	   endif
          write(6,987) itot,gfld%discipline,gfld%ipdtmpl(1),  &
-           gfld%ipdtmpl(2),gfld%ipdtmpl(10),gfld%ipdtmpl(12),&
-           gfld%ipdtmpl(15),pabbrev,hdate,fcst
+           gfld%ipdtmpl(2),gfld%ipdtmpl(10),int(level),&
+           lvl2,pabbrev,hdate,fcst
   987     format(2i4,i5,i4,i8,i8,i8,a10,a20,i5.2)
          endif
 

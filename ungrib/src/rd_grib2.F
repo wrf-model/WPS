@@ -220,10 +220,14 @@ C  SET ARGUMENTS
                map%source = 'NCEP GFS GDAS'
              elseif (iprocess.eq.96) then
                map%source = 'NCEP GFS Model'
+             elseif (iprocess.eq.86 .or. iprocess.eq.100) then
+               map%source = 'NCEP RUC Model'    ! 60 km
+             elseif (iprocess.eq.101) then
+               map%source = 'NCEP RUC Model'    ! 40 km
+             elseif (iprocess.eq.105) then
+               map%source = 'NCEP RUC Model'    ! 20 km
              elseif (iprocess.eq.109) then
                map%source = 'NCEP RTMA'
-             elseif (iprocess.eq.105) then
-               map%source = 'NCEP RUC Model'
              elseif (iprocess.eq.140) then
                map%source = 'NCEP NARR'
              elseif (iprocess.eq.44) then
@@ -247,6 +251,8 @@ C  SET ARGUMENTS
 	     endif
 	   else if (icenter .eq. 98) then
 	     map%source = 'ECMWF'
+           else if (icenter .eq. 34) then
+             map%source = 'JMA'
            else
              map%source = 'unknown model and orig center'
            end if
@@ -397,6 +403,31 @@ C  SET ARGUMENTS
              cycle
            endif
 
+! The JMA GSM has two different grids in the same GRIB file, so we need
+! to process the map info for each field separately. If any other centers do
+! this, then processing will need to be added here, too.
+
+            if (icenter .eq. 34 .and. gfld%igdtnum.eq.0) then
+              map%nx = gfld%igdtmpl(8)
+              map%ny = gfld%igdtmpl(9)
+              map%dx = gfld%igdtmpl(17)
+              map%dy = gfld%igdtmpl(18)
+              ! Scale dx/dy values to degrees, default range is 1e6.
+              if (map%dx.gt.10000) then
+                 map%dx = map%dx/scale_factor
+              endif
+              if (map%dy.gt.10000) then
+                 map%dy = map%dy/scale_factor
+              endif
+              write(tmp8,'(b8.8)') gfld%igdtmpl(19)
+              read(tmp8,'(1x,i1)') jscan
+              write(0,*) 'gfld%igdtmpl(19) = ',gfld%igdtmpl(19),
+     &   ' jscan = ',jscan
+              if ( jscan .eq. 0 .and. map%dy .gt. 0. ) then
+                map%dy = -1. * map%dy
+              endif
+            endif             ! JMA spectral
+
 ! ------------------------------------
          ! Additional print information for developer.
          if ( debug_level .GT. 1000 ) then
@@ -524,7 +555,8 @@ C  SET ARGUMENTS
               ! Level (eg. 10000 mb)
               if(gfld%ipdtmpl(10).eq.100) then
                  ! Pressure level (range from 1000mb to 0mb)
-                 level=gfld%ipdtmpl(12)
+                 level=gfld%ipdtmpl(12) *
+     &                           (10. ** (-1. * gfld%ipdtmpl(11)))
               elseif(gfld%ipdtmpl(10).eq.105) then
                  ! Hybrid level (range from 1 to N)
                  level=gfld%ipdtmpl(12)

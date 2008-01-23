@@ -450,7 +450,7 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_level, out_f
            call get_dims(200100, 'SNOWRUC')
            allocate(scr2d(map%nx,map%ny))
            call get_storage(200100, 'SNOWRUC', scr2d, map%nx, map%ny)
-           scr2d = scr2d * 100. 
+           scr2d = scr2d * 1000. 
            call put_storage(200100, 'SNOW',   scr2d, map%nx, map%ny)
            deallocate(scr2d)
         endif
@@ -466,6 +466,29 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_level, out_f
            scr2d = scr2d / 9.81
            call put_storage(200100, 'SOILHGT', scr2d, map%nx, map%ny)
            deallocate(scr2d)
+        endif
+
+! For hybrid-level input, soilgeo is in level 1 (e.g. ERA40)
+        if (.not. is_there(200100, 'SOILHGT') .and. &
+             is_there(1, 'SOILGEO')) then
+           call get_dims(1, 'SOILGEO')
+           allocate(scr2d(map%nx,map%ny))
+           call get_storage(1, 'SOILGEO', scr2d, map%nx, map%ny)
+           scr2d = scr2d / 9.81
+           call put_storage(200100, 'SOILHGT', scr2d, map%nx, map%ny)
+           deallocate(scr2d)
+        endif
+
+! For ECMWF hybrid-level input, may need to move psfc from level 1 to 2001.
+        if ( index(map%source,'ECMWF') .ne. 0) then
+        if (.not. is_there(200100, 'PSFC') .and. &
+             is_there(1, 'PSFCH')) then
+           call get_dims(1, 'PSFCH')
+           allocate(scr2d(map%nx,map%ny))
+           call get_storage(1, 'PSFCH', scr2d, map%nx, map%ny)
+           call put_storage(200100, 'PSFC', scr2d, map%nx, map%ny)
+           deallocate(scr2d)
+        endif
         endif
 
 ! If we've got a SEAICE field, make sure that it is all Zeros and Ones:
