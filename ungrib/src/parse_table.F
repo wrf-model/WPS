@@ -112,6 +112,8 @@ subroutine parse_table(debug_level,vtable_columns)
            if (ierr /= 0) exit RDLOOP
            if (len_trim(string) == 0) then
               cycle BLOOP
+           else if (string(1:1) == '#') then
+              cycle BLOOP
            else
               exit BLOOP
            endif
