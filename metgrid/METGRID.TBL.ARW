@@ -448,6 +448,7 @@ name=QS
         interp_option=four_pt+average_4pt
         fill_missing=0.
         fill_lev=200100:const(0.)
+        flag_in_output=FLAG_QS
 ========================================
 name=QG
         interp_option=four_pt+average_4pt
