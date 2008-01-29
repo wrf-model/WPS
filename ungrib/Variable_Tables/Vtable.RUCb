@@ -8,12 +8,12 @@ Param| Type |Level1|Level2| Name     |  Units   | Description                   
   53 | 109  |   *  |      | QV       | kg kg-1  | QV                                      |  0  |  1  |  2  | 105 |
   33 | 109  |   *  |      | UU       | m s-1    | U                                       |  0  |  2  |  2  | 105 |
   34 | 109  |   *  |      | VV       | m s-1    | V                                       |  0  |  2  |  3  | 105 |
- 153 | 109  |   *  |      | QC       | kg kg-1  | QC                                      |  0  |  1  | 22  | 105 |
- 170 | 109  |   *  |      | QR       | kg kg-1  | QR                                      |  0  |  1  | 24  | 105 |
- 178 | 109  |   *  |      | QI       | kg kg-1  | QI                                      |  0  |  1  | 23  | 105 |
- 171 | 109  |   *  |      | QS       | kg kg-1  | QSN                                     |  0  |  1  | 25  | 105 |
- 179 | 109  |   *  |      | QG       | kg kg-1  | QG                                      |  0  |  1  | 32  | 105 |
- 198 | 109  |   *  |      | QNI      | m-3      | QNI                                     |  0  |  1  | 207 | 105 |
+ 153 | 109  |   *  |      | QC       | kg kg-1  | Cloud water mixing ratio                |  0  |  1  | 22  | 105 |
+ 170 | 109  |   *  |      | QR       | kg kg-1  | Rain water mixing ratio                 |  0  |  1  | 24  | 105 |
+ 178 | 109  |   *  |      | QI       | kg kg-1  | Ice mixing ratio                        |  0  |  1  | 23  | 105 |
+ 171 | 109  |   *  |      | QS       | kg kg-1  | Snow water mixing ratio                 |  0  |  1  | 25  | 105 |
+ 179 | 109  |   *  |      | QG       | kg kg-1  | Graupel mixing ratio                    |  0  |  1  | 32  | 105 |
+ 198 | 109  |   *  |      | QNI      | m-3      | Number concentration for ice particles  |  0  |  1  | 207 | 105 |
      | 109  |   *  |      | RH       | %        | Relative Humidity                       |  0  |  1  |     | 105 |
      | 109  |   *  |      | TT       | K        | Temperature                             |  0  |  0  |     | 105 |
  129 | 102  |   0  |      | PMSL     | Pa       | Sea-level Pressure                      |  0  |  3  | 198 | 101 |
