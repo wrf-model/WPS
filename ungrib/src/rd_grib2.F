@@ -182,15 +182,21 @@ C  SET ARGUMENTS
            second=gfld%idsect(11)    ! SECOND OF THE DATA
 
            fcst = 0
-           ! Parse the forecast time info from Sect 4. 
-           if (gfld%ipdtnum.eq.0) then  ! Product Definition Template 4.0
 
-             ! Extract forecast time.
+           ! Extract forecast time.
+           if ( gfld%ipdtmpl(8) .eq. 1 ) then       ! time units are hours
              fcst = gfld%ipdtmpl(9)
-
+           else if ( gfld%ipdtmpl(8) .eq. 0 ) then  ! minutes
+             fcst = gfld%ipdtmpl(9) / 60.
+           else if ( gfld%ipdtmpl(8) .eq. 2 ) then  ! days
+             fcst = gfld%ipdtmpl(9) * 24.
+           else
+             call mprintf(.true.,ERROR,
+     &           "Time unit in ipdtmpl(8), %i is not suported",
+     &            newline=.true.,i1=gfld%ipdtmpl(8))
            endif
 
-           ! Compute valid time. 
+           ! Compute valid time.
 
            !print *, 'ymd',gfld%idsect(6),gfld%idsect(7),gfld%idsect(8)
            !print *, 'hhmm  ',gfld%idsect(9),gfld%idsect(10)
@@ -234,6 +240,8 @@ C  SET ARGUMENTS
                map%source = 'NCEP SST Analysis'
              elseif (iprocess.eq.70) then
                map%source = 'GFDL Hurricane Model'
+             elseif (iprocess.eq.80) then
+               map%source = 'NCEP GFS Ensemble'
              else
                map%source = 'unknown model from NCEP'
 	       call mprintf(.true.,STDOUT,
