@@ -11,24 +11,32 @@ bad_idea:
 	@echo " "
 
 all:
-	( cd src ; \
-	$(MAKE) $(TARGET) \
-		WRF_DIR="$(WRF_DIR_PRE)$(WRF_DIR)" \
-		FC="$(FC)" \
-		CC="$(CC)" \
-		CPP="$(CPP)" \
-		FFLAGS="$(FFLAGS)" \
-		CFLAGS="$(CFLAGS)" \
-		LDFLAGS="$(LDFLAGS)" \
-		CPPFLAGS="$(CPPFLAGS) -D_$(CPP_TARGET)" )
-	if [ -e $(TARGET) ] ; then \
-		$(RM) $(TARGET) ; \
-	fi ; \
-	if [ -e ../$(TARGET) ] ; then \
-		$(RM) ../$(TARGET) ; \
-	fi ; \
-	if [ -e src/$(TARGET) ] ; then \
-		$(LN) src/$(TARGET) . ; \
+	@if [ -e $(WRF_DIR_PRE)$(WRF_DIR)/frame/module_internal_header_util.o ] ; then \
+		( cd src ; \
+		$(MAKE) $(TARGET) \
+			WRF_DIR="$(WRF_DIR_PRE)$(WRF_DIR)" \
+			FC="$(FC)" \
+			CC="$(CC)" \
+			CPP="$(CPP)" \
+			FFLAGS="$(FFLAGS)" \
+			CFLAGS="$(CFLAGS)" \
+			LDFLAGS="$(LDFLAGS)" \
+			CPPFLAGS="$(CPPFLAGS) -D_$(CPP_TARGET)" ) ; \
+		if [ -e $(TARGET) ] ; then \
+			$(RM) $(TARGET) ; \
+		fi ; \
+		if [ -e ../$(TARGET) ] ; then \
+			$(RM) ../$(TARGET) ; \
+		fi ; \
+		if [ -e src/$(TARGET) ] ; then \
+			$(LN) src/$(TARGET) . ; \
+		fi ; \
+	else \
+		echo " " ; \
+		echo " ***************************************************************************************" ; \
+		echo " Error : Not building geogrid. Check whether WRF is compiled in $(WRF_DIR_PRE)$(WRF_DIR)" ; \
+		echo " ***************************************************************************************" ; \
+		echo " " ; \
 	fi
 
 clean:
