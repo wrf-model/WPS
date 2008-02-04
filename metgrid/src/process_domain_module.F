@@ -35,7 +35,7 @@ module process_domain_module
                  grid_id, parent_id, i_parent_start, j_parent_start, &
                  i_parent_end, j_parent_end, parent_grid_ratio
       real :: cen_lat, moad_cen_lat, cen_lon, stand_lon, truelat1, truelat2, &
-              dom_dx, dom_dy
+              dom_dx, dom_dy, pole_lat, pole_lon
       real, dimension(16) :: corner_lats, corner_lons
       real, pointer, dimension(:,:) :: landmask
       real, pointer, dimension(:,:) :: xlat, xlon, xlat_u, xlon_u, xlat_v, xlon_v
@@ -75,8 +75,8 @@ module process_domain_module
                     grid_id, parent_id, &
                     i_parent_start, j_parent_start, i_parent_end, j_parent_end, &
                     parent_grid_ratio, cen_lat, moad_cen_lat, cen_lon, stand_lon, truelat1, truelat2, &
-                    dom_dx, dom_dy, landmask, xlat, xlon, xlat_u, xlon_u, xlat_v, xlon_v, corner_lats, &
-                    corner_lons, title)
+                    pole_lat, pole_lon, dom_dx, dom_dy, landmask, xlat, xlon, xlat_u, xlon_u, &
+                    xlat_v, xlon_v, corner_lats, corner_lons, title)
 
 
       allocate(output_flags(num_entries))
@@ -102,8 +102,8 @@ module process_domain_module
                           map_proj, mminlu, is_water, is_ice, is_urban, i_soilwater, &
                           grid_id, parent_id, i_parent_start, &
                           j_parent_start, i_parent_end, j_parent_end, dom_dx, dom_dy, &
-                          cen_lat, moad_cen_lat, cen_lon, stand_lon, truelat1, &
-                          truelat2, parent_grid_ratio, corner_lats, corner_lons, output_flags)
+                          cen_lat, moad_cen_lat, cen_lon, stand_lon, truelat1, truelat2, &
+                          pole_lat, pole_lon, parent_grid_ratio, corner_lats, corner_lons, output_flags)
 
       !
       ! Begin time-dependent processing
@@ -147,8 +147,8 @@ module process_domain_module
                              map_proj, mminlu, is_water, is_ice, is_urban, i_soilwater, &
                              grid_id, parent_id, i_parent_start, &
                              j_parent_start, i_parent_end, j_parent_end, dom_dx, dom_dy, &
-                             cen_lat, moad_cen_lat, cen_lon, stand_lon, truelat1, &
-                             truelat2, parent_grid_ratio, corner_lats, corner_lons, td_output_flags)
+                             cen_lat, moad_cen_lat, cen_lon, stand_lon, truelat1, truelat2, &
+                             pole_lat, pole_lon, parent_grid_ratio, corner_lats, corner_lons, td_output_flags)
    
       end do  ! Loop over n_times
 
@@ -170,17 +170,17 @@ module process_domain_module
    ! Purpose:
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
    subroutine get_static_fields(n, dyn_opt, west_east_dim, south_north_dim, bottom_top_dim, &
-                    map_proj, &
-                    we_dom_s,   we_dom_e,   sn_dom_s,        sn_dom_e, &
-                    we_patch_s, we_patch_e, we_patch_stag_s, we_patch_stag_e, &
-                    sn_patch_s, sn_patch_e, sn_patch_stag_s, sn_patch_stag_e, &
-                    we_mem_s, we_mem_e, we_mem_stag_s, we_mem_stag_e, &
-                    sn_mem_s, sn_mem_e, sn_mem_stag_s, sn_mem_stag_e, &
-                    mminlu, is_water, is_ice, is_urban, i_soilwater, grid_id, parent_id, &
-                    i_parent_start, j_parent_start, i_parent_end, j_parent_end, &
+                    map_proj,                                                               &
+                    we_dom_s,   we_dom_e,   sn_dom_s,        sn_dom_e,                      &
+                    we_patch_s, we_patch_e, we_patch_stag_s, we_patch_stag_e,               &
+                    sn_patch_s, sn_patch_e, sn_patch_stag_s, sn_patch_stag_e,               &
+                    we_mem_s, we_mem_e, we_mem_stag_s, we_mem_stag_e,                       &
+                    sn_mem_s, sn_mem_e, sn_mem_stag_s, sn_mem_stag_e,                       &
+                    mminlu, is_water, is_ice, is_urban, i_soilwater, grid_id, parent_id,    &
+                    i_parent_start, j_parent_start, i_parent_end, j_parent_end,             &
                     parent_grid_ratio, cen_lat, moad_cen_lat, cen_lon, stand_lon, truelat1, truelat2, &
-                    dom_dx, dom_dy, landmask, xlat, xlon, xlat_u, xlon_u, xlat_v, xlon_v, corner_lats, &
-                    corner_lons, title)
+                    pole_lat, pole_lon, dom_dx, dom_dy, landmask, xlat, xlon, xlat_u, xlon_u, &
+                    xlat_v, xlon_v, corner_lats, corner_lons, title)
 
       use gridinfo_module
       use input_module
@@ -204,7 +204,7 @@ module process_domain_module
                                 parent_grid_ratio
       real, pointer, dimension(:,:) :: landmask
       real, intent(inout) :: cen_lat, moad_cen_lat, cen_lon, stand_lon, truelat1, truelat2, &
-                             dom_dx, dom_dy
+                             dom_dx, dom_dy, pole_lat, pole_lon
       real, pointer, dimension(:,:) :: xlat, xlon, xlat_u, xlon_u, xlat_v, xlon_v
       real, dimension(16), intent(out) :: corner_lats, corner_lons
       character (len=128), intent(inout) :: title, mminlu
@@ -225,15 +225,16 @@ module process_domain_module
    
       ! Read global attributes from the static data input file 
       call mprintf(.true.,LOGFILE,'Reading static global attributes.')
-      call read_global_attrs(title, datestr, grid_type, dyn_opt, west_east_dim, &
-                             south_north_dim, bottom_top_dim, &
-                             we_patch_s, we_patch_e, we_patch_stag_s, we_patch_stag_e, &
-                             sn_patch_s, sn_patch_e, sn_patch_stag_s, sn_patch_stag_e, &
-                             map_proj, mminlu, is_water, is_ice, is_urban, i_soilwater, &
-                             grid_id, parent_id, i_parent_start, &
+      call read_global_attrs(title, datestr, grid_type, dyn_opt, west_east_dim,          &
+                             south_north_dim, bottom_top_dim,                            &
+                             we_patch_s, we_patch_e, we_patch_stag_s, we_patch_stag_e,   &
+                             sn_patch_s, sn_patch_e, sn_patch_stag_s, sn_patch_stag_e,   &
+                             map_proj, mminlu, is_water, is_ice, is_urban, i_soilwater,  &
+                             grid_id, parent_id, i_parent_start,                         &
                              j_parent_start, i_parent_end, j_parent_end, dom_dx, dom_dy, &
-                             cen_lat, moad_cen_lat, cen_lon, stand_lon, truelat1, &
-                             truelat2, parent_grid_ratio, corner_lats, corner_lons)
+                             cen_lat, moad_cen_lat, cen_lon, stand_lon, truelat1,        &
+                             truelat2, pole_lat, pole_lon, parent_grid_ratio,            &
+                             corner_lats, corner_lons)
 
       we_dom_s = 1
       sn_dom_s = 1
@@ -526,8 +527,8 @@ module process_domain_module
                              map_proj, mminlu, is_water, is_ice, is_urban, i_soilwater, &
                              grid_id, parent_id, i_parent_start, &
                              j_parent_start, i_parent_end, j_parent_end, dom_dx, dom_dy, &
-                             cen_lat, moad_cen_lat, cen_lon, stand_lon, truelat1, &
-                             truelat2, parent_grid_ratio, corner_lats, corner_lons, output_flags)
+                             cen_lat, moad_cen_lat, cen_lon, stand_lon, truelat1, truelat2, &
+                             pole_lat, pole_lon, parent_grid_ratio, corner_lats, corner_lons, output_flags)
    
       use bitarray_module
       use gridinfo_module
@@ -557,7 +558,8 @@ module process_domain_module
                  i_parent_end, j_parent_end, parent_grid_ratio
 ! BUG: Should we be passing these around as pointers, or just declare them as arrays?
       real, pointer, dimension(:,:) :: landmask
-      real, intent(in) :: dom_dx, dom_dy, cen_lat, moad_cen_lat, cen_lon, stand_lon, truelat1, truelat2
+      real, intent(in) :: dom_dx, dom_dy, cen_lat, moad_cen_lat, cen_lon, stand_lon, &
+                 truelat1, truelat2, pole_lat, pole_lon
       real, dimension(16), intent(in) :: corner_lats, corner_lons
       real, pointer, dimension(:,:) :: xlat, xlon, xlat_u, xlon_u, xlat_v, xlon_v
       logical, intent(in) :: extra_row, extra_col
@@ -1091,15 +1093,16 @@ integer, parameter :: BDR_WIDTH = 3
    
       ! First write out global attributes
       call mprintf(.true.,LOGFILE,'Writing global attributes to output.')
-      call write_global_attrs(title, output_date, gridtype, dyn_opt, west_east_dim, &
-                              south_north_dim, bottom_top_dim, &
-                              we_patch_s, we_patch_e, we_patch_stag_s, we_patch_stag_e, &
-                              sn_patch_s, sn_patch_e, sn_patch_stag_s, sn_patch_stag_e, &
-                              map_proj, mminlu, is_water, is_ice, is_urban, i_soilwater, &
-                              grid_id, parent_id, i_parent_start, &
-                              j_parent_start, i_parent_end, j_parent_end, dom_dx, dom_dy, &
-                              cen_lat, moad_cen_lat, cen_lon, stand_lon, truelat1, &
-                              truelat2, parent_grid_ratio, corner_lats, corner_lons, met_flags, nmet_flags)
+      call write_global_attrs(title, output_date, gridtype, dyn_opt, west_east_dim,          &
+                              south_north_dim, bottom_top_dim,                               &
+                              we_patch_s, we_patch_e, we_patch_stag_s, we_patch_stag_e,      &
+                              sn_patch_s, sn_patch_e, sn_patch_stag_s, sn_patch_stag_e,      &
+                              map_proj, mminlu, is_water, is_ice, is_urban, i_soilwater,     &
+                              grid_id, parent_id, i_parent_start,                            &
+                              j_parent_start, i_parent_end, j_parent_end, dom_dx, dom_dy,    &
+                              cen_lat, moad_cen_lat, cen_lon, stand_lon, truelat1, truelat2, &
+                              pole_lat, pole_lon, parent_grid_ratio, corner_lats, corner_lons, &
+                              met_flags, nmet_flags)
 
       deallocate(met_flags)
     

@@ -331,24 +331,26 @@ module input_module
    end subroutine read_next_field
  
    
-   subroutine read_global_attrs(title, start_date, grid_type, dyn_opt, &
-                                west_east_dim, south_north_dim, bottom_top_dim, &
-                                we_patch_s, we_patch_e, we_patch_s_stag, we_patch_e_stag, &
-                                sn_patch_s, sn_patch_e, sn_patch_s_stag, sn_patch_e_stag, &
-                                map_proj, mminlu, is_water, &
-                                is_ice, is_urban, isoilwater, grid_id, parent_id, i_parent_start, j_parent_start, &
-                                i_parent_end, j_parent_end, dx, dy, cen_lat, moad_cen_lat, cen_lon, &
-                                stand_lon, truelat1, truelat2, parent_grid_ratio, corner_lats, corner_lons)
+   subroutine read_global_attrs(title, start_date, grid_type, dyn_opt,                                &
+                                west_east_dim, south_north_dim, bottom_top_dim,                       &
+                                we_patch_s, we_patch_e, we_patch_s_stag, we_patch_e_stag,             &
+                                sn_patch_s, sn_patch_e, sn_patch_s_stag, sn_patch_e_stag,             &
+                                map_proj, mminlu, is_water, is_ice, is_urban, isoilwater,             &
+                                grid_id, parent_id, i_parent_start, j_parent_start,                   &
+                                i_parent_end, j_parent_end, dx, dy, cen_lat, moad_cen_lat, cen_lon,   &
+                                stand_lon, truelat1, truelat2, pole_lat, pole_lon, parent_grid_ratio, &
+                                corner_lats, corner_lons)
  
       implicit none
   
       ! Arguments
-      integer, intent(out) :: dyn_opt, west_east_dim, south_north_dim, bottom_top_dim, map_proj, is_water, &
-                 we_patch_s, we_patch_e, we_patch_s_stag, we_patch_e_stag, &
-                 sn_patch_s, sn_patch_e, sn_patch_s_stag, sn_patch_e_stag, &
+      integer, intent(out) :: dyn_opt, west_east_dim, south_north_dim, bottom_top_dim, map_proj,   &
+                 is_water, we_patch_s, we_patch_e, we_patch_s_stag, we_patch_e_stag,               &
+                 sn_patch_s, sn_patch_e, sn_patch_s_stag, sn_patch_e_stag,                         &
                  is_ice, is_urban, isoilwater, grid_id, parent_id, i_parent_start, j_parent_start, &
                  i_parent_end, j_parent_end, parent_grid_ratio
-      real, intent(out) :: dx, dy, cen_lat, moad_cen_lat, cen_lon, stand_lon, truelat1, truelat2
+      real, intent(out) :: dx, dy, cen_lat, moad_cen_lat, cen_lon, stand_lon, truelat1, truelat2,  &
+                 pole_lat, pole_lon
       real, dimension(16), intent(out) :: corner_lats, corner_lons
       character (len=128), intent(out) :: title, start_date, grid_type, mminlu
   
@@ -409,6 +411,8 @@ module input_module
          call ext_get_dom_ti_real_scalar   ('TRUELAT2', truelat2)
          call ext_get_dom_ti_real_scalar   ('MOAD_CEN_LAT', moad_cen_lat)
          call ext_get_dom_ti_real_scalar   ('STAND_LON', stand_lon)
+         call ext_get_dom_ti_real_scalar   ('POLE_LAT', pole_lat)
+         call ext_get_dom_ti_real_scalar   ('POLE_LON', pole_lon)
          call ext_get_dom_ti_real_vector   ('corner_lats', corner_lats, 16)
          call ext_get_dom_ti_real_vector   ('corner_lons', corner_lons, 16)
          call ext_get_dom_ti_integer_scalar('MAP_PROJ', map_proj)
@@ -474,6 +478,8 @@ module input_module
          call parallel_bcast_real(cen_lon)
          call parallel_bcast_real(truelat1)
          call parallel_bcast_real(truelat2)
+         call parallel_bcast_real(pole_lat)
+         call parallel_bcast_real(pole_lon)
          call parallel_bcast_real(moad_cen_lat)
          call parallel_bcast_real(stand_lon)
          do i=1,16
