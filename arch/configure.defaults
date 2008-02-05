@@ -386,9 +386,9 @@ NCARG_LIBS2	=	-L${PGI}/linux86-64/5.2/lib -lpgftnrtl -lpgc \
 ###########################################################
 #ARCH    PC Linux x86_64 (IA64 and Opteron), PGI compiler 5.2 or higher, serial
 #
-COMPRESSION_LIBS	=	-L/contrib/zlib/lib -lz \
-				-L/contrib/jasper/lib -ljasper \
-				-L/contrib/libpng/lib -lpng
+COMPRESSION_LIBS        =       -L/contrib/jasper/lib -ljasper \
+				-L/contrib/libpng/lib -lpng \
+				-L/contrib/zlib/lib -lz
 COMPRESSION_INC		=	-I/contrib/zlib/include \
 				-I/contrib/jasper/include \
 				-I/contrib/libpng/include
@@ -449,9 +449,9 @@ NCARG_LIBS2	=	-L${PGI}/linux86-64/5.2/lib -lpgftnrtl -lpgc \
 ###########################################################
 #ARCH    PC Linux x86_64 (IA64 and Opteron), PGI compiler 5.2 or higher, DM parallel
 #
-COMPRESSION_LIBS	=	-L/contrib/zlib/lib -lz \
-				-L/contrib/jasper/lib -ljasper \
-				-L/contrib/libpng/lib -lpng
+COMPRESSION_LIBS        =       -L/contrib/jasper/lib -ljasper \
+				-L/contrib/libpng/lib -lpng \
+				-L/contrib/zlib/lib -lz
 COMPRESSION_INC		=	-I/contrib/zlib/include \
 				-I/contrib/jasper/include \
 				-I/contrib/libpng/include
@@ -528,9 +528,9 @@ CPPFLAGS	=	-D_UNDERSCORE -DSGI -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -DBIT32
 ###########################################################
 #ARCH	SGI 64 bit IRIX64	serial
 #
-COMPRESSION_LIBS	=	-L/contrib/zlib/lib -lz \
-				-L/contrib/jasper/lib -ljasper \
-				-L/contrib/libpng/lib -lpng
+COMPRESSION_LIBS        =       -L/contrib/jasper/lib -ljasper \
+				-L/contrib/libpng/lib -lpng \
+				-L/contrib/zlib/lib -lz
 COMPRESSION_INC		=	-I/contrib/zlib/include \
 				-I/contrib/jasper/include \
 				-I/contrib/libpng/include
