@@ -1050,10 +1050,11 @@ integer, parameter :: BDR_WIDTH = 3
       !
       ! Before we begin to write fields, if debug_level is set high enough, we 
       !    write a table of which fields are available at which levels to the
-      !    metgrid.log file
+      !    metgrid.log file, and then we check to see if any fields are not 
+      !    completely covered with data.
       !
       call storage_print_fields()
-!      call find_missing_values()
+      call find_missing_values()
 
       !
       ! All of the processing is now done for this time period for this domain;
@@ -1414,6 +1415,7 @@ integer, parameter :: BDR_WIDTH = 3
                   if (landmask(i,j) /= masked(idx)) then
                      if (data_count(i,j) > 0.) then
                         field%r_arr(i,j) = field%r_arr(i,j) / data_count(i,j)
+                        call bitarray_set(new_pts, i-sm1+1, j-sm2+1)
                      else
 
                         if (interp_mask_status == 0) then
@@ -1439,12 +1441,18 @@ integer, parameter :: BDR_WIDTH = 3
                   if (.not. bitarray_test(new_pts, i-sm1+1, j-sm2+1) .and. &
                       .not. bitarray_test(field%valid_mask, i-sm1+1, j-sm2+1)) then
                      field%r_arr(i,j) = fill_missing(idx)
+
+                     ! Assume that if missing fill value is other than default, then user has asked
+                     !    to fill in any missing values, and we can consider this point to have 
+                     !    received a valid value
+                     if (fill_missing(idx) /= NAN) call bitarray_set(new_pts, i-sm1+1, j-sm2+1)
                   end if
 
                else
 
                   if (data_count(i,j) > 0.) then
                      field%r_arr(i,j) = field%r_arr(i,j) / data_count(i,j)
+                     call bitarray_set(new_pts, i-sm1+1, j-sm2+1)
                   else
 
                      if (interp_mask_status == 0) then
@@ -1466,6 +1474,11 @@ integer, parameter :: BDR_WIDTH = 3
                   if (.not. bitarray_test(new_pts, i-sm1+1, j-sm2+1) .and. &
                       .not. bitarray_test(field%valid_mask, i-sm1+1, j-sm2+1)) then
                      field%r_arr(i,j) = fill_missing(idx)
+
+                     ! Assume that if missing fill value is other than default, then user has asked
+                     !    to fill in any missing values, and we can consider this point to have 
+                     !    received a valid value
+                     if (fill_missing(idx) /= NAN) call bitarray_set(new_pts, i-sm1+1, j-sm2+1)
                   end if
 
                end if
@@ -1528,6 +1541,7 @@ integer, parameter :: BDR_WIDTH = 3
                      temp = missing_value(idx)
                   end if
 
+               ! No landmask for this field
                else
 
                   if (interp_mask_status == 0) then
@@ -1552,6 +1566,11 @@ integer, parameter :: BDR_WIDTH = 3
                if (.not. bitarray_test(new_pts, i-sm1+1, j-sm2+1) .and. &
                    .not. bitarray_test(field%valid_mask, i-sm1+1, j-sm2+1)) then
                   field%r_arr(i,j) = fill_missing(idx)
+
+                  ! Assume that if missing fill value is other than default, then user has asked
+                  !    to fill in any missing values, and we can consider this point to have 
+                  !    received a valid value
+                  if (fill_missing(idx) /= NAN) call bitarray_set(new_pts, i-sm1+1, j-sm2+1)
                end if
 
             end do
