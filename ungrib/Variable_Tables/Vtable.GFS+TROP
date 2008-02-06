@@ -29,14 +29,14 @@ Param| Type |Level1|Level2| Name     | Units   | Description                    
   65 |   1  |   0  |      | SNOW     | kg m-2  | Water equivalent snow depth             |  0  |  1  | 13  |   1 |
  224 |   1  |   0  |      | SOILCAT  | Tab4.213| Dominant soil type cat.(not in GFS file)|  2  |  3  |  0  |   1 |
  225 |   1  |   0  |      | VEGCAT   | Tab4.212| Dominant land use cat. (not in GFS file)|  2  |  0  | 198 |   1 |
-  33 | 105  |   0  |      | UUW      | m s-1   | U                 at max wind           |  0  |  2  |  2  |   6 |
-  34 | 105  |   0  |      | VVW      | m s-1   | V                 at max wind           |  0  |  2  |  3  |   6 |
-   2 | 102  |   0  |      | PRESW    | Pa      | Pressure of max wind level              |  0  |  3  |  0  |   6 |
-   2 | 102  |   0  |      | TTW      | Pa      | Temperature at max wind level           |  0  |  0  |  0  |   6 |
-   7 | 100  |   0  |      | HGTW     | m       | Height of max wind level                |  0  |  3  |  5  |   6 |
-  33 | 105  |   0  |      | UUT      | m s-1   | U                 at tropopause         |  0  |  2  |  2  |   7 |
-  34 | 105  |   0  |      | VVT      | m s-1   | V                 at tropopause         |  0  |  2  |  3  |   7 |
-   2 | 102  |   0  |      | PREST    | Pa      | Pressure of tropopause                  |  0  |  3  |  0  |   7 |
-   2 | 102  |   0  |      | TTT      | Pa      | Temperature at tropopause               |  0  |  0  |  0  |   7 |
-   7 | 100  |   0  |      | HGTTROP  | m       | Height of tropopaus                     |  0  |  3  |  5  |   7 |
+  33 |   6  |   0  |      | UUW      | m s-1   | U                 at max wind           |  0  |  2  |  2  |   6 |
+  34 |   6  |   0  |      | VVW      | m s-1   | V                 at max wind           |  0  |  2  |  3  |   6 |
+   2 |   6  |   0  |      | PRESW    | Pa      | Pressure of max wind level              |  0  |  3  |  0  |   6 |
+  11 |   6  |   0  |      | TTW      | Pa      | Temperature at max wind level           |  0  |  0  |  0  |   6 |
+   7 |   6  |   0  |      | HGTW     | m       | Height of max wind level                |  0  |  3  |  5  |   6 |
+  33 |   7  |   0  |      | UUT      | m s-1   | U                 at tropopause         |  0  |  2  |  2  |   7 |
+  34 |   7  |   0  |      | VVT      | m s-1   | V                 at tropopause         |  0  |  2  |  3  |   7 |
+   2 |   7  |   0  |      | PREST    | Pa      | Pressure of tropopause                  |  0  |  3  |  0  |   7 |
+  11 |   7  |   0  |      | TTT      | Pa      | Temperature at tropopause               |  0  |  0  |  0  |   7 |
+   7 |   7  |   0  |      | HGTTROP  | m       | Height of tropopaus                     |  0  |  3  |  5  |   7 |
 -----+------+------+------+----------+---------+-----------------------------------------+-----------------------+

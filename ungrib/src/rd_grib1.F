@@ -269,6 +269,10 @@ SUBROUTINE rd_grib1(IUNIT, gribflnm, level, field, hdate,  &
 !-- tanya's change for non-isobaric levels
                  elseif (ktype.eq.109) then
                     level = lvl1
+                 elseif (ktype.eq. 6 ) then    ! max wind
+                    level = 6.
+                 elseif (ktype.eq. 7 ) then    ! trop
+                    level = 7.
 !       print *,'LEVEL=',level
                  endif
               endif
