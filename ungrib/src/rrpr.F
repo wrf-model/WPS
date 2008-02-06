@@ -410,7 +410,8 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_level, out_f
 	      else if (plvl(k).lt.30000.) then
 	        scr2d = 10.
 	      endif
-              if (plvl(k).lt.30000.) then
+              if (plvl(k).lt.30000. .and. plvl(k) .gt. 10. ) then
+              ! levels higher than .1 mb are special - do not fill
                  if (.not. is_there(nint(plvl(k)), 'RH')) then
                     call put_storage(nint(plvl(k)),'RH',scr2d,map%nx,map%ny)
                  endif

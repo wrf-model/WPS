@@ -578,6 +578,12 @@ C  SET ARGUMENTS
      &               gfld%ipdtmpl(10).eq.1) then
                  ! Misc near ground/surface levels
                  level=200100.
+              elseif(gfld%ipdtmpl(10).eq.6) then
+                 ! Level of Max wind
+                 level=6.    ! .06 mb should never be used by anyone
+              elseif(gfld%ipdtmpl(10).eq.7) then
+                 ! Tropopause
+                 level=7.    ! .07 mb should never be used by anyone
               else
                  ! Misc near ground/surface levels
                  level=200100.
