@@ -26,7 +26,7 @@
 int read_geogrid(
       char * fname,            /* The name of the file to read from */
       int * len,               /* The length of the filename */
-      float * rarray,          /* The array to be written */
+      float * rarray,          /* The array to be filled */
       int * nx,                /* x-dimension of the array */
       int * ny,                /* y-dimension of the array */
       int * nz,                /* z-dimension of the array */
