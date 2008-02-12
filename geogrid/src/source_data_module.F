@@ -557,7 +557,11 @@ module source_data_module
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
    ! Name: get_source_params
    !
-   ! Purpose: 
+   ! Purpose: For each field, this routine reads in the metadata in the index file 
+   !   for the first available resolution of data specified by res_string. Also 
+   !   based on res_string, this routine sets the interpolation sequence for the
+   !   field. This routine should be called prior to processing a field for each
+   !   domain.
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
    subroutine get_source_params(res_string)
  
@@ -572,72 +576,117 @@ module source_data_module
       character (len=128), intent(in) :: res_string
   
       ! Local variables
-      integer :: idx, i, ispace, eos, iquoted, funit
-      character (len=128) :: temp_str
+      integer :: idx, i, is, ie, ispace, eos, iquoted, funit
+      character (len=128) :: temp_data, temp_interp
       character (len=256) :: test_fname
       character (len=BUFSIZE) :: buffer
       logical :: have_specification, is_used
   
+      ! For each entry in the GEOGRID.TBL file
       do idx=1,num_entries
-         is_wordsize(idx) = .false.
-         is_endian(idx) = .false.
+
+         ! Initialize metadata
+         is_wordsize(idx)  = .false.
+         is_endian(idx)    = .false.
          is_row_order(idx) = .false.
          is_fieldtype(idx) = .false.
-         is_proj(idx) = .false.
-         is_dx(idx) = .false.
-         is_dy(idx) = .false.
-         is_known_x(idx) = .false.
-         is_known_y(idx) = .false.
+         is_proj(idx)      = .false.
+         is_dx(idx)        = .false.
+         is_dy(idx)        = .false.
+         is_known_x(idx)   = .false.
+         is_known_y(idx)   = .false.
          is_known_lat(idx) = .false.
          is_known_lon(idx) = .false.
-         is_truelat1(idx) = .false.
-         is_truelat2(idx) = .false.
-         is_stdlon(idx) = .false.
-         is_tile_x(idx) = .false.
-         is_tile_y(idx) = .false.
-         is_tile_z(idx) = .false.
+         is_truelat1(idx)  = .false.
+         is_truelat2(idx)  = .false.
+         is_stdlon(idx)    = .false.
+         is_tile_x(idx)    = .false.
+         is_tile_y(idx)    = .false.
+         is_tile_z(idx)    = .false.
          is_tile_z_start(idx) = .false.
-         is_tile_z_end(idx) = .false.
+         is_tile_z_end(idx)   = .false.
          is_category_min(idx) = .false.
          is_category_max(idx) = .false.
-         is_tile_bdr(idx) = .false.
-         is_fieldname(idx) = .false.
+         is_tile_bdr(idx)     = .false.
+         is_fieldname(idx)    = .false.
          is_scale_factor(idx) = .false.
-         is_units(idx) = .false.
-         is_descr(idx) = .false.
-         is_signed(idx) = .false.
+         is_units(idx)        = .false.
+         is_descr(idx)        = .false.
+         is_signed(idx)       = .false.
          is_missing_value(idx) = .false.
    
-         if (.not. list_search(source_interp_option(idx), ckey=res_string, cvalue=source_interp_string(idx))) then
+         
+         ! Set the interpolator sequence for the field to be the first value in res_string that matches
+         !   the resolution keyword for an interp_sequence specification
+         is = 1
+         ie = index(res_string(is:128),'+') - 1
+         if (ie <= 0) ie = 128
+         temp_interp = res_string(is:ie)
+         do while (.not. list_search(source_interp_option(idx), ckey=temp_interp, cvalue=source_interp_string(idx)) &
+                   .and. is <= 128)
             call mprintf(.true., INFORM, 'For %s, couldn''t find interpolator sequence for '// &
-                         'resolution %s. Trying default.', &
-                         s1=trim(source_fieldname(idx)), s2=trim(res_string))
-            temp_str = 'default'
-            if (list_search(source_interp_option(idx), ckey=temp_str, cvalue=source_interp_string(idx))) then
+                         'resolution %s.', &
+                         s1=trim(source_fieldname(idx)), s2=trim(temp_interp))
+            is = ie+2
+            ie = is + index(res_string(is:128),'+') - 2
+            if (ie - is <= 0) ie = 128
+            temp_interp = res_string(is:ie)
+         end do
+
+         if (is > 128) then
+            temp_interp = 'default'
+            if (list_search(source_interp_option(idx), ckey=temp_interp, cvalue=source_interp_string(idx))) then
                call mprintf(.true., INFORM, 'Using default interpolator sequence for %s.', &
                             s1=trim(source_fieldname(idx)))
             else
-               call mprintf(.true., ERROR, 'Could not find default or %s interpolator sequence.'// &
-                            ' The source specified in namelist.wps is not listed in GEOGRID.TBL.', &
-                            s1=trim(res_string))
+               call mprintf(.true., ERROR, 'Could not find interpolator sequence for requested resolution for %s.'// &
+                            ' The sources specified in namelist.wps is not listed in GEOGRID.TBL.', &
+                            s1=trim(source_fieldname(idx)))
             end if
+         else
+            call mprintf(.true., INFORM, 'Using %s interpolator sequence for %s.', &
+                         s1=temp_interp, s2=trim(source_fieldname(idx)))
          end if
    
-         if (.not. list_search(source_res_path(idx), ckey=res_string, cvalue=source_path(idx))) then
-            call mprintf(.true., INFORM, 'For %s, couldn''t find %s source. Trying '// &
-                         'default.', s1=trim(source_fieldname(idx)), s2=trim(res_string))
-            temp_str = 'default'
-            if (list_search(source_res_path(idx), ckey=temp_str, cvalue=source_path(idx))) then
+         ! Set the data source for the field to be the first value in res_string that matches
+         !   the resolution keyword for an abs_path or rel_path specification
+         is = 1
+         ie = index(res_string(is:128),'+') - 1
+         if (ie <= 0) ie = 128
+         temp_data = res_string(is:ie)
+         do while (.not. list_search(source_res_path(idx), ckey=temp_data, cvalue=source_path(idx)) &
+                   .and. is <= 128)
+            call mprintf(.true., INFORM, 'For %s, couldn''t find %s data source.', &
+                         s1=trim(source_fieldname(idx)), s2=trim(temp_data))
+            is = ie+2
+            ie = is + index(res_string(is:128),'+') - 2
+            if (ie - is <= 0) ie = 128
+            temp_data = res_string(is:ie)
+         end do
+
+         if (is > 128) then
+            temp_data = 'default'
+            if (list_search(source_res_path(idx), ckey=temp_data, cvalue=source_path(idx))) then
                call mprintf(.true., INFORM, 'Using default data source for %s.', &
                             s1=trim(source_fieldname(idx)))
             else
-               call mprintf(.true., ERROR, 'Could not find default or %s data source. '// &
+               call mprintf(.true., ERROR, 'Could not find data resolution for requested resolution for %s. '// &
                             'The source specified in namelist.wps is not listed in GEOGRID.TBL.', &
-                            s1=trim(res_string))
+                            s1=trim(source_fieldname(idx)))
             end if
+         else
+            call mprintf(.true., INFORM, 'Using %s data source for %s.', &
+                         s1=temp_data, s2=trim(source_fieldname(idx)))
          end if
+
+         call mprintf(trim(temp_data) /= trim(temp_interp),WARN,'For %s, using %s data source with %s interpolation sequence.', &
+                      s1=source_fieldname(idx), s2=temp_data, s3=temp_interp)
+
          write(test_fname, '(a)') trim(source_path(idx))//'index'
      
+         !
+         ! Open the index file for the data source for this field, and read in metadata specs
+         !
          do funit=10,100
             inquire(unit=funit, opened=is_used)
             if (.not. is_used) exit
