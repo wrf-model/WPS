@@ -23,12 +23,9 @@ ARFLAGS		=
 ###########################################################
 #ARCH	AIX	serial
 #
-COMPRESSION_LIBS	=	-L/contrib/jasper/lib -ljasper \
-				-L/contrib/libpng/lib -lpng \
-				-L/contrib/zlib/lib -lz
-COMPRESSION_INC		=	-I/contrib/zlib/include \
-				-I/contrib/jasper/include \
-				-I/contrib/libpng/include
+COMPRESSION_LIBS        =       -L/contrib/jasper/lib -L/opt/freeware/lib -ljasper -lpng -lz
+COMPRESSION_INC         =       -I/contrib/libpng/include -I/contrib/zlib/include -I/contrib/jasper/include
+
 NCARG_LIBS		=
 NCARG_LIBS2		=	-L/usr/local/lib64/r4i4 -lncarg -lncarg_gks -lncarg_c \
 				-L/usr/X11R6/lib -lX11
@@ -70,12 +67,9 @@ ARFLAGS		=
 ###########################################################
 #ARCH	AIX	DM parallel
 #
-COMPRESSION_LIBS	=	-L/contrib/jasper/lib -ljasper \
-				-L/contrib/libpng/lib -lpng \
-				-L/contrib/zlib/lib -lz
-COMPRESSION_INC		=	-I/contrib/zlib/include \
-				-I/contrib/jasper/include \
-				-I/contrib/libpng/include
+COMPRESSION_LIBS        =       -L/contrib/jasper/lib -L/opt/freeware/lib -ljasper -lpng -lz
+COMPRESSION_INC         =       -I/contrib/libpng/include -I/contrib/zlib/include -I/contrib/jasper/include
+
 NCARG_LIBS		=
 NCARG_LIBS2		=	-L/usr/local/lib64/r4i4 -lncarg -lncarg_gks -lncarg_c \
 				-L/usr/X11R6/lib -lX11
