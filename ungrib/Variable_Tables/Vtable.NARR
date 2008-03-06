@@ -4,7 +4,7 @@ Code | Code |   1  |   2  | Name     |  Units   | Description                   
   11 | 100  |   *  |      | TT       | K        | Temperature                              |
   33 | 100  |   *  |      | UU       | m s-1    | U                                        |
   34 | 100  |   *  |      | VV       | m s-1    | V                  (from .3D file)       |
-  51 | 100  |   *  |      | SPECHUMD | kg kg-1  | Specific Humidity                        |
+  51 | 100  |   *  |      | SPECHUMD | kg kg-1  |                                          |
   52 | 100  |   *  |      | RH       | %        | Relative Humidity                        |
   7  | 100  |   *  |      | HGT      | m        | Height                                   |
   11 | 105  |   2  |      | TT       | K        | Temperature        (from .flx file)      |
@@ -12,7 +12,7 @@ Code | Code |   1  |   2  | Name     |  Units   | Description                   
   33 | 105  |  10  |      | UU       | m s-1    | U                  (from .flx file)      |
   34 | 105  |  10  |      | VV       | m s-1    | V                  (from .flx file)      |
    1 |   1  |   0  |      | PSFC     | Pa       | Surface Pressure   (from .sfc file)      |
-   2 | 102  |   0  |      | PMSL     | Pa       | Sea-level Pressure (from .flx file)      |
+ 130 | 102  |   0  |      | PMSL     | Pa       | Sea-level Pressure (from .flx file)      |
   65 |  1   |   0  |      | SNOW     | kg m-2   | Water Equiv of Accum Snow Depth  (.sfc)  | 
   11 |  1   |   0  |      | SKINTEMP | K        | Sea-Surface Temperature (from .sfc file) |
  223 |  1   |   0  |      | CANWAT   | kg m-2   | Plant Canopy Surface Water (.sfc file)   | 

@@ -181,7 +181,9 @@ subroutine plt2d(scr2d, ix, jx, llflag, &
      stop
   end select
 
+  call gsplci(2)   ! Use a different color for the map
   call supmap(iproj,plat,plon,rota,pl1,pl2,pl3,pl4,2,30,4,0,ierr)
+  call gsplci(1)
 ! call supmap(iproj,plat+0.001,plon,rota-0.001,pl1,pl2,pl3,pl4,2,30,4,0,ierr)
   if (ierr.ne.0) then
      print*, 'supmap ierr = ', ierr
