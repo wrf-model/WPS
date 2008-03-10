@@ -362,7 +362,9 @@ module read_met_module
          istatus = 0
 
       else
-         call mprintf(.true.,ERROR,'Didn''t recognize format of data in %s.', s1=filename)
+         call mprintf(.true.,ERROR,'Didn''t recognize format version of data in %s.\n'// &
+                                   'Found version %i but expected either 3, 4, or 5. This could be an endian problem.', &
+                                   s1=filename, i1=fg_data % version)
       end if
   
       return
