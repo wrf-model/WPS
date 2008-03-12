@@ -77,8 +77,8 @@ module gridinfo_module
       dx = NAN
       dy = NAN
       map_proj = 'Lambert'
-      pole_lat = NAN
-      pole_lon = NAN
+      pole_lat = 90.0
+      pole_lon = 0.0
       truelat1 = NAN
       truelat2 = NAN
       stand_lon = NAN
@@ -396,10 +396,6 @@ module gridinfo_module
       ! For Cassini projections
       if (iproj_type == PROJ_CASSINI) then
 
-         if (pole_lat == NAN .or. pole_lon == NAN) then
-            call mprintf(.true.,ERROR,'A pole_lat and pole_lon must be specified for the Cassini projection.')
-         end if
-        
          ! If no dx,dy specified, assume global grid
          if (dx == NAN .and. dy == NAN) then
             dlondeg = 360. / (e_we(1)-s_we(1))   ! Here, we really do not want e_we-s_we+1
