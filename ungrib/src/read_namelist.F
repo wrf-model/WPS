@@ -69,7 +69,6 @@ subroutine read_namelist(hstart, hend, delta_time, ntimes,&
 
   ! Set defaults. 
   io_form_geogrid = 2
-  io_form_metgrid = 2
   max_dom = 1
   wrf_core = 'ARW'
   debug_level = 0
