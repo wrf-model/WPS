@@ -66,12 +66,13 @@ program plotfmt
             call plt2d(fg_data%slab, fg_data%nx, fg_data%ny, fg_data%iproj, &
                        fg_data%startlat, fg_data%startlon, fg_data%deltalon, &
                        fg_data%deltalat, fg_data%xlonc, fg_data%truelat1, fg_data%truelat2, &
-                       fg_data%field, ilev, fg_data%units, fg_data%version, fg_data%desc, fg_data%map_source)
+                       fg_data%field, ilev, fg_data%units, fg_data%version, fg_data%desc, &
+		       fg_data%map_source, TRIM(flnm))
          else
             call plt2d(fg_data%slab, fg_data%nx, fg_data%ny, fg_data%iproj, &
                        fg_data%startlat, fg_data%startlon, fg_data%dx, fg_data%dy, fg_data%xlonc, &
                        fg_data%truelat1, fg_data%truelat2, fg_data%field, ilev, fg_data%units, &
-                       fg_data%version, fg_data%desc, fg_data%map_source)
+                       fg_data%version, fg_data%desc, fg_data%map_source, TRIM(flnm))
          end if
 
 
@@ -96,7 +97,7 @@ end program plotfmt
 
 subroutine plt2d(scr2d, ix, jx, llflag, &
      lat1, lon1, dx, dy, lov, truelat1, truelat2, &
-     field, ilev, units, ifv, Desc, source)
+     field, ilev, units, ifv, Desc, source, flnm)
 
   use misc_definitions_module
 
@@ -113,6 +114,7 @@ subroutine plt2d(scr2d, ix, jx, llflag, &
   character(len=*) :: source
   character(len=30) :: hunit
   character(len=32) :: tmp32
+  character (len=*) :: flnm
 
   integer :: iproj, ierr
   real :: pl1, pl2, pl3, pl4, plon, plat, rota, phic
@@ -228,6 +230,7 @@ subroutine plt2d(scr2d, ix, jx, llflag, &
   call pchiqu(0.1, yb-0.12, Desc, .013, 0.0, -1.0)
   call pchiqu(0.6, yb-0.12, source, .013, 0.0, -1.0)
   call pchiqu(0.1, yb-0.15, tmp32, .013, 0.0, -1.0)
+  call pchiqu(0.6, yb-0.15, flnm, .013, 0.0, -1.0)
 
   call set(xl,xr,xb,xt,1.,float(ix),1.,float(jx),ml)
 

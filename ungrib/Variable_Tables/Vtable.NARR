@@ -29,3 +29,17 @@ Code | Code |   1  |   2  | Name     |  Units   | Description                   
  224 |  1   |   0  |      | SOILCAT  |          | Dominant soil type category (from .fixed)|
  225 |  1   |   0  |      | VEGCAT   |          | Dominant land use category  (from .fixed)|
 -----+------+------+------+----------+----------+------------------------------------------+
+#
+#
+#  North American Regional Reanalysis, 32 km (Grid 221), 29 p-levels (1000 - 100 hPa) plus sfc
+#  
+#  There is a mismatch between the landmask and the soil moisture fields along the
+#  western shore of Hudson Bay in the NARR output. To account for this problem, the
+#  following line should be added to the SM entries in METGRID.TBL 
+#  name= SM000010, SM010040, SM040100, SM100200
+#
+#       missing_value=-1.e30
+#
+#
+#   http://www.emc.ncep.noaa.gov/mmb/rreanl/
+#   http://www.cdc.noaa.gov/cdc/data.narr.html

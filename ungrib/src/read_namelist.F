@@ -67,6 +67,13 @@ subroutine read_namelist(hstart, hend, delta_time, ntimes,&
   end_minute = 0
   end_second = 0
 
+  ! Set defaults. 
+  io_form_geogrid = 2
+  io_form_metgrid = 2
+  max_dom = 1
+  wrf_core = 'ARW'
+  debug_level = 0
+
 ! Start routine:
 
 ! Build the namelist file name:
