@@ -46,9 +46,11 @@ clear
 if ( $PLOTS_ONLY == FALSE ) then
 	
 	if ( `uname` == Linux ) then
-		echo 1. starting WRFV2 build - takes about 7 minutes
+		echo 1. starting WRFV2 build pgf90 - takes about 7 minutes
 	else if ( `uname` == AIX ) then
 		echo "1. starting WRFV2 build - takes 20 (bs) to 35 (bv) minutes"
+	else if ( `uname` == Darwin ) then
+		echo "1. starting WRFV2 build g95 - takes 30 minutes"
 	else
 		echo 1. starting WRFV2 build
 	endif
@@ -60,7 +62,15 @@ if ( $PLOTS_ONLY == FALSE ) then
 	if ( `uname` == Linux ) then
 		echo 2 | ./configure >& /dev/null
 	else if ( `uname` == AIX ) then
-		echo 9 | ./configure >& /dev/null
+		./configure << EOF >& /dev/null
+1
+1
+EOF
+	else if ( `uname` == Darwin ) then
+		./configure << EOF >& /dev/null
+9
+1
+EOF
 	else
 		echo need info on this `uname` arch
 		exit
@@ -148,8 +158,8 @@ foreach test_num ( $all_tests )
 	#	Michael is a no-op
 	else if ( -d /standalone/users/gill/DATA/GEOG ) then
 		echo ' geog_data_path = "/standalone/users/gill/DATA/GEOG"' >! foodir
-	else if ( -d /data3a/mp/gill/DATA/GEOG ) then
-		echo ' geog_data_path = "/data3a/mp/gill/DATA/GEOG"' >! foodir
+	else if ( -d /data3/mp/wrfhelp/WPS_GEOG ) then
+		echo ' geog_data_path = "/data3/mp/wrfhelp/WPS_GEOG"' >! foodir
 	else if ( -d /mmm/users/wrfhelp/WPS_GEOG ) then
 		echo ' geog_data_path = "/mmm/users/wrfhelp/WPS_GEOG"' >! foodir
 	else
@@ -193,6 +203,8 @@ foreach test_num ( $all_tests )
 
 	if      ( -d /standalone/users/gill/DATA/WPS_regression_data ) then
 		set datadir = /standalone/users/gill/DATA/WPS_regression_data
+	else if ( -d /stink/gill/Regression_Tests/WPS_regression_data ) then
+		set datadir = /stink/gill/Regression_Tests/WPS_regression_data
 	else if ( -d /data3a/mp/gill/DATA/WPS_regression_data ) then
 		set datadir = /data3a/mp/gill/DATA/WPS_regression_data
 	else if ( -d /mmm/users/gill/DATA/WPS_regression_data ) then
@@ -355,22 +367,22 @@ foreach test_num ( $all_tests )
 		
 		#	Handle the plots with RIP.
 		
-		echo "           ripdp_wrf and rip share=${share} metgrid=${metgrid} source=$data_source"
+		echo "           ripdp_wrfarw and rip share=${share} metgrid=${metgrid} source=$data_source"
 		echo "              start: " `date`
 		if ( ! -d RIP ) then
 			mkdir RIP
 		endif
 		rm -rf RIP/${test_num}_${data_source}* >& /dev/null
-		ripdp_wrf RIP/${test_num}_${data_source} \
+		ripdp_wrfarw RIP/${test_num}_${data_source} \
 		          all \
 		          TEMPORARY_STORAGE/${test_num}.source=${data_source}/wrfo* >&! \
-		          ripdp_wrf.print.share=${share}.metgrid=${metgrid}.source=$data_source
-		grep -i vladimir ripdp_wrf.print.share=${share}.metgrid=${metgrid}.source=$data_source >& /dev/null
+		          ripdp_wrfarw.print.share=${share}.metgrid=${metgrid}.source=$data_source
+		grep -i vladimir ripdp_wrfarw.print.share=${share}.metgrid=${metgrid}.source=$data_source >& /dev/null
 		set ok = $status
 		if ( $ok != 0 ) then
 			echo " "
 			echo " "
-			echo "Failed to run ripdp_wrf"
+			echo "Failed to run ripdp_wrfarw"
 			echo " "
 			echo " "
 			exit ( 10 ) 
