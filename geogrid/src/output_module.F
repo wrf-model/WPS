@@ -457,7 +457,7 @@ module output_module
 #endif
   
 #ifdef _GEOGRID
-      if (grid_type == 'C') NUM_AUTOMATIC_FIELDS = 20
+      if (grid_type == 'C') NUM_AUTOMATIC_FIELDS = 22
       if (grid_type == 'E') NUM_AUTOMATIC_FIELDS = 7
   
       NUM_FIELDS = nfields+NUM_AUTOMATIC_FIELDS
@@ -491,63 +491,71 @@ module output_module
          fields(6)%fieldname = 'XLONG_U'
          fields(6)%units = 'degrees longitude'
          fields(6)%descr = 'Longitude on U grid'
-
-         fields(7)%fieldname = 'MAPFAC_M'
-         fields(7)%units = 'none'
-         fields(7)%descr = 'Mapfactor on mass grid'
-
-         fields(8)%fieldname = 'MAPFAC_V'
-         fields(8)%units = 'none'
-         fields(8)%descr = 'Mapfactor on V grid'
-
-         fields(9)%fieldname = 'MAPFAC_U'
-         fields(9)%units = 'none'
-         fields(9)%descr = 'Mapfactor on U grid'
-   
-         fields(10)%fieldname = 'MAPFAC_MX'
-         fields(10)%units = 'none'
-         fields(10)%descr = 'Mapfactor (x-dir) on mass grid'
-   
-         fields(11)%fieldname = 'MAPFAC_VX'
-         fields(11)%units = 'none'
-         fields(11)%descr = 'Mapfactor (x-dir) on V grid'
-   
-         fields(12)%fieldname = 'MAPFAC_UX'
-         fields(12)%units = 'none'
-         fields(12)%descr = 'Mapfactor (x-dir) on U grid'
-
-         fields(13)%fieldname = 'MAPFAC_MY'
-         fields(13)%units = 'none'
-         fields(13)%descr = 'Mapfactor (y-dir) on mass grid'
-   
-         fields(14)%fieldname = 'MAPFAC_VY'
-         fields(14)%units = 'none'
-         fields(14)%descr = 'Mapfactor (y-dir) on V grid'
-   
-         fields(15)%fieldname = 'MAPFAC_UY'
-         fields(15)%units = 'none'
-         fields(15)%descr = 'Mapfactor (y-dir) on U grid'
-   
-         fields(16)%fieldname = 'E'
-         fields(16)%units = '-'
-         fields(16)%descr = 'Coriolis E parameter'
-   
-         fields(17)%fieldname = 'F'
-         fields(17)%units = '-'
-         fields(17)%descr = 'Coriolis F parameter'
-   
-         fields(18)%fieldname = 'SINALPHA'
-         fields(18)%units = 'none'
-         fields(18)%descr = 'Sine of rotation angle'
-   
-         fields(19)%fieldname = 'COSALPHA'
-         fields(19)%units = 'none'
-         fields(19)%descr = 'Cosine of rotation angle'
-   
-         fields(20)%fieldname = 'LANDMASK'
-         fields(20)%units = 'none'
-         fields(20)%descr = 'Landmask : 1=land, 0=water'
   
+         fields(7)%fieldname = 'CLAT'
+         fields(7)%units = 'degrees latitude'
+         fields(7)%descr = 'Computational latitude on mass grid'
+   
+         fields(8)%fieldname = 'CLONG'
+         fields(8)%units = 'degrees longitude'
+         fields(8)%descr = 'Computational longitude on mass grid'
+
+         fields(9)%fieldname = 'MAPFAC_M'
+         fields(9)%units = 'none'
+         fields(9)%descr = 'Mapfactor on mass grid'
+
+         fields(10)%fieldname = 'MAPFAC_V'
+         fields(10)%units = 'none'
+         fields(10)%descr = 'Mapfactor on V grid'
+
+         fields(11)%fieldname = 'MAPFAC_U'
+         fields(11)%units = 'none'
+         fields(11)%descr = 'Mapfactor on U grid'
+   
+         fields(12)%fieldname = 'MAPFAC_MX'
+         fields(12)%units = 'none'
+         fields(12)%descr = 'Mapfactor (x-dir) on mass grid'
+   
+         fields(13)%fieldname = 'MAPFAC_VX'
+         fields(13)%units = 'none'
+         fields(13)%descr = 'Mapfactor (x-dir) on V grid'
+   
+         fields(14)%fieldname = 'MAPFAC_UX'
+         fields(14)%units = 'none'
+         fields(14)%descr = 'Mapfactor (x-dir) on U grid'
+
+         fields(15)%fieldname = 'MAPFAC_MY'
+         fields(15)%units = 'none'
+         fields(15)%descr = 'Mapfactor (y-dir) on mass grid'
+   
+         fields(16)%fieldname = 'MAPFAC_VY'
+         fields(16)%units = 'none'
+         fields(16)%descr = 'Mapfactor (y-dir) on V grid'
+   
+         fields(17)%fieldname = 'MAPFAC_UY'
+         fields(17)%units = 'none'
+         fields(17)%descr = 'Mapfactor (y-dir) on U grid'
+   
+         fields(18)%fieldname = 'E'
+         fields(18)%units = '-'
+         fields(18)%descr = 'Coriolis E parameter'
+   
+         fields(19)%fieldname = 'F'
+         fields(19)%units = '-'
+         fields(19)%descr = 'Coriolis F parameter'
+   
+         fields(20)%fieldname = 'SINALPHA'
+         fields(20)%units = 'none'
+         fields(20)%descr = 'Sine of rotation angle'
+   
+         fields(21)%fieldname = 'COSALPHA'
+         fields(21)%units = 'none'
+         fields(21)%descr = 'Cosine of rotation angle'
+   
+         fields(22)%fieldname = 'LANDMASK'
+         fields(22)%units = 'none'
+         fields(22)%descr = 'Landmask : 1=land, 0=water'
+   
       else if (grid_type == 'E') then
          fields(1)%fieldname = 'XLAT_M'
          fields(1)%units = 'degrees latitude'
@@ -614,6 +622,9 @@ module output_module
          fields(i)%dimnames(2) = 'south_north'
       end do
   
+      !
+      ! Perform adjustments to metadata for non-mass-staggered "always computed" fields
+      !
       if (grid_type == 'C') then
          ! Lat V
          if (extra_row) then
@@ -665,75 +676,75 @@ module output_module
 
          ! Mapfac V
          if (extra_row) then
-            fields(8)%dom_end(2) = fields(8)%dom_end(2) + 1
-            fields(8)%mem_end(2) = fields(8)%mem_end(2) + 1
-            fields(8)%patch_end(2) = fields(8)%patch_end(2) + 1
+            fields(10)%dom_end(2) = fields(10)%dom_end(2) + 1
+            fields(10)%mem_end(2) = fields(10)%mem_end(2) + 1
+            fields(10)%patch_end(2) = fields(10)%patch_end(2) + 1
          else if (my_proc_id == IO_NODE .and. .not. do_tiled_output) then
-            fields(8)%dom_end(2) = fields(8)%dom_end(2) + 1
+            fields(10)%dom_end(2) = fields(10)%dom_end(2) + 1
          end if
-         fields(8)%dimnames(2) = 'south_north_stag'
-         fields(8)%stagger = 'V'
-         fields(8)%istagger = V
+         fields(10)%dimnames(2) = 'south_north_stag'
+         fields(10)%stagger = 'V'
+         fields(10)%istagger = V
 
          ! Mapfac U
          if (extra_col) then
-            fields(9)%dom_end(1) = fields(9)%dom_end(1) + 1
-            fields(9)%mem_end(1) = fields(9)%mem_end(1) + 1
-            fields(9)%patch_end(1) = fields(9)%patch_end(1) + 1
+            fields(11)%dom_end(1) = fields(11)%dom_end(1) + 1
+            fields(11)%mem_end(1) = fields(11)%mem_end(1) + 1
+            fields(11)%patch_end(1) = fields(11)%patch_end(1) + 1
          else if (my_proc_id == IO_NODE .and. .not. do_tiled_output) then
-            fields(9)%dom_end(1) = fields(9)%dom_end(1) + 1
+            fields(11)%dom_end(1) = fields(11)%dom_end(1) + 1
          end if
-         fields(9)%dimnames(1) = 'west_east_stag'
-         fields(9)%stagger = 'U' 
-         fields(9)%istagger = U
+         fields(11)%dimnames(1) = 'west_east_stag'
+         fields(11)%stagger = 'U' 
+         fields(11)%istagger = U
    
          ! Mapfac V-X
          if (extra_row) then
-            fields(11)%dom_end(2) = fields(11)%dom_end(2) + 1
-            fields(11)%mem_end(2) = fields(11)%mem_end(2) + 1
-            fields(11)%patch_end(2) = fields(11)%patch_end(2) + 1
+            fields(13)%dom_end(2) = fields(13)%dom_end(2) + 1
+            fields(13)%mem_end(2) = fields(13)%mem_end(2) + 1
+            fields(13)%patch_end(2) = fields(13)%patch_end(2) + 1
          else if (my_proc_id == IO_NODE .and. .not. do_tiled_output) then
-            fields(11)%dom_end(2) = fields(11)%dom_end(2) + 1
+            fields(13)%dom_end(2) = fields(13)%dom_end(2) + 1
          end if
-         fields(11)%dimnames(2) = 'south_north_stag'
-         fields(11)%stagger = 'V'
-         fields(11)%istagger = V
+         fields(13)%dimnames(2) = 'south_north_stag'
+         fields(13)%stagger = 'V'
+         fields(13)%istagger = V
    
          ! Mapfac U-X
          if (extra_col) then
-            fields(12)%dom_end(1) = fields(12)%dom_end(1) + 1
-            fields(12)%mem_end(1) = fields(12)%mem_end(1) + 1
-            fields(12)%patch_end(1) = fields(12)%patch_end(1) + 1
+            fields(14)%dom_end(1) = fields(14)%dom_end(1) + 1
+            fields(14)%mem_end(1) = fields(14)%mem_end(1) + 1
+            fields(14)%patch_end(1) = fields(14)%patch_end(1) + 1
          else if (my_proc_id == IO_NODE .and. .not. do_tiled_output) then
-            fields(12)%dom_end(1) = fields(12)%dom_end(1) + 1
+            fields(14)%dom_end(1) = fields(14)%dom_end(1) + 1
          end if
-         fields(12)%dimnames(1) = 'west_east_stag'
-         fields(12)%stagger = 'U'
-         fields(12)%istagger = U
+         fields(14)%dimnames(1) = 'west_east_stag'
+         fields(14)%stagger = 'U'
+         fields(14)%istagger = U
 
          ! Mapfac V-Y
          if (extra_row) then
-            fields(14)%dom_end(2) = fields(14)%dom_end(2) + 1
-            fields(14)%mem_end(2) = fields(14)%mem_end(2) + 1
-            fields(14)%patch_end(2) = fields(14)%patch_end(2) + 1
+            fields(16)%dom_end(2) = fields(16)%dom_end(2) + 1
+            fields(16)%mem_end(2) = fields(16)%mem_end(2) + 1
+            fields(16)%patch_end(2) = fields(16)%patch_end(2) + 1
          else if (my_proc_id == IO_NODE .and. .not. do_tiled_output) then
-            fields(14)%dom_end(2) = fields(14)%dom_end(2) + 1
+            fields(16)%dom_end(2) = fields(16)%dom_end(2) + 1
          end if
-         fields(14)%dimnames(2) = 'south_north_stag'
-         fields(14)%stagger = 'V'
-         fields(14)%istagger = V
+         fields(16)%dimnames(2) = 'south_north_stag'
+         fields(16)%stagger = 'V'
+         fields(16)%istagger = V
 
          ! Mapfac U-Y
          if (extra_col) then
-            fields(15)%dom_end(1) = fields(15)%dom_end(1) + 1
-            fields(15)%mem_end(1) = fields(15)%mem_end(1) + 1
-            fields(15)%patch_end(1) = fields(15)%patch_end(1) + 1
+            fields(17)%dom_end(1) = fields(17)%dom_end(1) + 1
+            fields(17)%mem_end(1) = fields(17)%mem_end(1) + 1
+            fields(17)%patch_end(1) = fields(17)%patch_end(1) + 1
          else if (my_proc_id == IO_NODE .and. .not. do_tiled_output) then
-            fields(15)%dom_end(1) = fields(15)%dom_end(1) + 1
+            fields(17)%dom_end(1) = fields(17)%dom_end(1) + 1
          end if
-         fields(15)%dimnames(1) = 'west_east_stag'
-         fields(15)%stagger = 'U'
-         fields(15)%istagger = U
+         fields(17)%dimnames(1) = 'west_east_stag'
+         fields(17)%stagger = 'U'
+         fields(17)%istagger = U
    
       else if (grid_type == 'E') then
          ! Lat V

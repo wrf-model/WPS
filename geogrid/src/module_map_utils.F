@@ -184,6 +184,7 @@ MODULE map_utils
                                    !  ready for use
       LOGICAL          :: wrap     ! For Gaussian -- flag to indicate wrapping 
                                    !  around globe?
+      LOGICAL          :: comp_ll  ! Work in computational lat/lon space for Cassini
       REAL, POINTER, DIMENSION(:) :: gauss_lat  ! Latitude array for Gaussian grid
  
    END TYPE proj_info
@@ -229,6 +230,7 @@ MODULE map_utils
       proj%rho0     = 0.
       proj%nc       = 0.
       proj%bigc     = 0.
+      proj%comp_ll  = .FALSE.
       nullify(proj%gauss_lat)
    
    END SUBROUTINE map_init
@@ -1529,7 +1531,7 @@ MODULE map_utils
       real :: comp_lat, comp_lon
 
       ! Convert geographic to computational lat/lon
-      if (abs(proj%lat0) /= 90.) then
+      if ( (abs(proj%lat0) /= 90.) .and. (.not. proj%comp_ll) ) then
          call rotate_coords(lat,lon,comp_lat,comp_lon,proj%lat0,proj%lon0,proj%stdlon,-1)
          comp_lon = comp_lon + proj%stdlon
       else
@@ -1559,7 +1561,7 @@ MODULE map_utils
       call ijll_cyl(i, j, proj, comp_lat, comp_lon)
 
       ! Convert computational to geographic lat/lon
-      if (abs(proj%lat0) /= 90.) then
+      if ( (abs(proj%lat0) /= 90.) .and. (.not. proj%comp_ll) ) then
          comp_lon = comp_lon - proj%stdlon
          call rotate_coords(comp_lat,comp_lon,lat,lon,proj%lat0,proj%lon0,proj%stdlon,1)
       else

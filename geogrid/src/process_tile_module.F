@@ -57,6 +57,7 @@ module process_tile_module
       real, pointer, dimension(:,:) :: xlat_array,   xlon_array, &
                                        xlat_array_u, xlon_array_u, &
                                        xlat_array_v, xlon_array_v, &
+                                       clat_array,   clon_array, &
                                        f_array, e_array, &
                                        mapfac_array_m_x, mapfac_array_u_x, mapfac_array_v_x, &
                                        mapfac_array_m_y, mapfac_array_u_y, mapfac_array_v_y, &
@@ -84,16 +85,16 @@ module process_tile_module
          end_patch_i      = dummy_end_patch_i - 1  !   naming convention with modified end_patch variables, 
          end_patch_stag_i = dummy_end_patch_i      !   variables is so that we can maintain consistent
                                                    !   which are marked as intent(in)
-         start_mem_i    = start_patch_i - HALO_WIDTH
-         end_mem_i      = end_patch_i + HALO_WIDTH
+         start_mem_i    = start_patch_i    - HALO_WIDTH
+         end_mem_i      = end_patch_i      + HALO_WIDTH
          end_mem_stag_i = end_patch_stag_i + HALO_WIDTH
       else                                     
          start_patch_i    = dummy_start_patch_i
          end_patch_i      = dummy_end_patch_i
          end_patch_stag_i = dummy_end_patch_i
 
-         start_mem_i    = start_patch_i - HALO_WIDTH
-         end_mem_i      = end_patch_i + HALO_WIDTH
+         start_mem_i    = start_patch_i    - HALO_WIDTH
+         end_mem_i      = end_patch_i      + HALO_WIDTH
          end_mem_stag_i = end_patch_stag_i + HALO_WIDTH
       end if
     
@@ -102,16 +103,16 @@ module process_tile_module
          end_patch_j      = dummy_end_patch_j - 1
          end_patch_stag_j = dummy_end_patch_j
 
-         start_mem_j    = start_patch_j - HALO_WIDTH
-         end_mem_j      = end_patch_j + HALO_WIDTH
+         start_mem_j    = start_patch_j    - HALO_WIDTH
+         end_mem_j      = end_patch_j      + HALO_WIDTH
          end_mem_stag_j = end_patch_stag_j + HALO_WIDTH
       else
          start_patch_j    = dummy_start_patch_j
          end_patch_j      = dummy_end_patch_j
          end_patch_stag_j = dummy_end_patch_j
 
-         start_mem_j    = start_patch_j - HALO_WIDTH
-         end_mem_j      = end_patch_j + HALO_WIDTH
+         start_mem_j    = start_patch_j    - HALO_WIDTH
+         end_mem_j      = end_patch_j      + HALO_WIDTH
          end_mem_stag_j = end_patch_stag_j + HALO_WIDTH
       end if
 
@@ -144,6 +145,8 @@ module process_tile_module
       if (grid_type == 'C') then
          allocate(xlat_array_u(start_mem_i:end_mem_stag_i, start_mem_j:end_mem_j))
          allocate(xlon_array_u(start_mem_i:end_mem_stag_i, start_mem_j:end_mem_j))
+         allocate(clat_array(start_mem_i:end_mem_i, start_mem_j:end_mem_j))
+         allocate(clon_array(start_mem_i:end_mem_i, start_mem_j:end_mem_j))
       end if
     
       ! Initialize hash table to track which fields have been processed
@@ -162,6 +165,8 @@ module process_tile_module
                                start_mem_j, end_mem_i, end_mem_stag_j, V)
          call get_lat_lon_fields(xlat_array_u, xlon_array_u, start_mem_i, &
                                start_mem_j, end_mem_stag_i, end_mem_j, U)
+         call get_lat_lon_fields(clat_array, clon_array, start_mem_i, &
+                               start_mem_j, end_mem_i, end_mem_j, M, comp_ll=.true.)
 
          corner_lats(1) = xlat_array(start_patch_i,start_patch_j)
          corner_lats(2) = xlat_array(start_patch_i,end_patch_j)
@@ -267,6 +272,14 @@ module process_tile_module
                         'XLAT_U', datestr, real_array = xlat_array_u)
          call write_field(start_mem_i, end_mem_stag_i, start_mem_j, end_mem_j, 1, 1, &
                         'XLONG_U', datestr, real_array = xlon_array_u)
+         call write_field(start_mem_i, end_mem_i, start_mem_j, end_mem_j, 1, 1, &
+                        'CLAT', datestr, real_array = clat_array)
+         call write_field(start_mem_i, end_mem_i, start_mem_j, end_mem_j, 1, 1, &
+                        'CLONG', datestr, real_array = clon_array)
+
+         if (associated(clat_array)) deallocate(clat_array)
+         if (associated(clon_array)) deallocate(clon_array)
+
       end if
    
 
@@ -1499,7 +1512,7 @@ module process_tile_module
    !   argument.
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
    subroutine get_lat_lon_fields(xlat_arr, xlon_arr, start_mem_i, &
-                                 start_mem_j, end_mem_i, end_mem_j, stagger)
+                                 start_mem_j, end_mem_i, end_mem_j, stagger, comp_ll)
    
       use llxy_module
       use misc_definitions_module
@@ -1510,6 +1523,7 @@ module process_tile_module
       integer, intent(in) :: start_mem_i, start_mem_j, end_mem_i, &
                              end_mem_j, stagger
       real, dimension(start_mem_i:end_mem_i, start_mem_j:end_mem_j), intent(out) :: xlat_arr, xlon_arr
+      logical, optional, intent(in) :: comp_ll
 
       ! Local variables
       integer :: i, j
@@ -1517,7 +1531,7 @@ module process_tile_module
       do i=start_mem_i, end_mem_i
          do j=start_mem_j, end_mem_j
             call xytoll(real(i), real(j), &
-                        xlat_arr(i,j), xlon_arr(i,j), stagger)
+                        xlat_arr(i,j), xlon_arr(i,j), stagger, comp_ll=comp_ll)
          end do
       end do
 

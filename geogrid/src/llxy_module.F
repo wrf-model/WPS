@@ -763,7 +763,7 @@ module llxy_module
    !
    ! Purpose:
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
-   subroutine lltoxy(xlat, xlon, x, y, stagger)
+   subroutine lltoxy(xlat, xlon, x, y, stagger, comp_ll)
  
       implicit none
   
@@ -771,6 +771,10 @@ module llxy_module
       integer, intent(in) :: stagger
       real, intent(in) :: xlat, xlon
       real, intent(out) :: x, y
+      logical, optional, intent(in) :: comp_ll
+
+      ! Local variables
+      logical :: save_comp_ll
   
       ! Account for grid staggering
       if (stagger == HH) then
@@ -779,7 +783,16 @@ module llxy_module
          proj_stack(current_nest_number)%stagger = VV
       end if
   
+      if (present(comp_ll)) then
+         save_comp_ll = proj_stack(current_nest_number)%comp_ll
+         proj_stack(current_nest_number)%comp_ll = comp_ll
+      end if
+
       call latlon_to_ij(proj_stack(current_nest_number), xlat, xlon, x, y)
+
+      if (present(comp_ll)) then
+         proj_stack(current_nest_number)%comp_ll = save_comp_ll
+      end if
   
       ! Account for grid staggering
       if (stagger == U) then
@@ -796,7 +809,7 @@ module llxy_module
    !
    ! Purpose:
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
-   subroutine xytoll(x, y, xlat, xlon, stagger)
+   subroutine xytoll(x, y, xlat, xlon, stagger, comp_ll)
  
       implicit none
   
@@ -804,9 +817,11 @@ module llxy_module
       integer, intent(in) :: stagger
       real, intent(in) :: x, y
       real, intent(out) :: xlat, xlon
-  
+      logical, optional, intent(in) :: comp_ll
+
       ! Local variables
       real :: rx, ry
+      logical :: save_comp_ll
   
       ! Account for grid staggering; we cannot modify x and y, so modify local
       !   copies of them
@@ -828,8 +843,17 @@ module llxy_module
          rx = x
          ry = y
       end if
+
+      if (present(comp_ll)) then
+         save_comp_ll = proj_stack(current_nest_number)%comp_ll
+         proj_stack(current_nest_number)%comp_ll = comp_ll
+      end if
   
       call ij_to_latlon(proj_stack(current_nest_number), rx, ry, xlat, xlon)
+
+      if (present(comp_ll)) then
+         proj_stack(current_nest_number)%comp_ll = save_comp_ll
+      end if
  
    end subroutine xytoll
 
