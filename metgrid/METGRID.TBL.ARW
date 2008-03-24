@@ -94,6 +94,7 @@ name=SNOW
         interp_option=four_pt+average_4pt
         masked=water 
         fill_missing=0.
+        flag_in_output=FLAG_SNOW
 ========================================
 name=SKINTEMP
         interp_option=sixteen_pt+four_pt+wt_average_4pt+wt_average_16pt+search
@@ -486,6 +487,7 @@ name=SNOWH
         interp_option=four_pt+average_4pt
         masked=water 
         fill_missing=0.
+        flag_in_output=FLAG_SNOWH
 ========================================
 name=SOILHGT
         interp_option=four_pt+average_4pt
