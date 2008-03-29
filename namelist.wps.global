@@ -2,7 +2,7 @@
  wrf_core = 'ARW',
  max_dom = 2,
  start_date = '2006-08-16_12:00:00','2006-08-16_12:00:00',
- end_date   = '2006-08-16_18:00:00','2006-08-16_12:00:00',
+ end_date   = '2006-08-16_12:00:00','2006-08-16_12:00:00',
  interval_seconds = 21600
  io_form_geogrid = 2,
 /
@@ -15,7 +15,7 @@
  e_we              =  129, 127,
  e_sn              =  65,  64,
  geog_data_res     = '10m','10m',
- map_proj = 'cassini',
+ map_proj = 'lat-lon',
  stand_lon = 0.
  pole_lat = 90.0
  pole_lon = 0.0

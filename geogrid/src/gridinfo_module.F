@@ -382,18 +382,18 @@ module gridinfo_module
                (len_trim(map_proj) == len('ROTATED_LL'))) then
          iproj_type = PROJ_ROTLL 
   
-      else if ((index(map_proj, 'CASSINI') /= 0) .and. &
-               (len_trim(map_proj) == len('CASSINI'))) then
+      else if ((index(map_proj, 'LAT-LON') /= 0) .and. &
+               (len_trim(map_proj) == len('LAT-LON'))) then
          iproj_type = PROJ_CASSINI 
   
       else
          call mprintf(.true.,ERROR,&
                       'In namelist, invalid map_proj specified. Valid '// &
                       'projections are "lambert", "mercator", "polar", '// &
-                      '"global", and "rotated_ll".')
+                      '"lat-lon", and "rotated_ll".')
       end if
 
-      ! For Cassini projections
+      ! For Cassini / lat-lon projections
       if (iproj_type == PROJ_CASSINI) then
 
          ! If no dx,dy specified, assume global grid
@@ -405,7 +405,7 @@ module gridinfo_module
             known_lon = stand_lon + dlondeg/2.
             known_lat = -90. + dlatdeg/2.
             dxkm = EARTH_RADIUS_M * PI * 2.0 / (e_we(1)-s_we(1))
-            dykm = EARTH_RADIUS_M * PI * 2.0 / (e_sn(1)-s_sn(1))
+            dykm = EARTH_RADIUS_M * PI       / (e_sn(1)-s_sn(1))
 
          ! If dx,dy specified, however, assume regional grid
          else
@@ -414,7 +414,7 @@ module gridinfo_module
             dxkm = dlondeg * EARTH_RADIUS_M * PI * 2.0 / 360.0
             dykm = dlatdeg * EARTH_RADIUS_M * PI * 2.0 / 360.0
             if (known_lat == NAN .or. known_lon == NAN) then
-               call mprintf(.true.,ERROR,'For Cassini projection, if dx/dy are specified, '// &
+               call mprintf(.true.,ERROR,'For lat-lon projection, if dx/dy are specified, '// &
                         'a regional domain is assumed, and a ref_lat,ref_lon must also be specified')
             end if
          end if
@@ -508,7 +508,7 @@ module gridinfo_module
          ! C grid does not support the rotated lat/lon projection
          call mprintf((iproj_type == PROJ_ROTLL), ERROR, &
                       'Rotated lat/lon projection is not supported for the ARW core. '// &
-                      'Valid projecitons are "lambert", "mercator", "polar", and "cassini".')
+                      'Valid projecitons are "lambert", "mercator", "polar", and "lat-lon".')
 
          ! Check that nests have an acceptable number of grid points in each dimension
          do i=2,n_domains
