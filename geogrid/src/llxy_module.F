@@ -220,6 +220,7 @@ module llxy_module
                       latinc=user_dlat, &
                       loninc=user_dlon, &
                       dx=user_dxkm,        &
+                      dy=user_dykm,        &
                       stdlon=user_stand_lon, &
                       lat1=user_known_lat, &
                       lon1=user_known_lon, &
@@ -347,6 +348,7 @@ module llxy_module
                       latinc=dlatdeg, &
                       loninc=dlondeg, &
                       dx=dxkm,       &
+                      dy=dykm,       &
                       stdlon=stand_lon, &
                       knowni=known_x, &
                       knownj=known_y, &
@@ -457,6 +459,7 @@ module llxy_module
                          latinc=temp_dlat, &
                          loninc=temp_dlon, &
                          dx=temp_dxkm,  &
+                         dy=temp_dykm,  &
                          stdlon=stand_lon, &
                          knowni=temp_known_x, &
                          knownj=temp_known_y, &

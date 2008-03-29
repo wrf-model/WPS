@@ -236,7 +236,7 @@ MODULE map_utils
    END SUBROUTINE map_init
 
 
-   SUBROUTINE map_set(proj_code, proj, lat1, lon1, lat0, lon0, knowni, knownj, dx, latinc, &
+   SUBROUTINE map_set(proj_code, proj, lat1, lon1, lat0, lon0, knowni, knownj, dx, dy, latinc, &
                       loninc, stdlon, truelat1, truelat2, nlat, nlon, ixdim, jydim, &
                       stagger, phi, lambda, r_earth)
       ! Given a partially filled proj_info structure, this routine computes
@@ -265,6 +265,7 @@ MODULE map_utils
       REAL, INTENT(IN), OPTIONAL        :: lat0
       REAL, INTENT(IN), OPTIONAL        :: lon0
       REAL, INTENT(IN), OPTIONAL        :: dx
+      REAL, INTENT(IN), OPTIONAL        :: dy
       REAL, INTENT(IN), OPTIONAL        :: stdlon
       REAL, INTENT(IN), OPTIONAL        :: truelat1
       REAL, INTENT(IN), OPTIONAL        :: truelat2
@@ -486,6 +487,11 @@ MODULE map_utils
       IF ( PRESENT(knowni) )   proj%knowni   = knowni
       IF ( PRESENT(knownj) )   proj%knownj   = knownj
       IF ( PRESENT(dx) )       proj%dx       = dx
+      IF ( PRESENT(dy) ) THEN
+                               proj%dy       = dy
+      ELSE
+                               proj%dy       = dx
+      END IF
       IF ( PRESENT(stdlon) )   proj%stdlon   = dummy_stdlon
       IF ( PRESENT(truelat1) ) proj%truelat1 = truelat1
       IF ( PRESENT(truelat2) ) proj%truelat2 = truelat2

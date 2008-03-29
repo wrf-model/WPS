@@ -348,7 +348,7 @@ module output_module
 
       if (grid_type == 'C') then
          dx = proj_stack(nest_number)%dx
-         dy = proj_stack(nest_number)%dx
+         dy = proj_stack(nest_number)%dy
 
          save_domain = iget_selected_domain()
 
