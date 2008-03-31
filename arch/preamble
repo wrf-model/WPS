@@ -36,7 +36,7 @@ PERL			=	perl
 
 RANLIB			=	echo
 
-WRF_DIR			=	../WRFV2
+WRF_DIR			=	../WRFV3
 
 #### Architecture specific settings ####
 
