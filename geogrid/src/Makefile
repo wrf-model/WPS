@@ -22,7 +22,7 @@ geogrid.exe: $(OBJS)
 		-L$(WRF_DIR)/external/io_grib_share -lio_grib_share \
 		-L$(WRF_DIR)/external/io_int -lwrfio_int \
 		-L$(WRF_DIR)/external/io_netcdf -lwrfio_nf \
-		-L$(NETCDF)/lib -lnetcdf
+		-L$(NETCDF)/lib -lnetcdf $(MPI_LIB)
 
 bitarray_module.o: module_debug.o
 

@@ -87,6 +87,63 @@ CPPFLAGS	=	-DAIX -DIBM4 -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -D_MPI -DBIT32
 ARFLAGS		=
 
 ###########################################################
+#ARCH   Linux ppc64 BG bglxf compiler with blxlc   DM parallel
+#
+COMPRESSION_LIBS	=	-L/contrib/jasper/lib -ljasper \
+				-L/contrib/libpng/lib -lpng \
+				-L/contrib/zlib/lib -lz
+COMPRESSION_INC		=	-I/contrib/zlib/include \
+				-I/contrib/jasper/include \
+				-I/contrib/libpng/include
+NCARG_LIBS              =
+NCARG_LIBS2             =       -L/usr/local/lib64/r4i4 -lncarg -lncarg_gks -lncarg_c \
+                                -L/usr/X11R6/lib -lX11
+BGL_SYS         =       /bgl/BlueLight/ppcfloor/bglsys
+MPI_INC         =       -I$(BGL_SYS)/include
+MPI_LIB         =       -L$(BGL_SYS)/lib -lmpich.rts -lmsglayer.rts -lrts.rts -ldevices.rts
+FC             =       blrts_xlf90
+SFC            =       blrts_xlf90
+CC             =       blrts_xlc
+LD              =       $(FC)
+FFLAGS          =       -qfree=f90 $(MPI_INC)
+F77FLAGS        =       -qfixed $(MPI_INC)
+FNGFLAGS        =       $(FFLAGS)
+LDFLAGS         =       
+SCC             =       cc
+CFLAGS          =       $(MPI_INC)
+# this might be different on different systems but we want the xlf version of cpp, not Linux's
+CPP             =       /opt/ibmcmp/xlf/9.1/exe/cpp -C -P
+CPPFLAGS        =       -DAIX -DIBM4 -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -D_MPI -DBIT32
+ARFLAGS         =
+
+###########################################################
+#ARCH   Linux ppc64 BG bglxf compiler with blxlc   DM parallel, NO GRIB2
+#
+COMPRESSION_LIBS        =
+COMPRESSION_INC         =
+FDEFS                   =
+NCARG_LIBS              =
+NCARG_LIBS2             =       -L/usr/local/lib64/r4i4 -lncarg -lncarg_gks -lncarg_c \
+                                -L/usr/X11R6/lib -lX11
+BGL_SYS         =       /bgl/BlueLight/ppcfloor/bglsys
+MPI_INC         =       -I$(BGL_SYS)/include
+MPI_LIB         =       -L$(BGL_SYS)/lib -lmpich.rts -lmsglayer.rts -lrts.rts -ldevices.rts
+FC             =       blrts_xlf90
+SFC            =       blrts_xlf90
+CC             =       blrts_xlc
+LD              =       $(FC)
+FFLAGS          =       -qfree=f90 $(MPI_INC)
+F77FLAGS        =       -qfixed $(MPI_INC)
+FNGFLAGS        =       $(FFLAGS)
+LDFLAGS         =       $(MPI_LIB)
+SCC             =       cc
+CFLAGS          =       $(MPI_INC)
+# this might be different on different systems but we want the xlf version of cpp, not Linux's
+CPP             =       /opt/ibmcmp/xlf/9.1/exe/cpp -C -P
+CPPFLAGS        =       -DAIX -DIBM4 -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -D_MPI -DBIT32
+ARFLAGS         =
+
+###########################################################
 #ARCH	Compaq OSF1 alpha	serial, NO GRIB2
 #
 COMPRESSION_LIBS	=
