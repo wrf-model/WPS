@@ -1517,6 +1517,7 @@ MODULE map_utils
 
       if (abs(proj%lat0) /= 90. .and. .not.global_domain) then
          call rotate_coords(proj%lat1,proj%lon1,comp_lat,comp_lon,proj%lat0,proj%lon0,proj%stdlon,-1)
+         comp_lon = comp_lon + proj%stdlon
          proj%lat1 = comp_lat
          proj%lon1 = comp_lon
       end if
