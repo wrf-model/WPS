@@ -18,3 +18,5 @@ Code | Code |   1  |   2  | Name     |  Units   | Description                   
   81 |  1   |   0  |      | AGRLSEA  |          | Land/Sea flag                            |
  207 |  1   |   0  |      | CANWAT   | m        | Plant Canopy Surface Water               | 
 -----+------+------+------+----------+----------+------------------------------------------+
+#
+#  AFWA

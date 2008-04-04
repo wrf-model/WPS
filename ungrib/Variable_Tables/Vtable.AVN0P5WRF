@@ -17,3 +17,5 @@ Code | Code |   1  |   2  | Name     |  Units   | Description                   
   11 |  1   |   0  |      | SKINTEMP | K        | Skin Temperature over Land Points        |
  91  |  1   |   0  |      | SEAICE   | fraction | Ice flag                                 |
 -----+------+------+------+----------+----------+------------------------------------------+
+#
+#  AFWA
