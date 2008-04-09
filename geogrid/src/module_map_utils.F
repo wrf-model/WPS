@@ -489,7 +489,7 @@ MODULE map_utils
       IF ( PRESENT(dx) )       proj%dx       = dx
       IF ( PRESENT(dy) ) THEN
                                proj%dy       = dy
-      ELSE
+      ELSE IF ( PRESENT(dx) ) THEN
                                proj%dy       = dx
       END IF
       IF ( PRESENT(stdlon) )   proj%stdlon   = dummy_stdlon
