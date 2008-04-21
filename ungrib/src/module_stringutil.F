@@ -83,7 +83,7 @@ module stringutil
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
    ! Name: right_justify
    !
-   ! Purpose: The non-space characters in s are shifted so that the end at 
+   ! Purpose: The non-space characters in s are shifted so that they end at 
    !          position n. The argument s is modified, so if the original string
    !          must be preserved, a copy should be passed to right_justify.
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
