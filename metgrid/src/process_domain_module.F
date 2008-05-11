@@ -1066,11 +1066,20 @@ integer, parameter :: BDR_WIDTH = 3
       ! Initialize the output module for this domain and time
       call mprintf(.true.,LOGFILE,'Initializing output module.')
       output_date = temp_date
-      if (len_trim(temp_date) == 13) then
-         output_date(14:19) = ':00:00' 
-      else if (len_trim(temp_date) == 16) then
-         output_date(17:19) = ':00' 
-      end if
+      if ( .not. nocolons ) then
+         if (len_trim(temp_date) == 13) then
+            output_date(14:19) = ':00:00' 
+         else if (len_trim(temp_date) == 16) then
+            output_date(17:19) = ':00' 
+         end if
+      else
+         if (len_trim(temp_date) == 13) then
+            output_date(14:19) = '_00_00' 
+         else if (len_trim(temp_date) == 16) then
+            output_date(17:19) = '_00' 
+         end if
+      endif
+
       call output_init(n, title, output_date, gridtype, dyn_opt, &
                        corner_lats, corner_lons, &
                        we_domain_s, we_domain_e, sn_domain_s, sn_domain_e, &

@@ -18,7 +18,7 @@ module gridinfo_module
                           opt_output_from_metgrid_path, opt_metgrid_tbl_path 
    character (len=128), dimension(MAX_DOMAINS) :: start_date, end_date
    character (len=MAX_FILENAME_LEN), dimension(MAX_DOMAINS) :: fg_name, constants_name
-   logical :: do_tiled_input, do_tiled_output, opt_ignore_dom_center
+   logical :: do_tiled_input, do_tiled_output, opt_ignore_dom_center, nocolons
    character (len=1) :: gridtype
  
    contains
@@ -44,7 +44,7 @@ module gridinfo_module
                         start_day, end_day, start_hour, end_hour, &
                         start_minute, end_minute, start_second, end_second, &
                         interval_seconds, &
-                        io_form_geogrid, opt_output_from_geogrid_path, debug_level
+                        io_form_geogrid, opt_output_from_geogrid_path, debug_level, nocolons
       namelist /metgrid/ io_form_metgrid, fg_name, constants_name, opt_output_from_metgrid_path, &
                          opt_metgrid_tbl_path, opt_ignore_dom_center 
         
@@ -54,6 +54,7 @@ module gridinfo_module
       max_dom = 1
       wrf_core = 'ARW'
       debug_level = 0
+      nocolons = .false.
       do i=1,MAX_DOMAINS
          fg_name(i) = '*'
          constants_name(i) = '*'
@@ -159,6 +160,11 @@ module gridinfo_module
       call mprintf(.true.,LOGFILE,'  IO_FORM_GEOGRID  = %i',i1=io_form_geogrid)
       call mprintf(.true.,LOGFILE,'  OPT_OUTPUT_FROM_GEOGRID_PATH = %s',s1=opt_output_from_geogrid_path)
       call mprintf(.true.,LOGFILE,'  DEBUG_LEVEL      = %i',i1=debug_level)
+      if ( nocolons ) then
+         call mprintf(.true.,LOGFILE,'  NOCOLONS         = .TRUE.' )
+      else
+         call mprintf(.true.,LOGFILE,'  NOCOLONS         = .FALSE.' )
+      endif
       call mprintf(.true.,LOGFILE,'/')
 
       call mprintf(.true.,LOGFILE,'&METGRID')
@@ -199,7 +205,8 @@ module gridinfo_module
 
       ! Convert wrf_core to uppercase letters
       do i=1,3
-         if (ichar(wrf_core(i:i)) >= 97) wrf_core(i:i) = char(ichar(wrf_core(i:i))-32)
+         if (ichar(wrf_core(i:i)) >= ichar('a') .and. ichar(wrf_core(i:i)) <= ichar('z') ) &
+             wrf_core(i:i) = char(ichar(wrf_core(i:i))-ichar('a')+ichar('A'))
       end do
 
       ! Before doing anything else, we must have a valid grid type 
@@ -324,7 +331,7 @@ module gridinfo_module
             fg_name(i) = '*'
          end if
       end do
-  
+
       return
   
  1000 call mprintf(.true.,ERROR,'Error opening file namelist.wps')
