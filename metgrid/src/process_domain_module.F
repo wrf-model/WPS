@@ -1567,9 +1567,11 @@ integer, parameter :: BDR_WIDTH = 3
                if (temp /= missing_value(idx)) then
                   field%r_arr(i,j) = temp
                   call bitarray_set(new_pts, i-sm1+1, j-sm2+1)
-               else if (landmask(i,j) == masked(idx)) then
-                  field%r_arr(i,j) = fill_missing(idx)
-                  call bitarray_set(new_pts, i-sm1+1, j-sm2+1)
+               else if (present(landmask)) then
+                  if (landmask(i,j) == masked(idx)) then
+                     field%r_arr(i,j) = fill_missing(idx)
+                     call bitarray_set(new_pts, i-sm1+1, j-sm2+1)
+                  end if
                end if
 
                if (.not. bitarray_test(new_pts, i-sm1+1, j-sm2+1) .and. &
