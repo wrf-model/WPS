@@ -50,7 +50,7 @@ module gridinfo_module
       character (len=128) :: map_proj
       character (len=128), dimension(MAX_DOMAINS) :: start_date, end_date
       character (len=3) :: wrf_core
-      logical :: is_used
+      logical :: is_used, nest_outside
 
       namelist /share/ wrf_core, max_dom, start_date, end_date, &
                         start_year, end_year, start_month, end_month, &
@@ -429,7 +429,7 @@ module gridinfo_module
   
       n_domains = max_dom
   
-      ! For C grid, let ixdim and jydim be the number of mass points in 
+      ! For C grid, let ixdim and jydim be the number of velocity points in 
       !    each direction; for E grid, we will put the row and column back
       !    later; maybe this should be changed to be more clear, though.
       do i=1,n_domains
@@ -525,6 +525,32 @@ module gridinfo_module
                             i1=i, i2=parent_grid_ratio(i))
             end if
          end do
+
+         ! Check that a nest does not extend outside of its parent grid
+         nest_outside = .false.
+         do i=2,n_domains
+            if (i_parent_start(i) >= ixdim(parent_id(i))) then
+               call mprintf(.true.,WARN,'Nest %i cannot have i_parent_start outside of parent domain.',i1=i)
+               nest_outside = .true.
+            else if (i_parent_start(i) + (ixdim(i) - 1)/parent_grid_ratio(i) > ixdim(parent_id(i))) then
+               call mprintf(.true.,WARN,'Nest %i extends beyond its parent grid in the west-east direction.',i1=i)
+               call mprintf(.true.,WARN,'   Maximum allowable e_we for current i/j_parent_start is %i.', &
+                            i1=(ixdim(parent_id(i))-i_parent_start(i))*parent_grid_ratio(i)+1 )
+               nest_outside = .true.
+            end if
+            if (j_parent_start(i) >= jydim(parent_id(i))) then
+               call mprintf(.true.,WARN,'Nest %i cannot have j_parent_start outside of parent domain.',i1=i)
+               nest_outside = .true.
+            else if (j_parent_start(i) + (jydim(i) - 1)/parent_grid_ratio(i) > jydim(parent_id(i))) then
+               call mprintf(.true.,WARN,'Nest %i extends beyond its parent grid in the south-north direction.',i1=i)
+               call mprintf(.true.,WARN,'   Maximum allowable e_sn for current i/j_parent_start is %i.', &
+                            i1=(jydim(parent_id(i))-j_parent_start(i))*parent_grid_ratio(i)+1 )
+               nest_outside = .true.
+            end if
+         end do
+         if (nest_outside) then
+            call mprintf(.true.,ERROR,'One or more nested domains extend beyond their parent domains.')
+         end if
 
          do i=1,n_domains
             parent_ll_x(i) = real(i_parent_start(i))
