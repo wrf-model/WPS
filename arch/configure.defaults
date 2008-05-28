@@ -111,7 +111,7 @@ CFLAGS          =       $(MPI_INC)
 # on frost.ucar.edu
 CPP             =       /opt/ibmcmp/xlf/9.1/exe/cpp -C -P
 # on NYBlue
-CPP             =       /opt/ibmcmp/xlf/10.1/exe/cpp -C -P
+CPP             =       /opt/ibmcmp/xlf/bg/10.1/exe/cpp -C -P
 CPPFLAGS        =       -DAIX -DIBM4 -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -D_MPI -DBIT32
 ARFLAGS         =
 
@@ -141,8 +141,7 @@ CFLAGS          =       $(MPI_INC)
 # on frost.ucar.edu
 CPP             =       /opt/ibmcmp/xlf/9.1/exe/cpp -C -P
 # on NYBlue
-CPP             =       /opt/ibmcmp/xlf/10.1/exe/cpp -C -P
-
+CPP             =       /opt/ibmcmp/xlf/bg/10.1/exe/cpp -C -P
 CPPFLAGS        =       -DAIX -DIBM4 -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -D_MPI -DBIT32
 ARFLAGS         =
 
