@@ -286,21 +286,29 @@ C  SET ARGUMENTS
 	      if (tmp8(5:5) .eq. '0') map%grid_wind = .false.
 	      map%r_earth = earth_radius (gfld%igdtmpl(1))
 
+	      ! The following values are always scaled by 1e6 unless the basic angle
+	      ! and subdivisions are non-zero
+	      if (gfld%igdtmpl(10) .ne. 0 .or. gfld%igdtmpl(11) .ne. 0) then
+	        call mprintf(.true.,ERROR,
+     &           "Basic angle or subdivisions are non-zero. This is not supported yet. 
+     &           Stopping in rd_grib2.",
+     &           newline=.true.)
+              endif
               ! Scale dx/dy values to degrees, default range is 1e6.
-              if (map%dx.gt.10000) then 
+!             if (map%dx.gt.10000) then 
                  map%dx = map%dx/scale_factor
-              endif
-              if (map%dy.gt.10000) then 
+!             endif
+!             if (map%dy.gt.10000) then 
                  map%dy = map%dy/scale_factor
-              endif
+!             endif
 
               ! Scale lat/lon values to 0-180, default range is 1e6.
-              if (map%lat1.ge.scale_factor) then 
+!             if (map%lat1.ge.scale_factor) then 
                  map%lat1 = map%lat1/scale_factor
-              endif
-              if (map%lon1.ge.scale_factor) then 
+!             endif
+!             if (map%lon1.ge.scale_factor) then 
                  map%lon1 = map%lon1/scale_factor
-              endif
+!             endif
 
 ! The following is needed for NCEP GFS, 0.5 degree output. The j-scan is in the -y direction.
 ! In WPS, the sign of dy indicates the direction of the scan.

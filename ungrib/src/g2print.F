@@ -869,6 +869,21 @@ end program g2print
 	   else
 	     lvl2 = gfld%ipdtmpl(15)
 	   endif
+!           Account for multiple forecast hours in one file
+           if (gfld%ipdtnum.eq.0 .or. gfld%ipdtnum.eq.1 .or. gfld%ipdtnum.eq. 8) then
+              ! Product Definition Template 4.0, 4.1, 4.8
+              ! Extract forecast time.
+             if ( gfld%ipdtmpl(8) .eq. 1 ) then   ! time units are hours
+               fcst = gfld%ipdtmpl(9)
+             else if ( gfld%ipdtmpl(8) .eq. 0 ) then  ! minutes
+               fcst = gfld%ipdtmpl(9) / 60.
+             else if ( gfld%ipdtmpl(8) .eq. 2 ) then  ! days
+               fcst = gfld%ipdtmpl(9) * 24.
+             else
+               fcst = 999
+             endif
+           endif
+
          write(6,987) itot,gfld%discipline,gfld%ipdtmpl(1),  &
            gfld%ipdtmpl(2),gfld%ipdtmpl(10),int(level),&
            lvl2,pabbrev,hdate,fcst
