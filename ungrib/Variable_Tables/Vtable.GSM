@@ -1,5 +1,5 @@
-GRIB1| Level| From |  To  | REGRID   |  REGRID | REGRID                                   |
-Param| Type |Level1|Level2| Name     |  Units  | Description                              |
+GRIB1| Level| From |  To  | metgrid  | metgrid | metgrid                                  |
+Param| Type |Level1|Level2| Name     | Units   | Description                              |
 -----+------+------+------+----------+---------+------------------------------------------+
   11 | 100  |   *  |      | TT       | K       | Temperature                              |
   33 | 100  |   *  |      | UU       | m s-1   | U                                        |

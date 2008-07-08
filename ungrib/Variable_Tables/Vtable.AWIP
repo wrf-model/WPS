@@ -1,4 +1,4 @@
-GRIB | Level| Level| Level| REGRID   |  REGRID  | REGRID                                   |
+GRIB | Level| Level| Level| metgrid  |  metgrid | metgrid                                  |
 Code | Code |   1  |   2  | Name     |  Units   | Description                              |
 -----+------+------+------+----------+----------+------------------------------------------+
   11 | 100  |   *  |      | TT       | K        | Temperature                              |

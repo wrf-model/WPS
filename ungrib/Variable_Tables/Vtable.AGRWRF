@@ -1,4 +1,4 @@
-GRIB | Level| Level| Level| REGRID   |  REGRID  | REGRID                                   |
+GRIB | Level| Level| Level| metgrid  |  metgrid | metgrid                                  |
 Code | Code |   1  |   2  | Name     |  Units   | Description                              |
 -----+------+------+------+----------+----------+------------------------------------------+
   65 |  1   |   0  |      | SNOW     | kg m-2   | Water Equivalent of Accum Snow Depth     | 
