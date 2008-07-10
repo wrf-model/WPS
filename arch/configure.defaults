@@ -11,6 +11,7 @@ FC		=	xlf90_r
 SFC		=	xlf90_r
 FFLAGS		=	-qfree=f90
 F77FLAGS	=	-qfixed
+FCSUFFIX        =       -qsuffix=f=f90
 FNGFLAGS	=	$(FFLAGS)
 LDFLAGS		=	
 CC		=	cc
@@ -33,6 +34,7 @@ FC		=	xlf90_r
 SFC		=	xlf90_r
 FFLAGS		=	-qfree=f90
 F77FLAGS	=	-qfixed
+FCSUFFIX        =       -qsuffix=f=f90
 FNGFLAGS	=	$(FFLAGS)
 LDFLAGS		=	
 CC		=	cc
@@ -55,6 +57,7 @@ FC		=	mpxlf90_r
 SFC		=	xlf90_r
 FFLAGS		=	-qfree=f90
 F77FLAGS	=	-qfixed
+FCSUFFIX        =       -qsuffix=f=f90
 FNGFLAGS	=	$(FFLAGS)
 LDFLAGS		=	
 CC		=	mpcc_r
@@ -77,6 +80,7 @@ FC		=	mpxlf90_r
 SFC		=	xlf90_r
 FFLAGS		=	-qfree=f90
 F77FLAGS	=	-qfixed
+FCSUFFIX        =       -qsuffix=f=f90
 FNGFLAGS	=	$(FFLAGS)
 LDFLAGS		=	
 CC		=	mpcc_r
