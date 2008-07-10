@@ -252,7 +252,7 @@ module interp_module
          return
       end if
   
-      if (present(mask_array)) then
+      if (present(mask_array) .and. present(maskval)) then
          if (mask_array(ix,iy) == maskval) then
             nearest_neighbor = msgval
          else
@@ -328,7 +328,7 @@ module interp_module
          i = qdata%x
          j = qdata%y
 
-         if (present(mask_array)) then
+         if (present(mask_array) .and. present(maskval)) then
             if (array(i,j,izz) /= msgval .and. mask_array(i,j) /= maskval) found_valid = .true. 
          else
             if (array(i,j,izz) /= msgval) found_valid = .true. 
@@ -373,7 +373,7 @@ module interp_module
          search_extrap = array(i,j,izz)
          do while (q_isdata(q))
             qdata = q_remove(q)
-            if (present(mask_array)) then
+            if (present(mask_array) .and. present(maskval)) then
                if (array(qdata%x,qdata%y,izz) /= msgval .and. mask_array(qdata%x,qdata%y) /= maskval) then
                   if ((real(qdata%x)-xx)*(real(qdata%x)-xx)+(real(qdata%y)-yy)*(real(qdata%y)-yy) < distance) then
                      distance = (real(qdata%x)-xx)*(real(qdata%x)-xx)+(real(qdata%y)-yy)*(real(qdata%y)-yy) 
@@ -471,7 +471,7 @@ module interp_module
          end if
       end if
   
-      if (present(mask_array)) then
+      if (present(mask_array) .and. present(maskval)) then
          if (array(ifx, ify, izz) == msgval .or. mask_array(ifx,ify) == maskval) fxfy = 0.0 
          if (array(ifx, icy, izz) == msgval .or. mask_array(ifx,icy) == maskval) fxcy = 0.0 
          if (array(icx, ify, izz) == msgval .or. mask_array(icx,ify) == maskval) cxfy = 0.0 
@@ -568,7 +568,7 @@ module interp_module
          end if
       end if
   
-      if (present(mask_array)) then
+      if (present(mask_array) .and. present(maskval)) then
          if (array(ifx, ify, izz) == msgval .or. mask_array(ifx,ify) == maskval) fxfy = 0.0 
          if (array(ifx, icy, izz) == msgval .or. mask_array(ifx,icy) == maskval) fxcy = 0.0 
          if (array(icx, ify, izz) == msgval .or. mask_array(icx,ify) == maskval) cxfy = 0.0 
@@ -642,7 +642,7 @@ module interp_module
       do i=1,4
          do j=1,4
    
-            if (present(mask_array)) then
+            if (present(mask_array) .and. present(maskval)) then
                if (array(ifx+3-i, ify+3-j, izz) == msgval .or. mask_array(ifx+3-i, ify+3-j) == maskval) then
                   weights(i,j) = 0.0
                else
@@ -727,7 +727,7 @@ module interp_module
       do i=1,4
          do j=1,4
    
-            if (present(mask_array)) then
+            if (present(mask_array) .and. present(maskval)) then
                if (array(ifx+3-i, ify+3-j, izz) == msgval .or. mask_array(ifx+3-i, ify+3-j) == maskval) then
                   weights(i,j) = 0.0
                else
@@ -813,7 +813,7 @@ module interp_module
       end if
   
       ! If we have a missing value, try the next interpolation method in the sequence
-      if (present(mask_array)) then
+      if (present(mask_array) .and. present(maskval)) then
          if (array(min_x,min_y,izz) == msgval .or. mask_array(min_x,min_y) == maskval .or. &
              array(max_x,min_y,izz) == msgval .or. mask_array(max_x,min_y) == maskval .or. &
              array(min_x,max_y,izz) == msgval .or. mask_array(min_x,max_y) == maskval .or. &
@@ -925,7 +925,7 @@ module interp_module
                end if
                stl(k,l) = array(kk,ll,izz)
                n = n + 1
-               if (present(mask_array)) then
+               if (present(mask_array) .and. present(maskval)) then
                   if (mask_array(kk,ll) == maskval) is_masked = .true.
                end if
                if ( stl(k,l) == 0. .and. msgval /= 0.) then
@@ -935,7 +935,7 @@ module interp_module
          end do loop_1
    
          ! If we have a missing value, try the next interpolation method in the sequence
-         if (present(mask_array)) then
+         if (present(mask_array) .and. present(maskval)) then
             do k=1,4
                do l=1,4
                   if (stl(k,l) == msgval .or. is_masked) then
