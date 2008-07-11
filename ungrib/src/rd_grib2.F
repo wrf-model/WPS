@@ -288,12 +288,12 @@ C  SET ARGUMENTS
 
 	      ! The following values are always scaled by 1e6 unless the basic angle
 	      ! and subdivisions are non-zero
-              if (gfld%igdtmpl(10) .ne. 0 .or. gfld%igdtmpl(11) .ne. 0) then
-                 call mprintf(.true.,ERROR,
-     &           "Basic angle or subdivisions are non-zero. This is not supported yet. 
-     &           Stopping in rd_grib2.",
-     &           newline=.true.)
-              endif
+        if (gfld%igdtmpl(10) .ne. 0 .or. gfld%igdtmpl(11) .ne. 0) then
+           call mprintf(.true.,ERROR,
+     &     "Basic angle or subdivisions are non-zero. This is not 
+     &     supported yet. Stopping in rd_grib2.",
+     &     newline=.true.)
+        endif
               ! Scale dx/dy values to degrees, default range is 1e6.
 !             if (map%dx.gt.10000) then 
                  map%dx = map%dx/scale_factor
