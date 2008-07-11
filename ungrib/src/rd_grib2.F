@@ -288,8 +288,8 @@ C  SET ARGUMENTS
 
 	      ! The following values are always scaled by 1e6 unless the basic angle
 	      ! and subdivisions are non-zero
-	      if (gfld%igdtmpl(10) .ne. 0 .or. gfld%igdtmpl(11) .ne. 0) then
-	        call mprintf(.true.,ERROR,
+              if (gfld%igdtmpl(10) .ne. 0 .or. gfld%igdtmpl(11) .ne. 0) then
+                 call mprintf(.true.,ERROR,
      &           "Basic angle or subdivisions are non-zero. This is not supported yet. 
      &           Stopping in rd_grib2.",
      &           newline=.true.)
