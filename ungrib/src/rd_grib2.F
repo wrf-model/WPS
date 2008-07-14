@@ -132,7 +132,7 @@ C  SET ARGUMENTS
          ! Read a given number of bytes from unblocked file.
          call baread(junit,lskip,lgrib,lengrib,cgrib)
 
-	 call mprintf ((lgrib.ne.lengrib),ERROR,
+         call mprintf ((lgrib.ne.lengrib),ERROR,
      &    "rd_grib2: IO Error. %i .ne. %i ", newline=.true.,
      &    i1=lgrib,i2=lengrib)
 
@@ -146,7 +146,7 @@ C  SET ARGUMENTS
          ! Unpack GRIB2 field
          call gb_info(cgrib,lengrib,listsec0,listsec1,
      &                numfields,numlocal,maxlocal,ierr)
-	 call mprintf((ierr.ne.0),ERROR,
+         call mprintf((ierr.ne.0),ERROR,
      &     " ERROR querying GRIB2 message = %i",newline=.true.,i1=ierr)
          itot=itot+numfields
 
@@ -157,7 +157,7 @@ C  SET ARGUMENTS
          
          ! Additional print statments for developer.
 !MGD         if ( debug_level .GT. 100 ) then
-!MGD	 print *,'G2 SECTION 0: ',(listsec0(j),j=1,3)
+!MGD     print *,'G2 SECTION 0: ',(listsec0(j),j=1,3)
 !MGD         print *,'G2 SECTION 1: ',(listsec1(j),j=1,13)
 !MGD         print *,'G2 Contains ',numlocal,' Local Sections ',
 !MGD     &           ' and ',numfields,' data fields.'
@@ -205,7 +205,7 @@ C  SET ARGUMENTS
            call mprintf(.true.,DEBUG,"G2 hdate = %s ", newline=.true.,
      &                  s1=hdate)
            call geth_newdate(hdate,hdate,3600*fcst)
-	   call mprintf(.true.,DEBUG,"G2 hdate (fcst?) = %s ",
+           call mprintf(.true.,DEBUG,"G2 hdate (fcst?) = %s ",
      &                  newline=.true., s1=hdate)
 
            !--
@@ -244,21 +244,21 @@ C  SET ARGUMENTS
                map%source = 'NCEP GFS Ensemble'
              else
                map%source = 'unknown model from NCEP'
-	       call mprintf(.true.,STDOUT,
+               call mprintf(.true.,STDOUT,
      &            "unknown model from NCEP %i ",newline=.true.,
      &            i1=iprocess)
-	       call mprintf(.true.,LOGFILE,
+               call mprintf(.true.,LOGFILE,
      &            "unknown model from NCEP %i ",newline=.true.,
      &            i1=iprocess)
              end if
-	   else if (icenter .eq. 57) then
-	     if (iprocess .eq. 87) then
-	       map%source = 'AFWA AGRMET'
-	     else
-	       map%source = 'AFWA'
-	     endif
-	   else if (icenter .eq. 98) then
-	     map%source = 'ECMWF'
+           else if (icenter .eq. 57) then
+             if (iprocess .eq. 87) then
+               map%source = 'AFWA AGRMET'
+             else
+               map%source = 'AFWA'
+             endif
+           else if (icenter .eq. 98) then
+             map%source = 'ECMWF'
            else if (icenter .eq. 34) then
              map%source = 'JMA'
            else
@@ -272,7 +272,7 @@ C  SET ARGUMENTS
            ! module GRIDINFO.
 
            map%startloc = 'SWCORNER'
-	   map%grid_wind = .true.
+           map%grid_wind = .true.
 
            if (gfld%igdtnum.eq.0) then ! Lat/Lon grid aka Cylindrical Equidistant
               map%igrid = 0
@@ -283,40 +283,41 @@ C  SET ARGUMENTS
               map%lat1 = gfld%igdtmpl(12)
               map%lon1 = gfld%igdtmpl(13)
               write(tmp8,'(b8.8)') gfld%igdtmpl(14)
-	      if (tmp8(5:5) .eq. '0') map%grid_wind = .false.
-	      map%r_earth = earth_radius (gfld%igdtmpl(1))
+              if (tmp8(5:5) .eq. '0') map%grid_wind = .false.
+              map%r_earth = earth_radius (gfld%igdtmpl(1))
 
-	      ! The following values are always scaled by 1e6 unless the basic angle
-	      ! and subdivisions are non-zero
-        if (gfld%igdtmpl(10) .ne. 0 .or. gfld%igdtmpl(11) .ne. 0) then
-           call mprintf(.true.,ERROR,
-     &     "Basic angle or subdivisions are non-zero. This is not 
-     &     supported yet. Stopping in rd_grib2.",
-     &     newline=.true.)
-        endif
-              ! Scale dx/dy values to degrees, default range is 1e6.
-!             if (map%dx.gt.10000) then 
-                 map%dx = map%dx/scale_factor
-!             endif
-!             if (map%dy.gt.10000) then 
-                 map%dy = map%dy/scale_factor
-!             endif
+              if ((gfld%igdtmpl(10) .eq. 0).OR.
+     &            (gfld%igdtmpl(10) .eq. 255)) THEN
+          ! Scale lat/lon values to 0-180, default range is 1e6.
+                map%lat1 = map%lat1/scale_factor
+                map%lon1 = map%lon1/scale_factor
+          ! Scale dx/dy values to degrees, default range is 1e6.
+                map%dx = map%dx/scale_factor
+                map%dy = map%dy/scale_factor
+              else
+          ! Basic angle and subdivisions are non-zero (not tested)
+                map%lat1 = map%lat1 *
+     &                     (gfld%igdtmpl(11)/gfld%igdtmpl(10))
+                map%lon1 = map%lon1 *
+     &                     (gfld%igdtmpl(11)/gfld%igdtmpl(10))
+                map%dx = map%dx * 
+     &                     (gfld%igdtmpl(11)/gfld%igdtmpl(10))
+                map%dy = map%dy * 
+     &                     (gfld%igdtmpl(11)/gfld%igdtmpl(10))
+               call mprintf(.true.,STDOUT,"WARNING - Basic angle option 
+     &has not been tested, continuing anyway")
+               call mprintf(.true.,LOGFILE,"WARNING - Basic angle option 
+     & has not been tested, continuing anyway")
+              endif
 
-              ! Scale lat/lon values to 0-180, default range is 1e6.
-!             if (map%lat1.ge.scale_factor) then 
-                 map%lat1 = map%lat1/scale_factor
-!             endif
-!             if (map%lon1.ge.scale_factor) then 
-                 map%lon1 = map%lon1/scale_factor
-!             endif
 
 ! The following is needed for NCEP GFS, 0.5 degree output. The j-scan is in the -y direction.
 ! In WPS, the sign of dy indicates the direction of the scan.
-	      write(tmp8,'(b8.8)') gfld%igdtmpl(19)
-	      read(tmp8,'(1x,i1)') jscan
+              write(tmp8,'(b8.8)') gfld%igdtmpl(19)
+              read(tmp8,'(1x,i1)') jscan
               if ( jscan .eq. 0 .and. map%dy .gt. 0. ) then
-	        map%dy = -1. * map%dy
-	      endif
+                map%dy = -1. * map%dy
+              endif
 !             if ( map%lat1 .gt. gfld%igdtmpl(15) .and. 
 !    &               map%dy .gt. 0. ) then
 !               map%dy = -1. * map%dy
@@ -335,8 +336,8 @@ C  SET ARGUMENTS
               map%lat1 = gfld%igdtmpl(10) / scale_factor
               map%lon1 = gfld%igdtmpl(11) / scale_factor
               write(tmp8,'(b8.8)') gfld%igdtmpl(12)
-	      if (tmp8(5:5) .eq. '0') map%grid_wind = .false.
-	      map%r_earth = earth_radius (gfld%igdtmpl(1))
+              if (tmp8(5:5) .eq. '0') map%grid_wind = .false.
+              map%r_earth = earth_radius (gfld%igdtmpl(1))
 
            elseif (gfld%igdtnum.eq.30) then ! Lambert Conformal Grid
               map%igrid = 3
@@ -350,8 +351,8 @@ C  SET ARGUMENTS
               map%lat1 = gfld%igdtmpl(10) / scale_factor
               map%lon1 = gfld%igdtmpl(11) / scale_factor
               write(tmp8,'(b8.8)') gfld%igdtmpl(12)
-	      if (tmp8(5:5) .eq. '0') map%grid_wind = .false.
-	      map%r_earth = earth_radius (gfld%igdtmpl(1))
+              if (tmp8(5:5) .eq. '0') map%grid_wind = .false.
+              map%r_earth = earth_radius (gfld%igdtmpl(1))
 
            elseif(gfld%igdtnum.eq.40) then ! Gaussian Grid (we will call it lat/lon)
               map%igrid = 4
@@ -362,8 +363,8 @@ C  SET ARGUMENTS
               map%lat1 = gfld%igdtmpl(12)  ! La1 - lat of 1st grid point
               map%lon1 = gfld%igdtmpl(13)  ! Lo1 - lon of 1st grid point
               write(tmp8,'(b8.8)') gfld%igdtmpl(14)  ! resolution/component flag
-	      if (tmp8(5:5) .eq. '0') map%grid_wind = .false.
-	      map%r_earth = earth_radius (gfld%igdtmpl(1))
+              if (tmp8(5:5) .eq. '0') map%grid_wind = .false.
+              map%r_earth = earth_radius (gfld%igdtmpl(1))
 
               ! Scale dx/dy values to degrees, default range is 1e6.
               if (map%dx.gt.10000) then 
@@ -381,29 +382,29 @@ C  SET ARGUMENTS
                  map%lon1 = map%lon1/scale_factor
               endif
               if ( debug_level .gt. 2 ) then
-	      call mprintf(.true.,DEBUG,
+              call mprintf(.true.,DEBUG,
      &     "Gaussian Grid: Dx,Dy,lat,lon,nlats %f %f %f %f %i ",
      &     newline=.true.,f1=map%dx,f2=map%dy,f3=map%lat1,f4=map%lon1,
      &     i1=nint(map%dy))
               end if
 
            else
-	      call mprintf(.true.,STDOUT,"GRIB2 Unknown Projection: %i",
+              call mprintf(.true.,STDOUT,"GRIB2 Unknown Projection: %i",
      &          newline=.true.,i1=gfld%igdtnum)
-	      call mprintf(.true.,STDOUT,
+              call mprintf(.true.,STDOUT,
      &          "see Code Table 3.1: Grid Definition Template Number", 
      &          newline=.true.)
-	      call mprintf(.true.,LOGFILE,
+              call mprintf(.true.,LOGFILE,
      &          "GRIB2 Unknown Projection: %i",
      &          newline=.true.,i1=gfld%igdtnum)
-	      call mprintf(.true.,LOGFILE,
+              call mprintf(.true.,LOGFILE,
      &          "see Code Table 3.1: Grid Definition Template Number",
      &          newline=.true.)
            endif
          
-	   if (icenter.eq.7) then
-	     call ncep_grid_num (gfld%igdtnum)
-	   endif
+           if (icenter.eq.7) then
+             call ncep_grid_num (gfld%igdtnum)
+           endif
 
            ! Deallocate arrays decoding GRIB2 record.
            call gf_free(gfld)
@@ -514,7 +515,7 @@ C  SET ARGUMENTS
 !         do i = 1, maxvar
 !           write(6,'(a10,4i8)') namvar(i),(g2code(j,i),j=1,4)
 !         enddo
-!MGD	  if (debug_level .gt. 50) then
+!MGD      if (debug_level .gt. 50) then
 !MGD          write(6,*) 'looking for ',gfld%discipline,gfld%ipdtmpl(1),
 !MGD     &       gfld%ipdtmpl(2),gfld%ipdtmpl(10)
 !MGD          endif
@@ -539,34 +540,34 @@ C  SET ARGUMENTS
               !my_field (e.g. RH, TMP, similar to, but not the same as pabbrev)
               my_field=namvar(i) 
 
-!MGD	if (debug_level .gt. 50) then
-!MGD	 write(6,*) 'namvar(i) = ',namvar(i),' pabbrev = ',pabbrev
-!MGD	 write(6,*) 'Parameter = ',gfld%ipdtmpl(2)
-!MGD	endif
+!MGD    if (debug_level .gt. 50) then
+!MGD     write(6,*) 'namvar(i) = ',namvar(i),' pabbrev = ',pabbrev
+!MGD     write(6,*) 'Parameter = ',gfld%ipdtmpl(2)
+!MGD    endif
 
 
 ! need to match up soil levels with those requested.
 ! For the Vtable levels, -88 = all levels, -99 = missing. The units
 ! vary depending on the level code (e.g. 106 = cm, 103 = m).
-	      if ( gfld%ipdtmpl(10) .eq. 106 ) then
-	        TMP8LOOP: do j = 1, maxvar
-		  if ((g2code(4,j) .eq. 106) .and.
+              if ( gfld%ipdtmpl(10) .eq. 106 ) then
+                TMP8LOOP: do j = 1, maxvar
+                  if ((g2code(4,j) .eq. 106) .and.
      &               (gfld%ipdtmpl(2) .eq. g2code(3,j)) .and.
      &               (gfld%ipdtmpl(12) .eq. level1(j)) .and.
      &               ((gfld%ipdtmpl(15) .eq. level2(j)) .or. 
      &                                   (level2(j) .le. -88))) then
-		    my_field = namvar(j)
-		    exit TMP8LOOP
-		  endif
-		enddo TMP8LOOP
-		if (j .gt. maxvar ) then
-		  write(6,'(a,i6,a,i6,a)') 'Subsoil level ',
+                    my_field = namvar(j)
+                    exit TMP8LOOP
+                  endif
+                enddo TMP8LOOP
+                if (j .gt. maxvar ) then
+                  write(6,'(a,i6,a,i6,a)') 'Subsoil level ',
      &               gfld%ipdtmpl(12),' to ',gfld%ipdtmpl(15),
      &           ' in the GRIB2 file, was not found in the Vtable'
-		  cycle MATCH_LOOP
-		endif
+                  cycle MATCH_LOOP
+                endif
 !MGD         if (debug_level .gt. 50) write(6,*) 'my_field is now ',my_field
-	      endif
+              endif
 
               ! Level (eg. 10000 mb)
               if(gfld%ipdtmpl(10).eq.100) then
@@ -650,7 +651,7 @@ C  SET ARGUMENTS
 
 
        if ( debug_level .gt. 100 ) then
-	 call mprintf (.true.,DEBUG,
+         call mprintf (.true.,DEBUG,
      &   "G2 total number of fields found = %i ",newline=.true.,i1=itot)
        end if
 
@@ -754,7 +755,7 @@ C  SET ARGUMENTS
          call skgb(junit,iseek,msk1,lskip,lgrib)
 
          ! Check for EOF, or problem
-	 call mprintf((lgrib.eq.0),ERROR,
+         call mprintf((lgrib.eq.0),ERROR,
      &     "Grib2 file or date problem, stopping in edition_num.",
      &     newline=.true.)
  
@@ -792,7 +793,7 @@ C  SET ARGUMENTS
          CALL BACLOSE(junit,IOS)
          ireaderr=1
       else if (ios .eq. -4) then
-	call mprintf(.true.,ERROR, 
+        call mprintf(.true.,ERROR, 
      &    "edition_num: unable to open %s",newline=.true.,s1=gribflnm)
       else 
          print *,'edition_num: open status failed because',ios,gribflnm
@@ -846,33 +847,33 @@ C  SET ARGUMENTS
       tmp8 = '        '
       if (pnum .eq. 30) then
         if ( abs(map%dx - 12.19058) .lt. eps .and. map%nx .eq. 614) then
-	  write(tmp8,'("GRID 218")') 
+          write(tmp8,'("GRID 218")') 
         else if (abs(map%dx - 40.63525) .lt. eps 
      &     .and. map%nx .eq. 185) then
-	  write(tmp8,'("GRID 212")') 
+          write(tmp8,'("GRID 212")') 
         else if (abs(map%dx - 40.63525) .lt. eps 
      &     .and. map%nx .eq. 151) then
-	  write(tmp8,'("GRID 236")') 
+          write(tmp8,'("GRID 236")') 
         else if (abs(map%dx - 81.2705) .lt. eps 
      &     .and. map%nx .eq. 93) then
-	  write(tmp8,'("GRID 211")') 
+          write(tmp8,'("GRID 211")') 
         else if (abs (map%dx - 32.46341) .lt. eps 
      &     .and. map%nx .eq. 349) then
-	  write(tmp8,'("GRID 221")') 
+          write(tmp8,'("GRID 221")') 
         else if (abs(map%dx - 20.317625) .lt. eps 
      &     .and. map%nx .eq. 301) then
-	  write(tmp8,'("GRID 252")') 
+          write(tmp8,'("GRID 252")') 
         endif
       else if (pnum .eq. 20) then
         if (abs(map%dx - 15.0) .lt. eps) then
-	  write(tmp8,'("GRID  88")') 
-	endif
+          write(tmp8,'("GRID  88")') 
+        endif
       else if (pnum .eq. 0) then
         if (abs(map%dx - 1.) .lt. eps .and. map%nx .eq. 360) then
-	  write(tmp8,'("GRID   3")') 
+          write(tmp8,'("GRID   3")') 
         else if (abs(map%dx - 0.5) .lt. eps .and. map%nx .eq. 720) then
-	  write(tmp8,'("GRID   4")') 
-	endif
+          write(tmp8,'("GRID   4")') 
+        endif
       endif
       map%source(25:32) = tmp8
 !     write(6,*) 'map%source = ',map%source
@@ -889,7 +890,7 @@ C  SET ARGUMENTS
       else if ( icode .eq. 6 ) then
         earth_radius = 6371229. * .001
       else
-	call mprintf(.true.,ERROR,
+        call mprintf(.true.,ERROR,
      &    "unknown earth radius for code %i",newline=.true.,i1=icode)
       endif
       end function earth_radius

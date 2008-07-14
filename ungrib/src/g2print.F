@@ -298,19 +298,19 @@ end program g2print
 
            n=1
            call gf_getfld(cgrib,lengrib,n,unpack,expand,gfld,ierr)
-	   
-	  if (debug_level .gt. 100 ) then
+           
+          if (debug_level .gt. 100 ) then
           write(6,*) 'gfld%version = ',gfld%version
-	  if (gfld%discipline .eq. 0) then
-	    string = 'Meteorological products'
-	  else if (gfld%discipline .eq. 1) then
-	    string = 'Hydrological products'
-	  else if (gfld%discipline .eq. 2) then
-	    string = 'Land Surface products'
-	  else 
-	    string = 'See code table 0.0'
-	  endif
-	  write(6,*) 'Discipline = ',gfld%discipline,'   ',string
+          if (gfld%discipline .eq. 0) then
+            string = 'Meteorological products'
+          else if (gfld%discipline .eq. 1) then
+            string = 'Hydrological products'
+          else if (gfld%discipline .eq. 2) then
+            string = 'Land Surface products'
+          else 
+            string = 'See code table 0.0'
+          endif
+          write(6,*) 'Discipline = ',gfld%discipline,'   ',string
           write(6,*) 'gfld%idsect(1) = ',gfld%idsect(1)
           write(6,*) 'gfld%idsect(2) = ',gfld%idsect(2)
           write(6,*) 'gfld%idsect(3) = ',gfld%idsect(3)
@@ -333,45 +333,45 @@ end program g2print
           write(6,*) 'gfld%interp_opt = ',gfld%interp_opt
 
           write(6,*) 'gfld%griddef = ',gfld%griddef
-	  if (gfld%igdtnum .eq. 0) then
-	    string = 'Lat/Lon cylindrical equidistant'
-	  else if (gfld%igdtnum .eq. 1) then
-	    string = 'Rotated Lat/Lon'
-	  else if (gfld%igdtnum .eq. 2) then
-	    string = 'Stretched Lat/Lon'
-	  else if (gfld%igdtnum .eq. 20) then
-	    string = 'Polar Stereographic'
-	  else if (gfld%igdtnum .eq. 30) then
-	    string = 'Lambert Conformal'
-	  else if (gfld%igdtnum .eq. 40) then
-	    string = 'Gaussian Lat/Lon'
-	  else if (gfld%igdtnum .eq. 50) then
-	    string = 'Spherical harmonic coefficients'
-	  else
-	    string = 'see code table 3.1'
-	  endif
-	  write(6,*) 'Grid Template number = ',gfld%igdtnum,'   ',string
+          if (gfld%igdtnum .eq. 0) then
+            string = 'Lat/Lon cylindrical equidistant'
+          else if (gfld%igdtnum .eq. 1) then
+            string = 'Rotated Lat/Lon'
+          else if (gfld%igdtnum .eq. 2) then
+            string = 'Stretched Lat/Lon'
+          else if (gfld%igdtnum .eq. 20) then
+            string = 'Polar Stereographic'
+          else if (gfld%igdtnum .eq. 30) then
+            string = 'Lambert Conformal'
+          else if (gfld%igdtnum .eq. 40) then
+            string = 'Gaussian Lat/Lon'
+          else if (gfld%igdtnum .eq. 50) then
+            string = 'Spherical harmonic coefficients'
+          else
+            string = 'see code table 3.1'
+          endif
+          write(6,*) 'Grid Template number = ',gfld%igdtnum,'   ',string
           write(6,*) 'gfld%igdtlen = ',gfld%igdtlen
-	  do i = 1, gfld%igdtlen
-	    write(6,*) 'gfld%igdtmpl(',i,') = ',gfld%igdtmpl(i)
-	  enddo
+          do i = 1, gfld%igdtlen
+            write(6,*) 'gfld%igdtmpl(',i,') = ',gfld%igdtmpl(i)
+          enddo
 
           write(6,*) 'gfld%ipdtnum = ',gfld%ipdtnum
           write(6,*) 'gfld%ipdtlen = ',gfld%ipdtlen
-	  if ( gfld%ipdtnum .eq. 0 ) then
-	    do i = 1, gfld%ipdtlen
-	      write(6,*) 'gfld%ipdtmpl(',i,') = ',gfld%ipdtmpl(i)
-	    enddo
-	  endif
+          if ( gfld%ipdtnum .eq. 0 ) then
+            do i = 1, gfld%ipdtlen
+              write(6,*) 'gfld%ipdtmpl(',i,') = ',gfld%ipdtmpl(i)
+            enddo
+          endif
           write(6,*) 'gfld%num_coord = ',gfld%num_coord
           write(6,*) 'gfld%ndpts = ',gfld%ndpts
           write(6,*) 'gfld%idrtnum = ',gfld%idrtnum
           write(6,*) 'gfld%idrtlen = ',gfld%idrtlen
           write(6,*) 'gfld%expanded = ',gfld%expanded
           write(6,*) 'gfld%ibmap = ',gfld%ibmap
-	  endif
+          endif
 
-	  if (debug_level .le. 50) then
+          if (debug_level .le. 50) then
           write(6,*) '---------------------------------------------------------------------------'
           write(6,*) ' rec Prod Cat Param  Lvl    Lvl      Lvl   Name          Time          Fcst'
           write(6,*) ' num Disc     num    code   one      two                               hour'
@@ -479,26 +479,25 @@ end program g2print
               map%lat1 = gfld%igdtmpl(12)
               map%lon1 = gfld%igdtmpl(13)
 
-              ! Scale dx/dy values to degrees, default range is 1e6.
-              if (map%dx.gt.10000) then 
-                 map%dx = map%dx/scale_factor
+              if ((gfld%igdtmpl(10) .eq. 0).OR.   &
+                  (gfld%igdtmpl(10) .eq. 255)) THEN
+          ! Scale lat/lon values to 0-180, default range is 1e6.
+                map%lat1 = map%lat1/scale_factor
+                map%lon1 = map%lon1/scale_factor
+          ! Scale dx/dy values to degrees, default range is 1e6.
+                map%dx = map%dx/scale_factor
+                map%dy = map%dy/scale_factor
+              else
+          ! Basic angle and subdivisions are non-zero (not tested)
+                map%lat1 = map%lat1 *  &
+                           (gfld%igdtmpl(11)/gfld%igdtmpl(10))
+                map%lon1 = map%lon1 *  &
+                           (gfld%igdtmpl(11)/gfld%igdtmpl(10))
+                map%dx = map%dx *  &
+                           (gfld%igdtmpl(11)/gfld%igdtmpl(10))
+                map%dy = map%dy *  &
+                           (gfld%igdtmpl(11)/gfld%igdtmpl(10))
               endif
-              if (map%dy.gt.10000) then 
-                 map%dy = (map%dy/scale_factor)*(-1)
-              endif
-
-              ! Scale lat/lon values to 0-180, default range is 1e6.
-              if (map%lat1.ge.scale_factor) then 
-                 map%lat1 = map%lat1/scale_factor
-              endif
-              if (map%lon1.ge.scale_factor) then 
-                 map%lon1 = map%lon1/scale_factor
-              endif
-
-!             if (iprocess.eq.81 .and. map%dy.eq.0) then !Hack for AFWA.
-!                map%dx =  0.5
-!                map%dy = -0.5
-!             endif
 
            elseif (gfld%igdtnum.eq.30) then ! Lambert Conformal Grid
               map%igrid = 3
@@ -556,7 +555,7 @@ end program g2print
               print*, 'see Code Table 3.1: Grid Definition Template No'
            endif
          
-	    call gf_free(gfld)
+            call gf_free(gfld)
          endif
 
          ! ----
@@ -572,58 +571,58 @@ end program g2print
 
 ! ------------------------------------
          ! Additional print information for developer.
-	 pabbrev=param_get_abbrev(gfld%discipline,gfld%ipdtmpl(1),  &
+         pabbrev=param_get_abbrev(gfld%discipline,gfld%ipdtmpl(1),  &
                                   gfld%ipdtmpl(2))
          if (debug_level .gt. 50 ) then
            print *
 !          print *,'G2 FIELD ',n
            if (n==1) then
-	    write(*,'(/,"GRIB2 SECTION 0 - INDICATOR SECTION:")')
-	    write(*,'(5x,"Discipline"'//pstring) gfld%discipline
-	    write(*,'(5x,"GRIB Edition Number"'//pstring) gfld%version
-	    write(*,'(5x,"GRIB length"'//pstring) lengrib
-	    write(*,'(/,"GRIB2 SECTION 1 - IDENTIFICATION SECTION:")')
-	    write(*,'(5x,"Length of Section"'//pstring) gfld%idsectlen
-	    write(*,'(5x,"Originating Center ID"'//pstring) &
-	       gfld%idsect(1)
-	    write(*,'(5x,"Subcenter ID"'//pstring) gfld%idsect(2)
-	    write(*,'(5x,"GRIB Master Table Version"'//pstring) &
-	    gfld%idsect(3)
-	    write(*,'(5x,"GRIB Local Table Version"'//pstring) &
-	    gfld%idsect(4)
-	    write(*,'(5x,"Significance of Reference Time"'//pstring) &
-	    gfld%idsect(5)
-	    write(*,'(5x,"Year"'//pstring)  gfld%idsect(6)
-	    write(*,'(5x,"Month"'//pstring)  gfld%idsect(7)
-	    write(*,'(5x,"Day"'//pstring)  gfld%idsect(8)
-	    write(*,'(5x,"Hour"'//pstring)  gfld%idsect(9)
-	    write(*,'(5x,"Minute"'//pstring)  gfld%idsect(10)
-	    write(*,'(5x,"Second"'//pstring)  gfld%idsect(11)
-	    write(*,'(5x,"Production Status of data"'//pstring) &
-	      gfld%idsect(12)
-	    write(*,'(5x,"Type of processed data"'//pstring) &
-	      gfld%idsect(13)
+            write(*,'(/,"GRIB2 SECTION 0 - INDICATOR SECTION:")')
+            write(*,'(5x,"Discipline"'//pstring) gfld%discipline
+            write(*,'(5x,"GRIB Edition Number"'//pstring) gfld%version
+            write(*,'(5x,"GRIB length"'//pstring) lengrib
+            write(*,'(/,"GRIB2 SECTION 1 - IDENTIFICATION SECTION:")')
+            write(*,'(5x,"Length of Section"'//pstring) gfld%idsectlen
+            write(*,'(5x,"Originating Center ID"'//pstring) &
+               gfld%idsect(1)
+            write(*,'(5x,"Subcenter ID"'//pstring) gfld%idsect(2)
+            write(*,'(5x,"GRIB Master Table Version"'//pstring) &
+            gfld%idsect(3)
+            write(*,'(5x,"GRIB Local Table Version"'//pstring) &
+            gfld%idsect(4)
+            write(*,'(5x,"Significance of Reference Time"'//pstring) &
+            gfld%idsect(5)
+            write(*,'(5x,"Year"'//pstring)  gfld%idsect(6)
+            write(*,'(5x,"Month"'//pstring)  gfld%idsect(7)
+            write(*,'(5x,"Day"'//pstring)  gfld%idsect(8)
+            write(*,'(5x,"Hour"'//pstring)  gfld%idsect(9)
+            write(*,'(5x,"Minute"'//pstring)  gfld%idsect(10)
+            write(*,'(5x,"Second"'//pstring)  gfld%idsect(11)
+            write(*,'(5x,"Production Status of data"'//pstring) &
+              gfld%idsect(12)
+            write(*,'(5x,"Type of processed data"'//pstring) &
+              gfld%idsect(13)
 !           print *,'G2 SECTION 1: ',(gfld%idsect(j),j=1,gfld%idsectlen)
            endif
-	   write(*,'(/,"GRIB2 SECTION 2 - LOCAL SECTION:")')
-	   write(*,'(5x,"Length of Section 2"'//pstring) gfld%locallen
+           write(*,'(/,"GRIB2 SECTION 2 - LOCAL SECTION:")')
+           write(*,'(5x,"Length of Section 2"'//pstring) gfld%locallen
            if ( associated(gfld%local).AND.gfld%locallen.gt.0 ) then
-	   do j = 1, gfld%locallen
-	     write(*,'(5x,"Local value "'//pstring) gfld%local(j)
-	   enddo
+           do j = 1, gfld%locallen
+             write(*,'(5x,"Local value "'//pstring) gfld%local(j)
+           enddo
 !             print *,'G2 SECTION 2: ',(gfld%local(j),j=1,gfld%locallen)
            endif
-	   write(*,'(/,"GRIB2 SECTION 3 - GRID DEFINITION SECTION:")')
+           write(*,'(/,"GRIB2 SECTION 3 - GRID DEFINITION SECTION:")')
 !          write(*,'(5x,"Length of Section 3"'//pstring) gfld%unknown
-	   write(*,'(5x,"Source of grid definition"'&
-	   //pstring) gfld%griddef
-	   write(*,'(5x,"Number of grid points"'//pstring) gfld%ngrdpts
-	   write(*,'(5x,"Number of octets for addnl points"'//pstring) &
-	   gfld%numoct_opt
-	   write(*,'(5x,"Interpretation list"'//pstring) &
-	   gfld%interp_opt
-	   write(*,'(5x,"Grid Definition Template Number"'//pstring) &
-	   gfld%igdtnum
+           write(*,'(5x,"Source of grid definition"'&
+           //pstring) gfld%griddef
+           write(*,'(5x,"Number of grid points"'//pstring) gfld%ngrdpts
+           write(*,'(5x,"Number of octets for addnl points"'//pstring) &
+           gfld%numoct_opt
+           write(*,'(5x,"Interpretation list"'//pstring) &
+           gfld%interp_opt
+           write(*,'(5x,"Grid Definition Template Number"'//pstring) &
+           gfld%igdtnum
            if (gfld%igdtnum .eq. 0 .or. gfld%igdtnum .eq. 1 .or.  &
                gfld%igdtnum .eq. 2 .or. gfld%igdtnum .eq. 3 ) then
              if (gfld%igdtnum .eq. 0 ) then
@@ -659,8 +658,8 @@ end program g2print
                  gfld%igdtmpl(11)
              write(*,'(10x,"La1"'//pstring)  gfld%igdtmpl(12)
              write(*,'(10x,"Lo1"'//pstring)  gfld%igdtmpl(13)
-	     write(*,'(10x,"Resolution and Component",t50,":",B14.8)')&
-	      gfld%igdtmpl(14)
+             write(*,'(10x,"Resolution and Component",t50,":",B14.8)')&
+              gfld%igdtmpl(14)
              write(*,'(10x,"La2"'//pstring) gfld%igdtmpl(15)
              write(*,'(10x,"Lo2"'//pstring) gfld%igdtmpl(16)
              write(*,'(10x,"Di - i-dir increment"'//pstring) &
@@ -697,68 +696,68 @@ end program g2print
              write(*,'(10x,"Stretching factor"'//pstring) &
                gfld%igdtmpl(25)
              endif
-	   else if (gfld%igdtnum .eq. 10) then
-	     write(*,'(5x,"Mercator Grid")')
-	   else if (gfld%igdtnum .eq. 20 .or. gfld%igdtnum .eq. 30) then
-	     if (gfld%igdtnum .eq. 20) then
+           else if (gfld%igdtnum .eq. 10) then
+             write(*,'(5x,"Mercator Grid")')
+           else if (gfld%igdtnum .eq. 20 .or. gfld%igdtnum .eq. 30) then
+             if (gfld%igdtnum .eq. 20) then
                write(*,'(5x,"Polar Stereographic Grid")')
              else if (gfld%igdtnum .eq. 30) then
                write(*,'(5x,"Lambert Conformal Grid")')
              endif
-	     write(*,'(10x,"Shape of the Earth"'//pstring) &
-	        gfld%igdtmpl(1)
-	     write(*,'(10x,"Scale factor of spher. Earth"'//pstring) &
-	        gfld%igdtmpl(2)
-	     write(*,'(10x,"Scaled value of spher. Earth"'//pstring) &
-	        gfld%igdtmpl(3)
-	     write(*,'(10x,"Scale factor of major axis"'//pstring) &
-	        gfld%igdtmpl(4)
-	     write(*,'(10x,"Scaled value of major axis"'//pstring) &
-	        gfld%igdtmpl(5)
-	     write(*,'(10x,"Scale factor of minor axis"'//pstring) &
-	        gfld%igdtmpl(6)
-	     write(*,'(10x,"Scaled value of minor axis"'//pstring) &
-	        gfld%igdtmpl(7)
-	     write(*,'(10x,"Nx"'//pstring) gfld%igdtmpl(8)
-	     write(*,'(10x,"Ny"'//pstring) gfld%igdtmpl(9)
-	     write(*,'(10x,"La1"'//pstring) gfld%igdtmpl(10)
-	     write(*,'(10x,"Lo1"'//pstring) gfld%igdtmpl(11)
-	     write(*,'(10x,"Resolution and Component",t50,":",B14.8)')&
-	      gfld%igdtmpl(12)
-	     write(*,'(10x,"LaD"'//pstring) gfld%igdtmpl(13)
-	     write(*,'(10x,"LoV"'//pstring) gfld%igdtmpl(14)
-	     write(*,'(10x,"Dx"'//pstring) gfld%igdtmpl(15)
-	     write(*,'(10x,"Dy"'//pstring) gfld%igdtmpl(16)
-	     write(*,'(10x,"Projection Center Flag"'//pstring) &
-	       gfld%igdtmpl(17)
-	     write(*,'(10x,"Scanning mode"'//pstring) &
-	       gfld%igdtmpl(18)
+             write(*,'(10x,"Shape of the Earth"'//pstring) &
+                gfld%igdtmpl(1)
+             write(*,'(10x,"Scale factor of spher. Earth"'//pstring) &
+                gfld%igdtmpl(2)
+             write(*,'(10x,"Scaled value of spher. Earth"'//pstring) &
+                gfld%igdtmpl(3)
+             write(*,'(10x,"Scale factor of major axis"'//pstring) &
+                gfld%igdtmpl(4)
+             write(*,'(10x,"Scaled value of major axis"'//pstring) &
+                gfld%igdtmpl(5)
+             write(*,'(10x,"Scale factor of minor axis"'//pstring) &
+                gfld%igdtmpl(6)
+             write(*,'(10x,"Scaled value of minor axis"'//pstring) &
+                gfld%igdtmpl(7)
+             write(*,'(10x,"Nx"'//pstring) gfld%igdtmpl(8)
+             write(*,'(10x,"Ny"'//pstring) gfld%igdtmpl(9)
+             write(*,'(10x,"La1"'//pstring) gfld%igdtmpl(10)
+             write(*,'(10x,"Lo1"'//pstring) gfld%igdtmpl(11)
+             write(*,'(10x,"Resolution and Component",t50,":",B14.8)')&
+              gfld%igdtmpl(12)
+             write(*,'(10x,"LaD"'//pstring) gfld%igdtmpl(13)
+             write(*,'(10x,"LoV"'//pstring) gfld%igdtmpl(14)
+             write(*,'(10x,"Dx"'//pstring) gfld%igdtmpl(15)
+             write(*,'(10x,"Dy"'//pstring) gfld%igdtmpl(16)
+             write(*,'(10x,"Projection Center Flag"'//pstring) &
+               gfld%igdtmpl(17)
+             write(*,'(10x,"Scanning mode"'//pstring) &
+               gfld%igdtmpl(18)
              if (gfld%igdtnum .eq. 30) then
-	     write(*,'(10x,"Latin 1 "'//pstring) &
-	       gfld%igdtmpl(19)
-	     write(*,'(10x,"Latin 2 "'//pstring) &
-	       gfld%igdtmpl(20)
+             write(*,'(10x,"Latin 1 "'//pstring) &
+               gfld%igdtmpl(19)
+             write(*,'(10x,"Latin 2 "'//pstring) &
+               gfld%igdtmpl(20)
              write(*,'(10x,"Lat of southern pole of project"'//pstring)&
                gfld%igdtmpl(21)
              write(*,'(10x,"Lon of southern pole of project"'//pstring)&
                gfld%igdtmpl(22)
              endif
-	   else if (gfld%igdtnum .eq. 40 .or. gfld%igdtnum .eq. 41) then
-	     if (gfld%igdtnum .eq. 40) then
+           else if (gfld%igdtnum .eq. 40 .or. gfld%igdtnum .eq. 41) then
+             if (gfld%igdtnum .eq. 40) then
                write(*,'(5x,"Gaussian Lat/Lon Grid")')
-	     else if (gfld%igdtnum .eq. 41) then
+             else if (gfld%igdtnum .eq. 41) then
                write(*,'(5x,"Rotated Gaussian Lat/Lon Grid")')
-	     else if (gfld%igdtnum .eq. 42) then
+             else if (gfld%igdtnum .eq. 42) then
                write(*,'(5x,"Stretched Gaussian Lat/Lon Grid")')
-	     else if (gfld%igdtnum .eq. 43) then
+             else if (gfld%igdtnum .eq. 43) then
                write(*,'(5x,"Stretched and Rotated Gaussian Lat/Lon ")')
              endif
-	   else
-	   do j = 1, gfld%igdtlen
-	     write(*,'(5x,"Grid Definition Template entry "'//pstring) &
-	     gfld%igdtmpl(j)
-	   enddo
-	   endif
+           else
+           do j = 1, gfld%igdtlen
+             write(*,'(5x,"Grid Definition Template entry "'//pstring) &
+             gfld%igdtmpl(j)
+           enddo
+           endif
 !          print *,'G2 SECTION 3: ',gfld%griddef,gfld%ngrdpts, &
 !                                 gfld%numoct_opt,gfld%interp_opt,  &
 !                                 gfld%igdtnum
@@ -773,19 +772,19 @@ end program g2print
           write(*,'(/,"GRIB2 SECTION 4 - PRODUCT DEFINITION SECTION:")')
 !          write(*,'(5x,"Length of Section 4"'//pstring) gfld%unknown
            write(*,'(5x,"Product Definition Template Number"'//pstring)&
-	    gfld%ipdtnum
-	    do j = 1, gfld%ipdtlen
+            gfld%ipdtnum
+            do j = 1, gfld%ipdtlen
               write(tmp4,'(i4)') j
-	      string = '(5x,"Template Entry  '//tmp4 // '"'
-	      write(*,string//pstring) gfld%ipdtmpl(j)
-	    enddo
+              string = '(5x,"Template Entry  '//tmp4 // '"'
+              write(*,string//pstring) gfld%ipdtmpl(j)
+            enddo
 !          print *,'G2 PRODUCT TEMPLATE 4.',gfld%ipdtnum,': ',   &
 !               (gfld%ipdtmpl(j),j=1,gfld%ipdtlen)
 
            !call prlevel(gfld%ipdtnum,gfld%ipdtmpl,labbrev)
            !call prvtime(gfld%ipdtnum,gfld%ipdtmpl,listsec1,tabbrev)
            write(*,'(5x,"Product Abbreviated Name",t50,":",a14)')&
-	   pabbrev
+           pabbrev
 !           print *,'G2 TEXT: ',pabbrev,trim(labbrev)," ",trim(tabbrev)
 
            if ( gfld%num_coord .eq. 0 ) then
@@ -803,12 +802,12 @@ end program g2print
 !          endif
          write(*,'(/,"GRIB2 SECTION 5 - DATA REPRESENTATION SECTION:")')
          write(*,'(5x,"Data Representation Template Number"'//pstring)&
-	    gfld%idrtnum
-	    do j = 1, gfld%idrtlen
+            gfld%idrtnum
+            do j = 1, gfld%idrtlen
               write(tmp4,'(i4)') j
-	      string = '(5x,"Template Entry  '//tmp4 // '"'
-	      write(*,string//pstring) gfld%idrtmpl(j)
-	    enddo
+              string = '(5x,"Template Entry  '//tmp4 // '"'
+              write(*,string//pstring) gfld%idrtmpl(j)
+            enddo
 !          print *,'G2 DRS TEMPLATE 5.',gfld%idrtnum,': ',  &
 !               (gfld%idrtmpl(j),j=1,gfld%idrtlen)
 
@@ -826,7 +825,7 @@ end program g2print
 
          write(*,'(/,"GRIB2 SECTION 6 - BIT-MAP SECTION:")')
          write(*,'(5x,"Bit-map indicator"'//pstring) &
-	   gfld%ibmap
+           gfld%ibmap
 
            fldmax=gfld%fld(1)
            fldmin=gfld%fld(1)
@@ -840,9 +839,9 @@ end program g2print
          write(*,'(/,"GRIB2 SECTION 7 - DATA SECTION:")')
 
          write(*,'(5x,"Minimum Data Value "'//rstring)&
-	    fldmin
+            fldmin
          write(*,'(5x,"Maximum Data Value "'//rstring)&
-	    fldmax
+            fldmax
 !          print *,'G2 Data Values:'
 !          write(*,fmt='("G2 MIN=",f21.8," AVE=",f21.8,    &
 !               " MAX=",f21.8)') fldmin,sum/gfld%ndpts,fldmax
@@ -851,24 +850,24 @@ end program g2print
 !           do j=1,gfld%ndpts
 !              write(*,*) j, gfld%fld(j)
 !           enddo
-	 endif
+         endif
          endif ! Additional Print information 
 ! ------------------------------------
-	 if ( debug_level .le. 50) then
+         if ( debug_level .le. 50) then
            if(gfld%ipdtmpl(10).eq.100) then    ! pressure level
              level=gfld%ipdtmpl(12) *  &
                      (10. ** (-1. * gfld%ipdtmpl(11)))
            else if(gfld%ipdtmpl(10).eq.101 .or.&    ! sea level, sfc, or trop
-	        gfld%ipdtmpl(10).eq.1 .or. gfld%ipdtmpl(10).eq.7) then 
+                gfld%ipdtmpl(10).eq.1 .or. gfld%ipdtmpl(10).eq.7) then 
              level = 0
            else
              level=gfld%ipdtmpl(12)
            endif
-	   if (gfld%ipdtmpl(13) .eq. 255) then
-	     lvl2 = 0
-	   else
-	     lvl2 = gfld%ipdtmpl(15)
-	   endif
+           if (gfld%ipdtmpl(13) .eq. 255) then
+             lvl2 = 0
+           else
+             lvl2 = gfld%ipdtmpl(15)
+           endif
 !           Account for multiple forecast hours in one file
            if (gfld%ipdtnum.eq.0 .or. gfld%ipdtnum.eq.1 .or. gfld%ipdtnum.eq. 8) then
               ! Product Definition Template 4.0, 4.1, 4.8
