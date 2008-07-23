@@ -788,6 +788,42 @@ CPP		=	/usr/ccs/lib/cpp -C -P
 CPPFLAGS	=	-D_UNDERSCORE -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -DBIT32
 
 ###########################################################
+#ARCH	Darwin, INTEL, PGI compiler,	serial, NO GRIB2
+#
+COMPRESSION_LIBS        =
+COMPRESSION_INC         =
+FDEFS                   =
+FC              =       pgf90
+SFC             =       pgf90
+FFLAGS          =       -Mfree -byteswapio -O2
+F77FLAGS        =       -Mfixed -byteswapio -O2
+FNGFLAGS        =       $(FFLAGS)
+LDFLAGS         =       -g
+CC              =       pgcc
+SCC             =       pgcc
+CFLAGS          =       -O
+CPP             =       /usr/bin/cpp -C -P -traditional
+CPPFLAGS        =       -D_UNDERSCORE -DBYTESWAP -DLINUX -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -DBIT32 -DMACOS
+
+###########################################################
+#ARCH	Darwin, INTEL, PGI compiler,	DM PARALLEL, NO GRIB2
+#
+COMPRESSION_LIBS        =
+COMPRESSION_INC         =
+FDEFS                   =
+FC              =       mpif90 -f90=pgf90
+SFC             =       pgf90
+FFLAGS          =       -Mfree -byteswapio -O2
+F77FLAGS        =       -Mfixed -byteswapio -O2
+FNGFLAGS        =       $(FFLAGS)
+LDFLAGS         =       -g
+CC              =       mpicc -cc=pgcc
+SCC             =       pgcc
+CFLAGS          =       -O
+CPP             =       /usr/bin/cpp -C -P -traditional
+CPPFLAGS        =       -D_UNDERSCORE -DBYTESWAP -DLINUX -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -DBIT32 -DMACOS -D_MPI
+
+###########################################################
 #ARCH	Darwin	serial, xlf compiler, NO GRIB2
 #
 COMPRESSION_LIBS	=
