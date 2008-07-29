@@ -29,24 +29,12 @@ WRF_LIB         =       -L$(WRF_DIR)/external/io_grib1 -lio_grib1 \
 	$(RM) $@
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c $<	
 
-#.f90.o:
-#	$(RM) $@ $*.mod
-#	$(CP) $< $*.f
-#	$(FC) $(FFLAGS) -c $*.f $(WRF_INCLUDE)
-#	$(RM) $*.f
-
 .f.o:
 	$(RM) $@ $*.mod
 	$(FC) $(F77FLAGS) -c $< $(WRF_INCLUDE)
-
-#.F90.o:
-#	$(RM) $@ $*.mod
-#	$(CPP) $(CPPFLAGS) $(FDEFS) $(WRF_INCLUDE) $< > $*.f
-#	$(FC) $(FFLAGS) -c $*.f $(WRF_INCLUDE)
-#	$(RM) $*.f
 
 .F.o:
 	$(RM) $@ $*.mod
 	$(CPP) $(CPPFLAGS) $(FDEFS) $(WRF_INCLUDE) $< > $*.f90
 	$(FC) $(FFLAGS) -c $*.f90 $(WRF_INCLUDE)
-	$(RM) $*.f90
+#	$(RM) $*.f90

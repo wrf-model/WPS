@@ -74,7 +74,7 @@ wrf_debug.o: cio.o
 write_met_module.o: misc_definitions_module.o module_debug.o met_data_module.o
 
 clean:
-	$(RM) $(OBJS) *.mod
+	$(RM) $(OBJS) *.f90 *.mod
 	$(RM) metgrid.exe
 
 superclean:	clean

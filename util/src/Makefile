@@ -24,7 +24,7 @@ plotgrids.exe: plotgrids.o
 plotgrids.o: plotgrids.F module_map_utils.o
 	$(CP) $< $*.f90
 	$(SFC) $(FNGFLAGS) -c $*.f90
-	$(RM) $*.f90
+#	$(RM) $*.f90
 
 avg_tsfc.exe: avg_tsfc.o cio.o module_debug.o gridinfo_module.o read_met_module.o \
 		write_met_module.o module_date_pack.o misc_definitions_module.o met_data_module.o
@@ -62,7 +62,7 @@ plotfmt.exe: plotfmt.o read_met_module.o met_data_module.o
 plotfmt.o: plotfmt.F misc_definitions_module.o read_met_module.o
 	$(CPP) $(CPPFLAGS) $< > $*.f90
 	$(SFC) $(FNGFLAGS) -c $*.f90
-	$(RM) $*.f90
+#	$(RM) $*.f90
 
 mod_levs.exe: mod_levs.o module_debug.o read_met_module.o write_met_module.o misc_definitions_module.o met_data_module.o
 	$(SFC) -o $(@) $(LDFLAGS) mod_levs.o module_debug.o read_met_module.o \
@@ -91,7 +91,7 @@ write_met_module.o: write_met_module.F met_data_module.o module_debug.o misc_def
 module_date_pack.o: module_date_pack.F
 
 clean:
-	$(RM) $(OBJS) *.mod
+	$(RM) $(OBJS) *.f90 *.mod
 	$(RM) plotgrids.exe plotfmt.exe avg_tsfc.exe elev_angle.exe calc_ecmwf_p.exe rd_intermediate.exe mod_levs.exe
 
 superclean:	clean

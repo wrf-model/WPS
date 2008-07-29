@@ -62,7 +62,7 @@ source_data_module.o: module_stringutil.o gridinfo_module.o hash_module.o list_m
 wrf_debug.o: cio.o
 
 clean:
-	$(RM) $(OBJS) *.mod
+	$(RM) $(OBJS) *.f90 *.mod
 	$(RM) geogrid.exe 
 
 superclean:	clean
