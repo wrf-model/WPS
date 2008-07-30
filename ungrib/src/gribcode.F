@@ -1757,7 +1757,7 @@ subroutine gribheader(debug_level,ierr)
      call gbyte_g1(grec, iman, iskip, 24)
      iskip = iskip + 24
      xec4(1) = float(isign) * 2.**(-24) * float(iman) *  &
-          float(16**(ichar-64))
+          float(16.**(ichar-64))
 
      call gbyte_g1(grec,sec4(8), iskip, 8)
 ! sec4(8) is the number of bits used per datum value.
