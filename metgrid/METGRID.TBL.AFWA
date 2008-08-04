@@ -73,18 +73,18 @@ name=PRES
         fill_lev=200100:PSFC(200100)
         fill_lev=all:vertical_index; level_template=TT
 ========================================
+name=AGRLSEA 
+        interp_option=nearest_neighbor
+        output=no
+========================================
+name=AVNLSEA 
+        interp_option=nearest_neighbor
+        output=no
+========================================
 name=LANDSEA 
         interp_option=nearest_neighbor
         fill_missing=-1.
         fill_lev=200100:LANDMASK(1)
-========================================
-name=AGRLSEA
-        interp_option=nearest_neighbor
-        output=no
-========================================
-name=AVNLSEA
-        interp_option=nearest_neighbor
-        output=no
 ========================================
 name=SEAICE 
         interp_option=four_pt+average_4pt
@@ -100,7 +100,7 @@ name=H0ML
 ========================================
 name=SKINTEMP
         interp_option=sixteen_pt+four_pt+wt_average_4pt+wt_average_16pt+search
-        mandatory=yes    # MUST HAVE THIS FIELD
+        mandatory=yes    # MUST HAVE THIS FIELD 
         masked=both
         interp_land_mask  = LANDSEA(1)
         interp_water_mask = LANDSEA(0)
@@ -360,126 +360,136 @@ name=SW010200; from_input=AGR
         fill_missing=1.
         flag_in_output=FLAG_SW010200
 ========================================
-name=SM000010; from_input=FILE
+name=SM000010; from_input=LSM
         interp_option=sixteen_pt+four_pt+average_4pt+search
         masked=water
         interp_mask=AVNLSEA(0)
+	missing_value=-1.E30
         fill_missing=1.
         flag_in_output=FLAG_SM000010
 ========================================
-name=SM010040; from_input=FILE
+name=SM010040; from_input=LSM
         interp_option=sixteen_pt+four_pt+average_4pt+search
         masked=water
         interp_mask=AVNLSEA(0)
+	missing_value=-1.E30
         fill_missing=1.
         flag_in_output=FLAG_SM010040
 ========================================
-name=SM040100; from_input=FILE
+name=SM040100; from_input=LSM
         interp_option=sixteen_pt+four_pt+average_4pt+search
         masked=water
         interp_mask=AVNLSEA(0)
+	missing_value=-1.E30
         fill_missing=1.
         flag_in_output=FLAG_SM040100
 ========================================
-name=SM100200; from_input=FILE
+name=SM100200; from_input=LSM
         interp_option=sixteen_pt+four_pt+average_4pt+search
         masked=water
         interp_mask=AVNLSEA(0)
+	missing_value=-1.E30
         fill_missing=1.
         flag_in_output=FLAG_SM100200
 ========================================
-name=SM010200; from_input=FILE
+name=SM010200; from_input=LSM
         interp_option=sixteen_pt+four_pt+average_4pt+search
         masked=water
         interp_mask=AVNLSEA(0)
+	missing_value=-1.E30
         fill_missing=1.
         flag_in_output=FLAG_SM010200
 ========================================
-name=ST000010; from_input=FILE
+name=ST000010; from_input=LSM
         interp_option=sixteen_pt+four_pt+average_4pt+search
         masked=water
         interp_mask=AVNLSEA(0)
+	missing_value=-1.E30
         fill_missing=285.
         flag_in_output=FLAG_ST000010
 ========================================
-name=ST010040; from_input=FILE
+name=ST010040; from_input=LSM
         interp_option=sixteen_pt+four_pt+average_4pt+search
         masked=water
         interp_mask=AVNLSEA(0)
+	missing_value=-1.E30
         fill_missing=285.
         flag_in_output=FLAG_ST010040
 ========================================
-name=ST040100; from_input=FILE
+name=ST040100; from_input=LSM
         interp_option=sixteen_pt+four_pt+average_4pt+search
         masked=water
         interp_mask=AVNLSEA(0)
+	missing_value=-1.E30
         fill_missing=285.
         flag_in_output=FLAG_ST040100
 ========================================
-name=ST100200; from_input=FILE
+name=ST100200; from_input=LSM
         interp_option=sixteen_pt+four_pt+average_4pt+search
         masked=water
         interp_mask=AVNLSEA(0)
+	missing_value=-1.E30
         fill_missing=285.
         flag_in_output=FLAG_ST100200
 ========================================
-name=ST010200; from_input=FILE
+name=ST010200; from_input=LSM
         interp_option=sixteen_pt+four_pt+average_4pt+search
         masked=water
         interp_mask=AVNLSEA(0)
+	missing_value=-1.E30
         fill_missing=285.
         flag_in_output=FLAG_ST010200
 ========================================
-name=SM000007; from_input=FILE
+name=SM000007; from_input=LSM
         interp_option=sixteen_pt+four_pt+average_4pt+search
         masked=water
         interp_mask=AVNLSEA(0)
         fill_missing=1.
         flag_in_output=FLAG_SM000007
 ========================================
-name=SM007028; from_input=FILE
+name=SM007028; from_input=LSM
         interp_option=sixteen_pt+four_pt+average_4pt+search
         masked=water
         interp_mask=AVNLSEA(0)
         fill_missing=1.
         flag_in_output=FLAG_SM007028
 ========================================
-name=SM028100; from_input=FILE
+name=SM028100; from_input=LSM
         interp_option=sixteen_pt+four_pt+average_4pt+search
         masked=water
         interp_mask=AVNLSEA(0)
         fill_missing=1.
         flag_in_output=FLAG_SM028100
 ========================================
-name=SM100255; from_input=FILE
+name=SM100255; from_input=LSM
         interp_option=sixteen_pt+four_pt+average_4pt+search
         masked=water
         interp_mask=AVNLSEA(0)
         fill_missing=1.
         flag_in_output=FLAG_SM100255
 ========================================
-name=ST000007; from_input=FILE
+name=ST000007; from_input=LSM
         interp_option=sixteen_pt+four_pt+average_4pt+search
         masked=water
         interp_mask=AVNLSEA(0)
         fill_missing=285.
         flag_in_output=FLAG_ST000007
 ========================================
-name=ST007028; from_input=FILE
+name=ST007028; from_input=LSM
         interp_option=sixteen_pt+four_pt+average_4pt+search
         masked=water
         interp_mask=AVNLSEA(0)
         fill_missing=285.
         flag_in_output=FLAG_ST007028
 ========================================
-name=ST028100; from_input=FILE
+name=ST028100; from_input=LSM
         interp_option=sixteen_pt+four_pt+average_4pt+search
         masked=water
         interp_mask=AVNLSEA(0)
         fill_missing=285.
         flag_in_output=FLAG_ST028100
 ========================================
-name=ST100255; from_input=FILE
+name=ST100255; from_input=LSM
         interp_option=sixteen_pt+four_pt+average_4pt+search
         masked=water
         interp_mask=AVNLSEA(0)
@@ -578,7 +588,7 @@ name=RH
         interp_option=sixteen_pt+four_pt+average_4pt
         fill_missing=0.
         fill_lev=200100:const(0.)
-========================================
+========================================    
 name=SPECHUMD
         interp_option=sixteen_pt+four_pt+average_4pt
         fill_missing=0.
@@ -691,7 +701,7 @@ name=SNOW
         fill_missing=0.
         flag_in_output=FLAG_SNOW
 ========================================
-name=SNOW; from_input=FILE
+name=SNOW; from_input=LSM
         interp_option=four_pt+average_4pt+average_16pt
         masked=water 
         interp_mask=AVNLSEA(0)
