@@ -1756,8 +1756,8 @@ subroutine gribheader(debug_level,ierr)
      iskip = iskip + 7
      call gbyte_g1(grec, iman, iskip, 24)
      iskip = iskip + 24
-     xec4(1) = float(isign) * 2.**(-24) * float(iman) *  &
-          float(16.**(ichar-64))
+     xec4(1) = float(isign) * (2.**(-24)) * float(iman) *  &
+          (16.**(ichar-64))
 
      call gbyte_g1(grec,sec4(8), iskip, 8)
 ! sec4(8) is the number of bits used per datum value.
@@ -1961,7 +1961,10 @@ SUBROUTINE gribLGG( NLAT, startlat, deltalat )
   latg(1:NZERO) = dacos(sinc(1:NZERO)) * 180. / pi
 
 ! Determine the southern hemisphere values by symmetry
-  latg(NLAT-NZERO+1:NLAT:1) = -latg(NZERO:1:-1)
+  do i = 1, nzero
+     latg(nlat-nzero+i) = -latg(nzero+1-i)
+  enddo
+
 
 ! Now that we have the true values, find some approximate values.
 
