@@ -19,7 +19,7 @@ default:
 	uname -s | grep Linux; \
 	if [ $$? = 0 ]; then echo "Compiling for Linux"; \
 	( cd src; \
-	$(MAKE) WRF_DIR="/users/duda/repos/WRFV2" FC="ncargf90" CC="pgcc" FFLAGS="-Mfree -byteswapio -g -Mbounds" CFLAGS="" LDFLAGS="-g -Mbounds -byteswapio" CPPFLAGS="-D_METGRID -DIO_NETCDF -D_UNDERSCORE" ) \
+	$(MAKE) WRF_DIR="/users/duda/repos/WRFV3" FC="ncargf90" CC="pgcc" FFLAGS="-Mfree -byteswapio -g -Mbounds" CFLAGS="" LDFLAGS="-g -Mbounds -byteswapio" CPPFLAGS="-D_METGRID -DIO_NETCDF -D_UNDERSCORE" ) \
 	else \
 	uname -s | grep SunOS; \
 	if [ $$? = 0 ]; then echo "Compiling for Sun"; \

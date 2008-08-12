@@ -4,6 +4,8 @@ program plotgrid
 
    implicit none
 
+   external ulpr
+
    integer :: n, i, j, nx, ny
    integer :: istatus, start_mem_i, end_mem_i, start_mem_j, end_mem_j, &
               start_mem_k, end_mem_k, dyn_opt, &
@@ -13,20 +15,30 @@ program plotgrid
               we_patch_s, we_patch_e, we_patch_s_stag, we_patch_e_stag, &
               sn_patch_s, sn_patch_e, sn_patch_s_stag, sn_patch_e_stag
    real :: width, height
-   real :: dx, dy, cen_lat, moad_cen_lat, cen_lon, stand_lon, truelat1, truelat2
+   real :: dx, dy, cen_lat, moad_cen_lat, cen_lon, stand_lon, truelat1, truelat2, pole_lat, pole_lon
    real :: start_r, start_g, start_b, end_r, end_g, end_b
    real :: ll_lat, ll_lon, ur_lat, ur_lon
    real :: left, right, bottom, top, maxter, minter
+   real :: rotang
    real, dimension(16) :: corner_lats, corner_lons
+   real, dimension(10000) :: xcs, ycs
+   integer, dimension(10) :: iai, iag
+   integer, dimension(400000) :: iam
    integer, allocatable, dimension(:,:) :: lu
    real, allocatable, dimension(:,:) :: xlat, xlon, ter
    real, dimension(122000) :: rwrk
    real, pointer, dimension(:,:,:) :: real_array
    character (len=3) :: memorder
+   character (len=25) :: crotang
    character (len=25) :: units
    character (len=46) :: desc
    character (len=128) :: init_date, cname, stagger, cunits, cdesc, title, startdate, grid_type, mminlu
    character (len=128), dimension(3) :: dimnames
+
+   call getarg(1,crotang)
+   read (crotang,'(f)') rotang
+
+   write(6,*) 'Plotting with rotation angle ',rotang
 
    call opngks
 
@@ -79,6 +91,16 @@ program plotgrid
      call gscr(1,i,start_r+((end_r-start_r)/50.)*real(i-77),start_g+((end_g-start_g)/50.)*real(i-77),start_b+((end_b-start_b)/50.)*real(i-77))
    end do
 
+   start_r = 0.80
+   end_r   = 1.00
+   start_g = 0.80
+   end_g   = 1.00
+   start_b = 0.80
+   end_b   = 1.00
+   do i=127,176
+     call gscr(1,i,start_r+((end_r-start_r)/50.)*real(i-127),start_g+((end_g-start_g)/50.)*real(i-127),start_b+((end_b-start_b)/50.)*real(i-127))
+   end do
+
    call get_namelist_params()
 
    do n=1,max_dom
@@ -97,7 +119,8 @@ program plotgrid
                              map_proj, mminlu, is_water, &
                              is_ice, is_urban, isoilwater, grid_id, parent_id, i_parent_start, j_parent_start, &
                              i_parent_end, j_parent_end, dx, dy, cen_lat, moad_cen_lat, cen_lon, &
-                             stand_lon, truelat1, truelat2, parent_grid_ratio, corner_lats, corner_lons)
+                             stand_lon, truelat1, truelat2, pole_lat, pole_lon, parent_grid_ratio, &
+                             corner_lats, corner_lons)
 
       istatus = 0
       do while (istatus == 0)
@@ -131,6 +154,7 @@ program plotgrid
       ll_lon = xlon(1,1)
       ur_lat = xlat(nx,ny)
       ur_lon = xlon(nx,ny)
+!      if (ur_lon < 0.) ur_lon = ur_lon + 360.0
 
       if (n == 1) then
          left = 0.0
@@ -141,11 +165,14 @@ program plotgrid
 
          call mapstc('OU','CO')
 
-         call maproj('LC', truelat1, stand_lon, truelat2)
+         call maproj('CE', cen_lat, cen_lon, rotang)
+!         call maproj('LC', truelat1, stand_lon, truelat2)
 !         call maproj('ST', cen_lat, cen_lon, stand_lon)
          call mapset('CO', ll_lat, ll_lon, ur_lat, ur_lon)
          call mapint()
       end if
+
+      call mpsetr('GR', 10.0)
 
       call maptrn(ll_lat, ll_lon, left, bottom)
       call maptrn(ur_lat, ur_lon, right, top)
@@ -176,6 +203,12 @@ program plotgrid
 
    call mplndr('Earth..3',4)
 
+   call arinam (iam,400000)
+   call mapbla (iam)
+   call arpram (iam,0,0,0)
+
+   call mapgrm (iam,xcs,ycs,10000,iai,iag,10,ulpr)
+
    call frame()
 
    do n=1,max_dom
@@ -194,7 +227,8 @@ program plotgrid
                              map_proj, mminlu, is_water, &
                              is_ice, is_urban, isoilwater, grid_id, parent_id, i_parent_start, j_parent_start, &
                              i_parent_end, j_parent_end, dx, dy, cen_lat, moad_cen_lat, cen_lon, &
-                             stand_lon, truelat1, truelat2, parent_grid_ratio, corner_lats, corner_lons)
+                             stand_lon, truelat1, truelat2, pole_lat, pole_lon, parent_grid_ratio, &
+                             corner_lats, corner_lons)
 
       istatus = 0
       do while (istatus == 0)
@@ -243,7 +277,8 @@ program plotgrid
 
          call mapstc('OU','CO')
 
-         call maproj('LC', truelat1, stand_lon, truelat2)
+         call maproj('CE', cen_lat, cen_lon, rotang)
+!         call maproj('LC', truelat1, stand_lon, truelat2)
 !         call maproj('ST', cen_lat, cen_lon, stand_lon)
          call mapset('CO', ll_lat, ll_lon, ur_lat, ur_lon)
          call mapint()
@@ -256,7 +291,7 @@ program plotgrid
                if (ter(i,j) < minter) minter = ter(i,j)
             end do
          end do
-         maxter = 3348.42
+!         maxter = 3348.42
       end if
 
       call maptrn(ll_lat, ll_lon, left, bottom)
@@ -267,12 +302,17 @@ program plotgrid
 
       do j=1,ny 
          do i=1,nx 
-            ter(i,j) = ((ter(i,j)-minter) * 99.)/(maxter-minter) + 26.
             if (lu(i,j) ==  16) then
+               ter(i,j) = ((ter(i,j)-minter) * 99.)/(maxter-minter) + 26.
                call map_square(xlat(i,j), xlon(i,j), width, height, 17)
             else if (lu(i,j) ==  1) then
+               ter(i,j) = ((ter(i,j)-minter) * 99.)/(maxter-minter) + 26.
                call map_square(xlat(i,j), xlon(i,j), width, height, 2)
+            else if (lu(i,j) ==  24) then
+               ter(i,j) = ((ter(i,j)-minter) * 50.)/(3500.0-minter) + 127.
+               call map_square(xlat(i,j), xlon(i,j), width, height, nint(ter(i,j)))
             else
+               ter(i,j) = ((ter(i,j)-minter) * 99.)/(maxter-minter) + 26.
                call map_square(xlat(i,j), xlon(i,j), width, height, nint(ter(i,j)))
             end if
          end do
@@ -295,6 +335,12 @@ program plotgrid
    end do
 
    call mplndr('Earth..3',4)
+
+   call arinam (iam,400000)
+   call mapbla (iam)
+   call arpram (iam,0,0,0)
+
+   call mapgrm (iam,xcs,ycs,10000,iai,iag,10,ulpr)
 
    call gclwk(13)
 
@@ -335,3 +381,26 @@ subroutine map_square(rlat, rlon, width, height, colr)
     call sfsgfa(xra, yra, 4, dst, 2000, ind, 3000, colr)
 
 end subroutine map_square
+
+
+subroutine ulpr(xcs,ycs,ncs,iai,iag,nai)
+
+   implicit none
+
+   integer, external :: mapaci
+
+   integer :: ncs, nai
+   integer, dimension(nai) :: iai, iag
+   real, dimension(ncs) :: xcs, ycs
+
+   integer :: itm
+
+   if (iai(1) >= 0 .and.iai(2) >= 0) then
+      itm = max0(iai(1),iai(2))
+      if (mapaci(itm) == 1) then
+         if (ncs.gt.150) print * , 'ulpr - ncs too big - ',ncs
+         call gpl(ncs,xcs,ycs)
+      end if
+   end if
+
+end subroutine ulpr
