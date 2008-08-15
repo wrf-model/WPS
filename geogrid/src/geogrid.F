@@ -40,35 +40,40 @@ program geogrid
 
       ! Process all requested domains 
       do i=1,n_domains
-         call mprintf(.true.,STDOUT,'Processing domain %i of %i', i1=i, i2=n_domains)
-         call mprintf(.true.,LOGFILE,'Processing domain %i of %i', i1=i, i2=n_domains)
+         if (grid_is_active(i)) then
+            call mprintf(.true.,STDOUT,'Processing domain %i of %i', i1=i, i2=n_domains)
+            call mprintf(.true.,LOGFILE,'Processing domain %i of %i', i1=i, i2=n_domains)
   
-         ! Get information about the source data we will use for this nest
-         call get_source_params(geog_data_res(i))
+            ! Get information about the source data we will use for this nest
+            call get_source_params(geog_data_res(i))
   
-         ! Set transformations in llxy module to be with respect to current nest
-         call select_domain(i)
+            ! Set transformations in llxy module to be with respect to current nest
+            call select_domain(i)
  
-         ! Determine which range of indices we will work on
-         call parallel_get_tile_dims(ixdim(i), jydim(i))
+            ! Determine which range of indices we will work on
+            call parallel_get_tile_dims(ixdim(i), jydim(i))
   
-         if (my_x == nproc_x-1) then ! One more column for U points
-            ew_extra_col = .true.
+            if (my_x == nproc_x-1) then ! One more column for U points
+               ew_extra_col = .true.
+            else
+               ew_extra_col = .false.
+            end if
+  
+            if (my_y == nproc_y-1) then ! One more row for V points
+               sn_extra_row = .true.
+            else
+               sn_extra_row = .false.
+            end if
+  
+            ! Process fields for a tile of the current nest
+            call process_tile(i, gridtype, dyn_opt,                 &
+                              1,       ixdim(i), 1,       jydim(i), &
+                              my_minx, my_maxx,  my_miny, my_maxy,  &   ! These come from parallel_module
+                              ew_extra_col, sn_extra_row)
          else
-            ew_extra_col = .false.
+            call mprintf(.true.,STDOUT,'Skipping domain %i of %i', i1=i, i2=n_domains)
+            call mprintf(.true.,LOGFILE,'Skipping domain %i of %i', i1=i, i2=n_domains)
          end if
-  
-         if (my_y == nproc_y-1) then ! One more row for V points
-            sn_extra_row = .true.
-         else
-            sn_extra_row = .false.
-         end if
-  
-         ! Process fields for a tile of the current nest
-         call process_tile(i, gridtype, dyn_opt,                 &
-                           1,       ixdim(i), 1,       jydim(i), &
-                           my_minx, my_maxx,  my_miny, my_maxy,  &   ! These come from parallel_module
-                           ew_extra_col, sn_extra_row)
       end do
 
    else if (gridtype == 'E') then

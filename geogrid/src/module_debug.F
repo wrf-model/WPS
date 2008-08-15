@@ -51,7 +51,8 @@ module module_debug
                       newline, &
                       i1, i2, i3, i4, i5, i6, &
                       f1, f2, f3, f4, f5, f6, &
-                      s1, s2, s3, s4, s5, s6)
+                      s1, s2, s3, s4, s5, s6, &
+                      l1, l2, l3, l4, l5, l6)
 
       implicit none
 
@@ -62,12 +63,13 @@ module module_debug
       logical, intent(in), optional :: newline
       integer, intent(in), optional :: i1, i2, i3, i4, i5, i6
       real, intent(in), optional :: f1, f2, f3, f4, f5, f6
+      logical, intent(in), optional :: l1, l2, l3, l4, l5, l6
       character (len=*), intent(in), optional :: s1, s2, s3, s4, s5, s6
 
       ! Local variables 
-      integer :: idxi, idxf, idxs, istart, i, iend, ia
+      integer :: idxi, idxf, idxs, idxl, istart, i, iend, ia
       real :: fa
-      logical :: continuing_line
+      logical :: continuing_line, la
       character (len=8) :: cur_date
       character (len=10) :: cur_time
       character (len=10) :: print_date
@@ -107,6 +109,7 @@ module module_debug
       idxi = 1
       idxf = 1
       idxs = 1
+      idxl = 1
       istart = 1
       iend = len_trim(fmtstring)
 
@@ -241,10 +244,36 @@ module module_debug
    
                write(ctemp,'(a)') trim(sa)
                if (level >= the_debug_level .and. level /= DEBUG) &
-                  call cio_prints(0,ctemp,len_trim(sa))
+                  call cio_prints(0,ctemp,len_trim(ctemp))
                if (level /= STDOUT) &
-                  call cio_prints(1,ctemp,len_trim(sa))
+                  call cio_prints(1,ctemp,len_trim(ctemp))
                idxs = idxs + 1
+
+            else if (fmtstring(i+1:i+1) == 'l') then
+               if (idxl == 1 .and. present(l1)) then
+                  la = l1
+               else if (idxl == 2 .and. present(l2)) then
+                  la = l2
+               else if (idxl == 3 .and. present(l3)) then
+                  la = l3
+               else if (idxl == 4 .and. present(l4)) then
+                  la = l4
+               else if (idxl == 5 .and. present(l5)) then
+                  la = l5
+               else if (idxl == 6 .and. present(l6)) then
+                  la = l6
+               end if
+   
+               if (la) then
+                  write(ctemp,'(a)') '.TRUE.'
+               else
+                  write(ctemp,'(a)') '.FALSE.'
+               end if
+               if (level >= the_debug_level .and. level /= DEBUG) &
+                  call cio_prints(0,ctemp,len_trim(ctemp))
+               if (level /= STDOUT) &
+                  call cio_prints(1,ctemp,len_trim(ctemp))
+               idxl = idxl + 1
    
             end if
    

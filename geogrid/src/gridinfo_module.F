@@ -25,6 +25,7 @@ module gridinfo_module
    character (len=128), dimension(MAX_DOMAINS) :: geog_data_res 
    character (len=1) :: gridtype
    logical :: do_tiled_output
+   logical, dimension(MAX_DOMAINS) :: grid_is_active
    integer :: debug_level
  
    contains
@@ -51,13 +52,14 @@ module gridinfo_module
       character (len=128), dimension(MAX_DOMAINS) :: start_date, end_date
       character (len=3) :: wrf_core
       logical :: is_used, nest_outside
+      logical, dimension(MAX_DOMAINS) :: active_grid
 
       namelist /share/ wrf_core, max_dom, start_date, end_date, &
                         start_year, end_year, start_month, end_month, &
                         start_day, end_day, start_hour, end_hour, &
                         start_minute, end_minute, start_second, end_second, &
                         interval_seconds, &
-                        io_form_geogrid, opt_output_from_geogrid_path, debug_level
+                        io_form_geogrid, opt_output_from_geogrid_path, debug_level, active_grid
       namelist /geogrid/ parent_id, parent_grid_ratio, &
                          i_parent_start, j_parent_start, s_we, e_we, s_sn, e_sn, &
                          map_proj, ref_x, ref_y, ref_lat, ref_lon, &
@@ -104,6 +106,7 @@ module gridinfo_module
          end_second(i) = 0
          start_date(i) = '0000-00-00_00:00:00'
          end_date(i) = '0000-00-00_00:00:00'
+         active_grid(i) = .true.
       end do
       opt_output_from_geogrid_path = './'
       opt_geogrid_tbl_path = 'geogrid/'
@@ -190,6 +193,10 @@ module gridinfo_module
       call mprintf(.true.,LOGFILE,'  IO_FORM_GEOGRID  = %i',i1=io_form_geogrid)
       call mprintf(.true.,LOGFILE,'  OPT_OUTPUT_FROM_GEOGRID_PATH = %s',s1=opt_output_from_geogrid_path)
       call mprintf(.true.,LOGFILE,'  DEBUG_LEVEL      = %i',i1=debug_level)
+      call mprintf(.true.,LOGFILE,'  ACTIVE_GRID      = %l',l1=active_grid(1))
+      do i=2,max_dom
+         call mprintf(.true.,LOGFILE,'                   = %l',l1=active_grid(i))
+      end do
       call mprintf(.true.,LOGFILE,'/')
 
       call mprintf(.true.,LOGFILE,'&GEOGRID')
@@ -557,8 +564,9 @@ module gridinfo_module
             parent_ll_y(i) = real(j_parent_start(i))
             parent_ur_x(i) = real(i_parent_start(i))+real(ixdim(i))/real(parent_grid_ratio(i))-1.
             parent_ur_y(i) = real(j_parent_start(i))+real(jydim(i))/real(parent_grid_ratio(i))-1.
+            grid_is_active(i) = active_grid(i)
          end do
-  
+
       end if
   
       return

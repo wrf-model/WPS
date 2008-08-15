@@ -32,6 +32,8 @@ subroutine read_namelist(hstart, hend, delta_time, ntimes,&
   integer , dimension(maxim_doms) :: end_minute
   integer , dimension(maxim_doms) :: end_second
 
+  logical , dimension(maxim_doms) :: active_grid
+
   character (len=128) , dimension(maxim_doms) :: start_date, end_date
   character (len=MAX_FILENAME_LEN) :: opt_output_from_geogrid_path
   integer :: interval_seconds = 0
@@ -48,7 +50,7 @@ subroutine read_namelist(hstart, hend, delta_time, ntimes,&
        end_minute, end_second,&
        interval_seconds, &
        start_date, end_date, &
-       io_form_geogrid, opt_output_from_geogrid_path, debug_level
+       io_form_geogrid, opt_output_from_geogrid_path, debug_level, active_grid
 
   namelist /ungrib/ out_format, &
        ordered_by_date, prefix

@@ -60,10 +60,15 @@ program metgrid
 
       do n=1,max_dom
 
-         call mprintf(.true.,STDOUT,'Processing domain %i of %i', i1=n, i2=max_dom)
-         call mprintf(.true.,LOGFILE,'Processing domain %i of %i', i1=n, i2=max_dom)
+         if (grid_is_active(n)) then
+            call mprintf(.true.,STDOUT,'Processing domain %i of %i', i1=n, i2=max_dom)
+            call mprintf(.true.,LOGFILE,'Processing domain %i of %i', i1=n, i2=max_dom)
 
-         call process_domain(n, extra_row, extra_col)
+            call process_domain(n, extra_row, extra_col)
+         else
+            call mprintf(.true.,STDOUT,'Skipping domain %i of %i', i1=n, i2=max_dom)
+            call mprintf(.true.,LOGFILE,'Skipping domain %i of %i', i1=n, i2=max_dom)
+         end if
 
       end do  ! Loop over max_dom
 
