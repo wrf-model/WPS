@@ -381,8 +381,8 @@ module output_module
       ! We may now write global attributes to the file
       call write_global_attrs(title, datestr, grid_type, dynopt, ixdim(nest_number), jydim(nest_number), &
                               0, sp1, ep1, sp1, ep1_stag, sp2, ep2, sp2, ep2_stag,                       &
-                              iproj_type, source_mminlu, source_iswater, source_isice, source_isurban,   &
-                              source_isoilwater, nest_number, parent_id(nest_number),                    &
+                              iproj_type, source_mminlu, source_iswater, source_islake, source_isice,    &
+                              source_isurban, source_isoilwater, nest_number, parent_id(nest_number),    &
                               nint(parent_ll_x(nest_number)), nint(parent_ll_y(nest_number)),            &
                               nint(parent_ur_x(nest_number)), nint(parent_ur_y(nest_number)),            &
                               dx, dy, cen_lat, moad_cen_lat,                                             &
@@ -1029,8 +1029,8 @@ module output_module
                                 west_east_dim, south_north_dim, bottom_top_dim,                     &
                                 we_patch_s, we_patch_e, we_patch_s_stag, we_patch_e_stag,           &
                                 sn_patch_s, sn_patch_e, sn_patch_s_stag, sn_patch_e_stag,           &
-                                map_proj, cmminlu, is_water, is_ice, is_urban, i_soilwater,         &
-                                grid_id, parent_id, i_parent_start, j_parent_start,                 &
+                                map_proj, cmminlu, is_water, is_lake, is_ice, is_urban,             &
+                                i_soilwater, grid_id, parent_id, i_parent_start, j_parent_start,    &
                                 i_parent_end, j_parent_end, dx, dy, cen_lat, moad_cen_lat, cen_lon, &
                                 stand_lon, truelat1, truelat2, pole_lat, pole_lon,                  &
                                 parent_grid_ratio, corner_lats, corner_lons,                        &
@@ -1042,7 +1042,7 @@ module output_module
       integer, intent(in) :: dyn_opt, west_east_dim, south_north_dim, bottom_top_dim, &
                  we_patch_s, we_patch_e, we_patch_s_stag, we_patch_e_stag,            &
                  sn_patch_s, sn_patch_e, sn_patch_s_stag, sn_patch_e_stag,            &
-                 map_proj, is_water, is_ice, is_urban, i_soilwater,                   &
+                 map_proj, is_water, is_lake, is_ice, is_urban, i_soilwater,          &
                  grid_id, parent_id, i_parent_start, j_parent_start,                  &
                  i_parent_end, j_parent_end, parent_grid_ratio
       integer, intent(in), optional :: nflags
@@ -1153,6 +1153,7 @@ module output_module
          call ext_put_dom_ti_integer_scalar('MAP_PROJ', map_proj)
          call ext_put_dom_ti_char          ('MMINLU', trim(cmminlu))
          call ext_put_dom_ti_integer_scalar('ISWATER', is_water)
+         call ext_put_dom_ti_integer_scalar('ISLAKE', is_lake)
          call ext_put_dom_ti_integer_scalar('ISICE', is_ice)
          call ext_put_dom_ti_integer_scalar('ISURBAN', is_urban)
          call ext_put_dom_ti_integer_scalar('ISOILWATER', i_soilwater)

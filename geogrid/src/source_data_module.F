@@ -31,7 +31,7 @@ module source_data_module
                   source_category_min, source_category_max, source_smooth_option, &
                   source_smooth_passes, source_output_stagger, source_row_order
    integer, pointer, dimension(:,:) :: source_landmask_water, source_landmask_land
-   integer :: source_iswater, source_isice, source_isurban, source_isoilwater
+   integer :: source_iswater, source_islake, source_isice, source_isurban, source_isoilwater
    real, pointer, dimension(:) :: source_dx, source_dy, source_known_x, source_known_y, &
                   source_known_lat, source_known_lon, source_masked, source_truelat1, source_truelat2, &
                   source_stdlon, source_scale_factor, source_missing_value, source_fill_missing
@@ -222,6 +222,7 @@ module source_data_module
 
       write(source_mminlu,'(a4)') 'USGS'
       source_iswater = 16
+      source_islake = -1
       source_isice = 24
       source_isurban = 1
       source_isoilwater = 14
@@ -581,7 +582,7 @@ module source_data_module
       character (len=256) :: test_fname
       character (len=BUFSIZE) :: buffer
       logical :: have_specification, is_used
-  
+
       ! For each entry in the GEOGRID.TBL file
       do idx=1,num_entries
 
@@ -803,6 +804,9 @@ module source_data_module
                   else if (index('iswater',trim(buffer(1:i-1))) /= 0) then
                      read(buffer(i+1:eos-1),*) source_iswater
           
+                  else if (index('islake',trim(buffer(1:i-1))) /= 0) then
+                     read(buffer(i+1:eos-1),*) source_islake
+          
                   else if (index('isice',trim(buffer(1:i-1))) /= 0) then
                      read(buffer(i+1:eos-1),*) source_isice
           
@@ -929,9 +933,9 @@ module source_data_module
          go to 30
     
     40 close(funit)
-  
+
       end do
-  
+
       return
   
     1000 call mprintf(.true.,ERROR,'Could not open %s', s1=trim(test_fname))

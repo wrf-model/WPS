@@ -31,7 +31,7 @@ module process_domain_module
                  sn_mem_s, sn_mem_e, sn_mem_stag_s, sn_mem_stag_e, &
                  idiff, n_times, &
                  west_east_dim, south_north_dim, bottom_top_dim, map_proj, &
-                 is_water, is_ice, is_urban, i_soilwater, &
+                 is_water, is_lake, is_ice, is_urban, i_soilwater, &
                  grid_id, parent_id, i_parent_start, j_parent_start, &
                  i_parent_end, j_parent_end, parent_grid_ratio
       real :: cen_lat, moad_cen_lat, cen_lon, stand_lon, truelat1, truelat2, &
@@ -71,7 +71,7 @@ module process_domain_module
                     sn_patch_stag_s, sn_patch_stag_e, &
                     we_mem_s, we_mem_e, we_mem_stag_s, we_mem_stag_e, &
                     sn_mem_s, sn_mem_e, sn_mem_stag_s, sn_mem_stag_e, &
-                    mminlu, is_water, is_ice, is_urban, i_soilwater, &
+                    mminlu, is_water, is_lake, is_ice, is_urban, i_soilwater, &
                     grid_id, parent_id, &
                     i_parent_start, j_parent_start, i_parent_end, j_parent_end, &
                     parent_grid_ratio, cen_lat, moad_cen_lat, cen_lon, stand_lon, truelat1, truelat2, &
@@ -99,7 +99,7 @@ module process_domain_module
                           we_mem_s, we_mem_e, we_mem_stag_s, we_mem_stag_e, &
                           sn_mem_s, sn_mem_e, sn_mem_stag_s, sn_mem_stag_e, &
                           got_const_field, &
-                          map_proj, mminlu, is_water, is_ice, is_urban, i_soilwater, &
+                          map_proj, mminlu, is_water, is_lake, is_ice, is_urban, i_soilwater, &
                           grid_id, parent_id, i_parent_start, &
                           j_parent_start, i_parent_end, j_parent_end, dom_dx, dom_dy, &
                           cen_lat, moad_cen_lat, cen_lon, stand_lon, truelat1, truelat2, &
@@ -144,7 +144,7 @@ module process_domain_module
                              we_mem_s, we_mem_e, we_mem_stag_s, we_mem_stag_e, &
                              sn_mem_s, sn_mem_e, sn_mem_stag_s, sn_mem_stag_e, &
                              got_this_field, &
-                             map_proj, mminlu, is_water, is_ice, is_urban, i_soilwater, &
+                             map_proj, mminlu, is_water, is_lake, is_ice, is_urban, i_soilwater, &
                              grid_id, parent_id, i_parent_start, &
                              j_parent_start, i_parent_end, j_parent_end, dom_dx, dom_dy, &
                              cen_lat, moad_cen_lat, cen_lon, stand_lon, truelat1, truelat2, &
@@ -176,7 +176,8 @@ module process_domain_module
                     sn_patch_s, sn_patch_e, sn_patch_stag_s, sn_patch_stag_e,               &
                     we_mem_s, we_mem_e, we_mem_stag_s, we_mem_stag_e,                       &
                     sn_mem_s, sn_mem_e, sn_mem_stag_s, sn_mem_stag_e,                       &
-                    mminlu, is_water, is_ice, is_urban, i_soilwater, grid_id, parent_id,    &
+                    mminlu, is_water, is_lake, is_ice, is_urban, i_soilwater,               &
+                    grid_id, parent_id,                                                     &
                     i_parent_start, j_parent_start, i_parent_end, j_parent_end,             &
                     parent_grid_ratio, cen_lat, moad_cen_lat, cen_lon, stand_lon, truelat1, truelat2, &
                     pole_lat, pole_lon, dom_dx, dom_dy, landmask, xlat, xlon, xlat_u, xlon_u, &
@@ -199,7 +200,7 @@ module process_domain_module
                                 sn_patch_s, sn_patch_e, sn_patch_stag_s, sn_patch_stag_e, &
                                 we_mem_s, we_mem_e, we_mem_stag_s, we_mem_stag_e, &
                                 sn_mem_s, sn_mem_e, sn_mem_stag_s, sn_mem_stag_e, &
-                                is_water, is_ice, is_urban, i_soilwater, grid_id, parent_id, &
+                                is_water, is_lake, is_ice, is_urban, i_soilwater, grid_id, parent_id, &
                                 i_parent_start, j_parent_start, i_parent_end, j_parent_end, &
                                 parent_grid_ratio
       real, pointer, dimension(:,:) :: landmask
@@ -229,7 +230,8 @@ module process_domain_module
                              south_north_dim, bottom_top_dim,                            &
                              we_patch_s, we_patch_e, we_patch_stag_s, we_patch_stag_e,   &
                              sn_patch_s, sn_patch_e, sn_patch_stag_s, sn_patch_stag_e,   &
-                             map_proj, mminlu, is_water, is_ice, is_urban, i_soilwater,  &
+                             map_proj, mminlu,                                           &
+                             is_water, is_lake, is_ice, is_urban, i_soilwater,           &
                              grid_id, parent_id, i_parent_start,                         &
                              j_parent_start, i_parent_end, j_parent_end, dom_dx, dom_dy, &
                              cen_lat, moad_cen_lat, cen_lon, stand_lon, truelat1,        &
@@ -524,7 +526,7 @@ module process_domain_module
                              we_mem_s, we_mem_e, we_mem_stag_s, we_mem_stag_e, &
                              sn_mem_s, sn_mem_e, sn_mem_stag_s, sn_mem_stag_e, &
                              got_this_field, &
-                             map_proj, mminlu, is_water, is_ice, is_urban, i_soilwater, &
+                             map_proj, mminlu, is_water, is_lake, is_ice, is_urban, i_soilwater, &
                              grid_id, parent_id, i_parent_start, &
                              j_parent_start, i_parent_end, j_parent_end, dom_dx, dom_dy, &
                              cen_lat, moad_cen_lat, cen_lon, stand_lon, truelat1, truelat2, &
@@ -553,7 +555,7 @@ module process_domain_module
                  sn_patch_s, sn_patch_e, sn_patch_stag_s, sn_patch_stag_e, &
                  we_mem_s, we_mem_e, we_mem_stag_s, we_mem_stag_e, &
                  sn_mem_s, sn_mem_e, sn_mem_stag_s, sn_mem_stag_e, &
-                 is_water, is_ice, is_urban, i_soilwater, &
+                 is_water, is_lake, is_ice, is_urban, i_soilwater, &
                  grid_id, parent_id, i_parent_start, j_parent_start, &
                  i_parent_end, j_parent_end, parent_grid_ratio
 ! BUG: Should we be passing these around as pointers, or just declare them as arrays?
@@ -1107,7 +1109,8 @@ integer, parameter :: BDR_WIDTH = 3
                               south_north_dim, bottom_top_dim,                               &
                               we_patch_s, we_patch_e, we_patch_stag_s, we_patch_stag_e,      &
                               sn_patch_s, sn_patch_e, sn_patch_stag_s, sn_patch_stag_e,      &
-                              map_proj, mminlu, is_water, is_ice, is_urban, i_soilwater,     &
+                              map_proj, mminlu,                                              &
+                              is_water, is_lake, is_ice, is_urban, i_soilwater,              &
                               grid_id, parent_id, i_parent_start,                            &
                               j_parent_start, i_parent_end, j_parent_end, dom_dx, dom_dy,    &
                               cen_lat, moad_cen_lat, cen_lon, stand_lon, truelat1, truelat2, &

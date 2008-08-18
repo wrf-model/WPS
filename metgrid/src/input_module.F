@@ -335,7 +335,7 @@ module input_module
                                 west_east_dim, south_north_dim, bottom_top_dim,                       &
                                 we_patch_s, we_patch_e, we_patch_s_stag, we_patch_e_stag,             &
                                 sn_patch_s, sn_patch_e, sn_patch_s_stag, sn_patch_e_stag,             &
-                                map_proj, mminlu, is_water, is_ice, is_urban, isoilwater,             &
+                                map_proj, mminlu, is_water, is_lake, is_ice, is_urban, isoilwater,    &
                                 grid_id, parent_id, i_parent_start, j_parent_start,                   &
                                 i_parent_end, j_parent_end, dx, dy, cen_lat, moad_cen_lat, cen_lon,   &
                                 stand_lon, truelat1, truelat2, pole_lat, pole_lon, parent_grid_ratio, &
@@ -345,7 +345,7 @@ module input_module
   
       ! Arguments
       integer, intent(out) :: dyn_opt, west_east_dim, south_north_dim, bottom_top_dim, map_proj,   &
-                 is_water, we_patch_s, we_patch_e, we_patch_s_stag, we_patch_e_stag,               &
+                 is_water, is_lake, we_patch_s, we_patch_e, we_patch_s_stag, we_patch_e_stag,      &
                  sn_patch_s, sn_patch_e, sn_patch_s_stag, sn_patch_e_stag,                         &
                  is_ice, is_urban, isoilwater, grid_id, parent_id, i_parent_start, j_parent_start, &
                  i_parent_end, j_parent_end, parent_grid_ratio
@@ -418,6 +418,7 @@ module input_module
          call ext_get_dom_ti_integer_scalar('MAP_PROJ', map_proj)
          call ext_get_dom_ti_char          ('MMINLU', mminlu)
          call ext_get_dom_ti_integer_scalar('ISWATER', is_water)
+         call ext_get_dom_ti_integer_scalar('ISLAKE', is_lake)
          call ext_get_dom_ti_integer_scalar('ISICE', is_ice)
          call ext_get_dom_ti_integer_scalar('ISURBAN', is_urban)
          call ext_get_dom_ti_integer_scalar('ISOILWATER', isoilwater)
@@ -489,6 +490,7 @@ module input_module
          call parallel_bcast_int(map_proj)
          call parallel_bcast_char(mminlu, len(mminlu))
          call parallel_bcast_int(is_water)
+         call parallel_bcast_int(is_lake)
          call parallel_bcast_int(is_ice)
          call parallel_bcast_int(is_urban)
          call parallel_bcast_int(isoilwater)
