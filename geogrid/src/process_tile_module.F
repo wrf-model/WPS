@@ -252,7 +252,7 @@ module process_tile_module
       end if
 
       ! Initialize the output module now that we have the corner point lats/lons
-      call output_init(which_domain, 'OUTPUT FROM GRIDGEN', '0000-00-00_00:00:00', grid_type, dynopt, &
+      call output_init(which_domain, 'OUTPUT FROM GEOGRID V3.0.1', '0000-00-00_00:00:00', grid_type, dynopt, &
                        corner_lats, corner_lons, &
                        start_dom_i,   end_dom_i,   start_dom_j,   end_dom_j, &
                        start_patch_i, end_patch_i, start_patch_j, end_patch_j, &
@@ -659,7 +659,7 @@ module process_tile_module
       do while (ifieldstatus == 0) 
          call get_next_fieldname(fieldname, ifieldstatus)
      
-         ! There is another field in the GRIDGEN.TBL file 
+         ! There is another field in the GEOGRID.TBL file 
          if (ifieldstatus == 0) then
             temp_string(1:128) = fieldname
       

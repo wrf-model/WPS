@@ -356,6 +356,7 @@ module input_module
   
       ! Local variables
       integer :: istatus, i
+      real :: wps_version
       character (len=128) :: cunits, cdesc, cstagger
       type (q_data) :: qd
   
@@ -389,6 +390,12 @@ module input_module
 #endif
      
          call ext_get_dom_ti_char          ('TITLE', title)
+         if (index(title,'GEOGRID V3.0.1') /= 0) then
+            wps_version = 3.01
+         else
+            wps_version = 3.0
+         end if
+         call mprintf(.true.,DEBUG,'Reading static data from WPS version %f', f1=wps_version)
          call ext_get_dom_ti_char          ('SIMULATION_START_DATE', start_date)
          call ext_get_dom_ti_integer_scalar('WEST-EAST_GRID_DIMENSION', west_east_dim)
          call ext_get_dom_ti_integer_scalar('SOUTH-NORTH_GRID_DIMENSION', south_north_dim)
@@ -418,7 +425,11 @@ module input_module
          call ext_get_dom_ti_integer_scalar('MAP_PROJ', map_proj)
          call ext_get_dom_ti_char          ('MMINLU', mminlu)
          call ext_get_dom_ti_integer_scalar('ISWATER', is_water)
-         call ext_get_dom_ti_integer_scalar('ISLAKE', is_lake)
+         if ( wps_version >= 3.01 ) then
+            call ext_get_dom_ti_integer_scalar('ISLAKE', is_lake)
+         else
+            is_lake = -1
+         end if
          call ext_get_dom_ti_integer_scalar('ISICE', is_ice)
          call ext_get_dom_ti_integer_scalar('ISURBAN', is_urban)
          call ext_get_dom_ti_integer_scalar('ISOILWATER', isoilwater)
