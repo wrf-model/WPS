@@ -62,7 +62,7 @@ PROGRAM rd_intermediate
             CASE (PROJ_GAUSS)
                CALL mprintf(.true.,STDOUT,'  REF_X, REF_Y = %f, %f', f1=fg_data%starti, f2=fg_data%startj)
                CALL mprintf(.true.,STDOUT,'  REF_LAT, REF_LON = %f, %f', f1=fg_data%startlat, f2=fg_data%startlon)
-               CALL mprintf(.true.,STDOUT,'  NLATS, DLON = %f, %f', f1=fg_data%dy, f2=fg_data%deltalon)
+               CALL mprintf(.true.,STDOUT,'  NLATS, DLON = %f, %f', f1=fg_data%deltalat, f2=fg_data%deltalon)
             CASE (PROJ_PS)
                CALL mprintf(.true.,STDOUT,'  REF_X, REF_Y = %f, %f', f1=fg_data%starti, f2=fg_data%startj)
                CALL mprintf(.true.,STDOUT,'  REF_LAT, REF_LON = %f, %f', f1=fg_data%startlat, f2=fg_data%startlon)
