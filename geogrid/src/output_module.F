@@ -81,8 +81,9 @@ module output_module
       integer :: i, istatus, save_domain, comm_1, comm_2
       integer :: sp1, ep1, sp2, ep2, ep1_stag, ep2_stag
       integer :: ngeo_flags
+      integer :: num_land_cat, min_land_cat, max_land_cat
       real :: dx, dy, cen_lat, cen_lon, moad_cen_lat
-      character (len=128) :: coption
+      character (len=128) :: coption, temp_fldname
       character (len=128), dimension(1) :: geo_flags
       character (len=MAX_FILENAME_LEN) :: output_fname
       logical :: supports_training, supports_3d_fields
@@ -377,12 +378,17 @@ module output_module
 
          ngeo_flags = 0
       end if
+
+      write(temp_fldname,'(a)') 'LANDUSEF'
+      call get_max_categories(temp_fldname, min_land_cat, max_land_cat, istatus)
+      num_land_cat = max_land_cat - min_land_cat + 1
   
       ! We may now write global attributes to the file
       call write_global_attrs(title, datestr, grid_type, dynopt, ixdim(nest_number), jydim(nest_number), &
                               0, sp1, ep1, sp1, ep1_stag, sp2, ep2, sp2, ep2_stag,                       &
-                              iproj_type, source_mminlu, source_iswater, source_islake, source_isice,    &
-                              source_isurban, source_isoilwater, nest_number, parent_id(nest_number),    &
+                              iproj_type, source_mminlu, num_land_cat, source_iswater, source_islake,    &
+                              source_isice, source_isurban, source_isoilwater, nest_number,              &
+                              parent_id(nest_number),                                                    &
                               nint(parent_ll_x(nest_number)), nint(parent_ll_y(nest_number)),            &
                               nint(parent_ur_x(nest_number)), nint(parent_ur_y(nest_number)),            &
                               dx, dy, cen_lat, moad_cen_lat,                                             &
@@ -1029,9 +1035,10 @@ module output_module
                                 west_east_dim, south_north_dim, bottom_top_dim,                     &
                                 we_patch_s, we_patch_e, we_patch_s_stag, we_patch_e_stag,           &
                                 sn_patch_s, sn_patch_e, sn_patch_s_stag, sn_patch_e_stag,           &
-                                map_proj, cmminlu, is_water, is_lake, is_ice, is_urban,             &
-                                i_soilwater, grid_id, parent_id, i_parent_start, j_parent_start,    &
-                                i_parent_end, j_parent_end, dx, dy, cen_lat, moad_cen_lat, cen_lon, &
+                                map_proj, cmminlu, num_land_cat, is_water, is_lake, is_ice,         &
+                                is_urban, i_soilwater, grid_id, parent_id,                          &
+                                i_parent_start, j_parent_start, i_parent_end, j_parent_end,         &
+                                dx, dy, cen_lat, moad_cen_lat, cen_lon,                             &
                                 stand_lon, truelat1, truelat2, pole_lat, pole_lon,                  &
                                 parent_grid_ratio, corner_lats, corner_lons,                        &
                                 flags, nflags)
@@ -1044,7 +1051,7 @@ module output_module
                  sn_patch_s, sn_patch_e, sn_patch_s_stag, sn_patch_e_stag,            &
                  map_proj, is_water, is_lake, is_ice, is_urban, i_soilwater,          &
                  grid_id, parent_id, i_parent_start, j_parent_start,                  &
-                 i_parent_end, j_parent_end, parent_grid_ratio
+                 i_parent_end, j_parent_end, parent_grid_ratio, num_land_cat
       integer, intent(in), optional :: nflags
       real, intent(in) :: dx, dy, cen_lat, moad_cen_lat, cen_lon, stand_lon, truelat1, truelat2, &
                  pole_lat, pole_lon
@@ -1152,6 +1159,7 @@ module output_module
          call ext_put_dom_ti_real_vector   ('corner_lons', local_corner_lons, 16) 
          call ext_put_dom_ti_integer_scalar('MAP_PROJ', map_proj)
          call ext_put_dom_ti_char          ('MMINLU', trim(cmminlu))
+         call ext_put_dom_ti_integer_scalar('NUM_LAND_CAT', num_land_cat)
          call ext_put_dom_ti_integer_scalar('ISWATER', is_water)
          call ext_put_dom_ti_integer_scalar('ISLAKE', is_lake)
          call ext_put_dom_ti_integer_scalar('ISICE', is_ice)

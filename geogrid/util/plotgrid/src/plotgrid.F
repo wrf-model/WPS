@@ -9,7 +9,7 @@ program plotgrid
    integer :: n, i, j, nx, ny
    integer :: istatus, start_mem_i, end_mem_i, start_mem_j, end_mem_j, &
               start_mem_k, end_mem_k, dyn_opt, &
-              west_east_dim, south_north_dim, bottom_top_dim, map_proj, is_water, &
+              west_east_dim, south_north_dim, bottom_top_dim, map_proj, is_water, num_land_cat, &
               is_ice, is_urban, isoilwater, grid_id, parent_id, i_parent_start, j_parent_start, &
               i_parent_end, j_parent_end, parent_grid_ratio, &
               we_patch_s, we_patch_e, we_patch_s_stag, we_patch_e_stag, &
@@ -116,7 +116,7 @@ program plotgrid
                              west_east_dim, south_north_dim, bottom_top_dim, &
                              we_patch_s, we_patch_e, we_patch_s_stag, we_patch_e_stag, &
                              sn_patch_s, sn_patch_e, sn_patch_s_stag, sn_patch_e_stag, &
-                             map_proj, mminlu, is_water, &
+                             map_proj, mminlu, num_land_cat, is_water, &
                              is_ice, is_urban, isoilwater, grid_id, parent_id, i_parent_start, j_parent_start, &
                              i_parent_end, j_parent_end, dx, dy, cen_lat, moad_cen_lat, cen_lon, &
                              stand_lon, truelat1, truelat2, pole_lat, pole_lon, parent_grid_ratio, &
@@ -224,7 +224,7 @@ program plotgrid
                              west_east_dim, south_north_dim, bottom_top_dim, &
                              we_patch_s, we_patch_e, we_patch_s_stag, we_patch_e_stag, &
                              sn_patch_s, sn_patch_e, sn_patch_s_stag, sn_patch_e_stag, &
-                             map_proj, mminlu, is_water, &
+                             map_proj, mminlu, num_land_cat, is_water, &
                              is_ice, is_urban, isoilwater, grid_id, parent_id, i_parent_start, j_parent_start, &
                              i_parent_end, j_parent_end, dx, dy, cen_lat, moad_cen_lat, cen_lon, &
                              stand_lon, truelat1, truelat2, pole_lat, pole_lon, parent_grid_ratio, &

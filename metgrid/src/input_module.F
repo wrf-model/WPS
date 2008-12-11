@@ -335,8 +335,8 @@ module input_module
                                 west_east_dim, south_north_dim, bottom_top_dim,                       &
                                 we_patch_s, we_patch_e, we_patch_s_stag, we_patch_e_stag,             &
                                 sn_patch_s, sn_patch_e, sn_patch_s_stag, sn_patch_e_stag,             &
-                                map_proj, mminlu, is_water, is_lake, is_ice, is_urban, isoilwater,    &
-                                grid_id, parent_id, i_parent_start, j_parent_start,                   &
+                                map_proj, mminlu, num_land_cat, is_water, is_lake, is_ice, is_urban,  &
+                                isoilwater, grid_id, parent_id, i_parent_start, j_parent_start,       &
                                 i_parent_end, j_parent_end, dx, dy, cen_lat, moad_cen_lat, cen_lon,   &
                                 stand_lon, truelat1, truelat2, pole_lat, pole_lon, parent_grid_ratio, &
                                 corner_lats, corner_lons)
@@ -348,7 +348,7 @@ module input_module
                  is_water, is_lake, we_patch_s, we_patch_e, we_patch_s_stag, we_patch_e_stag,      &
                  sn_patch_s, sn_patch_e, sn_patch_s_stag, sn_patch_e_stag,                         &
                  is_ice, is_urban, isoilwater, grid_id, parent_id, i_parent_start, j_parent_start, &
-                 i_parent_end, j_parent_end, parent_grid_ratio
+                 i_parent_end, j_parent_end, parent_grid_ratio, num_land_cat
       real, intent(out) :: dx, dy, cen_lat, moad_cen_lat, cen_lon, stand_lon, truelat1, truelat2,  &
                  pole_lat, pole_lon
       real, dimension(16), intent(out) :: corner_lats, corner_lons
@@ -424,6 +424,11 @@ module input_module
          call ext_get_dom_ti_real_vector   ('corner_lons', corner_lons, 16)
          call ext_get_dom_ti_integer_scalar('MAP_PROJ', map_proj)
          call ext_get_dom_ti_char          ('MMINLU', mminlu)
+         if ( wps_version >= 3.01 ) then
+            call ext_get_dom_ti_integer_scalar('NUM_LAND_CAT', num_land_cat)
+         else
+            num_land_cat = 24
+         end if
          call ext_get_dom_ti_integer_scalar('ISWATER', is_water)
          if ( wps_version >= 3.01 ) then
             call ext_get_dom_ti_integer_scalar('ISLAKE', is_lake)
