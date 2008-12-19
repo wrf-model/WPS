@@ -144,6 +144,8 @@ MODULE map_utils
                                    !  north of the equator 
       INTEGER          :: nlon     !
                                    !
+      INTEGER          :: nxmin    ! Starting x-coordinate of periodic, regular lat/lon dataset
+      INTEGER          :: nxmax    ! Ending x-coordinate of periodic, regular lat/lon dataset
       INTEGER          :: ixdim    ! For Rotated Lat/Lon -- number of mass points
                                    !  in an odd row
       INTEGER          :: jydim    ! For Rotated Lat/Lon -- number of rows
@@ -217,6 +219,8 @@ MODULE map_utils
       proj%stagger  = HH
       proj%nlat     = 0
       proj%nlon     = 0
+      proj%nxmin    = 1
+      proj%nxmax    = 43200
       proj%hemi     = 0.0
       proj%cone     = -999.9
       proj%polei    = -999.9
@@ -237,7 +241,7 @@ MODULE map_utils
 
 
    SUBROUTINE map_set(proj_code, proj, lat1, lon1, lat0, lon0, knowni, knownj, dx, dy, latinc, &
-                      loninc, stdlon, truelat1, truelat2, nlat, nlon, ixdim, jydim, &
+                      loninc, stdlon, truelat1, truelat2, nlat, nlon, ixdim, jydim, nxmin, nxmax, &
                       stagger, phi, lambda, r_earth)
       ! Given a partially filled proj_info structure, this routine computes
       ! polei, polej, rsw, and cone (if LC projection) to complete the 
@@ -257,6 +261,8 @@ MODULE map_utils
       INTEGER, INTENT(IN), OPTIONAL     :: nlon
       INTEGER, INTENT(IN), OPTIONAL     :: ixdim
       INTEGER, INTENT(IN), OPTIONAL     :: jydim
+      INTEGER, INTENT(IN), OPTIONAL     :: nxmin
+      INTEGER, INTENT(IN), OPTIONAL     :: nxmax
       INTEGER, INTENT(IN), OPTIONAL     :: stagger
       REAL, INTENT(IN), OPTIONAL        :: latinc
       REAL, INTENT(IN), OPTIONAL        :: loninc
@@ -486,6 +492,8 @@ MODULE map_utils
       IF ( PRESENT(loninc) )   proj%loninc   = loninc
       IF ( PRESENT(knowni) )   proj%knowni   = knowni
       IF ( PRESENT(knownj) )   proj%knownj   = knownj
+      IF ( PRESENT(nxmin) )    proj%nxmin    = nxmin
+      IF ( PRESENT(nxmax) )    proj%nxmax    = nxmax
       IF ( PRESENT(dx) )       proj%dx       = dx
       IF ( PRESENT(dy) ) THEN
                                proj%dy       = dy
@@ -1378,6 +1386,9 @@ MODULE map_utils
 
       i = i + proj%knowni
       j = j + proj%knownj
+
+      if ( i <  real(proj%nxmin)-0.5 ) i = i + real(proj%nxmax - proj%nxmin + 1)
+      if ( i >= real(proj%nxmax)+0.5 ) i = i - real(proj%nxmax - proj%nxmin + 1)
   
       RETURN
 
@@ -1397,9 +1408,13 @@ MODULE map_utils
       REAL                         :: i_work, j_work
       REAL                         :: deltalat
       REAL                         :: deltalon
+
+      i_work = i
+      if ( i <  real(proj%nxmin)-0.5 ) i_work = i + real(proj%nxmax - proj%nxmin + 1)
+      if ( i >= real(proj%nxmax)+0.5 ) i_work = i - real(proj%nxmax - proj%nxmin + 1)
   
-      i_work = i - proj%knowni
-      j_work = j - proj%knownj
+      i_work = i_work - proj%knowni
+      j_work = j      - proj%knownj
 
       ! Compute deltalat and deltalon 
       deltalat = j_work*proj%latinc
@@ -1451,11 +1466,11 @@ MODULE map_utils
       i = deltalon/proj%loninc
       j = deltalat/proj%latinc
 
-      if (i <= 0.)              i = i + 360./proj%loninc
-      if (i > 360./proj%loninc) i = i - 360./proj%loninc
-
       i = i + proj%knowni
       j = j + proj%knownj
+
+      if (i <= 0.)              i = i + 360./proj%loninc
+      if (i > 360./proj%loninc) i = i - 360./proj%loninc
 
    END SUBROUTINE llij_cyl
 

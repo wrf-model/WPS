@@ -62,6 +62,7 @@ module llxy_module
                       lon1=user_known_lon, &
                       knowni=user_known_x, &
                       knownj=user_known_y, &
+                      nxmax=nint(360.0 / user_dlon), &
                       latinc=user_dlat, &
                       loninc=user_dlon, &
                       r_earth=earth_radius)
