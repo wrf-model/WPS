@@ -1290,7 +1290,8 @@ subroutine gribheader(debug_level,ierr)
   if ( (sec1(8) == 101) .or. (sec1(8) == 104) .or. (sec1(8) == 106) .or. &
        (sec1(8) == 108) .or. (sec1(8) == 110) .or. (sec1(8) == 112) .or. &
        (sec1(8) == 114) .or. (sec1(8) == 116) .or. (sec1(8) == 120) .or. &
-       (sec1(8) == 121) .or. (sec1(8) == 128) .or. (sec1(8) == 141) ) then
+       (sec1(8) == 121) .or. (sec1(8) == 128) .or. (sec1(8) == 141) .or. &
+       (sec1(8) == 236) ) then
      ! No action here.
   else
      call gbyte_g1(grec, sec1(9), i9skip, 16)

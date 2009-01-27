@@ -95,7 +95,7 @@ program plotfmt
 
 end program plotfmt
 
-subroutine plt2d(scr2d, ix, jx, llflag, &
+subroutine plt2d(tcr2d, iz, jz, llflag, &
      lat1, lon1, dx, dy, lov, truelat1, truelat2, &
      field, ilev, units, ifv, Desc, source, flnm)
 
@@ -104,8 +104,8 @@ subroutine plt2d(scr2d, ix, jx, llflag, &
   implicit none
 
   integer :: llflag
-  integer :: ix, jx, ifv
-  real, dimension(ix,jx) :: scr2d(ix,jx)
+  integer :: iz, jz, ifv
+  real, dimension(iz,jz) :: tcr2d(iz,jz)
   real :: lat1, lon1, lov, truelat1, truelat2
   real :: dx, dy
   character(len=*) :: field
@@ -119,7 +119,7 @@ subroutine plt2d(scr2d, ix, jx, llflag, &
   integer :: iproj, ierr
   real :: pl1, pl2, pl3, pl4, plon, plat, rota, phic
   real :: xl, xr, xb, xt, wl, wr, wb, wt, yb
-  integer :: ml, ih, i
+  integer :: ml, ih, i, j
 
   integer, parameter :: lwrk = 20000, liwk = 50000
   real, dimension(lwrk) :: rwrk
@@ -128,10 +128,38 @@ subroutine plt2d(scr2d, ix, jx, llflag, &
   integer :: ilev
   character(len=8) :: hlev
 
+  integer :: ioff, joff, i1, j1, ix, jx
+  real, allocatable,dimension(:,:)  :: scr2d
+  
+! This version allows the plotting of subsets of a lat/lon grid (i.e. NCEP GFS).
+! ix,jx are the dimensions of the subset. ioff,joff are the offsets from 1,1
+
+  ix = iz
+  jx = jz
+  ioff = 0
+  joff = 0
+
+! ioff = 250     ! e.g. east of the Philippines from 0.5 degree GFS
+! joff = 140
+! ix = 20
+! jx = 20
+
+! compute upper left point for the map   (works for NCEP GFS and godas)
+  pl1 = lat1 + (joff*dy)  
+  pl2 = lon1 + (ioff*dx)
+
+  allocate (scr2d(ix,jx))
+
+  do i = 1, ix
+  do j = 1, jx
+    i1 = i + ioff
+    j1 = j + joff
+    scr2d(i,j) = tcr2d(i1,j1)
+  enddo
+  enddo
+
   select case (llflag)
   case (PROJ_LATLON)
-     pl1 = lat1
-     pl2 = lon1
      call fmtxyll(float(ix), float(jx), pl3, pl4, 'CE', pl1, pl2, &
           plon, truelat1, truelat2, dx, dy)
      plon = (pl2 + pl4) / 2.
@@ -237,19 +265,17 @@ subroutine plt2d(scr2d, ix, jx, llflag, &
   call CPSETI ('SET - Do-SET-Call Flag', 0)
   call CPSETR ('SPV - Special Value', -1.E30)
 
+  call cpseti('LLP', 3)
+
   if (dy.lt.0.) then
      call array_flip(scr2d, ix, jx)
   endif
 
-  call cpseti('LLP', 3)
   call cprect(scr2d,ix,ix,jx,rwrk,lwrk,iwrk,liwk)
   call cpcldr(scr2d,rwrk,iwrk)
   call cplbdr(scr2d,rwrk,iwrk)
 
-  if (dy.lt.0.) then
-     call array_flip(scr2d, ix, jx)
-  endif
-
+  deallocate (scr2d)
   call frame
 
 end subroutine plt2d

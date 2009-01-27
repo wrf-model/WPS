@@ -162,6 +162,8 @@ SUBROUTINE rd_grib1(IUNIT, gribflnm, level, field, hdate,  &
       map%source = 'NCEP SST Analysis'
     elseif (iprocess.eq.70) then
       map%source = 'GFDL Hurricane Model'
+    elseif (iprocess.eq.129) then
+      map%source = 'NCEP GODAS'
     else
       map%source = 'unknown model from NCEP'
     end if
@@ -274,6 +276,10 @@ SUBROUTINE rd_grib1(IUNIT, gribflnm, level, field, hdate,  &
                  elseif (ktype.eq. 7 ) then    ! trop
                     level = 7.
 !       print *,'LEVEL=',level
+                 elseif (ktype .eq. 160 ) then    ! depth below sea-surface (m)
+                    level = 201500.
+                 elseif (ktype .eq. 237 .or. ktype .eq. 238 ) then  ! depth of ocean layer
+                    level = 201600.
                  endif
               endif
            endif
