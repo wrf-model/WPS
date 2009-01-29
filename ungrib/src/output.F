@@ -3,13 +3,15 @@ subroutine output(hdate, nlvl, maxlvl, plvl, interval, iflag, out_format, prefix
 !*****************************************************************************!
 !  Write output to a file.
 !                                                                             !
-!    hdate:
-!    nlvl:  
-!    maxlvl:
-!    plvl:
-!    interval:
-!    iflag:  1 = output for ingest into rrpr ; 2 = output for hinterp
-!    out_format: requested output format (WPS, SI, or MM5)
+!    hdate       :  date string
+!    nlvl        :  number of pressure levels
+!    maxlvl      :  dimension of the pressure level array (plvl)
+!    plvl        :  pressure level array
+!    interval    :  period between processing times (seconds)
+!    iflag       :  1 = output for ingest into rrpr ; 2 = final intermediate-format output
+!    out_format  :  requested output format (WPS, SI, or MM5)
+!    prefix      :  file name prefix
+!    debug_level :  debug output parameter
 !                                                                             !
 !*****************************************************************************!
 
@@ -227,6 +229,12 @@ subroutine output(hdate, nlvl, maxlvl, plvl, interval, iflag, out_format, prefix
 !MGD              if ( debug_level .gt. 100 ) then
 !MGD	         write(6,*) 'writing in MM5 format'
 !MGD              end if
+              if (iflag .eq. 2) then  ! make sure the field names are MM5-compatible
+                if ( field .eq. 'TT' ) field = 'T'
+                if ( field .eq. 'UU' ) field = 'U'
+                if ( field .eq. 'VV' ) field = 'V'
+                if ( field .eq. 'SNOW' ) field = 'WEASD'
+              endif
               write(iunit) 3
               hdate_output = hdate
               write (iunit) hdate_output, xfcst, field, units, Desc, level,&
