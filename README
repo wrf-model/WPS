@@ -89,6 +89,35 @@ The configure option lists both "build Grib2" and
 the first builds be without the Grib Edition 2
 capability.
 
+Running WPS (for serially compiled code)
+
+geogrid.exe
+-----------
+- edit namelist.wps (&share and &geogrid sections)
+- make sure the correct GEOGRID.TBL is used (ls -l geogrid/GEOGRID.TBL*)
+- type 'geogrid.exe' to run
+- check output in geogrid.log
+
+ungrib.exe
+----------
+- edit namelist.wps for start_date and end_date, output file prefix (&share and &ungrib sections)
+- link correct Vtable:
+  ls -l ungrib/Variable_Tables
+  For NCEP GFS (or AVN, FNL) data,
+  ln -sf ungrib/Variable_Tables/Vtable.GFS Vtable
+- link grib data files:
+  link_grib.csh /data-directory/file*
+- type 'ungrib.exe >& ungrib.out' to run
+- check output in ungrib.log and ungrib.out
+
+metgrid.exe
+-----------
+- edit namelist.wps (&share and &metgrid sections)
+- make sure the correct METGRID.TBL is used (ls -l metgrid/METGRID.TBL*)
+- type 'metgrid.exe' to run
+- check output in metgrid.log
+
+
 There are a number of utility programs that will be
 built in WPS/util/ directory:
 
