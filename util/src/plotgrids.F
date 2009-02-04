@@ -311,7 +311,14 @@ program plotgrids
 
    call frame
 
+   write(6,*) ' '
+   write(6,*) 'Creating plot in NCAR Graphics metafile...'
+   write(6,*) ' '
+
    call clsgks
+
+   write(6,*) ' *** Successful completion of program plotgrids.exe *** '
+
 
    stop
 

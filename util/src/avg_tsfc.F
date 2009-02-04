@@ -116,6 +116,8 @@ program avg_tsfc
 
    end do 
 
+   call mprintf(.true.,STDOUT,' *** Successful completion of program avg_tsfc.exe *** ')
+
    stop
 
 end program avg_tsfc
