@@ -242,6 +242,8 @@ C  SET ARGUMENTS
                map%source = 'GFDL Hurricane Model'
              elseif (iprocess.eq.80) then
                map%source = 'NCEP GFS Ensemble'
+             elseif (iprocess.eq.129) then
+               map%source = 'NCEP GODAS'
              else
                map%source = 'unknown model from NCEP'
                call mprintf(.true.,STDOUT,
@@ -257,6 +259,14 @@ C  SET ARGUMENTS
              else
                map%source = 'AFWA'
              endif
+           else if (icenter .eq. 59) then
+             if (iprocess.eq.120) then
+               map%source = 'NOAA GSD Rapid Refresh'
+             else
+               map%source = 'NOAA GSD'
+             endif
+           else if (icenter .eq. 60) then
+             map%source = 'NCAR'
            else if (icenter .eq. 98) then
              map%source = 'ECMWF'
            else if (icenter .eq. 34) then

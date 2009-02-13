@@ -282,6 +282,10 @@ end subroutine parse_args
        field = table131(param)
      else if ( centerid .eq. 57 ) then
        field = afwa(param)
+     else if ( centerid .eq. 59 .and. ptv .eq. 2 ) then    ! GSD
+       field = table2(param)
+     else if ( centerid .eq. 59 .and. ptv .eq. 129 ) then
+       field = table129(param)
      else if ( centerid .eq. 98 .and. ptv .eq. 128 ) then
        field = ecmwf(param)
      else

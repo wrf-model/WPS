@@ -178,6 +178,14 @@ SUBROUTINE rd_grib1(IUNIT, gribflnm, level, field, hdate,  &
     endif
     write(tmp8,'("GRID ",i3)') KSEC1(5)
     map%source(25:32) = tmp8
+  else if (icenter .eq. 59) then
+      if (iprocess .eq. 120) then
+        map%source = 'NOAA GSD Rapid Refresh'
+      else
+        map%source = 'NOAA GSD'
+      endif
+  else if (icenter .eq. 60) then
+        map%source = 'NCAR'
   else if (icenter .eq. 98) then
       map%source = 'ECMWF'
   else
@@ -268,14 +276,12 @@ SUBROUTINE rd_grib1(IUNIT, gribflnm, level, field, hdate,  &
                       (ktype.eq.111).or.(ktype.eq.112) ) then
                     ! level=200100.
                     level = float(200000+iprty(i))
-!-- tanya's change for non-isobaric levels
-                 elseif (ktype.eq.109) then
+                 elseif (ktype.eq.109 .or. ktype.eq.107) then   ! hybrid or sigma levels
                     level = lvl1
                  elseif (ktype.eq. 6 ) then    ! max wind
                     level = 6.
                  elseif (ktype.eq. 7 ) then    ! trop
                     level = 7.
-!       print *,'LEVEL=',level
                  elseif (ktype .eq. 160 ) then    ! depth below sea-surface (m)
                     level = 201500.
                  elseif (ktype .eq. 237 .or. ktype .eq. 238 ) then  ! depth of ocean layer
