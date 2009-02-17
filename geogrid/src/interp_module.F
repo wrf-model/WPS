@@ -634,7 +634,8 @@ module interp_module
       !   allow for a sixteen point average.
       if (ifx < start_x+1 .or. ifx > end_x-2 .or. &
           ify < start_y+1 .or. ify > end_y-2) then
-         sixteen_pt_average = msgval
+         sixteen_pt_average = interp_sequence(xx, yy, izz, array, start_x, end_x, start_y, end_y, &
+                             start_z, end_z, msgval, interp_list, idx, maskval, mask_array)
          return
       end if
   
@@ -719,7 +720,8 @@ module interp_module
       !   allow for a sixteen point average.
       if (ifx < start_x+1 .or. ifx > end_x-2 .or. &
           ify < start_y+1 .or. ify > end_y-2) then
-         wt_sixteen_pt_average = msgval
+         wt_sixteen_pt_average = interp_sequence(xx, yy, izz, array, start_x, end_x, start_y, end_y, &
+                             start_z, end_z, msgval, interp_list, idx, maskval, mask_array)
          return
       end if
   
