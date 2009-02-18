@@ -100,7 +100,7 @@ module proc_point_module
    subroutine accum_categorical(xlat, xlon, istagger, array, &
                                 start_i, end_i, start_j, end_j, &
                                 start_k, end_k, fieldname, processed_pts, &
-                                new_pts, ilevel, msgval, maskval)
+                                new_pts, ilevel, msgval, maskval, sr_x, sr_y)
 
       use llxy_module
       use bitarray_module
@@ -114,6 +114,7 @@ module proc_point_module
       real, dimension(start_i:end_i, start_j:end_j, start_k:end_k), intent(inout) :: array
       character (len=128), intent(in) :: fieldname
       type (bitarray), intent(inout) :: processed_pts, new_pts
+      integer, intent(in), optional :: sr_x, sr_y
   
       ! Local variables
       integer :: istatus, i, j
@@ -121,6 +122,7 @@ module proc_point_module
       integer, pointer, dimension(:,:,:) :: where_maps_to
       real :: rlat, rlon
       real :: rarea
+      real :: rsr_x, rsr_y
 
       rlat = xlat
       if (xlon >= 180.) then
@@ -128,6 +130,11 @@ module proc_point_module
       else
          rlon = xlon
       end if
+
+      rsr_x = 1.0
+      rsr_y = 1.0
+      if (present(sr_x)) rsr_x = real(sr_x)
+      if (present(sr_y)) rsr_y = real(sr_y)
 
       ! Assume source data is on unstaggered grid; specify M for istagger argument
       call get_data_tile(rlat, rlon, ilevel, fieldname, &
@@ -153,7 +160,7 @@ module proc_point_module
                               src_min_x+src_npts_bdr, src_min_y+src_npts_bdr, src_min_z, &
                               src_max_x-src_npts_bdr, src_max_y-src_npts_bdr, src_max_z, &
                               array, start_i, end_i, start_j, end_j, start_k, end_k, &
-                              processed_pts, new_pts, ilevel, msgval, maskval)
+                              processed_pts, new_pts, ilevel, rsr_x, rsr_y, msgval, maskval)
 
       ! If a grid cell has less than half of its area covered by data from this source,
       !   then clear the cell and let another source fill in the cell
@@ -211,7 +218,8 @@ module proc_point_module
    recursive subroutine process_categorical_block(tile_array, istagger, where_maps_to, &
                                    min_i, min_j, min_k, max_i, max_j, max_k, dst_array, &
                                    start_x, end_x, start_y, end_y, start_z, end_z, &
-                                   processed_pts, new_pts, ilevel, msgval, maskval, mask_array)
+                                   processed_pts, new_pts, ilevel, sr_x, sr_y, &
+                                   msgval, maskval, mask_array)
  
       use llxy_module
   
@@ -221,10 +229,10 @@ module proc_point_module
       integer, intent(in) :: min_i, min_j, min_k, max_i, max_j, max_k, istagger, &
                              start_x, end_x, start_y, end_y, start_z, end_z, ilevel
       integer, dimension(src_min_x:src_max_x,src_min_y:src_max_y,2), intent(inout) :: where_maps_to
-      real, intent(in) :: msgval, maskval
+      real, intent(in) :: sr_x, sr_y, msgval, maskval
       real, dimension(src_min_x:src_max_x,src_min_y:src_max_y,src_min_z:src_max_z), intent(in) :: tile_array
-      real, dimension(src_min_x:src_max_x,src_min_y:src_max_y), intent(in), optional :: mask_array
       real, dimension(start_x:end_x,start_y:end_y,start_z:end_z), intent(inout) :: dst_array
+      real, dimension(src_min_x:src_max_x,src_min_y:src_max_y), intent(in), optional :: mask_array
       type (bitarray), intent(inout) :: processed_pts, new_pts
   
       ! Local variables
@@ -240,6 +248,8 @@ module proc_point_module
          call xytoll(real(min_i), real(min_j), lat_corner, lon_corner, M)
          call select_domain(current_domain)
          call lltoxy(lat_corner, lon_corner, rx, ry, istagger)
+         rx = (rx-1.0) * sr_x + 1.0
+         ry = (ry-1.0) * sr_y + 1.0
          if (real(start_x) <= rx .and. rx <= real(end_x) .and. real(start_y) <= ry .and. ry <= real(end_y)) then
             where_maps_to(min_i,min_j,1) = nint(rx)
             where_maps_to(min_i,min_j,2) = nint(ry)
@@ -255,6 +265,8 @@ module proc_point_module
          call xytoll(real(min_i), real(max_j), lat_corner, lon_corner, M)
          call select_domain(current_domain)
          call lltoxy(lat_corner, lon_corner, rx, ry, istagger)
+         rx = (rx-1.0) * sr_x + 1.0
+         ry = (ry-1.0) * sr_y + 1.0
          if (real(start_x) <= rx .and. rx <= real(end_x) .and. real(start_y) <= ry .and. ry <= real(end_y)) then
             where_maps_to(min_i,max_j,1) = nint(rx)
             where_maps_to(min_i,max_j,2) = nint(ry)
@@ -270,6 +282,8 @@ module proc_point_module
          call xytoll(real(max_i), real(max_j), lat_corner, lon_corner, M)
          call select_domain(current_domain)
          call lltoxy(lat_corner, lon_corner, rx, ry, istagger)
+         rx = (rx-1.0) * sr_x + 1.0
+         ry = (ry-1.0) * sr_y + 1.0
          if (real(start_x) <= rx .and. rx <= real(end_x) .and. real(start_y) <= ry .and. ry <= real(end_y)) then
             where_maps_to(max_i,max_j,1) = nint(rx)
             where_maps_to(max_i,max_j,2) = nint(ry)
@@ -285,6 +299,8 @@ module proc_point_module
          call xytoll(real(max_i), real(min_j), lat_corner, lon_corner, M)
          call select_domain(current_domain) 
          call lltoxy(lat_corner, lon_corner, rx, ry, istagger)
+         rx = (rx-1.0) * sr_x + 1.0
+         ry = (ry-1.0) * sr_y + 1.0
          if (real(start_x) <= rx .and. rx <= real(end_x) .and. real(start_y) <= ry .and. ry <= real(end_y)) then
             where_maps_to(max_i,min_j,1) = nint(rx)
             where_maps_to(max_i,min_j,2) = nint(ry)
@@ -415,27 +431,27 @@ module proc_point_module
          ! Recursively process lower-left rectangle
          call process_categorical_block(tile_array, istagger, where_maps_to, min_i, min_j, min_k, center_i, &
                     center_j, max_k, dst_array, start_x, end_x, start_y, end_y, start_z, end_z, processed_pts, &
-                    new_pts, ilevel, msgval, maskval, mask_array) 
+                    new_pts, ilevel, sr_x, sr_y, msgval, maskval, mask_array)
          
          ! Recursively process lower-right rectangle
          if (center_i < max_i) then
             call process_categorical_block(tile_array, istagger, where_maps_to, center_i+1, min_j, min_k, max_i, &
                        center_j, max_k, dst_array, start_x, end_x, start_y, end_y, start_z, end_z, processed_pts, &
-                       new_pts, ilevel, msgval, maskval, mask_array) 
+                       new_pts, ilevel, sr_x, sr_y, msgval, maskval, mask_array)
          end if
    
          ! Recursively process upper-left rectangle
          if (center_j < max_j) then
             call process_categorical_block(tile_array, istagger, where_maps_to, min_i, center_j+1, min_k, center_i, &
                        max_j, max_k, dst_array, start_x, end_x, start_y, end_y, start_z, end_z, processed_pts, &
-                       new_pts, ilevel, msgval, maskval, mask_array) 
+                       new_pts, ilevel, sr_x, sr_y, msgval, maskval, mask_array)
          end if
    
          ! Recursively process upper-right rectangle
          if (center_i < max_i .and. center_j < max_j) then
             call process_categorical_block(tile_array, istagger, where_maps_to, center_i+1, center_j+1, min_k, max_i, &
                        max_j, max_k, dst_array, start_x, end_x, start_y, end_y, start_z, end_z, processed_pts, &
-                       new_pts, ilevel, msgval, maskval, mask_array) 
+                       new_pts, ilevel, sr_x, sr_y, msgval, maskval, mask_array)
          end if
       end if
   
@@ -457,7 +473,7 @@ module proc_point_module
    subroutine accum_continuous(xlat, xlon, istagger, array, n, &
                                 start_i, end_i, start_j, end_j, &
                                 start_k, end_k, fieldname, processed_pts, &
-                                new_pts, ilevel, msgval, maskval)
+                                new_pts, ilevel, msgval, maskval, sr_x, sr_y)
    
       implicit none
   
@@ -468,11 +484,13 @@ module proc_point_module
       real, dimension(start_i:end_i, start_j:end_j, start_k:end_k), intent(inout) :: array, n
       character (len=128), intent(in) :: fieldname
       type (bitarray), intent(inout) :: processed_pts, new_pts
+      integer, intent(in), optional :: sr_x, sr_y
   
       ! Local variables
       integer :: istatus, i, j
       integer, pointer, dimension(:,:,:) :: where_maps_to
       real :: rlat, rlon
+      real :: rsr_x, rsr_y
 
       rlat = xlat
       if (xlon >= 180.) then
@@ -480,6 +498,11 @@ module proc_point_module
       else
          rlon = xlon
       end if
+
+      rsr_x = 1.0
+      rsr_y = 1.0
+      if (present(sr_x)) rsr_x = real(sr_x)
+      if (present(sr_y)) rsr_y = real(sr_y)
 
       ! Assume source data is on unstaggered grid; specify M for istagger argument
       call get_data_tile(rlat, rlon, ilevel, fieldname, &
@@ -511,7 +534,7 @@ module proc_point_module
                                src_min_x+src_npts_bdr, src_min_y+src_npts_bdr, src_min_z, &
                                src_max_x-src_npts_bdr, src_max_y-src_npts_bdr, src_max_z, &
                                array, n, start_i, end_i, start_j, end_j, start_k, end_k, &
-                               processed_pts, new_pts, ilevel, msgval, maskval)
+                               processed_pts, new_pts, ilevel, rsr_x, rsr_y, msgval, maskval)
   
       deallocate(where_maps_to)
  
@@ -530,7 +553,8 @@ module proc_point_module
    recursive subroutine process_continuous_block(tile_array, istagger, where_maps_to, &
                                    min_i, min_j, min_k, max_i, max_j, max_k, dst_array, n, &
                                    start_x, end_x, start_y, end_y, start_z, end_z, &
-                                   processed_pts, new_pts, ilevel, msgval, maskval, mask_array)
+                                   processed_pts, new_pts, ilevel, sr_x, sr_y, &
+                                   msgval, maskval, mask_array)
  
       use llxy_module
   
@@ -540,10 +564,10 @@ module proc_point_module
       integer, intent(in) :: min_i, min_j, min_k, max_i, max_j, max_k, istagger, &
                              start_x, end_x, start_y, end_y, start_z, end_z, ilevel
       integer, dimension(src_min_x:src_max_x,src_min_y:src_max_y,2), intent(inout) :: where_maps_to
-      real, intent(in) :: msgval, maskval
+      real, intent(in) :: sr_x, sr_y, msgval, maskval
       real, dimension(src_min_x:src_max_x,src_min_y:src_max_y,src_min_z:src_max_z), intent(in) :: tile_array
-      real, dimension(src_min_x:src_max_x,src_min_y:src_max_y), intent(in), optional :: mask_array
       real, dimension(start_x:end_x,start_y:end_y,start_z:end_z), intent(inout) :: dst_array, n
+      real, dimension(src_min_x:src_max_x,src_min_y:src_max_y), intent(in), optional :: mask_array
       type (bitarray), intent(inout) :: processed_pts, new_pts
   
       ! Local variables
@@ -559,6 +583,8 @@ module proc_point_module
          call xytoll(real(min_i), real(min_j), lat_corner, lon_corner, M)
          call select_domain(current_domain)
          call lltoxy(lat_corner, lon_corner, rx, ry, istagger)
+         rx = (rx-1.0) * sr_x + 1.0
+         ry = (ry-1.0) * sr_y + 1.0
          if (real(start_x) <= rx .and. rx <= real(end_x) .and. real(start_y) <= ry .and. ry <= real(end_y)) then
             where_maps_to(min_i,min_j,1) = nint(rx)
             where_maps_to(min_i,min_j,2) = nint(ry)
@@ -574,6 +600,8 @@ module proc_point_module
          call xytoll(real(min_i), real(max_j), lat_corner, lon_corner, M)
          call select_domain(current_domain)
          call lltoxy(lat_corner, lon_corner, rx, ry, istagger)
+         rx = (rx-1.0) * sr_x + 1.0
+         ry = (ry-1.0) * sr_y + 1.0
          if (real(start_x) <= rx .and. rx <= real(end_x) .and. real(start_y) <= ry .and. ry <= real(end_y)) then
             where_maps_to(min_i,max_j,1) = nint(rx)
             where_maps_to(min_i,max_j,2) = nint(ry)
@@ -589,6 +617,8 @@ module proc_point_module
          call xytoll(real(max_i), real(max_j), lat_corner, lon_corner, M)
          call select_domain(current_domain)
          call lltoxy(lat_corner, lon_corner, rx, ry, istagger)
+         rx = (rx-1.0) * sr_x + 1.0
+         ry = (ry-1.0) * sr_y + 1.0
          if (real(start_x) <= rx .and. rx <= real(end_x) .and. real(start_y) <= ry .and. ry <= real(end_y)) then
             where_maps_to(max_i,max_j,1) = nint(rx)
             where_maps_to(max_i,max_j,2) = nint(ry)
@@ -604,6 +634,8 @@ module proc_point_module
          call xytoll(real(max_i), real(min_j), lat_corner, lon_corner, M)
          call select_domain(current_domain) 
          call lltoxy(lat_corner, lon_corner, rx, ry, istagger)
+         rx = (rx-1.0) * sr_x + 1.0
+         ry = (ry-1.0) * sr_y + 1.0
          if (real(start_x) <= rx .and. rx <= real(end_x) .and. real(start_y) <= ry .and. ry <= real(end_y)) then
             where_maps_to(max_i,min_j,1) = nint(rx)
             where_maps_to(max_i,min_j,2) = nint(ry)
@@ -719,27 +751,27 @@ module proc_point_module
          ! Recursively process lower-left rectangle
          call process_continuous_block(tile_array, istagger, where_maps_to, min_i, min_j, min_k, center_i, &
                     center_j, max_k, dst_array, n, start_x, end_x, start_y, end_y, start_z, end_z, processed_pts, &
-                    new_pts, ilevel, msgval, maskval, mask_array) 
+                    new_pts, ilevel, sr_x, sr_y, msgval, maskval, mask_array) 
          
          ! Recursively process lower-right rectangle
          if (center_i < max_i) then
             call process_continuous_block(tile_array, istagger, where_maps_to, center_i+1, min_j, min_k, max_i, &
                        center_j, max_k, dst_array, n, start_x, end_x, start_y, end_y, start_z, end_z, processed_pts, &
-                       new_pts, ilevel, msgval, maskval, mask_array) 
+                       new_pts, ilevel, sr_x, sr_y, msgval, maskval, mask_array) 
          end if
    
          ! Recursively process upper-left rectangle
          if (center_j < max_j) then
             call process_continuous_block(tile_array, istagger, where_maps_to, min_i, center_j+1, min_k, center_i, &
                        max_j, max_k, dst_array, n, start_x, end_x, start_y, end_y, start_z, end_z, processed_pts, &
-                       new_pts, ilevel, msgval, maskval, mask_array) 
+                       new_pts, ilevel, sr_x, sr_y, msgval, maskval, mask_array) 
          end if
    
          ! Recursively process upper-right rectangle
          if (center_i < max_i .and. center_j < max_j) then
             call process_continuous_block(tile_array, istagger, where_maps_to, center_i+1, center_j+1, min_k, max_i, &
                        max_j, max_k, dst_array, n, start_x, end_x, start_y, end_y, start_z, end_z, processed_pts, &
-                       new_pts, ilevel, msgval, maskval, mask_array) 
+                       new_pts, ilevel, sr_x, sr_y, msgval, maskval, mask_array) 
          end if
 
       end if

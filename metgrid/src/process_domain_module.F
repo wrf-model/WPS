@@ -33,7 +33,7 @@ module process_domain_module
                  west_east_dim, south_north_dim, bottom_top_dim, map_proj, &
                  is_water, is_lake, is_ice, is_urban, i_soilwater, &
                  grid_id, parent_id, i_parent_start, j_parent_start, &
-                 i_parent_end, j_parent_end, parent_grid_ratio, num_land_cat
+                 i_parent_end, j_parent_end, parent_grid_ratio, sub_x, sub_y, num_land_cat
       real :: cen_lat, moad_cen_lat, cen_lon, stand_lon, truelat1, truelat2, &
               dom_dx, dom_dy, pole_lat, pole_lon
       real, dimension(16) :: corner_lats, corner_lons
@@ -74,7 +74,8 @@ module process_domain_module
                     mminlu, num_land_cat, is_water, is_lake, is_ice, is_urban, i_soilwater, &
                     grid_id, parent_id, &
                     i_parent_start, j_parent_start, i_parent_end, j_parent_end, &
-                    parent_grid_ratio, cen_lat, moad_cen_lat, cen_lon, stand_lon, truelat1, truelat2, &
+                    parent_grid_ratio, sub_x, sub_y, &
+                    cen_lat, moad_cen_lat, cen_lon, stand_lon, truelat1, truelat2, &
                     pole_lat, pole_lon, dom_dx, dom_dy, landmask, xlat, xlon, xlat_u, xlon_u, &
                     xlat_v, xlon_v, corner_lats, corner_lons, title)
 
@@ -103,7 +104,8 @@ module process_domain_module
                           grid_id, parent_id, i_parent_start, &
                           j_parent_start, i_parent_end, j_parent_end, dom_dx, dom_dy, &
                           cen_lat, moad_cen_lat, cen_lon, stand_lon, truelat1, truelat2, &
-                          pole_lat, pole_lon, parent_grid_ratio, corner_lats, corner_lons, output_flags)
+                          pole_lat, pole_lon, parent_grid_ratio, sub_x, sub_y, &
+                          corner_lats, corner_lons, output_flags)
 
       !
       ! Begin time-dependent processing
@@ -148,7 +150,8 @@ module process_domain_module
                              grid_id, parent_id, i_parent_start, &
                              j_parent_start, i_parent_end, j_parent_end, dom_dx, dom_dy, &
                              cen_lat, moad_cen_lat, cen_lon, stand_lon, truelat1, truelat2, &
-                             pole_lat, pole_lon, parent_grid_ratio, corner_lats, corner_lons, td_output_flags)
+                             pole_lat, pole_lon, parent_grid_ratio, sub_x, sub_y, &
+                             corner_lats, corner_lons, td_output_flags)
    
       end do  ! Loop over n_times
 
@@ -179,7 +182,8 @@ module process_domain_module
                     mminlu, num_land_cat, is_water, is_lake, is_ice, is_urban, i_soilwater, &
                     grid_id, parent_id,                                                     &
                     i_parent_start, j_parent_start, i_parent_end, j_parent_end,             &
-                    parent_grid_ratio, cen_lat, moad_cen_lat, cen_lon, stand_lon, truelat1, truelat2, &
+                    parent_grid_ratio, sub_x, sub_y,                                        &
+                    cen_lat, moad_cen_lat, cen_lon, stand_lon, truelat1, truelat2,          &
                     pole_lat, pole_lon, dom_dx, dom_dy, landmask, xlat, xlon, xlat_u, xlon_u, &
                     xlat_v, xlon_v, corner_lats, corner_lons, title)
 
@@ -188,6 +192,7 @@ module process_domain_module
       use llxy_module
       use parallel_module
       use storage_module
+      use module_debug
 
       implicit none
 
@@ -202,7 +207,7 @@ module process_domain_module
                                 sn_mem_s, sn_mem_e, sn_mem_stag_s, sn_mem_stag_e, &
                                 is_water, is_lake, is_ice, is_urban, i_soilwater, grid_id, parent_id, &
                                 i_parent_start, j_parent_start, i_parent_end, j_parent_end, &
-                                parent_grid_ratio, num_land_cat
+                                parent_grid_ratio, sub_x, sub_y, num_land_cat
       real, pointer, dimension(:,:) :: landmask
       real, intent(inout) :: cen_lat, moad_cen_lat, cen_lon, stand_lon, truelat1, truelat2, &
                              dom_dx, dom_dy, pole_lat, pole_lon
@@ -212,7 +217,11 @@ module process_domain_module
     
       ! Local variables
       integer :: istatus, i, j, k, sp1, ep1, sp2, ep2, sp3, ep3, &
-                 lh_mult, rh_mult, bh_mult, th_mult
+                 lh_mult, rh_mult, bh_mult, th_mult, subx, suby
+      integer :: we_mem_subgrid_s, we_mem_subgrid_e, &
+                 sn_mem_subgrid_s, sn_mem_subgrid_e
+      integer :: we_patch_subgrid_s, we_patch_subgrid_e, &
+                 sn_patch_subgrid_s, sn_patch_subgrid_e
       real, pointer, dimension(:,:,:) :: real_array
       character (len=3) :: memorder
       character (len=128) :: grid_type, datestr, cname, stagger, cunits, cdesc
@@ -236,7 +245,7 @@ module process_domain_module
                              j_parent_start, i_parent_end, j_parent_end, dom_dx, dom_dy, &
                              cen_lat, moad_cen_lat, cen_lon, stand_lon, truelat1,        &
                              truelat2, pole_lat, pole_lon, parent_grid_ratio,            &
-                             corner_lats, corner_lons)
+                             corner_lats, corner_lons, sub_x, sub_y)
 
       we_dom_s = 1
       sn_dom_s = 1
@@ -329,7 +338,8 @@ module process_domain_module
       istatus = 0
       do while (istatus == 0)  
         call read_next_field(sp1, ep1, sp2, ep2, sp3, ep3, cname, cunits, cdesc, &
-                             memorder, stagger, dimnames, real_array, istatus)
+                             memorder, stagger, dimnames, subx, suby, &
+                             real_array, istatus)
         if (istatus == 0) then
 
           call mprintf(.true.,LOGFILE, 'Read in static field %s.',s1=cname)
@@ -394,11 +404,26 @@ module process_domain_module
                                   we_patch_s, we_patch_e, sn_patch_s, sn_patch_e, 1, 1)
 
           end if
+
+          if (subx > 1) then
+             we_mem_subgrid_s   = (we_mem_s                 + HALO_WIDTH*lh_mult - 1)*subx - HALO_WIDTH*lh_mult + 1
+             we_mem_subgrid_e   = (we_mem_e   + (1-rh_mult) - HALO_WIDTH*rh_mult    )*subx + HALO_WIDTH*rh_mult
+             we_patch_subgrid_s = (we_patch_s                                    - 1)*subx                      + 1
+             we_patch_subgrid_e = (we_patch_e + (1-rh_mult)                         )*subx
+          end if
+          if (suby > 1) then
+             sn_mem_subgrid_s   = (sn_mem_s                 + HALO_WIDTH*bh_mult - 1)*suby - HALO_WIDTH*bh_mult + 1
+             sn_mem_subgrid_e   = (sn_mem_e   + (1-th_mult) - HALO_WIDTH*th_mult    )*suby + HALO_WIDTH*th_mult
+             sn_patch_subgrid_s = (sn_patch_s                                    - 1)*suby                      + 1
+             sn_patch_subgrid_e = (sn_patch_e + (1-th_mult)                         )*suby
+          end if
     
           ! Having read in a field, we write each level individually to the
           !   storage module; levels will be reassembled later on when they
           !   are written.
           do k=sp3,ep3
+             field%header%sr_x=subx
+             field%header%sr_y=suby
              field%header%version = 1
              field%header%date = start_date(n) 
              field%header%time_dependent = .false.
@@ -414,7 +439,13 @@ module process_domain_module
              field%header%is_wind_grid_rel = .true.
              field%header%array_has_missing_values = .false.
              if (gridtype == 'C') then
-                if (trim(stagger) == 'M') then
+                if (subx > 1 .or. suby > 1) then
+                   field%map%stagger = M
+                   field%header%dim1(1) = we_mem_subgrid_s
+                   field%header%dim1(2) = we_mem_subgrid_e
+                   field%header%dim2(1) = sn_mem_subgrid_s
+                   field%header%dim2(2) = sn_mem_subgrid_e
+                else if (trim(stagger) == 'M') then
                    field%map%stagger = M
                    field%header%dim1(1) = we_mem_s
                    field%header%dim1(2) = we_mem_e
@@ -444,9 +475,26 @@ module process_domain_module
                 field%header%dim2(1) = sn_mem_s
                 field%header%dim2(2) = sn_mem_e
              end if
-            
+
              allocate(field%valid_mask)
-             if (field%map%stagger == M  .or. & 
+
+             if (subx > 1 .or. suby > 1) then
+                allocate(field%r_arr(we_mem_subgrid_s:we_mem_subgrid_e,&
+                                     sn_mem_subgrid_s:sn_mem_subgrid_e))
+                field%r_arr(we_patch_subgrid_s:we_patch_subgrid_e,sn_patch_subgrid_s:sn_patch_subgrid_e) = real_array(sp1:ep1,sp2:ep2,k)
+                call exchange_halo_r(field%r_arr, &
+                           we_mem_subgrid_s, we_mem_subgrid_e, sn_mem_subgrid_s, sn_mem_subgrid_e, 1, 1, &
+                           we_patch_subgrid_s, we_patch_subgrid_e, sn_patch_subgrid_s, sn_patch_subgrid_e, 1, 1)
+                call bitarray_create(field%valid_mask, &
+                                     (we_mem_subgrid_e-we_mem_subgrid_s)+1, &
+                                     (sn_mem_subgrid_e-sn_mem_subgrid_s)+1)
+                do j=1,(sn_mem_subgrid_e-sn_mem_subgrid_s)+1
+                   do i=1,(we_mem_subgrid_e-we_mem_subgrid_s)+1
+                      call bitarray_set(field%valid_mask, i, j)     
+                   end do
+                end do
+
+             else if (field%map%stagger == M  .or. & 
                  field%map%stagger == HH .or. &
                  field%map%stagger == VV) then
                 allocate(field%r_arr(we_mem_s:we_mem_e,&
@@ -530,7 +578,8 @@ module process_domain_module
                              grid_id, parent_id, i_parent_start, &
                              j_parent_start, i_parent_end, j_parent_end, dom_dx, dom_dy, &
                              cen_lat, moad_cen_lat, cen_lon, stand_lon, truelat1, truelat2, &
-                             pole_lat, pole_lon, parent_grid_ratio, corner_lats, corner_lons, output_flags)
+                             pole_lat, pole_lon, parent_grid_ratio, sub_x, sub_y, &
+                             corner_lats, corner_lons, output_flags)
    
       use bitarray_module
       use gridinfo_module
@@ -557,7 +606,7 @@ module process_domain_module
                  sn_mem_s, sn_mem_e, sn_mem_stag_s, sn_mem_stag_e, &
                  is_water, is_lake, is_ice, is_urban, i_soilwater, &
                  grid_id, parent_id, i_parent_start, j_parent_start, &
-                 i_parent_end, j_parent_end, parent_grid_ratio, num_land_cat
+                 i_parent_end, j_parent_end, parent_grid_ratio, sub_x, sub_y, num_land_cat
 ! BUG: Should we be passing these around as pointers, or just declare them as arrays?
       real, pointer, dimension(:,:) :: landmask
       real, intent(in) :: dom_dx, dom_dy, cen_lat, moad_cen_lat, cen_lon, stand_lon, &
@@ -1114,8 +1163,8 @@ integer, parameter :: BDR_WIDTH = 3
                               grid_id, parent_id, i_parent_start,                            &
                               j_parent_start, i_parent_end, j_parent_end, dom_dx, dom_dy,    &
                               cen_lat, moad_cen_lat, cen_lon, stand_lon, truelat1, truelat2, &
-                              pole_lat, pole_lon, parent_grid_ratio, corner_lats, corner_lons, &
-                              met_flags, nmet_flags)
+                              pole_lat, pole_lon, parent_grid_ratio, sub_x, sub_y,           &
+                              corner_lats, corner_lons, met_flags, nmet_flags)
 
       deallocate(met_flags)
     
@@ -2330,7 +2379,7 @@ integer, parameter :: BDR_WIDTH = 3
                                dst_array, n, &
                                start_i, end_i, start_j, end_j, start_k, end_k, &
                                istagger, &
-                               new_pts, msgval, maskval, mask_array)
+                               new_pts, msgval, maskval, mask_array, sr_x, sr_y)
    
       use bitarray_module
       use misc_definitions_module
@@ -2342,13 +2391,20 @@ integer, parameter :: BDR_WIDTH = 3
                              src_min_x, src_max_x, src_min_y, src_max_y, src_min_z, src_max_z
       real, intent(in) :: maskval, msgval
       real, dimension(src_min_x:src_max_x, src_min_y:src_max_y, src_min_z:src_max_z), intent(in) :: src_array
-      real, dimension(src_min_x:src_max_x, src_min_y:src_max_y), intent(in), optional :: mask_array
       real, dimension(start_i:end_i, start_j:end_j, start_k:end_k), intent(inout) :: dst_array, n
+      real, dimension(src_min_x:src_max_x, src_min_y:src_max_y), intent(in), optional :: mask_array
+      integer, intent(in), optional :: sr_x, sr_y
       type (bitarray), intent(inout) :: new_pts
    
       ! Local variables
       integer :: i, j
       integer, pointer, dimension(:,:,:) :: where_maps_to
+      real :: rsr_x, rsr_y
+
+      rsr_x = 1.0
+      rsr_y = 1.0
+      if (present(sr_x)) rsr_x = real(sr_x)
+      if (present(sr_y)) rsr_y = real(sr_y)
    
       allocate(where_maps_to(src_min_x:src_max_x,src_min_y:src_max_y,2))
       do i=src_min_x,src_max_x
@@ -2363,7 +2419,7 @@ integer, parameter :: BDR_WIDTH = 3
                                src_max_x, src_max_y, src_max_z, &
                                dst_array, n, start_i, end_i, start_j, end_j, start_k, end_k, &
                                istagger, &
-                               new_pts, msgval, maskval, mask_array)
+                               new_pts, rsr_x, rsr_y, msgval, maskval, mask_array)
    
       deallocate(where_maps_to)
    
@@ -2385,7 +2441,7 @@ integer, parameter :: BDR_WIDTH = 3
                                    dst_array, n, &
                                    start_x, end_x, start_y, end_y, start_z, end_z, &
                                    istagger, &
-                                   new_pts, msgval, maskval, mask_array)
+                                   new_pts, sr_x, sr_y, msgval, maskval, mask_array)
    
       use bitarray_module
       use llxy_module
@@ -2398,7 +2454,7 @@ integer, parameter :: BDR_WIDTH = 3
                              src_min_x, src_min_y, src_min_z, src_max_x, src_max_y, src_max_z, &
                              start_x, end_x, start_y, end_y, start_z, end_z, istagger
       integer, dimension(src_min_x:src_max_x,src_min_y:src_max_y,2), intent(inout) :: where_maps_to
-      real, intent(in) :: maskval, msgval
+      real, intent(in) :: sr_x, sr_y, maskval, msgval
       real, dimension(src_min_x:src_max_x,src_min_y:src_max_y,src_min_z:src_max_z), intent(in) :: tile_array
       real, dimension(src_min_x:src_max_x,src_min_y:src_max_y), intent(in), optional :: mask_array
       real, dimension(start_x:end_x,start_y:end_y,start_z:end_z), intent(inout) :: dst_array, n
@@ -2417,6 +2473,8 @@ integer, parameter :: BDR_WIDTH = 3
          call xytoll(real(min_i), real(min_j), lat_corner, lon_corner, istagger)
          call select_domain(1)
          call lltoxy(lat_corner, lon_corner, rx, ry, istagger)
+         rx = (rx - 1.0)*sr_x + 1.0
+         ry = (ry - 1.0)*sr_y + 1.0
          call select_domain(orig_selected_domain)
          if (real(start_x) <= rx .and. rx <= real(end_x) .and. &
              real(start_y) <= ry .and. ry <= real(end_y)) then
@@ -2434,6 +2492,8 @@ integer, parameter :: BDR_WIDTH = 3
          call xytoll(real(min_i), real(max_j), lat_corner, lon_corner, istagger)
          call select_domain(1)
          call lltoxy(lat_corner, lon_corner, rx, ry, istagger)
+         rx = (rx - 1.0)*sr_x + 1.0
+         ry = (ry - 1.0)*sr_y + 1.0
          call select_domain(orig_selected_domain)
          if (real(start_x) <= rx .and. rx <= real(end_x) .and. &
              real(start_y) <= ry .and. ry <= real(end_y)) then
@@ -2451,6 +2511,8 @@ integer, parameter :: BDR_WIDTH = 3
          call xytoll(real(max_i), real(max_j), lat_corner, lon_corner, istagger)
          call select_domain(1)
          call lltoxy(lat_corner, lon_corner, rx, ry, istagger)
+         rx = (rx - 1.0)*sr_x + 1.0
+         ry = (ry - 1.0)*sr_y + 1.0
          call select_domain(orig_selected_domain)
          if (real(start_x) <= rx .and. rx <= real(end_x) .and. &
              real(start_y) <= ry .and. ry <= real(end_y)) then
@@ -2468,6 +2530,8 @@ integer, parameter :: BDR_WIDTH = 3
          call xytoll(real(max_i), real(min_j), lat_corner, lon_corner, istagger)
          call select_domain(1)
          call lltoxy(lat_corner, lon_corner, rx, ry, istagger)
+         rx = (rx - 1.0)*sr_x + 1.0
+         ry = (ry - 1.0)*sr_y + 1.0
          call select_domain(orig_selected_domain)
          if (real(start_x) <= rx .and. rx <= real(end_x) .and. &
              real(start_y) <= ry .and. ry <= real(end_y)) then
@@ -2591,7 +2655,7 @@ integer, parameter :: BDR_WIDTH = 3
                     dst_array, n, &
                     start_x, end_x, start_y, end_y, start_z, end_z, &
                     istagger, &
-                    new_pts, msgval, maskval, mask_array) 
+                    new_pts, sr_x, sr_y, msgval, maskval, mask_array) 
          
          if (center_i < max_i) then
             ! Recursively process lower-right rectangle
@@ -2604,7 +2668,7 @@ integer, parameter :: BDR_WIDTH = 3
                        start_x, end_x, start_y, &
                        end_y, start_z, end_z, &
                        istagger, &
-                       new_pts, msgval, maskval, mask_array) 
+                       new_pts, sr_x, sr_y, msgval, maskval, mask_array) 
          end if
    
          if (center_j < max_j) then
@@ -2618,7 +2682,7 @@ integer, parameter :: BDR_WIDTH = 3
                        start_x, end_x, start_y, &
                        end_y, start_z, end_z, &
                        istagger, &
-                       new_pts, msgval, maskval, mask_array) 
+                       new_pts, sr_x, sr_y, msgval, maskval, mask_array) 
          end if
    
          if (center_i < max_i .and. center_j < max_j) then
@@ -2632,7 +2696,7 @@ integer, parameter :: BDR_WIDTH = 3
                        start_x, end_x, start_y, &
                        end_y, start_z, end_z, &
                        istagger, &
-                       new_pts, msgval, maskval, mask_array) 
+                       new_pts, sr_x, sr_y, msgval, maskval, mask_array) 
          end if
       end if
    

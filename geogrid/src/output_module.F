@@ -28,7 +28,7 @@ module output_module
       integer :: ndims, istagger
       integer, dimension(MAX_DIMENSIONS) :: dom_start, mem_start, patch_start
       integer, dimension(MAX_DIMENSIONS) :: dom_end, mem_end, patch_end
-  
+      integer :: sr_x, sr_y  
       real, pointer, dimension(:,:,:) :: rdata_arr
   
       character (len=128), dimension(MAX_DIMENSIONS) :: dimnames
@@ -88,7 +88,7 @@ module output_module
       character (len=MAX_FILENAME_LEN) :: output_fname
       logical :: supports_training, supports_3d_fields
   
-      call init_output_fields(grid_type, &
+      call init_output_fields(nest_number, grid_type, &
                               start_dom_1, end_dom_1, start_dom_2, end_dom_2, &
                               start_patch_1, end_patch_1, start_patch_2, end_patch_2, &
                               start_mem_1, end_mem_1, start_mem_2, end_mem_2, &
@@ -393,8 +393,8 @@ module output_module
                               nint(parent_ur_x(nest_number)), nint(parent_ur_y(nest_number)),            &
                               dx, dy, cen_lat, moad_cen_lat,                                             &
                               cen_lon, stand_lon, truelat1, truelat2, pole_lat, pole_lon,                &
-                              parent_grid_ratio(nest_number), corner_lats, corner_lons,                  &
-                              flags=geo_flags, nflags=ngeo_flags)
+                              parent_grid_ratio(nest_number), sr_x(nest_number), sr_y(nest_number),      &
+                              corner_lats, corner_lons, flags=geo_flags, nflags=ngeo_flags)
 #endif
  
    end subroutine output_init
@@ -406,7 +406,7 @@ module output_module
    ! Purpose: To fill in structures describing each of the fields that will be 
    !   written to the I/O API 
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
-   subroutine init_output_fields(grid_type, &
+   subroutine init_output_fields(nest_num, grid_type, &
                                  start_dom_1, end_dom_1, start_dom_2, end_dom_2, &
                                  start_patch_1, end_patch_1, start_patch_2, end_patch_2, &
                                  start_mem_1, end_mem_1, start_mem_2, end_mem_2, &
@@ -425,6 +425,7 @@ module output_module
       implicit none
   
       ! Arguments
+      integer, intent(in) :: nest_num
       integer, intent(in) :: start_dom_1, end_dom_1, start_dom_2, end_dom_2, &
                              start_patch_1, end_patch_1, start_patch_2, end_patch_2, &
                              start_mem_1, end_mem_1, start_mem_2, end_mem_2
@@ -437,10 +438,12 @@ module output_module
       ! Local variables
       integer :: i, istagger, ifieldstatus, &
                  nfields, min_category, max_category
+      integer :: lhalo_width, rhalo_width, bhalo_width, thalo_width
       integer :: ndims
       character (len=128) :: fieldname
       character (len=128) :: memorder, units, description
       character (len=128), dimension(3) :: dimnames 
+      integer :: sr_x, sr_y
   
       !
       ! First find out how many fields there are
@@ -450,10 +453,10 @@ module output_module
       ifieldstatus = 0
       nfields = 0
       do while (ifieldstatus == 0)
-         call get_next_output_fieldname(fieldname, ndims, &
+         call get_next_output_fieldname(nest_num, fieldname, ndims, &
                                         min_category, max_category, &
                                         istagger, memorder, dimnames, &
-                                        units, description, ifieldstatus)
+                                        units, description, sr_x, sr_y, ifieldstatus)
    
          if (ifieldstatus == 0) nfields = nfields + 1
       end do
@@ -469,6 +472,10 @@ module output_module
       NUM_FIELDS = nfields+NUM_AUTOMATIC_FIELDS
       allocate(fields(NUM_FIELDS))
   
+      ! Automatic fields will always be on the non-refined grid
+      sr_x=1
+      sr_y=1
+
       !
       ! There are some fields that will always be computed
       !   Initialize those fields first, followed by all user-specified fields
@@ -619,6 +626,8 @@ module output_module
          fields(i)%dimnames(3) = ' '
          fields(i)%mem_order = 'XY'
          fields(i)%stagger = 'M'
+         fields(i)%sr_x = 1
+         fields(i)%sr_y = 1
          if (grid_type == 'C') then
             fields(i)%istagger = M
          else if (grid_type == 'E') then
@@ -779,10 +788,10 @@ module output_module
 #endif
   
       do while (ifieldstatus == 0)  !{
-         call get_next_output_fieldname(fieldname, ndims, &
+         call get_next_output_fieldname(nest_num, fieldname, ndims, &
                                       min_category, max_category, &
                                       istagger, memorder, dimnames, &
-                                      units, description, ifieldstatus)
+                                      units, description, sr_x, sr_y, ifieldstatus)
    
          if (ifieldstatus == 0) then !{
      
@@ -807,42 +816,78 @@ module output_module
             fields(nfields)%units = units
             fields(nfields)%descr = description
     
-            fields(nfields)%dom_start(1)=start_dom_1
-            fields(nfields)%dom_start(2)=start_dom_2
-            fields(nfields)%dom_start(3)=min_category
-            fields(nfields)%mem_start(1)=start_mem_1
-            fields(nfields)%mem_start(2)=start_mem_2
-            fields(nfields)%mem_start(3)=min_category
-            fields(nfields)%patch_start(1)=start_patch_1
-            fields(nfields)%patch_start(2)=start_patch_2
-            fields(nfields)%patch_start(3)=min_category
+            fields(nfields)%dom_start(1)   = start_dom_1
+            fields(nfields)%dom_start(2)   = start_dom_2
+            fields(nfields)%dom_start(3)   = min_category
+            fields(nfields)%mem_start(1)   = start_mem_1
+            fields(nfields)%mem_start(2)   = start_mem_2
+            fields(nfields)%mem_start(3)   = min_category
+            fields(nfields)%patch_start(1) = start_patch_1
+            fields(nfields)%patch_start(2) = start_patch_2
+            fields(nfields)%patch_start(3) = min_category
     
-            fields(nfields)%dom_end(1)=end_dom_1
-            fields(nfields)%dom_end(2)=end_dom_2
-            fields(nfields)%dom_end(3)=max_category
-            fields(nfields)%mem_end(1)=end_mem_1
-            fields(nfields)%mem_end(2)=end_mem_2
-            fields(nfields)%mem_end(3)=max_category
-            fields(nfields)%patch_end(1)=end_patch_1
-            fields(nfields)%patch_end(2)=end_patch_2
-            fields(nfields)%patch_end(3)=max_category
+            fields(nfields)%dom_end(1)   = end_dom_1
+            fields(nfields)%dom_end(2)   = end_dom_2
+            fields(nfields)%dom_end(3)   = max_category
+            fields(nfields)%mem_end(1)   = end_mem_1
+            fields(nfields)%mem_end(2)   = end_mem_2
+            fields(nfields)%mem_end(3)   = max_category
+            fields(nfields)%patch_end(1) = end_patch_1
+            fields(nfields)%patch_end(2) = end_patch_2
+            fields(nfields)%patch_end(3) = max_category
+
+            fields(nfields)%sr_x=sr_x
+            fields(nfields)%sr_y=sr_y
     
-            if (extra_col .and. istagger == U) then !{
-               fields(nfields)%dom_end(1)=fields(nfields)%dom_end(1) + 1
-               fields(nfields)%mem_end(1)=fields(nfields)%mem_end(1) + 1
-               fields(nfields)%patch_end(1)=fields(nfields)%patch_end(1) + 1
-            else if (istagger == U .and. my_proc_id == IO_NODE .and. .not. do_tiled_output) then
+            if (extra_col .and. (istagger == U .or. sr_x > 1)) then !{
+               fields(nfields)%dom_end(1)   = fields(nfields)%dom_end(1) + 1
+               fields(nfields)%mem_end(1)   = fields(nfields)%mem_end(1) + 1
+               fields(nfields)%patch_end(1) = fields(nfields)%patch_end(1) + 1
+            else if ((istagger == U .or. sr_x > 1) .and. my_proc_id == IO_NODE .and. .not. do_tiled_output) then
                fields(nfields)%dom_end(1)=fields(nfields)%dom_end(1) + 1
             end if !}
     
-            if (extra_row .and. istagger == V) then !{
-               fields(nfields)%dom_end(2)=fields(nfields)%dom_end(2) + 1
-               fields(nfields)%mem_end(2)=fields(nfields)%mem_end(2) + 1
-               fields(nfields)%patch_end(2)=fields(nfields)%patch_end(2) + 1
-            else if (istagger == V .and. my_proc_id == IO_NODE .and. .not. do_tiled_output) then
+            if (extra_row .and. (istagger == V .or. sr_y > 1)) then !{
+               fields(nfields)%dom_end(2)   = fields(nfields)%dom_end(2) + 1
+               fields(nfields)%mem_end(2)   = fields(nfields)%mem_end(2) + 1
+               fields(nfields)%patch_end(2) = fields(nfields)%patch_end(2) + 1
+            else if ((istagger == V .or. sr_y > 1) .and. my_proc_id == IO_NODE .and. .not. do_tiled_output) then
                fields(nfields)%dom_end(2)=fields(nfields)%dom_end(2) + 1
             end if !}
-      
+
+#ifdef _METGRID
+            lhalo_width = start_patch_1 - start_mem_1      ! Halo width on left of patch
+            rhalo_width = end_mem_1     - end_patch_1      ! Halo width on right of patch
+            bhalo_width = start_patch_2 - start_mem_2      ! Halo width on bottom of patch
+            thalo_width = end_mem_2     - end_patch_2      ! Halo width on top of patch
+#else
+            lhalo_width = 0
+            rhalo_width = 0
+            bhalo_width = 0
+            thalo_width = 0
+#endif
+
+            if (sr_x > 1) then
+               fields(nfields)%mem_start(1)   = (fields(nfields)%mem_start(1) + lhalo_width - 1)*sr_x + 1 - lhalo_width
+               fields(nfields)%patch_start(1) = (fields(nfields)%patch_start(1)             - 1)*sr_x + 1
+               fields(nfields)%dom_start(1)   = (fields(nfields)%dom_start(1)               - 1)*sr_x + 1
+
+               fields(nfields)%mem_end(1)     = (fields(nfields)%mem_end(1) - rhalo_width)*sr_x + rhalo_width
+               fields(nfields)%patch_end(1)   = (fields(nfields)%patch_end(1)            )*sr_x
+               fields(nfields)%dom_end(1)     = (fields(nfields)%dom_end(1)              )*sr_x
+            endif
+    
+            if (sr_y > 1) then
+               fields(nfields)%mem_start(2)   = (fields(nfields)%mem_start(2) + bhalo_width - 1)*sr_y + 1 - bhalo_width
+               fields(nfields)%patch_start(2) = (fields(nfields)%patch_start(2)             - 1)*sr_y + 1
+               fields(nfields)%dom_start(2)   = (fields(nfields)%dom_start(2)               - 1)*sr_y + 1
+
+               fields(nfields)%mem_end(2)     = (fields(nfields)%mem_end(2) - thalo_width)*sr_y + thalo_width
+               fields(nfields)%patch_end(2)   = (fields(nfields)%patch_end(2)            )*sr_y
+               fields(nfields)%dom_end(2)     = (fields(nfields)%dom_end(2)              )*sr_y
+           endif
+
+
             nfields = nfields + 1
    
          end if  ! the next field given by get_next_fieldname() is valid }
@@ -991,6 +1036,10 @@ module output_module
                                                 trim(fields(i)%fieldname), trim(fields(i)%descr), istatus)
                         call ext_int_put_var_ti_char(handle, 'stagger', &
                                                 trim(fields(i)%fieldname), trim(fields(i)%stagger), istatus)
+                        call ext_int_put_var_ti_integer(handle,'sr_x', &
+                                                 trim(fields(i)%fieldname),(/fields(i)%sr_x/),1, istatus)
+                        call ext_int_put_var_ti_integer(handle,'sr_y', &
+                                                 trim(fields(i)%fieldname),(/fields(i)%sr_y/),1, istatus)
                      end if
 #endif
 #ifdef IO_NETCDF
@@ -1001,7 +1050,11 @@ module output_module
                                                 trim(fields(i)%fieldname), trim(fields(i)%descr), istatus)
                         call ext_ncd_put_var_ti_char(handle, 'stagger', &
                                                 trim(fields(i)%fieldname), trim(fields(i)%stagger), istatus)
-                     end if
+                        call ext_ncd_put_var_ti_integer(handle,'sr_x', &
+                                                 trim(fields(i)%fieldname),(/fields(i)%sr_x/),1, istatus)
+                        call ext_ncd_put_var_ti_integer(handle,'sr_y', &
+                                                 trim(fields(i)%fieldname),(/fields(i)%sr_y/),1, istatus)
+                    end if
 #endif
 #ifdef IO_GRIB1
                      if (io_form_output == GRIB1) then
@@ -1011,7 +1064,11 @@ module output_module
                                                 trim(fields(i)%fieldname), trim(fields(i)%descr), istatus)
                         call ext_gr1_put_var_ti_char(handle, 'stagger', &
                                                 trim(fields(i)%fieldname), trim(fields(i)%stagger), istatus)
-                     end if
+                        call ext_gr1_put_var_ti_integer(handle,'sr_x', &
+                                                 trim(fields(i)%fieldname),(/fields(i)%sr_x/),1, istatus)
+                        call ext_gr1_put_var_ti_integer(handle,'sr_y', &
+                                                 trim(fields(i)%fieldname),(/fields(i)%sr_y/),1, istatus)
+                    end if
 #endif
                   end if
                end if
@@ -1040,7 +1097,7 @@ module output_module
                                 i_parent_start, j_parent_start, i_parent_end, j_parent_end,         &
                                 dx, dy, cen_lat, moad_cen_lat, cen_lon,                             &
                                 stand_lon, truelat1, truelat2, pole_lat, pole_lon,                  &
-                                parent_grid_ratio, corner_lats, corner_lons,                        &
+                                parent_grid_ratio, sr_x, sr_y, corner_lats, corner_lons,            &
                                 flags, nflags)
  
       implicit none
@@ -1051,7 +1108,7 @@ module output_module
                  sn_patch_s, sn_patch_e, sn_patch_s_stag, sn_patch_e_stag,            &
                  map_proj, is_water, is_lake, is_ice, is_urban, i_soilwater,          &
                  grid_id, parent_id, i_parent_start, j_parent_start,                  &
-                 i_parent_end, j_parent_end, parent_grid_ratio, num_land_cat
+                 i_parent_end, j_parent_end, parent_grid_ratio, sr_x, sr_y, num_land_cat
       integer, intent(in), optional :: nflags
       real, intent(in) :: dx, dy, cen_lat, moad_cen_lat, cen_lon, stand_lon, truelat1, truelat2, &
                  pole_lat, pole_lon
@@ -1172,6 +1229,8 @@ module output_module
          call ext_put_dom_ti_integer_scalar('i_parent_end', i_parent_end)
          call ext_put_dom_ti_integer_scalar('j_parent_end', j_parent_end)
          call ext_put_dom_ti_integer_scalar('parent_grid_ratio', parent_grid_ratio)
+         call ext_put_dom_ti_integer_scalar('sr_x',sr_x)
+         call ext_put_dom_ti_integer_scalar('sr_y',sr_y)
 #ifdef _METGRID
          call ext_put_dom_ti_integer_scalar('FLAG_METGRID', 1)
 #endif

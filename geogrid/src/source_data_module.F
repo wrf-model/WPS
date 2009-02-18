@@ -49,7 +49,8 @@ module source_data_module
                   is_dominant_only, is_dfdx, is_dfdy, is_z_dim_name, &
                   is_smooth_option, is_smooth_passes, is_signed, is_missing_value, &
                   is_fill_missing, is_halt_missing, is_output_stagger, is_row_order, &
-                  is_units, is_descr
+                  is_units, is_descr, is_subgrid
+
    type (list), pointer, dimension(:) :: source_res_path, source_interp_option
    type (hashtable) :: bad_files   ! Track which files produce errors when we try to open them
    type (hashtable) :: duplicate_fnames  ! Remember which output fields we have returned 
@@ -219,6 +220,7 @@ module source_data_module
       allocate(is_signed(num_entries))
       allocate(is_missing_value(num_entries))
       allocate(is_fill_missing(num_entries))
+      allocate(is_subgrid(num_entries))
 
       write(source_mminlu,'(a4)') 'USGS'
       source_iswater = 16
@@ -263,6 +265,7 @@ module source_data_module
             is_fill_missing(i) = .false.
             source_landmask_land(i,:) = INVALID
             source_landmask_water(i,:) = INVALID
+            is_subgrid(i) = .false.
          end if
   
       else
@@ -521,6 +524,13 @@ module source_data_module
                   is_z_dim_name(i) = .true.
                   source_z_dim_name(i) = ' '
                   source_z_dim_name(i)(1:ispace-idx) = buffer(idx+1:ispace-1)
+
+               else if (index('subgrid',trim(buffer(1:idx-1))) /= 0) then
+                  if (index('yes',trim(buffer(idx+1:eos-1))) /= 0) then
+                     is_subgrid(i) = .true.
+                  else if (index('no',trim(buffer(idx+1:eos-1))) /= 0) then
+                     is_subgrid(i) = .false.
+                  end if
      
                else
                    call mprintf(.true., WARN, 'In GEOGRID.TBL, unrecognized option %s in '// &
@@ -1107,17 +1117,19 @@ module source_data_module
    !
    ! Purpose: 
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-   recursive subroutine get_next_output_fieldname(field_name, ndims, &
+   recursive subroutine get_next_output_fieldname(nest_num, field_name, ndims, &
                                             min_cat, max_cat, &
                                             istagger, memorder, dimnames, units, &
-                                            description, istatus)
+                                            description, sr_x, sr_y, istatus)
  
       implicit none
   
 #include "wrf_io_flags.h"
   
       ! Arguments
+      integer, intent(in) :: nest_num
       integer, intent(out) :: istatus, ndims, istagger, min_cat, max_cat
+      integer, intent(out) :: sr_x, sr_y
       character (len=128), intent(out) :: memorder, field_name, units, description
       character (len=128), dimension(3), intent(out) :: dimnames
   
@@ -1141,9 +1153,10 @@ module source_data_module
             ! We will only save the dominant category
             if (is_dom_only .and. (istatus == 0)) then
                output_field_state = RETURN_DOMCAT_LM
-               call get_next_output_fieldname(field_name, ndims, &
+               call get_next_output_fieldname(nest_num, field_name, ndims, &
                                               min_cat, max_cat, istagger, &
-                                              memorder, dimnames, units, description, istatus)
+                                              memorder, dimnames, units, description, &
+                                              sr_x, sr_y, istatus)
                return
             else
                ndims = 2
@@ -1186,6 +1199,7 @@ module source_data_module
                   memorder = '   ' 
                   dimnames(3) = ' '
                end if
+               call get_subgrid_dim_name(nest_num, field_name, dimnames(1:2), sr_x, sr_y, istatus)
                call get_source_units(field_name, 1, units, istatus)
                if (istatus /= 0) units = '-'
                call get_source_descr(field_name, 1, description, istatus)
@@ -1195,9 +1209,10 @@ module source_data_module
             end if
          else
             output_field_state = RETURN_FIELDNAME
-            call get_next_output_fieldname(field_name, ndims, &
+            call get_next_output_fieldname(nest_num, field_name, ndims, &
                                            min_cat, max_cat, istagger, &
-                                           memorder, dimnames, units, description, istatus)
+                                           memorder, dimnames, units, description, &
+                                           sr_x, sr_y, istatus)
             return
          end if
   
@@ -1211,9 +1226,10 @@ module source_data_module
             ! We will only save the dominant category
             if (is_dom_only .and. (istatus == 0)) then
                output_field_state = RETURN_DOMCAT
-               call get_next_output_fieldname(field_name, ndims, &
+               call get_next_output_fieldname(nest_num, field_name, ndims, &
                                               min_cat, max_cat, istagger, &
-                                              memorder, dimnames, units, description, istatus)
+                                              memorder, dimnames, units, description, &
+                                              sr_x, sr_y, istatus)
                return
      
             ! Return the fractional field
@@ -1258,6 +1274,7 @@ module source_data_module
                   memorder = '   ' 
                   dimnames(3) = ' '
                end if
+               call get_subgrid_dim_name(nest_num, field_name, dimnames(1:2), sr_x, sr_y, istatus)
                call get_source_units(field_name, 1, units, istatus)
                if (istatus /= 0) units = '-'
                call get_source_descr(field_name, 1, description, istatus)
@@ -1270,9 +1287,10 @@ module source_data_module
             call hash_destroy(duplicate_fnames)
             return 
          else if (hash_search(duplicate_fnames, temphash)) then
-            call get_next_output_fieldname(field_name, ndims, &
+            call get_next_output_fieldname(nest_num, field_name, ndims, &
                                            min_cat, max_cat, istagger, &
-                                           memorder, dimnames, units, description, istatus)
+                                           memorder, dimnames, units, description, &
+                                           sr_x, sr_y, istatus)
             return
          end if
   
@@ -1309,6 +1327,8 @@ module source_data_module
                end if
                dimnames(3) = ' ' 
                memorder = 'XY ' 
+
+               call get_subgrid_dim_name(nest_num, field_name, dimnames(1:2), sr_x, sr_y, istatus)
                field_name = domcat_name
                units = 'category'
                description = 'Dominant category'
@@ -1323,9 +1343,10 @@ module source_data_module
                else
                   output_field_state = RETURN_DFDX_LM
                end if
-               call get_next_output_fieldname(field_name, ndims, &
+               call get_next_output_fieldname(nest_num, field_name, ndims, &
                                               min_cat, max_cat, istagger, &
-                                              memorder, dimnames, units, description, istatus)
+                                              memorder, dimnames, units, description, &
+                                              sr_x, sr_y, istatus)
               return
             end if 
          else
@@ -1386,6 +1407,8 @@ module source_data_module
                end if
                field_name = dfdx_name
                units = '-'
+
+               call get_subgrid_dim_name(nest_num, field_name, dimnames(1:2), sr_x, sr_y, istatus)
                description = 'df/dx'
                if (output_field_state == RETURN_DFDX) then
                   output_field_state = RETURN_DFDY
@@ -1398,9 +1421,10 @@ module source_data_module
                else
                   output_field_state = RETURN_DFDY_LM
                end if
-               call get_next_output_fieldname(field_name, ndims, &
+               call get_next_output_fieldname(nest_num, field_name, ndims, &
                                               min_cat, max_cat, istagger, &
-                                              memorder, dimnames, units, description, istatus)
+                                              memorder, dimnames, units, description, &
+                                              sr_x, sr_y, istatus)
                return
             end if 
          else
@@ -1459,15 +1483,18 @@ module source_data_module
                   memorder = '   ' 
                   dimnames(3) = ' '
                end if
+               
+               call get_subgrid_dim_name(nest_num, field_name, dimnames(1:2), sr_x, sr_y, istatus)
                field_name = dfdy_name
                units = '-'
                description = 'df/dy'
                output_field_state = RETURN_FIELDNAME
             else
                output_field_state = RETURN_FIELDNAME
-               call get_next_output_fieldname(field_name, ndims, &
+               call get_next_output_fieldname(nest_num, field_name, ndims, &
                                               min_cat, max_cat, istagger, &
-                                              memorder, dimnames, units, description, istatus)
+                                              memorder, dimnames, units, description, &
+                                              sr_x, sr_y, istatus)
                return
             end if 
          else
@@ -2203,7 +2230,47 @@ module source_data_module
  
    end subroutine get_output_stagger
  
- 
+
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   ! Name: get_subgrid_dim_name
+   !
+   ! Pupose:
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   subroutine get_subgrid_dim_name(nest_num, field_name, dimnames, &
+                                   sub_x, sub_y, istatus)
+
+      use gridinfo_module
+
+      implicit none
+      integer, intent(in) :: nest_num
+      integer, intent(out) :: sub_x, sub_y, istatus
+      character(len=128), intent(in) :: field_name
+      character(len=128), dimension(2), intent(inout) :: dimnames
+      integer :: idx, nlen
+
+      sub_x = 1
+      sub_y = 1
+
+      istatus = 0
+      do idx=1,num_entries
+         if ((index(source_fieldname(idx),trim(field_name)) /= 0) .and. &
+            (len_trim(source_fieldname(idx)) == len_trim(field_name))) then
+            if (is_subgrid(idx)) then
+               istatus = 0
+               if (is_output_stagger(idx)) then
+                  call mprintf(.true.,ERROR,'Cannot use subgrids on variables with staggered grids')
+               end if
+               dimnames(1) = trim(dimnames(1))//"_subgrid"
+               dimnames(2) = trim(dimnames(2))//"_subgrid"
+               sub_x = sr_x(nest_num)
+               sub_y = sr_y(nest_num)
+            end if
+         end if
+      end do
+
+   end subroutine get_subgrid_dim_name
+
+
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
    ! Name: get_interp_option
    !
