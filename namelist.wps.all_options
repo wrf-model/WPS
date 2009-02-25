@@ -4,6 +4,9 @@
  start_date = '2006-08-16_12:00:00','2006-08-16_12:00:00',
  end_date   = '2006-08-16_18:00:00','2006-08-16_12:00:00',
  interval_seconds = 21600
+ active_grid = .true., .true.,
+ subgrid_ratio_x = 1
+ subgrid_ratio_y = 1
  io_form_geogrid = 2,
  opt_output_from_geogrid_path = './',
  debug_level = 0
