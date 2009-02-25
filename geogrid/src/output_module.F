@@ -393,7 +393,8 @@ module output_module
                               nint(parent_ur_x(nest_number)), nint(parent_ur_y(nest_number)),            &
                               dx, dy, cen_lat, moad_cen_lat,                                             &
                               cen_lon, stand_lon, truelat1, truelat2, pole_lat, pole_lon,                &
-                              parent_grid_ratio(nest_number), sr_x(nest_number), sr_y(nest_number),      &
+                              parent_grid_ratio(nest_number),                                            &
+                              subgrid_ratio_x(nest_number), subgrid_ratio_y(nest_number),                &
                               corner_lats, corner_lons, flags=geo_flags, nflags=ngeo_flags)
 #endif
  

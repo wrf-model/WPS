@@ -2262,8 +2262,8 @@ module source_data_module
                end if
                dimnames(1) = trim(dimnames(1))//"_subgrid"
                dimnames(2) = trim(dimnames(2))//"_subgrid"
-               sub_x = sr_x(nest_num)
-               sub_y = sr_y(nest_num)
+               sub_x = subgrid_ratio_x(nest_num)
+               sub_y = subgrid_ratio_y(nest_num)
             end if
          end if
       end do

@@ -16,7 +16,7 @@ module gridinfo_module
    ! Variables
    integer :: iproj_type, n_domains, io_form_output, dyn_opt
    integer, dimension(MAX_DOMAINS) :: parent_grid_ratio, parent_id, ixdim, jydim
-   integer, dimension(MAX_DOMAINS) :: sr_x, sr_y
+   integer, dimension(MAX_DOMAINS) :: subgrid_ratio_x, subgrid_ratio_y
    real :: known_lat, known_lon, pole_lat, pole_lon, stand_lon, truelat1, truelat2, &
            known_x, known_y, dxkm, dykm, phi, lambda, ref_lat, ref_lon, ref_x, ref_y, &
            dlatdeg, dlondeg
@@ -61,7 +61,7 @@ module gridinfo_module
                         start_minute, end_minute, start_second, end_second, &
                         interval_seconds, &
                         io_form_geogrid, opt_output_from_geogrid_path, debug_level, active_grid, &
-                        sr_x, sr_y
+                        subgrid_ratio_x, subgrid_ratio_y
       namelist /geogrid/ parent_id, parent_grid_ratio, &
                          i_parent_start, j_parent_start, s_we, e_we, s_sn, e_sn, &
                          map_proj, ref_x, ref_y, ref_lat, ref_lon, &
@@ -109,8 +109,8 @@ module gridinfo_module
          start_date(i) = '0000-00-00_00:00:00'
          end_date(i) = '0000-00-00_00:00:00'
          active_grid(i) = .true.
-         sr_x(i) = 1
-         sr_y(i) = 1
+         subgrid_ratio_x(i) = 1
+         subgrid_ratio_y(i) = 1
       end do
       opt_output_from_geogrid_path = './'
       opt_geogrid_tbl_path = 'geogrid/'
@@ -196,13 +196,13 @@ module gridinfo_module
       call mprintf(.true.,LOGFILE,'  INTERVAL_SECONDS = %i',i1=interval_seconds)
       call mprintf(.true.,LOGFILE,'  IO_FORM_GEOGRID  = %i',i1=io_form_geogrid)
       call mprintf(.true.,LOGFILE,'  OPT_OUTPUT_FROM_GEOGRID_PATH = %s',s1=opt_output_from_geogrid_path)
-      call mprintf(.true.,LOGFILE,'  SR_X             = %i',i1=sr_x(1))
+      call mprintf(.true.,LOGFILE,'  SUBGRID_RATIO_X  = %i',i1=subgrid_ratio_x(1))
       do i=2,max_dom
-         call mprintf(.true.,LOGFILE,'                   = %i',i1=sr_x(i))
+         call mprintf(.true.,LOGFILE,'                   = %i',i1=subgrid_ratio_x(i))
       enddo
-      call mprintf(.true.,LOGFILE,'  SR_Y             = %i',i1=sr_y(1))
+      call mprintf(.true.,LOGFILE,'  SUBGRID_RATIO_Y  = %i',i1=subgrid_ratio_y(1))
       do i=2,max_dom
-         call mprintf(.true.,LOGFILE,'                   = %i',i1=sr_y(i))
+         call mprintf(.true.,LOGFILE,'                   = %i',i1=subgrid_ratio_y(i))
       enddo
 
       call mprintf(.true.,LOGFILE,'  DEBUG_LEVEL      = %i',i1=debug_level)
