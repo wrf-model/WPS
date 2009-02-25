@@ -481,7 +481,8 @@ module process_domain_module
              if (subx > 1 .or. suby > 1) then
                 allocate(field%r_arr(we_mem_subgrid_s:we_mem_subgrid_e,&
                                      sn_mem_subgrid_s:sn_mem_subgrid_e))
-                field%r_arr(we_patch_subgrid_s:we_patch_subgrid_e,sn_patch_subgrid_s:sn_patch_subgrid_e) = real_array(sp1:ep1,sp2:ep2,k)
+                field%r_arr(we_patch_subgrid_s:we_patch_subgrid_e,sn_patch_subgrid_s:sn_patch_subgrid_e) = &
+                           real_array(sp1:ep1,sp2:ep2,k)
                 call exchange_halo_r(field%r_arr, &
                            we_mem_subgrid_s, we_mem_subgrid_e, sn_mem_subgrid_s, sn_mem_subgrid_e, 1, 1, &
                            we_patch_subgrid_s, we_patch_subgrid_e, sn_patch_subgrid_s, sn_patch_subgrid_e, 1, 1)
@@ -763,6 +764,8 @@ integer, parameter :: BDR_WIDTH = 3
                   field%header%description(1:46) = fg_data%desc
                   call get_z_dim_name(fg_data%field,field%header%vertical_coord)
                   field%header%vertical_level = nint(fg_data%xlvl) 
+                  field%header%sr_x = 1
+                  field%header%sr_y = 1
                   field%header%array_order = 'XY ' 
                   field%header%is_wind_grid_rel = fg_data%is_wind_grid_rel 
                   field%header%array_has_missing_values = .false.
@@ -1286,6 +1289,8 @@ integer, parameter :: BDR_WIDTH = 3
                   mask_field%header%description = '-'
                   mask_field%header%vertical_coord = 'none'
                   mask_field%header%vertical_level = 1
+                  mask_field%header%sr_x = 1
+                  mask_field%header%sr_y = 1
                   mask_field%header%array_order = 'XY'
                   mask_field%header%dim1(1) = 1
                   mask_field%header%dim1(2) = fg_data%nx
@@ -2009,6 +2014,8 @@ integer, parameter :: BDR_WIDTH = 3
       field%header%units = ' '
       field%header%description = ' '
       field%header%vertical_level = 0
+      field%header%sr_x = 1
+      field%header%sr_y = 1
       field%header%array_order = 'XY ' 
       field%header%is_wind_grid_rel = .true.
       field%header%array_has_missing_values = .false.
