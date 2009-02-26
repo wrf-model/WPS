@@ -386,7 +386,7 @@ module process_tile_module
       !
       ! First process the field that we will derive a landmask from
       !
-      call get_landmask_field(landmask_name, is_water_mask, landmask_value, istatus)
+      call get_landmask_field(geog_data_res(which_domain), landmask_name, is_water_mask, landmask_value, istatus)
 
       do kk=1,MAX_LANDMASK_CATEGORIES
          if (landmask_value(kk) == INVALID) then

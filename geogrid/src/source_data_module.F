@@ -30,7 +30,6 @@ module source_data_module
                   source_tile_z, source_tile_z_start, source_tile_z_end, source_tile_bdr, &
                   source_category_min, source_category_max, source_smooth_option, &
                   source_smooth_passes, source_output_stagger, source_row_order
-   integer, pointer, dimension(:,:) :: source_landmask_water, source_landmask_land
    integer :: source_iswater, source_islake, source_isice, source_isurban, source_isoilwater
    real, pointer, dimension(:) :: source_dx, source_dy, source_known_x, source_known_y, &
                   source_known_lat, source_known_lon, source_masked, source_truelat1, source_truelat2, &
@@ -42,7 +41,7 @@ module source_data_module
    logical, pointer, dimension(:) :: is_proj, is_wordsize, is_endian, is_fieldtype, &
                   is_dest_fieldtype, is_priority, is_tile_x, is_tile_y, is_tile_z, &
                   is_tile_z_start, is_tile_z_end, is_tile_bdr, is_category_min, &
-                  is_category_max, is_landmask_water, is_landmask_land, is_masked, &
+                  is_category_max, is_masked, &
                   is_dx, is_dy, is_known_x, is_known_y, &
                   is_known_lat, is_known_lon, is_truelat1, is_truelat2, is_stdlon, &
                   is_scale_factor, is_fieldname, is_path, is_dominant_category, &
@@ -51,7 +50,8 @@ module source_data_module
                   is_fill_missing, is_halt_missing, is_output_stagger, is_row_order, &
                   is_units, is_descr, is_subgrid
 
-   type (list), pointer, dimension(:) :: source_res_path, source_interp_option
+   type (list), pointer, dimension(:) :: source_res_path, source_interp_option, source_landmask_land, &
+                                         source_landmask_water
    type (hashtable) :: bad_files   ! Track which files produce errors when we try to open them
    type (hashtable) :: duplicate_fnames  ! Remember which output fields we have returned 
 
@@ -77,7 +77,7 @@ module source_data_module
       ! Local variables
       integer :: nparams, idx, eos, ispace, comma, i, j, funit
       logical :: have_specification, is_used
-      character (len=128) :: res_string, path_string, interp_string
+      character (len=128) :: res_string, path_string, interp_string, landmask_string
       character (len=BUFSIZE) :: buffer
   
       nparams = 0
@@ -152,8 +152,6 @@ module source_data_module
       allocate(source_category_min(num_entries))
       allocate(source_category_max(num_entries))
       allocate(source_tile_bdr(num_entries))
-      allocate(source_landmask_water(num_entries,MAX_LANDMASK_CATEGORIES))
-      allocate(source_landmask_land(num_entries,MAX_LANDMASK_CATEGORIES))
       allocate(source_masked(num_entries))
       allocate(source_output_stagger(num_entries))
       allocate(source_row_order(num_entries))
@@ -171,9 +169,13 @@ module source_data_module
       allocate(source_fill_missing(num_entries))
       allocate(source_res_path(num_entries))
       allocate(source_interp_option(num_entries))
+      allocate(source_landmask_land(num_entries))
+      allocate(source_landmask_water(num_entries))
       do i=1,num_entries
          call list_init(source_res_path(i))
          call list_init(source_interp_option(i))
+         call list_init(source_landmask_land(i))
+         call list_init(source_landmask_water(i))
       end do
   
       allocate(is_wordsize(num_entries))
@@ -201,8 +203,6 @@ module source_data_module
       allocate(is_category_min(num_entries))
       allocate(is_category_max(num_entries))
       allocate(is_tile_bdr(num_entries))
-      allocate(is_landmask_water(num_entries))
-      allocate(is_landmask_land(num_entries))
       allocate(is_masked(num_entries))
       allocate(is_halt_missing(num_entries))
       allocate(is_output_stagger(num_entries))
@@ -248,8 +248,6 @@ module source_data_module
          nparams = 0
          if (i <= num_entries) then
             is_path(i) = .false.
-            is_landmask_water(i) = .false.
-            is_landmask_land(i) = .false.
             is_masked(i) = .false.
             is_halt_missing(i) = .false.
             is_output_stagger(i) = .false.
@@ -263,8 +261,6 @@ module source_data_module
             is_smooth_option(i) = .false.
             is_smooth_passes(i) = .false.
             is_fill_missing(i) = .false.
-            source_landmask_land(i,:) = INVALID
-            source_landmask_water(i,:) = INVALID
             is_subgrid(i) = .false.
          end if
   
@@ -434,30 +430,51 @@ module source_data_module
      
                else if ((index('landmask_water',trim(buffer(1:idx-1))) /= 0) .and. &
                         (len_trim(buffer(1:idx-1)) == 14)) then
-                  is_landmask_water(i) = .true.
-                  j = 1
-!BUG: What we really need is a routine to parse a comma-separated list
-                  comma = index(buffer(idx+1:eos-1),',')
-                  do while (comma /= 0)
-                     read(buffer(idx+1:idx+comma-1),'(i10)') source_landmask_water(i,j)
-                     idx = idx + comma
-                     comma = index(buffer(idx+1:eos-1),',')
-                     j = j + 1
-                  end do
-                  read(buffer(idx+1:eos-1),'(i10)') source_landmask_water(i,j)
-     
+                  ispace = idx+1
+                  do while ((ispace < eos) .and. (buffer(ispace:ispace) /= ' '))
+                     ispace = ispace + 1
+                  end do 
+                  landmask_string = ' '
+                  landmask_string(1:ispace-idx-1) = buffer(idx+1:ispace-1)
+                  ispace = index(landmask_string,':')
+                  if (ispace /= 0) then
+                     write(res_string,'(a)') landmask_string(1:ispace-1)
+                  else
+                     res_string = 'default'
+                  end if
+                  write(landmask_string,'(a)') trim(landmask_string(ispace+1:128))
+                  if (list_search(source_landmask_water(i), ckey=res_string, cvalue=landmask_string)) then
+                     call mprintf(.true., WARN, &
+                                  'In GEOGRID.TBL entry %i, multiple landmask category specifications are given for '// &
+                                  'resolution %s. %s will be used.', &
+                                  i1=i, s1=trim(res_string), s2=trim(landmask_string))
+                  else
+                     call list_insert(source_landmask_water(i), ckey=res_string, cvalue=landmask_string)
+                  end if
+
                else if ((index('landmask_land',trim(buffer(1:idx-1))) /= 0) .and. &
                         (len_trim(buffer(1:idx-1)) == 13)) then
-                  is_landmask_land(i) = .true.
-                  j = 1
-                  comma = index(buffer(idx+1:eos-1),',')
-                  do while (comma /= 0)
-                     read(buffer(idx+1:idx+comma-1),'(i10)') source_landmask_land(i,j)
-                     idx = idx + comma
-                     comma = index(buffer(idx+1:eos-1),',')
-                     j = j + 1
-                  end do
-                  read(buffer(idx+1:eos-1),'(i10)') source_landmask_land(i,j)
+                  ispace = idx+1
+                  do while ((ispace < eos) .and. (buffer(ispace:ispace) /= ' '))
+                     ispace = ispace + 1
+                  end do 
+                  landmask_string = ' '
+                  landmask_string(1:ispace-idx-1) = buffer(idx+1:ispace-1)
+                  ispace = index(landmask_string,':')
+                  if (ispace /= 0) then
+                     write(res_string,'(a)') landmask_string(1:ispace-1)
+                  else
+                     res_string = 'default'
+                  end if
+                  write(landmask_string,'(a)') trim(landmask_string(ispace+1:128))
+                  if (list_search(source_landmask_land(i), ckey=res_string, cvalue=landmask_string)) then
+                     call mprintf(.true., WARN, &
+                                  'In GEOGRID.TBL entry %i, multiple landmask category specifications are given for '// &
+                                  'resolution %s. %s will be used.', &
+                                  i1=i, s1=trim(res_string), s2=trim(landmask_string))
+                  else
+                     call list_insert(source_landmask_land(i), ckey=res_string, cvalue=landmask_string)
+                  end if
      
                else if ((index('masked',trim(buffer(1:idx-1))) /= 0) .and. &
                         (len_trim(buffer(1:idx-1)) == 6)) then
@@ -994,8 +1011,6 @@ module source_data_module
          deallocate(source_tile_bdr)
          deallocate(source_category_min)
          deallocate(source_category_max)
-         deallocate(source_landmask_water)
-         deallocate(source_landmask_land)
          deallocate(source_masked)
          deallocate(source_output_stagger)
          deallocate(source_row_order)
@@ -1014,9 +1029,13 @@ module source_data_module
          do i=1,num_entries
             call list_destroy(source_res_path(i))
             call list_destroy(source_interp_option(i))
+            call list_destroy(source_landmask_land(i))
+            call list_destroy(source_landmask_water(i))
          end do
          deallocate(source_res_path)
          deallocate(source_interp_option)
+         deallocate(source_landmask_land)
+         deallocate(source_landmask_water)
      
          deallocate(is_wordsize)
          deallocate(is_endian)
@@ -1043,8 +1062,6 @@ module source_data_module
          deallocate(is_tile_bdr)
          deallocate(is_category_min)
          deallocate(is_category_max)
-         deallocate(is_landmask_water)
-         deallocate(is_landmask_land)
          deallocate(is_masked)
          deallocate(is_halt_missing)
          deallocate(is_output_stagger)
@@ -1121,6 +1138,8 @@ module source_data_module
                                             min_cat, max_cat, &
                                             istagger, memorder, dimnames, units, &
                                             description, sr_x, sr_y, istatus)
+
+      use gridinfo_module
  
       implicit none
   
@@ -1144,7 +1163,7 @@ module source_data_module
   
       if (output_field_state == RETURN_LANDMASK) then
          call hash_init(duplicate_fnames)
-         call get_landmask_field(field_name, is_water_mask, landmask, istatus)
+         call get_landmask_field(geog_data_res(nest_num), field_name, is_water_mask, landmask, istatus)
          if (istatus == 0) then
             temphash(129:256) = ' '
             temphash(1:128) = field_name(1:128)
@@ -1300,7 +1319,7 @@ module source_data_module
             next_field = next_field - 1
             call get_next_fieldname(field_name, istatus)
          else
-            call get_landmask_field(field_name, is_water_mask, landmask, istatus)
+            call get_landmask_field(geog_data_res(nest_num), field_name, is_water_mask, landmask, istatus)
          end if
          if (istatus == 0) then
             call get_domcategory_name(field_name, domcat_name, is_dom_only, istatus)
@@ -1360,7 +1379,7 @@ module source_data_module
             next_field = next_field - 1
             call get_next_fieldname(field_name, istatus)
          else
-            call get_landmask_field(field_name, is_water_mask, landmask, istatus)
+            call get_landmask_field(geog_data_res(nest_num), field_name, is_water_mask, landmask, istatus)
          end if
          if (istatus == 0) then
             call get_dfdx_name(field_name, dfdx_name, istatus)
@@ -1438,7 +1457,7 @@ module source_data_module
             next_field = next_field - 1
             call get_next_fieldname(field_name, istatus)
          else
-            call get_landmask_field(field_name, is_water_mask, landmask, istatus)
+            call get_landmask_field(geog_data_res(nest_num), field_name, is_water_mask, landmask, istatus)
          end if
          if (istatus == 0) then
             call get_dfdy_name(field_name, dfdy_name, istatus)
@@ -1515,40 +1534,104 @@ module source_data_module
    !   value specifies the value of water, and .false. if the landmask value 
    !   specifies the value of land.
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-   subroutine get_landmask_field(landmask_name, is_water_mask, landmask, istatus)
+   subroutine get_landmask_field(res_string, landmask_name, is_water_mask, landmask, istatus)
  
       implicit none
   
       ! Arguments
+      character (len=128), intent(in) :: res_string
       integer, dimension(:), intent(out) :: landmask
       integer, intent(out) :: istatus
       logical, intent(out) :: is_water_mask
       character (len=128), intent(out) :: landmask_name
   
       ! Local variables
+      integer :: j
       integer :: ilen
       integer :: idx
+      integer :: is, ie, sos, eos, comma
+      character (len=128) :: temp_res, mask_cat_string
   
       istatus = 1
   
       do idx=1,num_entries
-  
-         if (is_landmask_water(idx)) then
-            is_water_mask = .true.
-            ilen = min(size(source_landmask_water(idx,:)),size(landmask))
-            landmask(1:ilen) = source_landmask_water(idx,1:ilen) 
-            landmask_name = source_fieldname(idx)
-            istatus = 0
-            exit
-   
-         else if (is_landmask_land(idx)) then
-            is_water_mask = .false.
-            ilen = min(size(source_landmask_land(idx,:)),size(landmask))
-            landmask(1:ilen) = source_landmask_land(idx,1:ilen) 
-            landmask_name = source_fieldname(idx)
-            istatus = 0
-            exit
 
+         if (list_length(source_landmask_land(idx)) > 0) then
+            is = 1
+            ie = index(res_string(is:128),'+') - 1
+            if (ie <= 0) ie = 128
+            temp_res = res_string(is:ie)
+            do while (.not. list_search(source_landmask_land(idx), ckey=temp_res, cvalue=mask_cat_string) &
+                      .and. is <= 128)
+               is = ie+2
+               ie = is + index(res_string(is:128),'+') - 2
+               if (ie - is <= 0) ie = 128
+               temp_res = res_string(is:ie)
+            end do
+
+            if (is > 128) then
+               temp_res = 'default'
+               if (list_search(source_landmask_land(idx), ckey=temp_res, cvalue=mask_cat_string)) then
+                  is_water_mask = .false.
+                  landmask_name = source_fieldname(idx)
+                  istatus = 0
+               end if
+            else
+               is_water_mask = .false.
+               landmask_name = source_fieldname(idx)
+               istatus = 0
+            end if
+
+         end if
+
+         ! Note: The following cannot be an else-if, since different resolutions of data may
+         ! specify, alternately, a land or a water mask, and in general we need to search 
+         ! both lists
+
+         if (list_length(source_landmask_water(idx)) > 0) then
+            is = 1
+            ie = index(res_string(is:128),'+') - 1
+            if (ie <= 0) ie = 128
+            temp_res = res_string(is:ie)
+            do while (.not. list_search(source_landmask_water(idx), ckey=temp_res, cvalue=mask_cat_string) &
+                      .and. is <= 128)
+               is = ie+2
+               ie = is + index(res_string(is:128),'+') - 2
+               if (ie - is <= 0) ie = 128
+               temp_res = res_string(is:ie)
+            end do
+
+            if (is > 128) then
+               temp_res = 'default'
+               if (list_search(source_landmask_water(idx), ckey=temp_res, cvalue=mask_cat_string)) then
+                  is_water_mask = .true.
+                  landmask_name = source_fieldname(idx)
+                  istatus = 0
+               end if
+            else
+               is_water_mask = .true.
+               landmask_name = source_fieldname(idx)
+               istatus = 0
+            end if
+         end if
+
+         if (istatus == 0) then
+            j = 1
+            sos = 0
+            eos = 128
+            comma = index(mask_cat_string(sos+1:eos-1),',')
+            do while (comma > 0 .and. j < MAX_LANDMASK_CATEGORIES)
+               read(mask_cat_string(sos+1:sos+comma-1),'(i10)') landmask(j)
+               sos = sos + comma
+               comma = index(mask_cat_string(sos+1:eos-1),',')
+               j = j + 1
+            end do
+            read(mask_cat_string(sos+1:eos-1),'(i10)') landmask(j)
+            j = j + 1
+            if (j <= MAX_LANDMASK_CATEGORIES) then   ! Terminate list with a flag value
+               landmask(j) = INVALID 
+            end if
+            exit
          end if
   
       end do
@@ -2959,7 +3042,7 @@ module source_data_module
   
       ! Check that the field from which landmask is calculated is not output on a staggering
       do i=1,num_entries
-         if (is_landmask_land(i) .or. is_landmask_water(i)) then
+         if (list_length(source_landmask_land(i)) > 0 .or. list_length(source_landmask_water(i)) > 0) then
             if (is_output_stagger(i)) then
                if (source_output_stagger(i) /= M) then
                   call mprintf(.true., ERROR, 'In GEOGRID.TBL, landmask cannot be derived from '// &
@@ -3037,7 +3120,7 @@ module source_data_module
       do i=1,num_entries
          if (is_dest_fieldtype(i)) then
             if (source_dest_fieldtype(i) == CONTINUOUS) then
-               if (is_landmask_water(i) .or. is_landmask_land(i)) then
+               if (list_length(source_landmask_water(i)) > 0 .or. list_length(source_landmask_land(i)) > 0) then
                   call mprintf(.true., ERROR, 'In GEOGRID.TBL, landmask cannot be '// &
                                'calculated from a continuous destination field at entry %i.',i1=i)
                end if
