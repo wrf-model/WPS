@@ -42,13 +42,13 @@ PROGRAM mod_levs_prog
           IOSTAT =  iop              )
 
    IF (iop .NE. 0) then
-      print *, 'Problem with namelist.input file, I can''t open it'
+      print *, 'Error: Couldn''t open namelist.wps file.'
       STOP 
    END IF
 
    !  Input the pressure levels requested.
 
-   READ ( 10 , mod_levs ) 
+   READ ( 10 , mod_levs, err=1000, end=1001 ) 
 
    CLOSE ( 10 ) 
 
@@ -135,6 +135,11 @@ PROGRAM mod_levs_prog
    END IF
 
    print *,'SUCCESSFUL COMPLETION OF PROGRAM MOD_LEVS'
+   STOP
+
+1000 print *,'Error while reading &mod_levs namelist.'
+   STOP
+1001 print *,'Error: Could not find &mod_levs namelist. Perhaps this namelist is not present in namelist.wps?'
    STOP
 
 END PROGRAM mod_levs_prog
