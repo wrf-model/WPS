@@ -116,8 +116,15 @@ C 2003-07-08  VUONG       ADDED GRIDS 110, 127, 171, 172 AND MODIFIED GRID 170
 C 2004-09-02  VUONG       ADDED AWIPS GRIDS 147, 148, 173 AND 254
 C 2005-01-04  COOKE       ADDED AWIPS GRIDS 160 AND 161
 C 2005-03-03  VUONG       MOVED GRID 170 TO GRID 174 AND ADD GRID 170
-C 2005-03-21  VUONG       ADDED AWIPS GRIDS 130
-C 2005-10-11  VUONG       ADDED AWIPS GRIDS 163
+C 2005-03-21  VUONG       ADDED AWIPS GRID 130
+C 2005-10-11  VUONG       ADDED AWIPS GRID 163
+C 2006-12-12  VUONG       ADDED AWIPS GRID 120
+C 2007-04-12  VUONG       ADDED AWIPS 176 AND  DATA REP TYPE KGDS(1) 204
+C 2007-06-11  VUONG       ADDED NEW GRIDS 11 TO 18 AND 122 TO 125 AND 138
+C                         AND 180 TO 183
+C 2007-11-06  VUONG       CHANGED GRID 198 FROM ARAKAWA STAGGERED E-GRID TO POLAR
+C                         STEREOGRAPGIC GRID ADDED NEW GRID 10, 99, 150, 151, 197
+C 2008-01-17  VUONG       ADDED NEW GRID 195 AND CHANGED GRID 196 (ARAKAWA-E TO MERCATOR)
 C
 C USAGE:    CALL W3FI63(MSGA,KPDS,KGDS,KBMS,DATA,KPTR,KRET)
 C   INPUT ARGUMENT LIST:
@@ -254,6 +261,17 @@ C          (7)   - LA(2) LATITUDE OF CENTER
 C          (8)   - LO(2) LONGITUDE OF CENTER
 C          (9)   - DI LONGITUDINAL DIRECTION OF INCREMENT
 C          (10)  - DJ LATITUDINAL DIRECTION INCREMENT
+C          (11)  - SCANNING MODE FLAG (RIGHT ADJ COPY OF OCTET 28)
+C       CURVILINEAR ORTHIGINAL GRID (TYPE 204)
+C          (2)   - N(I) NR POINTS ON LATITUDE CIRCLE
+C          (3)   - N(J) NR POINTS ON LONGITUDE MERIDIAN
+C          (4)   - RESERVED SET TO 0
+C          (5)   - RESERVED SET TO 0
+C          (6)   - RESOLUTION FLAG (RIGHT ADJ COPY OF OCTET 17)
+C          (7)   - RESERVED SET TO 0
+C          (8)   - RESERVED SET TO 0
+C          (9)   - RESERVED SET TO 0
+C          (10)  - RESERVED SET TO 0
 C          (11)  - SCANNING MODE FLAG (RIGHT ADJ COPY OF OCTET 28)
 C     KBMS       - BITMAP DESCRIBING LOCATION OF OUTPUT ELEMENTS.
 C                            (ALWAYS CONSTRUCTED)
@@ -1021,6 +1039,7 @@ C                       PRODUCT DESCRIPTION SECTION ENTRIES
       INTEGER       KPDS(*)
 C
       INTEGER       KRET
+      KRET=0
 C  -------------------  PROCESS SECTION 1
       KPTR(8)  = KPTR(9) + KPTR(2) * 8 + 24
 C  BYTE 4
@@ -1143,7 +1162,8 @@ C  BYTES 31-40                  CURRENTLY RESERVED FOR FUTURE USE
                   KPTR(8)  = KPTR(8) + 12 * 8
 C  BYTES 41 - N                 LOCAL USE DATA
                   CALL W3FI01(LW)
-                  MWDBIT  = LW * 8
+C                 MWDBIT  = LW * 8
+                  MWDBIT  = bit_size(KPDS)
                   ISIZ    = KPTR(3) - 40
                   ITER    = ISIZ / LW
                   IF (MOD(ISIZ,LW).NE.0) ITER = ITER + 1
@@ -1167,14 +1187,19 @@ C  ----------- TEST FOR NEW GRID
                       IF (KPDS(3).GE.2.AND.KPDS(3).LE.3) THEN
                       ELSE IF (KPDS(3).GE.5.AND.KPDS(3).LE.6) THEN
                       ELSE IF (KPDS(3).EQ.8) THEN
+                      ELSE IF (KPDS(3).EQ.10) THEN
                       ELSE IF (KPDS(3).GE.27.AND.KPDS(3).LE.34) THEN
                       ELSE IF (KPDS(3).EQ.50) THEN
                       ELSE IF (KPDS(3).EQ.53) THEN
                       ELSE IF (KPDS(3).GE.70.AND.KPDS(3).LE.77) THEN
                       ELSE IF (KPDS(3).EQ.98) THEN
+                      ELSE IF (KPDS(3).EQ.99) THEN
                       ELSE IF (KPDS(3).GE.100.AND.KPDS(3).LE.105) THEN
                       ELSE IF (KPDS(3).EQ.126) THEN
+                      ELSE IF (KPDS(3).EQ.195) THEN
                       ELSE IF (KPDS(3).EQ.196) THEN
+                      ELSE IF (KPDS(3).EQ.197) THEN
+                      ELSE IF (KPDS(3).EQ.198) THEN
                       ELSE IF (KPDS(3).GE.201.AND.KPDS(3).LE.237) THEN
                       ELSE
 C                         PRINT *,' HAVE ENCOUNTERED A NEW GRID FOR',
@@ -1235,6 +1260,7 @@ C   95-03-20  M.BALDWIN   FI633 MODIFICATION TO GET
 C                         DATA REP TYPES [KGDS(1)] 201 AND 202 TO WORK.
 C   95-10-31  IREDELL     REMOVED SAVES AND PRINTS
 C   98-09-08  BALDWIN     ADD DATA REP TYPE [KGDS(1)] 203
+C   07-04-24  VUONG       ADD DATA REP TYPE [KGDS(1)] 204
 C                        
 C
 C USAGE:    CALL FI633(MSGA,KPTR,KGDS,KRET)
@@ -1401,7 +1427,8 @@ C     ELSE IF (KGDS(1).EQ.34) THEN
 C     ELSE IF (KGDS(1).EQ.60) THEN
 C     ELSE IF (KGDS(1).EQ.70) THEN
 C     ELSE IF (KGDS(1).EQ.80) THEN
-      ELSE IF (KGDS(1).EQ.201.OR.KGDS(1).EQ.202.OR.KGDS(1).EQ.203) THEN
+      ELSE IF (KGDS(1).EQ.201.OR.KGDS(1).EQ.202.OR.
+     &      KGDS(1).EQ.203.OR.KGDS(1).EQ.204) THEN
           GO TO 1000
       ELSE
 C                      MARK AS GDS/ UNKNOWN DATA REPRESENTATION TYPE
@@ -1422,7 +1449,7 @@ C  -----------
 C ************************************************************
 C  ------------------- LATITUDE/LONGITUDE GRIDS
 C  ------------------- ARAKAWA STAGGERED, SEMI-STAGGERED, OR FILLED
-C                          ROTATED LAT/LON GRIDS
+C       ROTATED LAT/LON GRIDS OR CURVILINEAR ORTHIGINAL GRIDS
 C
 C  ------------------- BYTE 7-8     NR OF POINTS ALONG LATITUDE CIRCLE
  1000 CONTINUE
@@ -1734,6 +1761,10 @@ C                         REDEFINED GRID 192 FOR NEW 32-KM ETA GRID
 C 2003-06-30  GILBERT      ADDED GRIDS 145 and 146 for CMAQ
 C                          and GRID 175 for AWIPS over GUAM.
 C 2004-09-02  VUONG       ADDED AWIPS GRIDS 147, 148, 173 AND 254
+C 2006-12-12  VUONG       ADDED AWIPS GRIDS 120
+C 2007-04-20  VUONG       ADDED AWIPS GRIDS 176
+C 2007-06-11  VUONG       ADDED AWIPS GRIDS 11 TO 18 AND 122 TO 125
+C                         AND 180 TO 183
 C
 C USAGE:    CALL FI634(MSGA,KPTR,KPDS,KGDS,KBMS,KRET)
 C   INPUT ARGUMENT LIST:
@@ -2072,6 +2103,42 @@ C                       ----- U.S. GRID 6 - MAP SIZE 2385
 C                       ----- U.S. GRID 8 - MAP SIZE 5104
                   J   = 5104
                   GO TO 800
+              ELSE IF (KPDS(3).EQ.10) THEN
+C                       ----- U.S. GRID 10 - MAP SIZE 25020
+                  J   = 25020
+                  GO TO 800
+              ELSE IF (KPDS(3).EQ.11) THEN
+C                       ----- U.S. GRID 11 - MAP SIZE 223920
+                  J   = 223920
+                  GO TO 800
+              ELSE IF (KPDS(3).EQ.12) THEN
+C                       ----- U.S. GRID 12 - MAP SIZE 99631
+                  J   = 99631
+                  GO TO 800
+              ELSE IF (KPDS(3).EQ.13) THEN
+C                       ----- U.S. GRID 13 - MAP SIZE 36391
+                  J   = 36391
+                  GO TO 800
+              ELSE IF (KPDS(3).EQ.14) THEN
+C                       ----- U.S. GRID 14 - MAP SIZE 153811
+                  J   = 153811
+                  GO TO 800
+              ELSE IF (KPDS(3).EQ.15) THEN
+C                       ----- U.S. GRID 15 - MAP SIZE 74987
+                  J   = 74987
+                  GO TO 800
+              ELSE IF (KPDS(3).EQ.16) THEN
+C                       ----- U.S. GRID 16 - MAP SIZE 214268
+                  J   = 214268
+                  GO TO 800
+              ELSE IF (KPDS(3).EQ.17) THEN
+C                       ----- U.S. GRID 17 - MAP SIZE 387136
+                  J   = 387136
+                  GO TO 800
+              ELSE IF (KPDS(3).EQ.18) THEN
+C                       ----- U.S. GRID 18 - MAP SIZE 281866
+                  J   = 281866
+                  GO TO 800
               ELSE IF (KPDS(3).EQ.27.OR.KPDS(3).EQ.28) THEN
 C                       ----- U.S. GRIDS 27, 28 - MAP SIZE 4225
                   J     = 4225
@@ -2168,6 +2235,10 @@ C                       ----- U.S GRID 97     - MAP SIZE 12727
 C                       ----- U.S GRID 98     - MAP SIZE 18048
                   J     = 18048
                   GO TO 800
+              ELSE IF (KPDS(3).EQ.99) THEN
+C                       ----- U.S GRID 99     - MAP SIZE 779385
+                  J     = 779385
+                  GO TO 800
               END IF
           ELSE IF (KPDS(3).GE.100.AND.KPDS(3).LT.200) THEN
               IF (KPDS(3).EQ.100) THEN
@@ -2202,6 +2273,26 @@ C                 ----- U.S. GRID 107 - MAP SIZE 11040
 C                 ----- U.S. GRID 110 - MAP SIZE 103936
                   J     = 103936
                   GO TO 800
+              ELSE IF (KPDS(3).EQ.120) THEN
+C                 ----- U.S. GRID 120 - MAP SIZE 2020800
+                  J     = 2020800
+                  GO TO 800
+              ELSE IF (KPDS(3).EQ.122) THEN
+C                 ----- U.S. GRID 122 - MAP SIZE 162750
+                  J     = 162750
+                  GO TO 800
+              ELSE IF (KPDS(3).EQ.123) THEN
+C                 ----- U.S. GRID 123 - MAP SIZE 100800
+                  J     = 100800
+                  GO TO 800
+              ELSE IF (KPDS(3).EQ.124) THEN
+C                 ----- U.S. GRID 124 - MAP SIZE 75360
+                  J     = 75360
+                  GO TO 800
+              ELSE IF (KPDS(3).EQ.125) THEN
+C                 ----- U.S. GRID 125 - MAP SIZE 102000
+                  J     = 102000
+                  GO TO 800
               ELSE IF (KPDS(3).EQ.126) THEN
 C                 ----- U.S. GRID 126 - MAP SIZE 72960
                   J     = 72960
@@ -2213,6 +2304,10 @@ C                 ----- U.S. GRID 127 - MAP SIZE 294912
               ELSE IF (KPDS(3).EQ.130) THEN
 C                 ----- U.S. GRID 130 - MAP SIZE 151987
                   J     = 151987
+                  GO TO 800
+              ELSE IF (KPDS(3).EQ.138) THEN
+C                 ----- U.S. GRID 138 - MAP SIZE 134784
+                  J     = 134784
                   GO TO 800
               ELSE IF (KPDS(3).EQ.145) THEN
 C                 ----- U.S. GRID 145 - MAP SIZE 24505
@@ -2230,19 +2325,26 @@ C                 ----- U.S. GRID 147 - MAP SIZE 69412
 C                 ----- U.S. GRID 148 - MAP SIZE 117130
                   J     = 117130
                   GO TO 800
+              ELSE IF (KPDS(3).EQ.150) THEN
+C                 ----- U.S. GRID 150 - MAP SIZE 806010
+                  J     = 806010
+                  GO TO 800
+              ELSE IF (KPDS(3).EQ.151) THEN
+C                 ----- U.S. GRID 151 - MAP SIZE 205062
+                  J     = 205062
+                  GO TO 800
               ELSE IF (KPDS(3).EQ.160) THEN
 C                 ----- U.S. GRID 160 - MAP SIZE 28080 
                   J     = 28080
                   GO TO 800
               ELSE IF (KPDS(3).EQ.161) THEN
 C                 ----- U.S. GRID 161 - MAP SIZE 13974 
-                  J     = 13974 
+                  J     = 13974
                   GO TO 800
               ELSE IF (KPDS(3).EQ.163) THEN
 C                 ----- U.S. GRID 163 - MAP SIZE 727776
                   J     = 727776
                   GO TO 800
-
               ELSE IF (KPDS(3).EQ.170) THEN
 C                 ----- U.S. GRID 170 - MAP SIZE 131072 
                   J     =  131072
@@ -2267,6 +2369,26 @@ C                 ----- U.S. GRID 174 - MAP SIZE 4147200
 C                 ----- U.S. GRID 175 - MAP SIZE 185704
                   J     = 185704
                   GO TO 800
+              ELSE IF (KPDS(3).EQ.176) THEN
+C                 ----- U.S. GRID 176 - MAP SIZE 76845
+                  J     = 76845
+                  GO TO 800
+              ELSE IF (KPDS(3).EQ.180) THEN
+C                 ----- U.S. GRID 180 - MAP SIZE 267168
+                  J     = 267168
+                  GO TO 800
+              ELSE IF (KPDS(3).EQ.181) THEN
+C                 ----- U.S. GRID 181 - MAP SIZE 102860
+                  J     = 102860
+                  GO TO 800
+              ELSE IF (KPDS(3).EQ.182) THEN
+C                 ----- U.S. GRID 182 - MAP SIZE 64218
+                  J     = 64218
+                  GO TO 800
+              ELSE IF (KPDS(3).EQ.183) THEN
+C                 ----- U.S. GRID 183 - MAP SIZE 180144
+                  J     = 180144
+                  GO TO 800
               ELSE IF (KPDS(3).EQ.190) THEN
 C                 ----- U.S GRID 190  - MAP SIZE 12972
                   J     = 12972
@@ -2279,13 +2401,21 @@ C                 ----- U.S GRID 192  - MAP SIZE 91719
 C                 ----- U.S GRID 194  - MAP SIZE 12727
                   J     = 12727
                   GO TO 800
+              ELSE IF (KPDS(3).EQ.195) THEN
+C                 ----- U.S. GRID 195 - MAP SIZE 22833
+                  J     = 22833
+                  GO TO 800
               ELSE IF (KPDS(3).EQ.196) THEN
-C                 ----- U.S. GRID 196 - MAP SIZE 45903
-                  J     = 45903
+C                 ----- U.S. GRID 196 - MAP SIZE 72225
+                  J     = 72225
+                  GO TO 800
+              ELSE IF (KPDS(3).EQ.197) THEN
+C                 ----- U.S. GRID 197 - MAP SIZE 739297
+                  J     = 739297
                   GO TO 800
               ELSE IF (KPDS(3).EQ.198) THEN
-C                 ----- U.S. GRID 198 - MAP SIZE 41760
-                  J     = 41760
+C                 ----- U.S. GRID 198 - MAP SIZE 456225
+                  J     = 456225
                   GO TO 800
               ELSE IF (IAND(KPDS(4),128).EQ.128) THEN
 C                     ----- U.S. NON-STANDARD GRID
@@ -3707,6 +3837,14 @@ C  ---------------------------------------
               IF (I.NE.J) THEN
                   RETURN
               END IF
+          ELSE IF (KPDS(3).EQ.10) THEN
+              IF (I.NE.J) THEN
+                  RETURN
+              END IF
+          ELSE IF (KPDS(3).GE.11.AND.KPDS(3).LE.18) THEN
+              IF (I.NE.J) THEN
+                  RETURN
+              END IF
           ELSE IF (KPDS(3).GE.27.AND.KPDS(3).LE.30) THEN
               IF (I.NE.J) THEN
                   RETURN
@@ -3735,7 +3873,7 @@ C  ---------------------------------------
               IF (I.NE.J) THEN
                   RETURN
               END IF
-          ELSE IF (KPDS(3).GE.90.AND.KPDS(3).LE.98) THEN
+          ELSE IF (KPDS(3).GE.90.AND.KPDS(3).LE.99) THEN
               IF (I.NE.J) THEN
                   RETURN
               END IF
@@ -3751,7 +3889,11 @@ C  ---------------------------------------
               IF (I.NE.J) THEN
                   RETURN
               END IF
-          ELSE IF (KPDS(3).EQ.126.OR.KPDS(3).EQ.127) THEN
+          ELSE IF (KPDS(3).EQ.120) THEN
+              IF (I.NE.J) THEN
+                  RETURN
+              END IF
+          ELSE IF (KPDS(3).GE.122.AND.KPDS(3).LE.127) THEN
               IF (I.NE.J) THEN
                   RETURN
               END IF
@@ -3759,7 +3901,15 @@ C  ---------------------------------------
               IF (I.NE.J) THEN
                   RETURN
               END IF
+          ELSE IF (KPDS(3).EQ.138) THEN
+              IF (I.NE.J) THEN
+                  RETURN
+              END IF
           ELSE IF (KPDS(3).GE.145.AND.KPDS(3).LE.148) THEN
+              IF (I.NE.J) THEN
+                  RETURN
+              END IF
+          ELSE IF (KPDS(3).EQ.150.OR.KPDS(3).EQ.151) THEN
               IF (I.NE.J) THEN
                   RETURN
               END IF
@@ -3771,7 +3921,11 @@ C  ---------------------------------------
               IF (I.NE.J) THEN
                   RETURN
               END IF
-          ELSE IF (KPDS(3).GE.170.AND.KPDS(3).LE.175) THEN
+          ELSE IF (KPDS(3).GE.170.AND.KPDS(3).LE.176) THEN
+              IF (I.NE.J) THEN
+                  RETURN
+              END IF
+          ELSE IF (KPDS(3).GE.180.AND.KPDS(3).LE.183) THEN
               IF (I.NE.J) THEN
                   RETURN
               END IF
@@ -3779,11 +3933,7 @@ C  ---------------------------------------
               IF (I.NE.J) THEN
                   RETURN
               END IF
-          ELSE IF (KPDS(3).EQ.194.OR.KPDS(3).EQ.196) THEN
-              IF (I.NE.J) THEN
-                  RETURN
-              END IF
-          ELSE IF (KPDS(3).EQ.198) THEN
+          ELSE IF (KPDS(3).GE.194.AND.KPDS(3).LE.198) THEN
               IF (I.NE.J) THEN
                   RETURN
               END IF

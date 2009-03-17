@@ -13,6 +13,11 @@
 ! 2003-09-26  Gilbert  -  Added more parameters
 ! 2005-11-17  Gordon   -  Added more parameters for the Wave & Smoke models 
 ! 2007-03-28  Vuong    -  Added more parameters
+! 2007-10-10  Vuong    -  Added more parameters
+! 2008-03-12  Vuong    -  Added more parameters
+! 2008-06-30  Vuong    -  Reformat entry paramlist from 1 to 173
+!                         Added more parameters and entire table 131 
+! 2008-11-21  Vuong    -  Added more parameters
 !
 ! USAGE:    use params
 !
@@ -22,7 +27,7 @@
 !
 !$$$
 
-      integer,parameter :: MAXPARAM=336
+      integer,parameter :: MAXPARAM=701
 
       type gribparam
           integer :: g1tblver
@@ -35,2031 +40,715 @@
 
       type(gribparam),dimension(MAXPARAM) :: paramlist
 
-      data paramlist(1)%g1tblver /2/ 
-      data paramlist(1)%grib1val /1/ 
-      data paramlist(1)%grib2dsc /0/ 
-      data paramlist(1)%grib2cat /3/ 
-      data paramlist(1)%grib2num /0/ 
-      data paramlist(1)%abbrev   /'PRES    '/ 
-      data paramlist(2)%g1tblver /2/ 
-      data paramlist(2)%grib1val /2/ 
-      data paramlist(2)%grib2dsc /0/ 
-      data paramlist(2)%grib2cat /3/ 
-      data paramlist(2)%grib2num /1/ 
-      data paramlist(2)%abbrev   /'PRMSL   '/ 
-      data paramlist(3)%g1tblver /2/ 
-      data paramlist(3)%grib1val /3/ 
-      data paramlist(3)%grib2dsc /0/ 
-      data paramlist(3)%grib2cat /3/ 
-      data paramlist(3)%grib2num /2/ 
-      data paramlist(3)%abbrev   /'PTEND   '/ 
-      data paramlist(4)%g1tblver /2/ 
-      data paramlist(4)%grib1val /4/ 
-      data paramlist(4)%grib2dsc /0/ 
-      data paramlist(4)%grib2cat /2/ 
-      data paramlist(4)%grib2num /14/ 
-      data paramlist(4)%abbrev   /'PVORT   '/ 
-      data paramlist(5)%g1tblver /2/ 
-      data paramlist(5)%grib1val /5/ 
-      data paramlist(5)%grib2dsc /0/ 
-      data paramlist(5)%grib2cat /3/ 
-      data paramlist(5)%grib2num /3/ 
-      data paramlist(5)%abbrev   /'ICAHT   '/ 
-      data paramlist(6)%g1tblver /2/ 
-      data paramlist(6)%grib1val /6/ 
-      data paramlist(6)%grib2dsc /0/ 
-      data paramlist(6)%grib2cat /3/ 
-      data paramlist(6)%grib2num /4/ 
-      data paramlist(6)%abbrev   /'GP      '/ 
-      data paramlist(7)%g1tblver /2/ 
-      data paramlist(7)%grib1val /7/ 
-      data paramlist(7)%grib2dsc /0/ 
-      data paramlist(7)%grib2cat /3/ 
-      data paramlist(7)%grib2num /5/ 
-      data paramlist(7)%abbrev   /'HGT     '/ 
-      data paramlist(8)%g1tblver /2/ 
-      data paramlist(8)%grib1val /8/ 
-      data paramlist(8)%grib2dsc /0/ 
-      data paramlist(8)%grib2cat /3/ 
-      data paramlist(8)%grib2num /6/ 
-      data paramlist(8)%abbrev   /'DIST    '/ 
-      data paramlist(9)%g1tblver /2/ 
-      data paramlist(9)%grib1val /9/ 
-      data paramlist(9)%grib2dsc /0/ 
-      data paramlist(9)%grib2cat /3/ 
-      data paramlist(9)%grib2num /7/ 
-      data paramlist(9)%abbrev   /'HSTDV   '/ 
-      data paramlist(10)%g1tblver /2/ 
-      data paramlist(10)%grib1val /10/ 
-      data paramlist(10)%grib2dsc /0/ 
-      data paramlist(10)%grib2cat /14/ 
-      data paramlist(10)%grib2num /0/ 
-      data paramlist(10)%abbrev   /'TOZNE   '/ 
-      data paramlist(11)%g1tblver /2/ 
-      data paramlist(11)%grib1val /11/ 
-      data paramlist(11)%grib2dsc /0/ 
-      data paramlist(11)%grib2cat /0/ 
-      data paramlist(11)%grib2num /0/ 
-      data paramlist(11)%abbrev   /'TMP     '/ 
-      data paramlist(12)%g1tblver /2/ 
-      data paramlist(12)%grib1val /12/ 
-      data paramlist(12)%grib2dsc /0/ 
-      data paramlist(12)%grib2cat /0/ 
-      data paramlist(12)%grib2num /1/ 
-      data paramlist(12)%abbrev   /'VTMP    '/ 
-      data paramlist(13)%g1tblver /2/ 
-      data paramlist(13)%grib1val /13/ 
-      data paramlist(13)%grib2dsc /0/ 
-      data paramlist(13)%grib2cat /0/ 
-      data paramlist(13)%grib2num /2/ 
-      data paramlist(13)%abbrev   /'POT     '/ 
-      data paramlist(14)%g1tblver /2/ 
-      data paramlist(14)%grib1val /14/ 
-      data paramlist(14)%grib2dsc /0/ 
-      data paramlist(14)%grib2cat /0/ 
-      data paramlist(14)%grib2num /3/ 
-      data paramlist(14)%abbrev   /'EPOT    '/ 
-      data paramlist(15)%g1tblver /2/ 
-      data paramlist(15)%grib1val /15/ 
-      data paramlist(15)%grib2dsc /0/ 
-      data paramlist(15)%grib2cat /0/ 
-      data paramlist(15)%grib2num /4/ 
-      data paramlist(15)%abbrev   /'T MAX   '/ 
-      data paramlist(16)%g1tblver /2/ 
-      data paramlist(16)%grib1val /16/ 
-      data paramlist(16)%grib2dsc /0/ 
-      data paramlist(16)%grib2cat /0/ 
-      data paramlist(16)%grib2num /5/ 
-      data paramlist(16)%abbrev   /'T MIN   '/ 
-      data paramlist(17)%g1tblver /2/ 
-      data paramlist(17)%grib1val /17/ 
-      data paramlist(17)%grib2dsc /0/ 
-      data paramlist(17)%grib2cat /0/ 
-      data paramlist(17)%grib2num /6/ 
-      data paramlist(17)%abbrev   /'DPT     '/ 
-      data paramlist(18)%g1tblver /2/ 
-      data paramlist(18)%grib1val /18/ 
-      data paramlist(18)%grib2dsc /0/ 
-      data paramlist(18)%grib2cat /0/ 
-      data paramlist(18)%grib2num /7/ 
-      data paramlist(18)%abbrev   /'DEPR    '/ 
-      data paramlist(19)%g1tblver /2/ 
-      data paramlist(19)%grib1val /19/ 
-      data paramlist(19)%grib2dsc /0/ 
-      data paramlist(19)%grib2cat /0/ 
-      data paramlist(19)%grib2num /8/ 
-      data paramlist(19)%abbrev   /'LAPR    '/ 
-      data paramlist(20)%g1tblver /2/ 
-      data paramlist(20)%grib1val /20/ 
-      data paramlist(20)%grib2dsc /0/ 
-      data paramlist(20)%grib2cat /19/ 
-      data paramlist(20)%grib2num /0/ 
-      data paramlist(20)%abbrev   /'VIS     '/ 
-      data paramlist(21)%g1tblver /2/ 
-      data paramlist(21)%grib1val /21/ 
-      data paramlist(21)%grib2dsc /0/ 
-      data paramlist(21)%grib2cat /15/ 
-      data paramlist(21)%grib2num /6/ 
-      data paramlist(21)%abbrev   /'RDSP1   '/ 
-      data paramlist(22)%g1tblver /2/ 
-      data paramlist(22)%grib1val /22/ 
-      data paramlist(22)%grib2dsc /0/ 
-      data paramlist(22)%grib2cat /15/ 
-      data paramlist(22)%grib2num /7/ 
-      data paramlist(22)%abbrev   /'RDSP2   '/ 
-      data paramlist(23)%g1tblver /2/ 
-      data paramlist(23)%grib1val /23/ 
-      data paramlist(23)%grib2dsc /0/ 
-      data paramlist(23)%grib2cat /15/ 
-      data paramlist(23)%grib2num /8/ 
-      data paramlist(23)%abbrev   /'RDSP3   '/ 
-      data paramlist(24)%g1tblver /2/ 
-      data paramlist(24)%grib1val /24/ 
-      data paramlist(24)%grib2dsc /0/ 
-      data paramlist(24)%grib2cat /7/ 
-      data paramlist(24)%grib2num /0/ 
-      data paramlist(24)%abbrev   /'PLI     '/ 
-      data paramlist(25)%g1tblver /2/ 
-      data paramlist(25)%grib1val /25/ 
-      data paramlist(25)%grib2dsc /0/ 
-      data paramlist(25)%grib2cat /0/ 
-      data paramlist(25)%grib2num /9/ 
-      data paramlist(25)%abbrev   /'TMP A   '/ 
-      data paramlist(26)%g1tblver /2/ 
-      data paramlist(26)%grib1val /26/ 
-      data paramlist(26)%grib2dsc /0/ 
-      data paramlist(26)%grib2cat /3/ 
-      data paramlist(26)%grib2num /8/ 
-      data paramlist(26)%abbrev   /'PRESA   '/ 
-      data paramlist(27)%g1tblver /2/ 
-      data paramlist(27)%grib1val /27/ 
-      data paramlist(27)%grib2dsc /0/ 
-      data paramlist(27)%grib2cat /3/ 
-      data paramlist(27)%grib2num /9/ 
-      data paramlist(27)%abbrev   /'GP A    '/ 
-      data paramlist(28)%g1tblver /2/ 
-      data paramlist(28)%grib1val /28/ 
-      data paramlist(28)%grib2dsc /10/ 
-      data paramlist(28)%grib2cat /0/ 
-      data paramlist(28)%grib2num /0/ 
-      data paramlist(28)%abbrev   /'WVSP1   '/ 
-      data paramlist(29)%g1tblver /2/ 
-      data paramlist(29)%grib1val /29/ 
-      data paramlist(29)%grib2dsc /10/ 
-      data paramlist(29)%grib2cat /0/ 
-      data paramlist(29)%grib2num /1/ 
-      data paramlist(29)%abbrev   /'WVSP2   '/ 
-      data paramlist(30)%g1tblver /2/ 
-      data paramlist(30)%grib1val /30/ 
-      data paramlist(30)%grib2dsc /10/ 
-      data paramlist(30)%grib2cat /0/ 
-      data paramlist(30)%grib2num /2/ 
-      data paramlist(30)%abbrev   /'WVSP3   '/ 
-      data paramlist(31)%g1tblver /2/ 
-      data paramlist(31)%grib1val /31/ 
-      data paramlist(31)%grib2dsc /0/ 
-      data paramlist(31)%grib2cat /2/ 
-      data paramlist(31)%grib2num /0/ 
-      data paramlist(31)%abbrev   /'WDIR    '/ 
-      data paramlist(32)%g1tblver /2/ 
-      data paramlist(32)%grib1val /32/ 
-      data paramlist(32)%grib2dsc /0/ 
-      data paramlist(32)%grib2cat /2/ 
-      data paramlist(32)%grib2num /1/ 
-      data paramlist(32)%abbrev   /'WIND    '/ 
-      data paramlist(33)%g1tblver /2/ 
-      data paramlist(33)%grib1val /33/ 
-      data paramlist(33)%grib2dsc /0/ 
-      data paramlist(33)%grib2cat /2/ 
-      data paramlist(33)%grib2num /2/ 
-      data paramlist(33)%abbrev   /'U GRD   '/ 
-      data paramlist(34)%g1tblver /2/ 
-      data paramlist(34)%grib1val /34/ 
-      data paramlist(34)%grib2dsc /0/ 
-      data paramlist(34)%grib2cat /2/ 
-      data paramlist(34)%grib2num /3/ 
-      data paramlist(34)%abbrev   /'V GRD   '/ 
-      data paramlist(35)%g1tblver /2/ 
-      data paramlist(35)%grib1val /35/ 
-      data paramlist(35)%grib2dsc /0/ 
-      data paramlist(35)%grib2cat /2/ 
-      data paramlist(35)%grib2num /4/ 
-      data paramlist(35)%abbrev   /'STRM    '/ 
-      data paramlist(36)%g1tblver /2/ 
-      data paramlist(36)%grib1val /36/ 
-      data paramlist(36)%grib2dsc /0/ 
-      data paramlist(36)%grib2cat /2/ 
-      data paramlist(36)%grib2num /5/ 
-      data paramlist(36)%abbrev   /'V POT   '/ 
-      data paramlist(37)%g1tblver /2/ 
-      data paramlist(37)%grib1val /37/ 
-      data paramlist(37)%grib2dsc /0/ 
-      data paramlist(37)%grib2cat /2/ 
-      data paramlist(37)%grib2num /6/ 
-      data paramlist(37)%abbrev   /'MNTSF   '/ 
-      data paramlist(38)%g1tblver /2/ 
-      data paramlist(38)%grib1val /38/ 
-      data paramlist(38)%grib2dsc /0/ 
-      data paramlist(38)%grib2cat /2/ 
-      data paramlist(38)%grib2num /7/ 
-      data paramlist(38)%abbrev   /'SGCVV   '/ 
-      data paramlist(39)%g1tblver /2/ 
-      data paramlist(39)%grib1val /39/ 
-      data paramlist(39)%grib2dsc /0/ 
-      data paramlist(39)%grib2cat /2/ 
-      data paramlist(39)%grib2num /8/ 
-      data paramlist(39)%abbrev   /'V VEL   '/ 
-      data paramlist(40)%g1tblver /2/ 
-      data paramlist(40)%grib1val /40/ 
-      data paramlist(40)%grib2dsc /0/ 
-      data paramlist(40)%grib2cat /2/ 
-      data paramlist(40)%grib2num /9/ 
-      data paramlist(40)%abbrev   /'DZDT    '/ 
-      data paramlist(41)%g1tblver /2/ 
-      data paramlist(41)%grib1val /41/ 
-      data paramlist(41)%grib2dsc /0/ 
-      data paramlist(41)%grib2cat /2/ 
-      data paramlist(41)%grib2num /10/ 
-      data paramlist(41)%abbrev   /'ABS V   '/ 
-      data paramlist(42)%g1tblver /2/ 
-      data paramlist(42)%grib1val /42/ 
-      data paramlist(42)%grib2dsc /0/ 
-      data paramlist(42)%grib2cat /2/ 
-      data paramlist(42)%grib2num /11/ 
-      data paramlist(42)%abbrev   /'ABS D   '/ 
-      data paramlist(43)%g1tblver /2/ 
-      data paramlist(43)%grib1val /43/ 
-      data paramlist(43)%grib2dsc /0/ 
-      data paramlist(43)%grib2cat /2/ 
-      data paramlist(43)%grib2num /12/ 
-      data paramlist(43)%abbrev   /'REL V   '/ 
-      data paramlist(44)%g1tblver /2/ 
-      data paramlist(44)%grib1val /44/ 
-      data paramlist(44)%grib2dsc /0/ 
-      data paramlist(44)%grib2cat /2/ 
-      data paramlist(44)%grib2num /13/ 
-      data paramlist(44)%abbrev   /'REL D   '/ 
-      data paramlist(45)%g1tblver /2/ 
-      data paramlist(45)%grib1val /45/ 
-      data paramlist(45)%grib2dsc /0/ 
-      data paramlist(45)%grib2cat /2/ 
-      data paramlist(45)%grib2num /15/ 
-      data paramlist(45)%abbrev   /'VUCSH   '/ 
-      data paramlist(46)%g1tblver /2/ 
-      data paramlist(46)%grib1val /46/ 
-      data paramlist(46)%grib2dsc /0/ 
-      data paramlist(46)%grib2cat /2/ 
-      data paramlist(46)%grib2num /16/ 
-      data paramlist(46)%abbrev   /'VVCSH   '/ 
-      data paramlist(47)%g1tblver /2/ 
-      data paramlist(47)%grib1val /47/ 
-      data paramlist(47)%grib2dsc /10/ 
-      data paramlist(47)%grib2cat /1/ 
-      data paramlist(47)%grib2num /0/ 
-      data paramlist(47)%abbrev   /'DIR C   '/ 
-      data paramlist(48)%g1tblver /2/ 
-      data paramlist(48)%grib1val /48/ 
-      data paramlist(48)%grib2dsc /10/ 
-      data paramlist(48)%grib2cat /1/ 
-      data paramlist(48)%grib2num /1/ 
-      data paramlist(48)%abbrev   /'SP C    '/ 
-      data paramlist(49)%g1tblver /2/ 
-      data paramlist(49)%grib1val /49/ 
-      data paramlist(49)%grib2dsc /10/ 
-      data paramlist(49)%grib2cat /1/ 
-      data paramlist(49)%grib2num /2/ 
-      data paramlist(49)%abbrev   /'UOGRD   '/ 
-      data paramlist(50)%g1tblver /2/ 
-      data paramlist(50)%grib1val /50/ 
-      data paramlist(50)%grib2dsc /10/ 
-      data paramlist(50)%grib2cat /1/ 
-      data paramlist(50)%grib2num /3/ 
-      data paramlist(50)%abbrev   /'VOGRD   '/ 
-      data paramlist(51)%g1tblver /2/ 
-      data paramlist(51)%grib1val /51/ 
-      data paramlist(51)%grib2dsc /0/ 
-      data paramlist(51)%grib2cat /1/ 
-      data paramlist(51)%grib2num /0/ 
-      data paramlist(51)%abbrev   /'SPF H   '/ 
-      data paramlist(52)%g1tblver /2/ 
-      data paramlist(52)%grib1val /52/ 
-      data paramlist(52)%grib2dsc /0/ 
-      data paramlist(52)%grib2cat /1/ 
-      data paramlist(52)%grib2num /1/ 
-      data paramlist(52)%abbrev   /'R H     '/ 
-      data paramlist(53)%g1tblver /2/ 
-      data paramlist(53)%grib1val /53/ 
-      data paramlist(53)%grib2dsc /0/ 
-      data paramlist(53)%grib2cat /1/ 
-      data paramlist(53)%grib2num /2/ 
-      data paramlist(53)%abbrev   /'MIXR    '/ 
-      data paramlist(54)%g1tblver /2/ 
-      data paramlist(54)%grib1val /54/ 
-      data paramlist(54)%grib2dsc /0/ 
-      data paramlist(54)%grib2cat /1/ 
-      data paramlist(54)%grib2num /3/ 
-      data paramlist(54)%abbrev   /'P WAT   '/ 
-      data paramlist(55)%g1tblver /2/ 
-      data paramlist(55)%grib1val /55/ 
-      data paramlist(55)%grib2dsc /0/ 
-      data paramlist(55)%grib2cat /1/ 
-      data paramlist(55)%grib2num /4/ 
-      data paramlist(55)%abbrev   /'VAPP    '/ 
-      data paramlist(56)%g1tblver /2/ 
-      data paramlist(56)%grib1val /56/ 
-      data paramlist(56)%grib2dsc /0/ 
-      data paramlist(56)%grib2cat /1/ 
-      data paramlist(56)%grib2num /5/ 
-      data paramlist(56)%abbrev   /'SAT D   '/ 
-      data paramlist(57)%g1tblver /2/ 
-      data paramlist(57)%grib1val /57/ 
-      data paramlist(57)%grib2dsc /0/ 
-      data paramlist(57)%grib2cat /1/ 
-      data paramlist(57)%grib2num /6/ 
-      data paramlist(57)%abbrev   /'EVP     '/ 
-      data paramlist(58)%g1tblver /2/ 
-      data paramlist(58)%grib1val /58/ 
-      data paramlist(58)%grib2dsc /0/ 
-      data paramlist(58)%grib2cat /6/ 
-      data paramlist(58)%grib2num /0/ 
-      data paramlist(58)%abbrev   /'C ICE   '/ 
-      data paramlist(59)%g1tblver /2/ 
-      data paramlist(59)%grib1val /59/ 
-      data paramlist(59)%grib2dsc /0/ 
-      data paramlist(59)%grib2cat /1/ 
-      data paramlist(59)%grib2num /7/ 
-      data paramlist(59)%abbrev   /'PRATE   '/ 
-      data paramlist(60)%g1tblver /2/ 
-      data paramlist(60)%grib1val /60/ 
-      data paramlist(60)%grib2dsc /0/ 
-      data paramlist(60)%grib2cat /19/ 
-      data paramlist(60)%grib2num /2/ 
-      data paramlist(60)%abbrev   /'TSTM    '/ 
-      data paramlist(61)%g1tblver /2/ 
-      data paramlist(61)%grib1val /61/ 
-      data paramlist(61)%grib2dsc /0/ 
-      data paramlist(61)%grib2cat /1/ 
-      data paramlist(61)%grib2num /8/ 
-      data paramlist(61)%abbrev   /'A PCP   '/ 
-      data paramlist(62)%g1tblver /2/ 
-      data paramlist(62)%grib1val /62/ 
-      data paramlist(62)%grib2dsc /0/ 
-      data paramlist(62)%grib2cat /1/ 
-      data paramlist(62)%grib2num /9/ 
-      data paramlist(62)%abbrev   /'NCPCP   '/ 
-      data paramlist(63)%g1tblver /2/ 
-      data paramlist(63)%grib1val /63/ 
-      data paramlist(63)%grib2dsc /0/ 
-      data paramlist(63)%grib2cat /1/ 
-      data paramlist(63)%grib2num /10/ 
-      data paramlist(63)%abbrev   /'ACPCP   '/ 
-      data paramlist(64)%g1tblver /2/ 
-      data paramlist(64)%grib1val /64/ 
-      data paramlist(64)%grib2dsc /0/ 
-      data paramlist(64)%grib2cat /1/ 
-      data paramlist(64)%grib2num /12/ 
-      data paramlist(64)%abbrev   /'SRWEQ   '/ 
-      data paramlist(65)%g1tblver /2/ 
-      data paramlist(65)%grib1val /65/ 
-      data paramlist(65)%grib2dsc /0/ 
-      data paramlist(65)%grib2cat /1/ 
-      data paramlist(65)%grib2num /13/ 
-      data paramlist(65)%abbrev   /'WEASD   '/ 
-      data paramlist(66)%g1tblver /2/ 
-      data paramlist(66)%grib1val /66/ 
-      data paramlist(66)%grib2dsc /0/ 
-      data paramlist(66)%grib2cat /1/ 
-      data paramlist(66)%grib2num /11/ 
-      data paramlist(66)%abbrev   /'SNO D   '/ 
-      data paramlist(67)%g1tblver /2/ 
-      data paramlist(67)%grib1val /67/ 
-      data paramlist(67)%grib2dsc /0/ 
-      data paramlist(67)%grib2cat /19/ 
-      data paramlist(67)%grib2num /3/ 
-      data paramlist(67)%abbrev   /'MIXHT   '/ 
-      data paramlist(68)%g1tblver /2/ 
-      data paramlist(68)%grib1val /68/ 
-      data paramlist(68)%grib2dsc /10/ 
-      data paramlist(68)%grib2cat /4/ 
-      data paramlist(68)%grib2num /2/ 
-      data paramlist(68)%abbrev   /'TTHDP   '/ 
-      data paramlist(69)%g1tblver /2/ 
-      data paramlist(69)%grib1val /69/ 
-      data paramlist(69)%grib2dsc /10/ 
-      data paramlist(69)%grib2cat /4/ 
-      data paramlist(69)%grib2num /0/ 
-      data paramlist(69)%abbrev   /'MTHD    '/ 
-      data paramlist(70)%g1tblver /2/ 
-      data paramlist(70)%grib1val /70/ 
-      data paramlist(70)%grib2dsc /10/ 
-      data paramlist(70)%grib2cat /4/ 
-      data paramlist(70)%grib2num /1/ 
-      data paramlist(70)%abbrev   /'MTH A   '/ 
-      data paramlist(71)%g1tblver /2/ 
-      data paramlist(71)%grib1val /71/ 
-      data paramlist(71)%grib2dsc /0/ 
-      data paramlist(71)%grib2cat /6/ 
-      data paramlist(71)%grib2num /1/ 
-      data paramlist(71)%abbrev   /'T CDC   '/ 
-      data paramlist(72)%g1tblver /2/ 
-      data paramlist(72)%grib1val /72/ 
-      data paramlist(72)%grib2dsc /0/ 
-      data paramlist(72)%grib2cat /6/ 
-      data paramlist(72)%grib2num /2/ 
-      data paramlist(72)%abbrev   /'CDCON   '/ 
-      data paramlist(73)%g1tblver /2/ 
-      data paramlist(73)%grib1val /73/ 
-      data paramlist(73)%grib2dsc /0/ 
-      data paramlist(73)%grib2cat /6/ 
-      data paramlist(73)%grib2num /3/ 
-      data paramlist(73)%abbrev   /'L CDC   '/ 
-      data paramlist(74)%g1tblver /2/ 
-      data paramlist(74)%grib1val /74/ 
-      data paramlist(74)%grib2dsc /0/ 
-      data paramlist(74)%grib2cat /6/ 
-      data paramlist(74)%grib2num /4/ 
-      data paramlist(74)%abbrev   /'M CDC   '/ 
-      data paramlist(75)%g1tblver /2/ 
-      data paramlist(75)%grib1val /75/ 
-      data paramlist(75)%grib2dsc /0/ 
-      data paramlist(75)%grib2cat /6/ 
-      data paramlist(75)%grib2num /5/ 
-      data paramlist(75)%abbrev   /'H CDC   '/ 
-      data paramlist(76)%g1tblver /2/ 
-      data paramlist(76)%grib1val /76/ 
-      data paramlist(76)%grib2dsc /0/ 
-      data paramlist(76)%grib2cat /6/ 
-      data paramlist(76)%grib2num /6/ 
-      data paramlist(76)%abbrev   /'C WAT   '/ 
-      data paramlist(77)%g1tblver /2/ 
-      data paramlist(77)%grib1val /77/ 
-      data paramlist(77)%grib2dsc /0/ 
-      data paramlist(77)%grib2cat /7/ 
-      data paramlist(77)%grib2num /1/ 
-      data paramlist(77)%abbrev   /'BLI     '/ 
-      data paramlist(78)%g1tblver /2/ 
-      data paramlist(78)%grib1val /78/ 
-      data paramlist(78)%grib2dsc /0/ 
-      data paramlist(78)%grib2cat /1/ 
-      data paramlist(78)%grib2num /14/ 
-      data paramlist(78)%abbrev   /'SNO C   '/ 
-      data paramlist(79)%g1tblver /2/ 
-      data paramlist(79)%grib1val /79/ 
-      data paramlist(79)%grib2dsc /0/ 
-      data paramlist(79)%grib2cat /1/ 
-      data paramlist(79)%grib2num /15/ 
-      data paramlist(79)%abbrev   /'SNO L   '/ 
-      data paramlist(80)%g1tblver /2/ 
-      data paramlist(80)%grib1val /80/ 
-      data paramlist(80)%grib2dsc /10/ 
-      data paramlist(80)%grib2cat /3/ 
-      data paramlist(80)%grib2num /0/ 
-      data paramlist(80)%abbrev   /'WTMP    '/ 
-      data paramlist(81)%g1tblver /2/ 
-      data paramlist(81)%grib1val /81/ 
-      data paramlist(81)%grib2dsc /2/ 
-      data paramlist(81)%grib2cat /0/ 
-      data paramlist(81)%grib2num /0/ 
-      data paramlist(81)%abbrev   /'LAND    '/ 
-      data paramlist(82)%g1tblver /2/ 
-      data paramlist(82)%grib1val /82/ 
-      data paramlist(82)%grib2dsc /10/ 
-      data paramlist(82)%grib2cat /3/ 
-      data paramlist(82)%grib2num /1/ 
-      data paramlist(82)%abbrev   /'DSL M   '/ 
-      data paramlist(83)%g1tblver /2/ 
-      data paramlist(83)%grib1val /83/ 
-      data paramlist(83)%grib2dsc /2/ 
-      data paramlist(83)%grib2cat /0/ 
-      data paramlist(83)%grib2num /1/ 
-      data paramlist(83)%abbrev   /'SFC R   '/ 
-      data paramlist(84)%g1tblver /2/ 
-      data paramlist(84)%grib1val /84/ 
-      data paramlist(84)%grib2dsc /0/ 
-      data paramlist(84)%grib2cat /19/ 
-      data paramlist(84)%grib2num /1/ 
-      data paramlist(84)%abbrev   /'ALBDO   '/ 
-      data paramlist(85)%g1tblver /2/ 
-      data paramlist(85)%grib1val /85/ 
-      data paramlist(85)%grib2dsc /2/ 
-      data paramlist(85)%grib2cat /0/ 
-      data paramlist(85)%grib2num /2/ 
-      data paramlist(85)%abbrev   /'TSOIL   '/ 
-      data paramlist(86)%g1tblver /2/ 
-      data paramlist(86)%grib1val /86/ 
-      data paramlist(86)%grib2dsc /2/ 
-      data paramlist(86)%grib2cat /0/ 
-      data paramlist(86)%grib2num /3/ 
-      data paramlist(86)%abbrev   /'SOIL M  '/ 
-      data paramlist(87)%g1tblver /2/ 
-      data paramlist(87)%grib1val /87/ 
-      data paramlist(87)%grib2dsc /2/ 
-      data paramlist(87)%grib2cat /0/ 
-      data paramlist(87)%grib2num /4/ 
-      data paramlist(87)%abbrev   /'VEG     '/ 
-      data paramlist(88)%g1tblver /2/ 
-      data paramlist(88)%grib1val /88/ 
-      data paramlist(88)%grib2dsc /10/ 
-      data paramlist(88)%grib2cat /4/ 
-      data paramlist(88)%grib2num /3/ 
-      data paramlist(88)%abbrev   /'SALTY   '/ 
-      data paramlist(89)%g1tblver /2/ 
-      data paramlist(89)%grib1val /89/ 
-      data paramlist(89)%grib2dsc /0/ 
-      data paramlist(89)%grib2cat /3/ 
-      data paramlist(89)%grib2num /10/ 
-      data paramlist(89)%abbrev   /'DEN     '/ 
-      data paramlist(90)%g1tblver /2/ 
-      data paramlist(90)%grib1val /90/ 
-      data paramlist(90)%grib2dsc /2/ 
-      data paramlist(90)%grib2cat /0/ 
-      data paramlist(90)%grib2num /5/ 
-      data paramlist(90)%abbrev   /'WATR    '/ 
-      data paramlist(91)%g1tblver /2/ 
-      data paramlist(91)%grib1val /91/ 
-      data paramlist(91)%grib2dsc /10/ 
-      data paramlist(91)%grib2cat /2/ 
-      data paramlist(91)%grib2num /0/ 
-      data paramlist(91)%abbrev   /'ICE C   '/ 
-      data paramlist(92)%g1tblver /2/ 
-      data paramlist(92)%grib1val /92/ 
-      data paramlist(92)%grib2dsc /10/ 
-      data paramlist(92)%grib2cat /2/ 
-      data paramlist(92)%grib2num /1/ 
-      data paramlist(92)%abbrev   /'ICETK   '/ 
-      data paramlist(93)%g1tblver /2/ 
-      data paramlist(93)%grib1val /93/ 
-      data paramlist(93)%grib2dsc /10/ 
-      data paramlist(93)%grib2cat /2/ 
-      data paramlist(93)%grib2num /2/ 
-      data paramlist(93)%abbrev   /'DICED   '/ 
-      data paramlist(94)%g1tblver /2/ 
-      data paramlist(94)%grib1val /94/ 
-      data paramlist(94)%grib2dsc /10/ 
-      data paramlist(94)%grib2cat /2/ 
-      data paramlist(94)%grib2num /3/ 
-      data paramlist(94)%abbrev   /'SICED   '/ 
-      data paramlist(95)%g1tblver /2/ 
-      data paramlist(95)%grib1val /95/ 
-      data paramlist(95)%grib2dsc /10/ 
-      data paramlist(95)%grib2cat /2/ 
-      data paramlist(95)%grib2num /4/ 
-      data paramlist(95)%abbrev   /'U ICE   '/ 
-      data paramlist(96)%g1tblver /2/ 
-      data paramlist(96)%grib1val /96/ 
-      data paramlist(96)%grib2dsc /10/ 
-      data paramlist(96)%grib2cat /2/ 
-      data paramlist(96)%grib2num /5/ 
-      data paramlist(96)%abbrev   /'V ICE   '/ 
-      data paramlist(97)%g1tblver /2/ 
-      data paramlist(97)%grib1val /97/ 
-      data paramlist(97)%grib2dsc /10/ 
-      data paramlist(97)%grib2cat /2/ 
-      data paramlist(97)%grib2num /6/ 
-      data paramlist(97)%abbrev   /'ICE G   '/ 
-      data paramlist(98)%g1tblver /2/ 
-      data paramlist(98)%grib1val /98/ 
-      data paramlist(98)%grib2dsc /10/ 
-      data paramlist(98)%grib2cat /2/ 
-      data paramlist(98)%grib2num /7/ 
-      data paramlist(98)%abbrev   /'ICE D   '/ 
-      data paramlist(99)%g1tblver /2/ 
-      data paramlist(99)%grib1val /99/ 
-      data paramlist(99)%grib2dsc /0/ 
-      data paramlist(99)%grib2cat /1/ 
-      data paramlist(99)%grib2num /16/ 
-      data paramlist(99)%abbrev   /'SNO M   '/ 
-      data paramlist(100)%g1tblver /2/ 
-      data paramlist(100)%grib1val /100/ 
-      data paramlist(100)%grib2dsc /10/ 
-      data paramlist(100)%grib2cat /0/ 
-      data paramlist(100)%grib2num /3/ 
-      data paramlist(100)%abbrev   /'HTSGW   '/ 
-      data paramlist(101)%g1tblver /2/ 
-      data paramlist(101)%grib1val /101/ 
-      data paramlist(101)%grib2dsc /10/ 
-      data paramlist(101)%grib2cat /0/ 
-      data paramlist(101)%grib2num /4/ 
-      data paramlist(101)%abbrev   /'WVDIR   '/ 
-      data paramlist(102)%g1tblver /2/ 
-      data paramlist(102)%grib1val /102/ 
-      data paramlist(102)%grib2dsc /10/ 
-      data paramlist(102)%grib2cat /0/ 
-      data paramlist(102)%grib2num /5/ 
-      data paramlist(102)%abbrev   /'WVHGT   '/ 
-      data paramlist(103)%g1tblver /2/ 
-      data paramlist(103)%grib1val /103/ 
-      data paramlist(103)%grib2dsc /10/ 
-      data paramlist(103)%grib2cat /0/ 
-      data paramlist(103)%grib2num /6/ 
-      data paramlist(103)%abbrev   /'WVPER   '/ 
-      data paramlist(104)%g1tblver /2/ 
-      data paramlist(104)%grib1val /104/ 
-      data paramlist(104)%grib2dsc /10/ 
-      data paramlist(104)%grib2cat /0/ 
-      data paramlist(104)%grib2num /7/ 
-      data paramlist(104)%abbrev   /'SWDIR   '/ 
-      data paramlist(105)%g1tblver /2/ 
-      data paramlist(105)%grib1val /105/ 
-      data paramlist(105)%grib2dsc /10/ 
-      data paramlist(105)%grib2cat /0/ 
-      data paramlist(105)%grib2num /8/ 
-      data paramlist(105)%abbrev   /'SWELL   '/ 
-      data paramlist(106)%g1tblver /2/ 
-      data paramlist(106)%grib1val /106/ 
-      data paramlist(106)%grib2dsc /10/ 
-      data paramlist(106)%grib2cat /0/ 
-      data paramlist(106)%grib2num /9/ 
-      data paramlist(106)%abbrev   /'SWPER   '/ 
-      data paramlist(107)%g1tblver /2/ 
-      data paramlist(107)%grib1val /107/ 
-      data paramlist(107)%grib2dsc /10/ 
-      data paramlist(107)%grib2cat /0/ 
-      data paramlist(107)%grib2num /10/ 
-      data paramlist(107)%abbrev   /'DIRPW   '/ 
-      data paramlist(108)%g1tblver /2/ 
-      data paramlist(108)%grib1val /108/ 
-      data paramlist(108)%grib2dsc /10/ 
-      data paramlist(108)%grib2cat /0/ 
-      data paramlist(108)%grib2num /11/ 
-      data paramlist(108)%abbrev   /'PERPW   '/ 
-      data paramlist(109)%g1tblver /2/ 
-      data paramlist(109)%grib1val /109/ 
-      data paramlist(109)%grib2dsc /10/ 
-      data paramlist(109)%grib2cat /0/ 
-      data paramlist(109)%grib2num /12/ 
-      data paramlist(109)%abbrev   /'DIRSW   '/ 
-      data paramlist(110)%g1tblver /2/ 
-      data paramlist(110)%grib1val /110/ 
-      data paramlist(110)%grib2dsc /10/ 
-      data paramlist(110)%grib2cat /0/ 
-      data paramlist(110)%grib2num /13/ 
-      data paramlist(110)%abbrev   /'PERSW   '/ 
-      data paramlist(111)%g1tblver /2/ 
-      data paramlist(111)%grib1val /111/ 
-      data paramlist(111)%grib2dsc /0/ 
-      data paramlist(111)%grib2cat /4/ 
-      data paramlist(111)%grib2num /0/ 
-      data paramlist(111)%abbrev   /'NSWRS   '/ 
-      data paramlist(112)%g1tblver /2/ 
-      data paramlist(112)%grib1val /112/ 
-      data paramlist(112)%grib2dsc /0/ 
-      data paramlist(112)%grib2cat /5/ 
-      data paramlist(112)%grib2num /0/ 
-      data paramlist(112)%abbrev   /'NLWRS   '/ 
-      data paramlist(113)%g1tblver /2/ 
-      data paramlist(113)%grib1val /113/ 
-      data paramlist(113)%grib2dsc /0/ 
-      data paramlist(113)%grib2cat /4/ 
-      data paramlist(113)%grib2num /1/ 
-      data paramlist(113)%abbrev   /'NSWRT   '/ 
-      data paramlist(114)%g1tblver /2/ 
-      data paramlist(114)%grib1val /114/ 
-      data paramlist(114)%grib2dsc /0/ 
-      data paramlist(114)%grib2cat /5/ 
-      data paramlist(114)%grib2num /1/ 
-      data paramlist(114)%abbrev   /'NLWRT   '/ 
-      data paramlist(115)%g1tblver /2/ 
-      data paramlist(115)%grib1val /115/ 
-      data paramlist(115)%grib2dsc /0/ 
-      data paramlist(115)%grib2cat /5/ 
-      data paramlist(115)%grib2num /2/ 
-      data paramlist(115)%abbrev   /'LWAVR   '/ 
-      data paramlist(116)%g1tblver /2/ 
-      data paramlist(116)%grib1val /116/ 
-      data paramlist(116)%grib2dsc /0/ 
-      data paramlist(116)%grib2cat /4/ 
-      data paramlist(116)%grib2num /2/ 
-      data paramlist(116)%abbrev   /'SWAVR   '/ 
-      data paramlist(117)%g1tblver /2/ 
-      data paramlist(117)%grib1val /117/ 
-      data paramlist(117)%grib2dsc /0/ 
-      data paramlist(117)%grib2cat /4/ 
-      data paramlist(117)%grib2num /3/ 
-      data paramlist(117)%abbrev   /'G RAD   '/ 
-      data paramlist(118)%g1tblver /2/ 
-      data paramlist(118)%grib1val /118/ 
-      data paramlist(118)%grib2dsc /0/ 
-      data paramlist(118)%grib2cat /4/ 
-      data paramlist(118)%grib2num /4/ 
-      data paramlist(118)%abbrev   /'BRTMP   '/ 
-      data paramlist(119)%g1tblver /2/ 
-      data paramlist(119)%grib1val /119/ 
-      data paramlist(119)%grib2dsc /0/ 
-      data paramlist(119)%grib2cat /4/ 
-      data paramlist(119)%grib2num /5/ 
-      data paramlist(119)%abbrev   /'LWRAD   '/ 
-      data paramlist(120)%g1tblver /2/ 
-      data paramlist(120)%grib1val /120/ 
-      data paramlist(120)%grib2dsc /0/ 
-      data paramlist(120)%grib2cat /4/ 
-      data paramlist(120)%grib2num /6/ 
-      data paramlist(120)%abbrev   /'SWRAD   '/ 
-      data paramlist(121)%g1tblver /2/ 
-      data paramlist(121)%grib1val /121/ 
-      data paramlist(121)%grib2dsc /0/ 
-      data paramlist(121)%grib2cat /0/ 
-      data paramlist(121)%grib2num /10/ 
-      data paramlist(121)%abbrev   /'LHTFL   '/ 
-      data paramlist(122)%g1tblver /2/ 
-      data paramlist(122)%grib1val /122/ 
-      data paramlist(122)%grib2dsc /0/ 
-      data paramlist(122)%grib2cat /0/ 
-      data paramlist(122)%grib2num /11/ 
-      data paramlist(122)%abbrev   /'SHTFL   '/ 
-      data paramlist(123)%g1tblver /2/ 
-      data paramlist(123)%grib1val /123/ 
-      data paramlist(123)%grib2dsc /0/ 
-      data paramlist(123)%grib2cat /2/ 
-      data paramlist(123)%grib2num /20/ 
-      data paramlist(123)%abbrev   /'BLYDP   '/ 
-      data paramlist(124)%g1tblver /2/ 
-      data paramlist(124)%grib1val /124/ 
-      data paramlist(124)%grib2dsc /0/ 
-      data paramlist(124)%grib2cat /2/ 
-      data paramlist(124)%grib2num /17/ 
-      data paramlist(124)%abbrev   /'U FLX   '/ 
-      data paramlist(125)%g1tblver /2/ 
-      data paramlist(125)%grib1val /125/ 
-      data paramlist(125)%grib2dsc /0/ 
-      data paramlist(125)%grib2cat /2/ 
-      data paramlist(125)%grib2num /18/ 
-      data paramlist(125)%abbrev   /'V FLX   '/ 
-      data paramlist(126)%g1tblver /2/ 
-      data paramlist(126)%grib1val /126/ 
-      data paramlist(126)%grib2dsc /0/ 
-      data paramlist(126)%grib2cat /2/ 
-      data paramlist(126)%grib2num /19/ 
-      data paramlist(126)%abbrev   /'WMIXE   '/ 
-      data paramlist(127)%g1tblver /2/ 
-      data paramlist(127)%grib1val /127/ 
-      data paramlist(127)%grib2dsc /255/ 
-      data paramlist(127)%grib2cat /255/ 
-      data paramlist(127)%grib2num /255/ 
-      data paramlist(127)%abbrev   /'IMG D   '/ 
+      data paramlist(1) /gribparam(2,1,0,3,0,'PRES')/
+      data paramlist(2) /gribparam(2,2,0,3,1,'PRMSL')/
+      data paramlist(3) /gribparam(2,3,0,3,2,'PTEND')/
+      data paramlist(4) /gribparam(2,4,0,2,14,'PVORT')/
+      data paramlist(5) /gribparam(2,5,0,3,3,'ICAHT')/
+      data paramlist(6) /gribparam(2,6,0,3,4,'GP')/
+      data paramlist(7) /gribparam(2,7,0,3,5,'HGT')/
+      data paramlist(8) /gribparam(2,8,0,3,6,'DIST')/
+      data paramlist(9) /gribparam(2,9,0,3,7,'HSTDV')/
+      data paramlist(10) /gribparam(2,10,0,14,0,'TOZNE')/
+      data paramlist(11) /gribparam(2,11,0,0,0,'TMP')/
+      data paramlist(12) /gribparam(2,12,0,0,1,'VTMP')/
+      data paramlist(13) /gribparam(2,13,0,0,2,'POT')/
+      data paramlist(14) /gribparam(2,14,0,0,3,'EPOT')/
+      data paramlist(15) /gribparam(2,15,0,0,4,'TMAX')/
+      data paramlist(16) /gribparam(2,16,0,0,5,'TMIN')/
+      data paramlist(17) /gribparam(2,17,0,0,6,'DPT')/
+      data paramlist(18) /gribparam(2,18,0,0,7,'DEPR')/
+      data paramlist(19) /gribparam(2,19,0,0,8,'LAPR')/
+      data paramlist(20) /gribparam(2,20,0,19,0,'VIS')/
+      data paramlist(21) /gribparam(2,21,0,15,6,'RDSP1')/
+      data paramlist(22) /gribparam(2,22,0,15,7,'RDSP2')/
+      data paramlist(23) /gribparam(2,23,0,15,8,'RDSP3')/
+      data paramlist(24) /gribparam(2,24,0,7,0,'PLI')/
+      data paramlist(25) /gribparam(2,25,0,0,9,'TMP A')/
+      data paramlist(26) /gribparam(2,26,0,3,8,'PRESA')/
+      data paramlist(27) /gribparam(2,27,0,3,9,'GP A')/
+      data paramlist(28) /gribparam(2,28,10,0,0,'WVSP1')/
+      data paramlist(29) /gribparam(2,29,10,0,1,'WVSP2')/
+      data paramlist(30) /gribparam(2,30,10,0,2,'WVSP3')/
+      data paramlist(31) /gribparam(2,31,0,2,0,'WDIR')/
+      data paramlist(32) /gribparam(2,32,0,2,1,'WIND')/
+      data paramlist(33) /gribparam(2,33,0,2,2,'U GRD')/
+      data paramlist(34) /gribparam(2,34,0,2,3,'V GRD')/
+      data paramlist(35) /gribparam(2,35,0,2,4,'STRM')/
+      data paramlist(36) /gribparam(2,36,0,2,5,'VPOT')/
+      data paramlist(37) /gribparam(2,37,0,2,6,'MNTSF')/
+      data paramlist(38) /gribparam(2,38,0,2,7,'SGCVV')/
+      data paramlist(39) /gribparam(2,39,0,2,8,'V VEL')/
+      data paramlist(40) /gribparam(2,40,0,2,9,'DZDT')/
+      data paramlist(41) /gribparam(2,41,0,2,10,'ABS V')/
+      data paramlist(42) /gribparam(2,42,0,2,11,'ABS D')/
+      data paramlist(43) /gribparam(2,43,0,2,12,'REL V')/
+      data paramlist(44) /gribparam(2,44,0,2,13,'REL D')/
+      data paramlist(45) /gribparam(2,45,0,2,15,'VUCSH')/
+      data paramlist(46) /gribparam(2,46,0,2,16,'VVCSH')/
+      data paramlist(47) /gribparam(2,47,10,1,0,'DIR C')/
+      data paramlist(48) /gribparam(2,48,10,1,1,'SP C')/
+      data paramlist(49) /gribparam(2,49,10,1,2,'UOGRD')/
+      data paramlist(50) /gribparam(2,50,10,1,3,'VOGRD')/
+      data paramlist(51) /gribparam(2,51,0,1,0,'SPF H')/
+      data paramlist(52) /gribparam(2,52,0,1,1,'R H')/
+      data paramlist(53) /gribparam(2,53,0,1,2,'MIXR')/
+      data paramlist(54) /gribparam(2,54,0,1,3,'P WAT')/
+      data paramlist(55) /gribparam(2,55,0,1,4,'VAPP')/
+      data paramlist(56) /gribparam(2,56,0,1,5,'SAT D')/
+      data paramlist(57) /gribparam(2,57,0,1,6,'EVP')/
+      data paramlist(58) /gribparam(2,58,0,6,0,'C ICE')/
+      data paramlist(59) /gribparam(2,59,0,1,7,'PRATE')/
+      data paramlist(60) /gribparam(2,60,0,19,2,'TSTM')/
+      data paramlist(61) /gribparam(2,61,0,1,8,'A PCP')/
+      data paramlist(62) /gribparam(2,62,0,1,9,'NCPCP')/
+      data paramlist(63) /gribparam(2,63,0,1,10,'ACPCP')/
+      data paramlist(64) /gribparam(2,64,0,1,12,'SRWEQ')/
+      data paramlist(65) /gribparam(2,65,0,1,13,'WEASD')/
+      data paramlist(66) /gribparam(2,66,0,1,11,'SNO D')/
+      data paramlist(67) /gribparam(2,67,0,19,3,'MIXHT')/
+      data paramlist(68) /gribparam(2,68,10,4,2,'TTHDP')/
+      data paramlist(69) /gribparam(2,69,10,4,0,'MTHD')/
+      data paramlist(70) /gribparam(2,70,10,4,1,'MTH A')/
+      data paramlist(71) /gribparam(2,71,0,6,1,'T CDC')/
+      data paramlist(72) /gribparam(2,72,0,6,2,'CDCON')/
+      data paramlist(73) /gribparam(2,73,0,6,3,'L CDC')/
+      data paramlist(74) /gribparam(2,74,0,6,4,'M CDC')/
+      data paramlist(75) /gribparam(2,75,0,6,5,'H CDC')/
+      data paramlist(76) /gribparam(2,76,0,6,6,'C WAT')/
+      data paramlist(77) /gribparam(2,77,0,7,1,'BLI')/
+      data paramlist(78) /gribparam(2,78,0,1,14,'SNO C')/
+      data paramlist(79) /gribparam(2,79,0,1,15,'SNO L')/
+      data paramlist(80) /gribparam(2,80,10,3,0,'WTMP')/
+      data paramlist(81) /gribparam(2,81,2,0,0,'LAND')/
+      data paramlist(82) /gribparam(2,82,10,3,1,'DSL M')/
+      data paramlist(83) /gribparam(2,83,2,0,1,'SFC R')/
+      data paramlist(84) /gribparam(2,84,0,19,1,'ALBDO')/
+      data paramlist(85) /gribparam(2,85,2,0,2,'TSOIL')/
+      data paramlist(86) /gribparam(2,86,2,0,3,'SOIL M')/
+      data paramlist(87) /gribparam(2,87,2,0,4,'VEG')/
+      data paramlist(88) /gribparam(2,88,10,4,3,'SALTY')/
+      data paramlist(89) /gribparam(2,89,0,3,10,'DEN')/
+      data paramlist(90) /gribparam(2,90,2,0,5,'WATR')/
+      data paramlist(91) /gribparam(2,91,10,2,0,'ICE C')/
+      data paramlist(92) /gribparam(2,92,10,2,1,'ICETK')/
+      data paramlist(93) /gribparam(2,93,10,2,2,'DICED')/
+      data paramlist(94) /gribparam(2,94,10,2,3,'SICED')/
+      data paramlist(95) /gribparam(2,95,10,2,4,'U ICE')/
+      data paramlist(96) /gribparam(2,96,10,2,5,'V ICE')/
+      data paramlist(97) /gribparam(2,97,10,2,6,'ICE G')/
+      data paramlist(98) /gribparam(2,98,10,2,7,'ICE D')/
+      data paramlist(99) /gribparam(2,99,0,1,16,'SNO M')/
+      data paramlist(100) /gribparam(2,100,10,0,3,'HTSGW')/
+      data paramlist(101) /gribparam(2,101,10,0,4,'WVDIR')/
+      data paramlist(102) /gribparam(2,102,10,0,5,'WVHGT')/
+      data paramlist(103) /gribparam(2,103,10,0,6,'WVPER')/
+      data paramlist(104) /gribparam(2,104,10,0,7,'SWDIR')/
+      data paramlist(105) /gribparam(2,105,10,0,8,'SWELL')/
+      data paramlist(106) /gribparam(2,106,10,0,9,'SWPER')/
+      data paramlist(107) /gribparam(2,107,10,0,10,'DIRPW')/
+      data paramlist(108) /gribparam(2,108,10,0,11,'PERPW')/
+      data paramlist(109) /gribparam(2,109,10,0,12,'DIRSW')/
+      data paramlist(110) /gribparam(2,110,10,0,13,'PERSW')/
+      data paramlist(111) /gribparam(2,111,0,4,0,'NSWRS')/
+      data paramlist(112) /gribparam(2,112,0,5,0,'NLWRS')/
+      data paramlist(113) /gribparam(2,113,0,4,1,'NSWRT')/
+      data paramlist(114) /gribparam(2,114,0,5,1,'NLWRT')/
+      data paramlist(115) /gribparam(2,115,0,5,2,'LWAVR')/
+      data paramlist(116) /gribparam(2,116,0,4,2,'SWAVR')/
+      data paramlist(117) /gribparam(2,117,0,4,3,'G RAD')/
+      data paramlist(118) /gribparam(2,118,0,4,4,'BRTMP')/
+      data paramlist(119) /gribparam(2,119,0,4,5,'LWRAD')/
+      data paramlist(120) /gribparam(2,120,0,4,6,'SWRAD')/
+      data paramlist(121) /gribparam(2,121,0,0,10,'LHTFL')/
+      data paramlist(122) /gribparam(2,122,0,0,11,'SHTFL')/
+      data paramlist(123) /gribparam(2,123,0,2,20,'BLYDP')/
+      data paramlist(124) /gribparam(2,124,0,2,17,'UFLX')/
+      data paramlist(125) /gribparam(2,125,0,2,18,'VFLX')/
+      data paramlist(126) /gribparam(2,126,0,2,19,'WMIXE')/
+      data paramlist(127) /gribparam(2,127,255,255,255,'IMGD')/
 !
 !  GRIB1 parameters in NCEP Local Table version 2
 !  Added 8/07/2003
 !
-      data paramlist(128)%g1tblver /2/ 
-      data paramlist(128)%grib1val /229/ 
-      data paramlist(128)%grib2dsc /0/ 
-      data paramlist(128)%grib2cat /0/ 
-      data paramlist(128)%grib2num /192/ 
-      data paramlist(128)%abbrev   /'SNOHF   '/ 
-      data paramlist(129)%g1tblver /2/ 
-      data paramlist(129)%grib1val /153/ 
-      data paramlist(129)%grib2dsc /0/ 
-      data paramlist(129)%grib2cat /1/ 
-      data paramlist(129)%grib2num /22/ 
-      data paramlist(129)%abbrev   /'CLWMR   '/ 
-      data paramlist(130)%g1tblver /2/ 
-      data paramlist(130)%grib1val /140/ 
-      data paramlist(130)%grib2dsc /0/ 
-      data paramlist(130)%grib2cat /1/ 
-      data paramlist(130)%grib2num /192/ 
-      data paramlist(130)%abbrev   /'CRAIN   '/ 
-      data paramlist(131)%g1tblver /2/ 
-      data paramlist(131)%grib1val /141/ 
-      data paramlist(131)%grib2dsc /0/ 
-      data paramlist(131)%grib2cat /1/ 
-      data paramlist(131)%grib2num /193/ 
-      data paramlist(131)%abbrev   /'CFRZR   '/ 
-      data paramlist(132)%g1tblver /2/ 
-      data paramlist(132)%grib1val /142/ 
-      data paramlist(132)%grib2dsc /0/ 
-      data paramlist(132)%grib2cat /1/ 
-      data paramlist(132)%grib2num /194/ 
-      data paramlist(132)%abbrev   /'CICEP   '/ 
-      data paramlist(133)%g1tblver /2/ 
-      data paramlist(133)%grib1val /143/ 
-      data paramlist(133)%grib2dsc /0/ 
-      data paramlist(133)%grib2cat /1/ 
-      data paramlist(133)%grib2num /195/ 
-      data paramlist(133)%abbrev   /'CSNOW   '/ 
-      data paramlist(134)%g1tblver /2/ 
-      data paramlist(134)%grib1val /214/ 
-      data paramlist(134)%grib2dsc /0/ 
-      data paramlist(134)%grib2cat /1/ 
-      data paramlist(134)%grib2num /196/ 
-      data paramlist(134)%abbrev   /'CPRAT   '/ 
-      data paramlist(135)%g1tblver /2/ 
-      data paramlist(135)%grib1val /135/ 
-      data paramlist(135)%grib2dsc /0/ 
-      data paramlist(135)%grib2cat /1/ 
-      data paramlist(135)%grib2num /197/ 
-      data paramlist(135)%abbrev   /'MCONV   '/ 
-      data paramlist(136)%g1tblver /2/ 
-      data paramlist(136)%grib1val /194/ 
-      data paramlist(136)%grib2dsc /1/ 
-      data paramlist(136)%grib2cat /1/ 
-      data paramlist(136)%grib2num /193/ 
-      data paramlist(136)%abbrev   /'CPOFP   '/ 
-      data paramlist(137)%g1tblver /2/ 
-      data paramlist(137)%grib1val /228/ 
-      data paramlist(137)%grib2dsc /0/ 
-      data paramlist(137)%grib2cat /1/ 
-      data paramlist(137)%grib2num /199/ 
-      data paramlist(137)%abbrev   /'PEVAP   '/ 
-      data paramlist(138)%g1tblver /2/ 
-      data paramlist(138)%grib1val /136/ 
-      data paramlist(138)%grib2dsc /0/ 
-      data paramlist(138)%grib2cat /2/ 
-      data paramlist(138)%grib2num /192/ 
-      data paramlist(138)%abbrev   /'VW SH   '/ 
-      data paramlist(139)%g1tblver /2/ 
-      data paramlist(139)%grib1val /172/ 
-      data paramlist(139)%grib2dsc /0/ 
-      data paramlist(139)%grib2cat /2/ 
-      data paramlist(139)%grib2num /193/ 
-      data paramlist(139)%abbrev   /'M FLX   '/ 
-      data paramlist(140)%g1tblver /2/ 
-      data paramlist(140)%grib1val /196/ 
-      data paramlist(140)%grib2dsc /0/ 
-      data paramlist(140)%grib2cat /2/ 
-      data paramlist(140)%grib2num /194/ 
-      data paramlist(140)%abbrev   /'USTM    '/ 
-      data paramlist(141)%g1tblver /2/ 
-      data paramlist(141)%grib1val /197/ 
-      data paramlist(141)%grib2dsc /0/ 
-      data paramlist(141)%grib2cat /2/ 
-      data paramlist(141)%grib2num /195/ 
-      data paramlist(141)%abbrev   /'VSTM    '/ 
-      data paramlist(142)%g1tblver /2/ 
-      data paramlist(142)%grib1val /252/ 
-      data paramlist(142)%grib2dsc /0/ 
-      data paramlist(142)%grib2cat /2/ 
-      data paramlist(142)%grib2num /196/ 
-      data paramlist(142)%abbrev   /'CD      '/ 
-      data paramlist(143)%g1tblver /2/ 
-      data paramlist(143)%grib1val /253/ 
-      data paramlist(143)%grib2dsc /0/ 
-      data paramlist(143)%grib2cat /2/ 
-      data paramlist(143)%grib2num /197/ 
-      data paramlist(143)%abbrev   /'FRICV   '/ 
-      data paramlist(144)%g1tblver /2/ 
-      data paramlist(144)%grib1val /130/ 
-      data paramlist(144)%grib2dsc /0/ 
-      data paramlist(144)%grib2cat /3/ 
-      data paramlist(144)%grib2num /192/ 
-      data paramlist(144)%abbrev   /'MSLET   '/ 
-      data paramlist(145)%g1tblver /2/ 
-      data paramlist(145)%grib1val /204/ 
-      data paramlist(145)%grib2dsc /0/ 
-      data paramlist(145)%grib2cat /4/ 
-      data paramlist(145)%grib2num /192/ 
-      data paramlist(145)%abbrev   /'DSWRF   '/ 
-      data paramlist(146)%g1tblver /2/ 
-      data paramlist(146)%grib1val /211/ 
-      data paramlist(146)%grib2dsc /0/ 
-      data paramlist(146)%grib2cat /4/ 
-      data paramlist(146)%grib2num /193/ 
-      data paramlist(146)%abbrev   /'USWRF   '/ 
-      data paramlist(147)%g1tblver /2/ 
-      data paramlist(147)%grib1val /205/ 
-      data paramlist(147)%grib2dsc /0/ 
-      data paramlist(147)%grib2cat /5/ 
-      data paramlist(147)%grib2num /192/ 
-      data paramlist(147)%abbrev   /'DLWRF   '/ 
-      data paramlist(148)%g1tblver /2/ 
-      data paramlist(148)%grib1val /212/ 
-      data paramlist(148)%grib2dsc /0/ 
-      data paramlist(148)%grib2cat /5/ 
-      data paramlist(148)%grib2num /193/ 
-      data paramlist(148)%abbrev   /'ULWRF   '/ 
-      data paramlist(149)%g1tblver /2/ 
-      data paramlist(149)%grib1val /213/ 
-      data paramlist(149)%grib2dsc /0/ 
-      data paramlist(149)%grib2cat /6/ 
-      data paramlist(149)%grib2num /192/ 
-      data paramlist(149)%abbrev   /'CDLYR   '/ 
-      data paramlist(150)%g1tblver /2/ 
-      data paramlist(150)%grib1val /132/ 
-      data paramlist(150)%grib2dsc /0/ 
-      data paramlist(150)%grib2cat /7/ 
-      data paramlist(150)%grib2num /193/ 
-      data paramlist(150)%abbrev   /'4LFTX   '/ 
-      data paramlist(151)%g1tblver /2/ 
-      data paramlist(151)%grib1val /157/ 
-      data paramlist(151)%grib2dsc /0/ 
-      data paramlist(151)%grib2cat /7/ 
-      data paramlist(151)%grib2num /6/ 
-      data paramlist(151)%abbrev   /'CAPE    '/ 
-      data paramlist(152)%g1tblver /2/ 
-      data paramlist(152)%grib1val /156/ 
-      data paramlist(152)%grib2dsc /0/ 
-      data paramlist(152)%grib2cat /7/ 
-      data paramlist(152)%grib2num /7/ 
-      data paramlist(152)%abbrev   /'CIN     '/ 
-      data paramlist(153)%g1tblver /2/ 
-      data paramlist(153)%grib1val /190/ 
-      data paramlist(153)%grib2dsc /0/ 
-      data paramlist(153)%grib2cat /7/ 
-      data paramlist(153)%grib2num /8/ 
-      data paramlist(153)%abbrev   /'HLCY    '/ 
-      data paramlist(154)%g1tblver /2/ 
-      data paramlist(154)%grib1val /131/ 
-      data paramlist(154)%grib2dsc /0/ 
-      data paramlist(154)%grib2cat /7/ 
-      data paramlist(154)%grib2num /192/ 
-      data paramlist(154)%abbrev   /'LFT X   '/ 
-      data paramlist(155)%g1tblver /2/ 
-      data paramlist(155)%grib1val /158/ 
-      data paramlist(155)%grib2dsc /0/ 
-      data paramlist(155)%grib2cat /19/ 
-      data paramlist(155)%grib2num /11/ 
-      data paramlist(155)%abbrev   /'TKE     '/ 
-      data paramlist(156)%g1tblver /2/ 
-      data paramlist(156)%grib1val /176/ 
-      data paramlist(156)%grib2dsc /0/ 
-      data paramlist(156)%grib2cat /191/ 
-      data paramlist(156)%grib2num /192/ 
-      data paramlist(156)%abbrev   /'NLAT    '/ 
-      data paramlist(157)%g1tblver /2/ 
-      data paramlist(157)%grib1val /177/ 
-      data paramlist(157)%grib2dsc /0/ 
-      data paramlist(157)%grib2cat /191/ 
-      data paramlist(157)%grib2num /193/ 
-      data paramlist(157)%abbrev   /'ELON    '/ 
-      data paramlist(158)%g1tblver /2/ 
-      data paramlist(158)%grib1val /234/ 
-      data paramlist(158)%grib2dsc /1/ 
-      data paramlist(158)%grib2cat /0/ 
-      data paramlist(158)%grib2num /192/ 
-      data paramlist(158)%abbrev   /'BGRUN   '/ 
-      data paramlist(159)%g1tblver /2/ 
-      data paramlist(159)%grib1val /235/ 
-      data paramlist(159)%grib2dsc /1/ 
-      data paramlist(159)%grib2cat /0/ 
-      data paramlist(159)%grib2num /193/ 
-      data paramlist(159)%abbrev   /'SSRUN   '/ 
-      data paramlist(160)%g1tblver /2/ 
-      data paramlist(160)%grib1val /144/ 
-      data paramlist(160)%grib2dsc /2/ 
-      data paramlist(160)%grib2cat /0/ 
-      data paramlist(160)%grib2num /192/ 
-      data paramlist(160)%abbrev   /'SOILW   '/ 
-      data paramlist(161)%g1tblver /2/ 
-      data paramlist(161)%grib1val /155/ 
-      data paramlist(161)%grib2dsc /2/ 
-      data paramlist(161)%grib2cat /0/ 
-      data paramlist(161)%grib2num /193/ 
-      data paramlist(161)%abbrev   /'GFLUX   '/ 
-      data paramlist(162)%g1tblver /2/ 
-      data paramlist(162)%grib1val /207/ 
-      data paramlist(162)%grib2dsc /2/ 
-      data paramlist(162)%grib2cat /0/ 
-      data paramlist(162)%grib2num /194/ 
-      data paramlist(162)%abbrev   /'MSTAV   '/ 
-      data paramlist(163)%g1tblver /2/ 
-      data paramlist(163)%grib1val /208/ 
-      data paramlist(163)%grib2dsc /2/ 
-      data paramlist(163)%grib2cat /0/ 
-      data paramlist(163)%grib2num /195/ 
-      data paramlist(163)%abbrev   /'SFEXC   '/ 
-      data paramlist(164)%g1tblver /2/ 
-      data paramlist(164)%grib1val /223/ 
-      data paramlist(164)%grib2dsc /2/ 
-      data paramlist(164)%grib2cat /0/ 
-      data paramlist(164)%grib2num /196/ 
-      data paramlist(164)%abbrev   /'CNWAT   '/ 
-      data paramlist(165)%g1tblver /2/ 
-      data paramlist(165)%grib1val /226/ 
-      data paramlist(165)%grib2dsc /2/ 
-      data paramlist(165)%grib2cat /0/ 
-      data paramlist(165)%grib2num /197/ 
-      data paramlist(165)%abbrev   /'BMIXL   '/ 
-      data paramlist(166)%g1tblver /2/ 
-      data paramlist(166)%grib1val /154/ 
-      data paramlist(166)%grib2dsc /0/ 
-      data paramlist(166)%grib2cat /14/ 
-      data paramlist(166)%grib2num /192/ 
-      data paramlist(166)%abbrev   /'O3MR    '/ 
-      data paramlist(167)%g1tblver /2/ 
-      data paramlist(167)%grib1val /222/ 
-      data paramlist(167)%grib2dsc /0/ 
-      data paramlist(167)%grib2cat /3/ 
-      data paramlist(167)%grib2num /193/ 
-      data paramlist(167)%abbrev   /'5WAVH   '/ 
-      data paramlist(168)%g1tblver /2/ 
-      data paramlist(168)%grib1val /145/ 
-      data paramlist(168)%grib2dsc /0/ 
-      data paramlist(168)%grib2cat /1/ 
-      data paramlist(168)%grib2num /200/ 
-      data paramlist(168)%abbrev   /'PEVPR   '/ 
-      data paramlist(169)%g1tblver /2/ 
-      data paramlist(169)%grib1val /146/ 
-      data paramlist(169)%grib2dsc /0/ 
-      data paramlist(169)%grib2cat /6/ 
-      data paramlist(169)%grib2num /193/ 
-      data paramlist(169)%abbrev   /'CWORK   '/ 
-      data paramlist(170)%g1tblver /2/ 
-      data paramlist(170)%grib1val /147/ 
-      data paramlist(170)%grib2dsc /0/ 
-      data paramlist(170)%grib2cat /3/ 
-      data paramlist(170)%grib2num /194/ 
-      data paramlist(170)%abbrev   /'U-GWD   '/ 
-      data paramlist(171)%g1tblver /2/ 
-      data paramlist(171)%grib1val /148/ 
-      data paramlist(171)%grib2dsc /0/ 
-      data paramlist(171)%grib2cat /3/ 
-      data paramlist(171)%grib2num /195/ 
-      data paramlist(171)%abbrev   /'V-GWD   '/ 
-      data paramlist(172)%g1tblver /2/ 
-      data paramlist(172)%grib1val /221/ 
-      data paramlist(172)%grib2dsc /0/ 
-      data paramlist(172)%grib2cat /3/ 
-      data paramlist(172)%grib2num /196/ 
-      data paramlist(172)%abbrev   /'HPBL    '/ 
-      data paramlist(173)%g1tblver /2/ 
-      data paramlist(173)%grib1val /230/ 
-      data paramlist(173)%grib2dsc /0/ 
-      data paramlist(173)%grib2cat /3/ 
-      data paramlist(173)%grib2num /197/ 
-      data paramlist(173)%abbrev   /'5WAVA   '/ 
+      data paramlist(128) /gribparam(2,229,0,0,192,'SNOHF')/
+      data paramlist(129) /gribparam(2,153,0,1,22,'CLWMR')/
+      data paramlist(130) /gribparam(2,140,0,1,192,'CRAIN')/
+      data paramlist(131) /gribparam(2,141,0,1,193,'CFRZR')/
+      data paramlist(132) /gribparam(2,142,0,1,194,'CICEP')/
+      data paramlist(133) /gribparam(2,143,0,1,195,'CSNOW')/
+      data paramlist(134) /gribparam(2,214,0,1,196,'CPRAT')/
+      data paramlist(135) /gribparam(2,135,0,1,197,'MCONV')/
+      data paramlist(136) /gribparam(2,194,1,1,193,'CPOFP')/
+      data paramlist(137) /gribparam(2,228,0,1,199,'PEVAP')/
+      data paramlist(138) /gribparam(2,136,0,2,192,'VW SH')/
+      data paramlist(139) /gribparam(2,172,0,2,193,'MFLX')/
+      data paramlist(140) /gribparam(2,196,0,2,194,'USTM')/
+      data paramlist(141) /gribparam(2,197,0,2,195,'VSTM')/
+      data paramlist(142) /gribparam(2,252,0,2,196,'CD')/
+      data paramlist(143) /gribparam(2,253,0,2,197,'FRICV')/
+      data paramlist(144) /gribparam(2,130,0,3,192,'MSLET')/
+      data paramlist(145) /gribparam(2,204,0,4,192,'DSWRF')/
+      data paramlist(146) /gribparam(2,211,0,4,193,'USWRF')/
+      data paramlist(147) /gribparam(2,205,0,5,192,'DLWRF')/
+      data paramlist(148) /gribparam(2,212,0,5,193,'ULWRF')/
+      data paramlist(149) /gribparam(2,213,0,6,192,'CDLYR')/
+      data paramlist(150) /gribparam(2,132,0,7,193,'4LFTX')/
+      data paramlist(151) /gribparam(2,157,0,7,6,'CAPE')/
+      data paramlist(152) /gribparam(2,156,0,7,7,'CIN')/
+      data paramlist(153) /gribparam(2,190,0,7,8,'HLCY')/
+      data paramlist(154) /gribparam(2,131,0,7,192,'LFT X')/
+      data paramlist(155) /gribparam(2,158,0,19,11,'TKE')/
+      data paramlist(156) /gribparam(2,176,0,191,192,'NLAT')/
+      data paramlist(157) /gribparam(2,177,0,191,193,'ELON')/
+      data paramlist(158) /gribparam(2,234,1,0,192,'BGRUN')/
+      data paramlist(159) /gribparam(2,235,1,0,193,'SSRUN')/
+      data paramlist(160) /gribparam(2,144,2,0,192,'SOILW')/
+      data paramlist(161) /gribparam(2,155,2,0,193,'GFLUX')/
+      data paramlist(162) /gribparam(2,207,2,0,194,'MSTAV')/
+      data paramlist(163) /gribparam(2,208,2,0,195,'SFEXC')/
+      data paramlist(164) /gribparam(2,223,2,0,196,'CNWAT')/
+      data paramlist(165) /gribparam(2,226,2,0,197,'BMIXL')/
+      data paramlist(166) /gribparam(2,154,0,14,192,'O3MR')/
+      data paramlist(167) /gribparam(2,222,0,3,193,'5WAVH')/
+      data paramlist(168) /gribparam(2,145,0,1,200,'PEVPR')/
+      data paramlist(169) /gribparam(2,146,0,6,193,'CWORK')/
+      data paramlist(170) /gribparam(2,147,0,3,194,'U-GWD')/
+      data paramlist(171) /gribparam(2,148,0,3,195,'V-GWD')/
+      data paramlist(172) /gribparam(2,221,0,3,196,'HPBL')/
+      data paramlist(173) /gribparam(2,230,0,3,197,'5WAVA')/
 ! Added 9/26/2003
-      data paramlist(174)%g1tblver /130/
-      data paramlist(174)%grib1val /160/
-      data paramlist(174)%grib2dsc /2/
-      data paramlist(174)%grib2cat /3/
-      data paramlist(174)%grib2num /192/  
-      data paramlist(174)%abbrev   /'SOILL   '/
-      data paramlist(175)%g1tblver /130/
-      data paramlist(175)%grib1val /171/
-      data paramlist(175)%grib2dsc /2/
-      data paramlist(175)%grib2cat /3/
-      data paramlist(175)%grib2num /193/  
-      data paramlist(175)%abbrev   /'RLYRS   '/
-      data paramlist(176)%g1tblver /130/
-      data paramlist(176)%grib1val /219/
-      data paramlist(176)%grib2dsc /2/
-      data paramlist(176)%grib2cat /0/
-      data paramlist(176)%grib2num /201/  
-      data paramlist(176)%abbrev   /'WILT    '/
-      data paramlist(177)%g1tblver /130/
-      data paramlist(177)%grib1val /222/
-      data paramlist(177)%grib2dsc /2/
-      data paramlist(177)%grib2cat /3/
-      data paramlist(177)%grib2num /194/  
-      data paramlist(177)%abbrev   /'SLTYP   '/
-      data paramlist(178)%g1tblver /2/
-      data paramlist(178)%grib1val /224/
-      data paramlist(178)%grib2dsc /2/
-      data paramlist(178)%grib2cat /3/
-      data paramlist(178)%grib2num /0/      
-      data paramlist(178)%abbrev   /'SOTYP   '/
-      data paramlist(179)%g1tblver /2/
-      data paramlist(179)%grib1val /225/
-      data paramlist(179)%grib2dsc /2/
-      data paramlist(179)%grib2cat /0/
-      data paramlist(179)%grib2num /198/    
-      data paramlist(179)%abbrev   /'VGTYP   '/
-      data paramlist(180)%g1tblver /130/
-      data paramlist(180)%grib1val /230/
-      data paramlist(180)%grib2dsc /2/
-      data paramlist(180)%grib2cat /3/
-      data paramlist(180)%grib2num /195/  
-      data paramlist(180)%abbrev   /'SMREF   '/
-      data paramlist(181)%g1tblver /130/
-      data paramlist(181)%grib1val /231/
-      data paramlist(181)%grib2dsc /2/
-      data paramlist(181)%grib2cat /3/
-      data paramlist(181)%grib2num /196/  
-      data paramlist(181)%abbrev   /'SMDRY   '/
-      data paramlist(182)%g1tblver /2/
-      data paramlist(182)%grib1val /238/
-      data paramlist(182)%grib2dsc /0/
-      data paramlist(182)%grib2cat /1/
-      data paramlist(182)%grib2num /201/    
-      data paramlist(182)%abbrev   /'SNOWC   '/
-      data paramlist(183)%g1tblver /130/
-      data paramlist(183)%grib1val /240/
-      data paramlist(183)%grib2dsc /2/
-      data paramlist(183)%grib2cat /3/
-      data paramlist(183)%grib2num /197/  
-      data paramlist(183)%abbrev   /'POROS   '/
-      data paramlist(184)%g1tblver /129/
-      data paramlist(184)%grib1val /131/
-      data paramlist(184)%grib2dsc /0/
-      data paramlist(184)%grib2cat /1/
-      data paramlist(184)%grib2num /202/  
-      data paramlist(184)%abbrev   /'FRAIN   '/
-      data paramlist(185)%g1tblver /129/
-      data paramlist(185)%grib1val /132/
-      data paramlist(185)%grib2dsc /0/
-      data paramlist(185)%grib2cat /6/
-      data paramlist(185)%grib2num /199/  
-      data paramlist(185)%abbrev   /'FICE    '/
-      data paramlist(186)%g1tblver /129/
-      data paramlist(186)%grib1val /133/
-      data paramlist(186)%grib2dsc /0/
-      data paramlist(186)%grib2cat /1/
-      data paramlist(186)%grib2num /203/  
-      data paramlist(186)%abbrev   /'FRIME   '/
-      data paramlist(187)%g1tblver /129/
-      data paramlist(187)%grib1val /134/
-      data paramlist(187)%grib2dsc /0/
-      data paramlist(187)%grib2cat /6/
-      data paramlist(187)%grib2num /194/  
-      data paramlist(187)%abbrev   /'CUEFI   '/
-      data paramlist(188)%g1tblver /129/
-      data paramlist(188)%grib1val /135/
-      data paramlist(188)%grib2dsc /0/
-      data paramlist(188)%grib2cat /6/
-      data paramlist(188)%grib2num /195/  
-      data paramlist(188)%abbrev   /'TCOND   '/
-      data paramlist(189)%g1tblver /129/
-      data paramlist(189)%grib1val /136/
-      data paramlist(189)%grib2dsc /0/
-      data paramlist(189)%grib2cat /6/
-      data paramlist(189)%grib2num /196/  
-      data paramlist(189)%abbrev   /'TCOLW   '/
-      data paramlist(190)%g1tblver /129/
-      data paramlist(190)%grib1val /137/
-      data paramlist(190)%grib2dsc /0/
-      data paramlist(190)%grib2cat /6/
-      data paramlist(190)%grib2num /197/  
-      data paramlist(190)%abbrev   /'TCOLI   '/
-      data paramlist(191)%g1tblver /129/
-      data paramlist(191)%grib1val /138/
-      data paramlist(191)%grib2dsc /0/
-      data paramlist(191)%grib2cat /1/
-      data paramlist(191)%grib2num /204/  
-      data paramlist(191)%abbrev   /'TCOLR   '/
-      data paramlist(192)%g1tblver /129/
-      data paramlist(192)%grib1val /139/
-      data paramlist(192)%grib2dsc /0/
-      data paramlist(192)%grib2cat /1/
-      data paramlist(192)%grib2num /205/  
-      data paramlist(192)%abbrev   /'TCOLS   '/
-      data paramlist(193)%g1tblver /129/
-      data paramlist(193)%grib1val /140/
-      data paramlist(193)%grib2dsc /0/
-      data paramlist(193)%grib2cat /6/
-      data paramlist(193)%grib2num /198/  
-      data paramlist(193)%abbrev   /'TCOLC   '/
-      data paramlist(194)%g1tblver /130/
-      data paramlist(194)%grib1val /159/
-      data paramlist(194)%grib2dsc /0/
-      data paramlist(194)%grib2cat /19/
-      data paramlist(194)%grib2num /192/ 
-      data paramlist(194)%abbrev   /'MXSALB  '/
-      data paramlist(195)%g1tblver /130/
-      data paramlist(195)%grib1val /170/
-      data paramlist(195)%grib2dsc /0/
-      data paramlist(195)%grib2cat /19/
-      data paramlist(195)%grib2num /193/ 
-      data paramlist(195)%abbrev   /'SNFALB  '/
-      data paramlist(196)%g1tblver /2/
-      data paramlist(196)%grib1val /170/
-      data paramlist(196)%grib2dsc /0/
-      data paramlist(196)%grib2cat /1/
-      data paramlist(196)%grib2num /24/  
-      data paramlist(196)%abbrev   /'RWMR    '/
-      data paramlist(197)%g1tblver /2/
-      data paramlist(197)%grib1val /171/
-      data paramlist(197)%grib2dsc /0/
-      data paramlist(197)%grib2cat /1/
-      data paramlist(197)%grib2num /25/  
-      data paramlist(197)%abbrev   /'SNMR    '/
-      data paramlist(198)%g1tblver /130/
-      data paramlist(198)%grib1val /181/
-      data paramlist(198)%grib2dsc /2/
-      data paramlist(198)%grib2cat /0/
-      data paramlist(198)%grib2num /199/ 
-      data paramlist(198)%abbrev   /'CCOND   '/
-      data paramlist(199)%g1tblver /130/
-      data paramlist(199)%grib1val /203/
-      data paramlist(199)%grib2dsc /2/
-      data paramlist(199)%grib2cat /0/
-      data paramlist(199)%grib2num /200/ 
-      data paramlist(199)%abbrev   /'RSMIN   '/
-      data paramlist(200)%g1tblver /130/
-      data paramlist(200)%grib1val /246/
-      data paramlist(200)%grib2dsc /2/
-      data paramlist(200)%grib2cat /0/
-      data paramlist(200)%grib2num /202/ 
-      data paramlist(200)%abbrev   /'RCS     '/
-      data paramlist(201)%g1tblver /130/
-      data paramlist(201)%grib1val /247/
-      data paramlist(201)%grib2dsc /2/
-      data paramlist(201)%grib2cat /0/
-      data paramlist(201)%grib2num /203/ 
-      data paramlist(201)%abbrev   /'RCT     '/
-      data paramlist(202)%g1tblver /130/
-      data paramlist(202)%grib1val /248/
-      data paramlist(202)%grib2dsc /2/
-      data paramlist(202)%grib2cat /0/
-      data paramlist(202)%grib2num /204/ 
-      data paramlist(202)%abbrev   /'RCQ     '/
-      data paramlist(203)%g1tblver /130/
-      data paramlist(203)%grib1val /249/
-      data paramlist(203)%grib2dsc /2/
-      data paramlist(203)%grib2cat /0/
-      data paramlist(203)%grib2num /205/ 
-      data paramlist(203)%abbrev   /'RCSOL   '/
-      data paramlist(204)%g1tblver /2/
-      data paramlist(204)%grib1val /254/
-      data paramlist(204)%grib2dsc /0/
-      data paramlist(204)%grib2cat /7/
-      data paramlist(204)%grib2num /194/ 
-      data paramlist(204)%abbrev   /'RI      '/
-      data paramlist(205)%g1tblver /129/
-      data paramlist(205)%grib1val /190/
-      data paramlist(205)%grib2dsc /3/
-      data paramlist(205)%grib2cat /1/
-      data paramlist(205)%grib2num /192/ 
-      data paramlist(205)%abbrev   /'USCT    '/
-      data paramlist(206)%g1tblver /129/
-      data paramlist(206)%grib1val /191/
-      data paramlist(206)%grib2dsc /3/
-      data paramlist(206)%grib2cat /1/
-      data paramlist(206)%grib2num /193/ 
-      data paramlist(206)%abbrev   /'VSCT    '/
-      data paramlist(207)%g1tblver /129/
-      data paramlist(207)%grib1val /171/
-      data paramlist(207)%grib2dsc /0/
-      data paramlist(207)%grib2cat /191/
-      data paramlist(207)%grib2num /194/ 
-      data paramlist(207)%abbrev   /'TSEC    '/
-      data paramlist(208)%g1tblver /129/
-      data paramlist(208)%grib1val /180/
-      data paramlist(208)%grib2dsc /0/
-      data paramlist(208)%grib2cat /14/
-      data paramlist(208)%grib2num /193/ 
-      data paramlist(208)%abbrev   /'OZCON   '/
-      data paramlist(209)%g1tblver /129/
-      data paramlist(209)%grib1val /181/
-      data paramlist(209)%grib2dsc /0/
-      data paramlist(209)%grib2cat /14/
-      data paramlist(209)%grib2num /194/ 
-      data paramlist(209)%abbrev   /'OZCAT   '/
-      data paramlist(210)%g1tblver /2/
-      data paramlist(210)%grib1val /193/
-      data paramlist(210)%grib2dsc /1/
-      data paramlist(210)%grib2cat /1/
-      data paramlist(210)%grib2num /2/   
-      data paramlist(210)%abbrev   /'POP     '/
-      data paramlist(211)%g1tblver /2/
-      data paramlist(211)%grib1val /195/
-      data paramlist(211)%grib2dsc /1/
-      data paramlist(211)%grib2cat /1/
-      data paramlist(211)%grib2num /192/ 
-      data paramlist(211)%abbrev   /'CPOZP   '/
-      data paramlist(212)%g1tblver /2/
-      data paramlist(212)%grib1val /180/
-      data paramlist(212)%grib2dsc /0/
-      data paramlist(212)%grib2cat /2/
-      data paramlist(212)%grib2num /22/  
-      data paramlist(212)%abbrev   /'GUST    '/
+      data paramlist(174) /gribparam(130,160,2,3,192,'SOILL   ')/
+      data paramlist(175) /gribparam(130,171,2,3,193,'RLYRS   ')/
+      data paramlist(176) /gribparam(130,219,2,0,201,'WILT    ')/
+      data paramlist(177) /gribparam(130,222,2,3,194,'SLTYP   ')/
+      data paramlist(178) /gribparam(2,224,2,3,0,'SOTYP   ')/
+      data paramlist(179) /gribparam(2,225,2,0,198,'VGTYP   ')/
+      data paramlist(180) /gribparam(130,230,2,3,195,'SMREF   ')/
+      data paramlist(181) /gribparam(130,231,2,3,196,'SMDRY   ')/
+      data paramlist(182) /gribparam(2,238,0,1,201,'SNOWC   ')/
+      data paramlist(183) /gribparam(130,240,2,3,197,'POROS   ')/
+      data paramlist(184) /gribparam(129,131,0,1,202,'FRAIN   ')/
+      data paramlist(185) /gribparam(129,132,0,6,199,'FICE    ')/
+      data paramlist(186) /gribparam(129,133,0,1,203,'FRIME   ')/
+      data paramlist(187) /gribparam(129,134,0,6,194,'CUEFI   ')/
+      data paramlist(188) /gribparam(129,135,0,6,195,'TCOND   ')/
+      data paramlist(189) /gribparam(129,136,0,6,196,'TCOLW   ')/
+      data paramlist(190) /gribparam(129,137,0,6,197,'TCOLI   ')/
+      data paramlist(191) /gribparam(129,138,0,1,204,'TCOLR   ')/
+      data paramlist(192) /gribparam(129,139,0,1,205,'TCOLS   ')/
+      data paramlist(193) /gribparam(129,140,0,6,198,'TCOLC   ')/
+      data paramlist(194) /gribparam(130,159,0,19,192,'MXSALB  ')/
+      data paramlist(195) /gribparam(130,170,0,19,193,'SNFALB  ')/
+      data paramlist(196) /gribparam(2,170,0,1,24,'RWMR    ')/
+      data paramlist(197) /gribparam(2,171,0,1,25,'SNMR    ')/
+      data paramlist(198) /gribparam(130,181,2,0,199,'CCOND   ')/
+      data paramlist(199) /gribparam(130,203,2,0,200,'RSMIN   ')/
+      data paramlist(200) /gribparam(130,246,2,0,202,'RCS     ')/
+      data paramlist(201) /gribparam(130,247,2,0,203,'RCT     ')/
+      data paramlist(202) /gribparam(130,248,2,0,204,'RCQ     ')/
+      data paramlist(203) /gribparam(130,249,2,0,205,'RCSOL   ')/
+      data paramlist(204) /gribparam(2,254,0,7,194,'RI      ')/
+      data paramlist(205) /gribparam(129,190,3,1,192,'USCT    ')/
+      data paramlist(206) /gribparam(129,191,3,1,193,'VSCT    ')/
+      data paramlist(207) /gribparam(129,171,0,191,194,'TSEC    ')/
+      data paramlist(208) /gribparam(129,180,0,14,193,'OZCON   ')/
+      data paramlist(209) /gribparam(129,181,0,14,194,'OZCAT   ')/
+      data paramlist(210) /gribparam(2,193,1,1,2,'POP     ')/
+      data paramlist(211) /gribparam(2,195,1,1,192,'CPOZP   ')/
+      data paramlist(212) /gribparam(2,180,0,2,22,'GUST    ')/
 ! Added 11/17/2005 - for wave models
-      data paramlist(213)%g1tblver /0/
-      data paramlist(213)%grib1val /31/
-      data paramlist(213)%grib2dsc /0/
-      data paramlist(213)%grib2cat /2/
-      data paramlist(213)%grib2num /0/   
-      data paramlist(213)%abbrev   /'WDIR    '/
-      data paramlist(214)%g1tblver /0/
-      data paramlist(214)%grib1val /32/
-      data paramlist(214)%grib2dsc /0/
-      data paramlist(214)%grib2cat /2/
-      data paramlist(214)%grib2num /1/   
-      data paramlist(214)%abbrev   /'WIND    '/
-      data paramlist(215)%g1tblver /0/
-      data paramlist(215)%grib1val /33/
-      data paramlist(215)%grib2dsc /0/
-      data paramlist(215)%grib2cat /2/
-      data paramlist(215)%grib2num /2/   
-      data paramlist(215)%abbrev   /'U GRD   '/
-      data paramlist(216)%g1tblver /0/
-      data paramlist(216)%grib1val /34/
-      data paramlist(216)%grib2dsc /0/
-      data paramlist(216)%grib2cat /2/
-      data paramlist(216)%grib2num /3/   
-      data paramlist(216)%abbrev   /'V GRD   '/
-      data paramlist(217)%g1tblver /0/
-      data paramlist(217)%grib1val /100/
-      data paramlist(217)%grib2dsc /10/
-      data paramlist(217)%grib2cat /0/
-      data paramlist(217)%grib2num /3/   
-      data paramlist(217)%abbrev   /'HTSGW   '/
-      data paramlist(218)%g1tblver /0/
-      data paramlist(218)%grib1val /101/
-      data paramlist(218)%grib2dsc /10/
-      data paramlist(218)%grib2cat /0/
-      data paramlist(218)%grib2num /4/   
-      data paramlist(218)%abbrev   /'WVDIR   '/
-      data paramlist(219)%g1tblver /0/
-      data paramlist(219)%grib1val /103/
-      data paramlist(219)%grib2dsc /10/
-      data paramlist(219)%grib2cat /0/
-      data paramlist(219)%grib2num /6/   
-      data paramlist(219)%abbrev   /'WVPER   '/
-      data paramlist(220)%g1tblver /0/
-      data paramlist(220)%grib1val /107/
-      data paramlist(220)%grib2dsc /10/
-      data paramlist(220)%grib2cat /0/
-      data paramlist(220)%grib2num /10/  
-      data paramlist(220)%abbrev   /'DIRPW   '/
-      data paramlist(221)%g1tblver /0/
-      data paramlist(221)%grib1val /108/
-      data paramlist(221)%grib2dsc /10/
-      data paramlist(221)%grib2cat /0/
-      data paramlist(221)%grib2num /11/  
-      data paramlist(221)%abbrev   /'PERPW   '/
-      data paramlist(222)%g1tblver /0/
-      data paramlist(222)%grib1val /109/
-      data paramlist(222)%grib2dsc /10/
-      data paramlist(222)%grib2cat /0/
-      data paramlist(222)%grib2num /12/  
-      data paramlist(222)%abbrev   /'DIRSW   '/
-      data paramlist(223)%g1tblver /0/
-      data paramlist(223)%grib1val /110/
-      data paramlist(223)%grib2dsc /10/
-      data paramlist(223)%grib2cat /0/
-      data paramlist(223)%grib2num /13/    
-      data paramlist(223)%abbrev   /'PERSW   '/
+      data paramlist(213) /gribparam(0,31,0,2,0,'WDIR    ')/
+      data paramlist(214) /gribparam(0,32,0,2,1,'WIND    ')/
+      data paramlist(215) /gribparam(0,33,0,2,2,'U GRD   ')/
+      data paramlist(216) /gribparam(0,34,0,2,3,'V GRD   ')/
+      data paramlist(217) /gribparam(0,100,10,0,3,'HTSGW   ')/
+      data paramlist(218) /gribparam(0,101,10,0,4,'WVDIR   ')/
+      data paramlist(219) /gribparam(0,103,10,0,6,'WVPER   ')/
+      data paramlist(220) /gribparam(0,107,10,0,10,'DIRPW   ')/
+      data paramlist(221) /gribparam(0,108,10,0,11,'PERPW   ')/
+      data paramlist(222) /gribparam(0,109,10,0,12,'DIRSW   ')/
+      data paramlist(223) /gribparam(0,110,10,0,13,'PERSW   ')/
 ! Added 1/26/2006 - 
-      data paramlist(224)%g1tblver /129/
-      data paramlist(224)%grib1val /156/
-      data paramlist(224)%grib2dsc /0/
-      data paramlist(224)%grib2cat /13/
-      data paramlist(224)%grib2num /192/ 
-      data paramlist(224)%abbrev   /'PMTC    '/
-      data paramlist(225)%g1tblver /129/
-      data paramlist(225)%grib1val /157/
-      data paramlist(225)%grib2dsc /0/
-      data paramlist(225)%grib2cat /13/
-      data paramlist(225)%grib2num /193/ 
-      data paramlist(225)%abbrev   /'PMTF    '/
-      data paramlist(226)%g1tblver /3/
-      data paramlist(226)%grib1val /11/
-      data paramlist(226)%grib2dsc /0/
-      data paramlist(226)%grib2cat /0/
-      data paramlist(226)%grib2num /0/   
-      data paramlist(226)%abbrev   /'TMP     '/
-      data paramlist(227)%g1tblver /2/
-      data paramlist(227)%grib1val /129/
-      data paramlist(227)%grib2dsc /0/
-      data paramlist(227)%grib2cat /3/
-      data paramlist(227)%grib2num /198/ 
-      data paramlist(227)%abbrev   /'MSLMA   '/
-      data paramlist(228)%g1tblver /129/
-      data paramlist(228)%grib1val /163/
-      data paramlist(228)%grib2dsc /0/
-      data paramlist(228)%grib2cat /13/
-      data paramlist(228)%grib2num /194/ 
-      data paramlist(228)%abbrev   /'LPMTF   '/
-      data paramlist(229)%g1tblver /129/
-      data paramlist(229)%grib1val /164/
-      data paramlist(229)%grib2dsc /0/
-      data paramlist(229)%grib2cat /13/
-      data paramlist(229)%grib2num /195/ 
-      data paramlist(229)%abbrev   /'LIPMF   '/
+      data paramlist(224) /gribparam(129,156,0,13,192,'PMTC    ')/
+      data paramlist(225) /gribparam(129,157,0,13,193,'PMTF    ')/
+      data paramlist(226) /gribparam(3,11,0,0,0,'TMP     ')/
+      data paramlist(227) /gribparam(2,129,0,3,198,'MSLMA   ')/
+      data paramlist(228) /gribparam(129,163,0,13,194,'LPMTF   ')/
+      data paramlist(229) /gribparam(129,164,0,13,195,'LIPMF   ')/
 ! Added 3/6/2006 - For missing GRIB1 to GRIB2 conversions
-      data paramlist(230)%g1tblver /2/
-      data paramlist(230)%grib1val /178/
-      data paramlist(230)%grib2dsc /0/
-      data paramlist(230)%grib2cat /1/
-      data paramlist(230)%grib2num /23/  
-      data paramlist(230)%abbrev   /'ICMR    '/
-      data paramlist(231)%g1tblver /2/
-      data paramlist(231)%grib1val /179/
-      data paramlist(231)%grib2dsc /0/
-      data paramlist(231)%grib2cat /1/
-      data paramlist(231)%grib2num /32/  
-      data paramlist(231)%abbrev   /'GRMR    '/
-      data paramlist(232)%g1tblver /2/
-      data paramlist(232)%grib1val /186/
-      data paramlist(232)%grib2dsc /0/
-      data paramlist(232)%grib2cat /1/
-      data paramlist(232)%grib2num /206/ 
-      data paramlist(232)%abbrev   /'TIPD    '/
-      data paramlist(233)%g1tblver /2/
-      data paramlist(233)%grib1val /187/
-      data paramlist(233)%grib2dsc /0/
-      data paramlist(233)%grib2cat /17/
-      data paramlist(233)%grib2num /192/ 
-      data paramlist(233)%abbrev   /'LTNG    '/
-      data paramlist(234)%g1tblver /2/
-      data paramlist(234)%grib1val /188/
-      data paramlist(234)%grib2dsc /2/
-      data paramlist(234)%grib2cat /0/
-      data paramlist(234)%grib2num /206/ 
-      data paramlist(234)%abbrev   /'RDRIP   '/
-      data paramlist(235)%g1tblver /2/
-      data paramlist(235)%grib1val /189/
-      data paramlist(235)%grib2dsc /0/
-      data paramlist(235)%grib2cat /0/
-      data paramlist(235)%grib2num /15/ 
-      data paramlist(235)%abbrev   /'VPTMP   '/
-      data paramlist(236)%g1tblver /2/
-      data paramlist(236)%grib1val /198/
-      data paramlist(236)%grib2dsc /0/
-      data paramlist(236)%grib2cat /1/
-      data paramlist(236)%grib2num /207/ 
-      data paramlist(236)%abbrev   /'NCIP    '/
-      data paramlist(237)%g1tblver /2/
-      data paramlist(237)%grib1val /239/
-      data paramlist(237)%grib2dsc /0/
-      data paramlist(237)%grib2cat /1/
-      data paramlist(237)%grib2num /208/ 
-      data paramlist(237)%abbrev   /'SNO T   '/
-      data paramlist(238)%g1tblver /2/
-      data paramlist(238)%grib1val /128/
-      data paramlist(238)%grib2dsc /0/
-      data paramlist(238)%grib2cat /3/
-      data paramlist(238)%grib2num /1/ 
-      data paramlist(238)%abbrev   /'MSLSA   '/
-      data paramlist(239)%g1tblver /2/
-      data paramlist(239)%grib1val /137/
-      data paramlist(239)%grib2dsc /0/
-      data paramlist(239)%grib2cat /3/
-      data paramlist(239)%grib2num /199/ 
-      data paramlist(239)%abbrev   /'TSLSA   '/
-      data paramlist(240)%g1tblver /129/
-      data paramlist(240)%grib1val /141/
-      data paramlist(240)%grib2dsc /0/
-      data paramlist(240)%grib2cat /3/
-      data paramlist(240)%grib2num /200/ 
-      data paramlist(240)%abbrev   /'PLPL    '/
-      data paramlist(241)%g1tblver /129/
-      data paramlist(241)%grib1val /200/
-      data paramlist(241)%grib2dsc /0/
-      data paramlist(241)%grib2cat /4/
-      data paramlist(241)%grib2num /194/ 
-      data paramlist(241)%abbrev   /'DUVB    '/
-      data paramlist(242)%g1tblver /129/
-      data paramlist(242)%grib1val /201/
-      data paramlist(242)%grib2dsc /0/
-      data paramlist(242)%grib2cat /4/
-      data paramlist(242)%grib2num /195/ 
-      data paramlist(242)%abbrev   /'CDUVB   '/
-      data paramlist(243)%g1tblver /2/
-      data paramlist(243)%grib1val /201/
-      data paramlist(243)%grib2dsc /2/
-      data paramlist(243)%grib2cat /0/
-      data paramlist(243)%grib2num /207/ 
-      data paramlist(243)%abbrev   /'ICWAT   '/
-      data paramlist(244)%g1tblver /2/
-      data paramlist(244)%grib1val /209/
-      data paramlist(244)%grib2dsc /0/
-      data paramlist(244)%grib2cat /19/
-      data paramlist(244)%grib2num /204/ 
-      data paramlist(244)%abbrev   /'MIXLY   '/
-      data paramlist(245)%g1tblver /2/
-      data paramlist(245)%grib1val /216/
-      data paramlist(245)%grib2dsc /0/
-      data paramlist(245)%grib2cat /0/
-      data paramlist(245)%grib2num /193/ 
-      data paramlist(245)%abbrev   /'TTRAD   '/
-      data paramlist(246)%g1tblver /129/
-      data paramlist(246)%grib1val /211/
-      data paramlist(246)%grib2dsc /0/
-      data paramlist(246)%grib2cat /16/
-      data paramlist(246)%grib2num /195/ 
-      data paramlist(246)%abbrev   /'REFD    '/
-      data paramlist(247)%g1tblver /129/
-      data paramlist(247)%grib1val /212/
-      data paramlist(247)%grib2dsc /0/
-      data paramlist(247)%grib2cat /16/
-      data paramlist(247)%grib2num /196/ 
-      data paramlist(247)%abbrev   /'REFC    '/
-      data paramlist(248)%g1tblver /2/
-      data paramlist(248)%grib1val /161/
-      data paramlist(248)%grib2dsc /0/
-      data paramlist(248)%grib2cat /4/
-      data paramlist(248)%grib2num /196/ 
-      data paramlist(248)%abbrev   /'CSDSF   '/
-      data paramlist(249)%g1tblver /129/
-      data paramlist(249)%grib1val /168/
-      data paramlist(249)%grib2dsc /0/
-      data paramlist(249)%grib2cat /1/
-      data paramlist(249)%grib2num /209/ 
-      data paramlist(249)%abbrev   /'TCLSW   '/
-      data paramlist(250)%g1tblver /129/
-      data paramlist(250)%grib1val /169/
-      data paramlist(250)%grib2dsc /0/
-      data paramlist(250)%grib2cat /1/
-      data paramlist(250)%grib2num /210/ 
-      data paramlist(250)%abbrev   /'TCOLM   '/
-      data paramlist(251)%g1tblver /2/
-      data paramlist(251)%grib1val /181/
-      data paramlist(251)%grib2dsc /0/
-      data paramlist(251)%grib2cat /3/
-      data paramlist(251)%grib2num /201/ 
-      data paramlist(251)%abbrev   /'LPS X   '/
-      data paramlist(252)%g1tblver /2/
-      data paramlist(252)%grib1val /182/
-      data paramlist(252)%grib2dsc /0/
-      data paramlist(252)%grib2cat /3/
-      data paramlist(252)%grib2num /202/ 
-      data paramlist(252)%abbrev   /'LPS Y   '/
-      data paramlist(253)%g1tblver /2/
-      data paramlist(253)%grib1val /183/
-      data paramlist(253)%grib2dsc /0/
-      data paramlist(253)%grib2cat /3/
-      data paramlist(253)%grib2num /203/ 
-      data paramlist(253)%abbrev   /'HGT X   '/
-      data paramlist(254)%g1tblver /2/
-      data paramlist(254)%grib1val /184/
-      data paramlist(254)%grib2dsc /0/
-      data paramlist(254)%grib2cat /3/
-      data paramlist(254)%grib2num /204/ 
-      data paramlist(254)%abbrev   /'HGT Y   '/
-      data paramlist(255)%g1tblver /128/
-      data paramlist(255)%grib1val /254/
-      data paramlist(255)%grib2dsc /0/
-      data paramlist(255)%grib2cat /0/
-      data paramlist(255)%grib2num /194/ 
-      data paramlist(255)%abbrev   /'REV     '/
+      data paramlist(230) /gribparam(2,178,0,1,23,'ICMR    ')/
+      data paramlist(231) /gribparam(2,179,0,1,32,'GRMR    ')/
+      data paramlist(232) /gribparam(2,186,0,1,206,'TIPD    ')/
+      data paramlist(233) /gribparam(2,187,0,17,192,'LTNG    ')/
+      data paramlist(234) /gribparam(2,188,2,0,206,'RDRIP    ')/
+      data paramlist(235) /gribparam(2,189,0,0,15,'VPTMP   ')/
+      data paramlist(236) /gribparam(2,198,0,1,207,'NCIP    ')/
+      data paramlist(237) /gribparam(2,239,0,1,208,'SNOT    ')/
+      data paramlist(238) /gribparam(2,128,0,3,1,'MSLSA   ')/
+      data paramlist(239) /gribparam(2,137,0,3,199,'TSLSA   ')/
+      data paramlist(240) /gribparam(129,141,0,3,200,'PLPL    ')/
+      data paramlist(241) /gribparam(129,200,0,4,194,'DUVB    ')/
+      data paramlist(242) /gribparam(129,201,0,4,195,'CDUVB    ')/
+      data paramlist(243) /gribparam(2,201,2,0,207,'ICWAT    ')/
+      data paramlist(244) /gribparam(2,209,0,19,204,'MIXLY    ')/
+      data paramlist(245) /gribparam(2,216,0,0,193,'TTRAD    ')/
+      data paramlist(246) /gribparam(129,211,0,16,195,'REFD     ')/
+      data paramlist(247) /gribparam(129,212,0,16,196,'REFC     ')/
+      data paramlist(248) /gribparam(2,161,0,4,196,'CSDSF    ')/
+      data paramlist(249) /gribparam(129,168,0,1,209,'TCLSW    ')/
+      data paramlist(250) /gribparam(129,169,0,1,210,'TCOLM    ')/
+      data paramlist(251) /gribparam(2,181,0,3,201,'LPS X   ')/
+      data paramlist(252) /gribparam(2,182,0,3,202,'LPS Y   ')/
+      data paramlist(253) /gribparam(2,183,0,3,203,'HGT X   ')/
+      data paramlist(254) /gribparam(2,184,0,3,204,'HGT Y   ')/
+      data paramlist(255) /gribparam(128,254,0,0,194,'REV     ')/
 ! Added 4/20/2007 - For missing GRIB1 to GRIB2 conversions
-      data paramlist(256)%g1tblver /1/
-      data paramlist(256)%grib1val /91/
-      data paramlist(256)%grib2dsc /10/
-      data paramlist(256)%grib2cat /2/
-      data paramlist(256)%grib2num /0/ 
-      data paramlist(256)%abbrev   /'ICE C   '/
-      data paramlist(257)%g1tblver /0/
-      data paramlist(257)%grib1val /49/
-      data paramlist(257)%grib2dsc /10/
-      data paramlist(257)%grib2cat /1/
-      data paramlist(257)%grib2num /2/ 
-      data paramlist(257)%abbrev   /'UOGRD   '/
-      data paramlist(258)%g1tblver /0/
-      data paramlist(258)%grib1val /50/
-      data paramlist(258)%grib2dsc /10/
-      data paramlist(258)%grib2cat /1/
-      data paramlist(258)%grib2num /3/ 
-      data paramlist(258)%abbrev   /'VOGRD   '/
-      data paramlist(259)%g1tblver /0/
-      data paramlist(259)%grib1val /80/
-      data paramlist(259)%grib2dsc /10/
-      data paramlist(259)%grib2cat /3/
-      data paramlist(259)%grib2num /0/ 
-      data paramlist(259)%abbrev   /'WTMP    '/
-      data paramlist(260)%g1tblver /0/
-      data paramlist(260)%grib1val /82/
-      data paramlist(260)%grib2dsc /10/
-      data paramlist(260)%grib2cat /3/
-      data paramlist(260)%grib2num /1/ 
-      data paramlist(260)%abbrev   /'DSL M   '/
-      data paramlist(261)%g1tblver /0/
-      data paramlist(261)%grib1val /88/
-      data paramlist(261)%grib2dsc /10/
-      data paramlist(261)%grib2cat /4/
-      data paramlist(261)%grib2num /3/ 
-      data paramlist(261)%abbrev   /'SALTY   '/
-      data paramlist(262)%g1tblver /1/
-      data paramlist(262)%grib1val /49/
-      data paramlist(262)%grib2dsc /10/
-      data paramlist(262)%grib2cat /1/
-      data paramlist(262)%grib2num /2/ 
-      data paramlist(262)%abbrev   /'UOGRD   '/
-      data paramlist(263)%g1tblver /1/
-      data paramlist(263)%grib1val /50/
-      data paramlist(263)%grib2dsc /10/
-      data paramlist(263)%grib2cat /1/
-      data paramlist(263)%grib2num /3/ 
-      data paramlist(263)%abbrev   /'VOGRD   '/
-      data paramlist(264)%g1tblver /1/
-      data paramlist(264)%grib1val /80/
-      data paramlist(264)%grib2dsc /10/
-      data paramlist(264)%grib2cat /3/
-      data paramlist(264)%grib2num /0/ 
-      data paramlist(264)%abbrev   /'WTMP    '/
-      data paramlist(265)%g1tblver /1/
-      data paramlist(265)%grib1val /88/
-      data paramlist(265)%grib2dsc /10/
-      data paramlist(265)%grib2cat /4/
-      data paramlist(265)%grib2num /3/ 
-      data paramlist(265)%abbrev   /'SALTY   '/
-      data paramlist(266)%g1tblver /1/
-      data paramlist(266)%grib1val /40/
-      data paramlist(266)%grib2dsc /0/
-      data paramlist(266)%grib2cat /2/
-      data paramlist(266)%grib2num /9/ 
-      data paramlist(266)%abbrev   /'DZDT    '/
-      data paramlist(267)%g1tblver /1/
-      data paramlist(267)%grib1val /67/
-      data paramlist(267)%grib2dsc /0/
-      data paramlist(267)%grib2cat /19/
-      data paramlist(267)%grib2num /3/ 
-      data paramlist(267)%abbrev   /'MIXHT   '/
-      data paramlist(268)%g1tblver /3/
-      data paramlist(268)%grib1val /2/
-      data paramlist(268)%grib2dsc /0/
-      data paramlist(268)%grib2cat /3/
-      data paramlist(268)%grib2num /1/ 
-      data paramlist(268)%abbrev   /'PRMSL   '/
-      data paramlist(269)%g1tblver /3/
-      data paramlist(269)%grib1val /7/
-      data paramlist(269)%grib2dsc /0/
-      data paramlist(269)%grib2cat /3/
-      data paramlist(269)%grib2num /5/ 
-      data paramlist(269)%abbrev   /'HGT     '/
-      data paramlist(270)%g1tblver /128/
-      data paramlist(270)%grib1val /130/
-      data paramlist(270)%grib2dsc /10/
-      data paramlist(270)%grib2cat /3/
-      data paramlist(270)%grib2num /194/ 
-      data paramlist(270)%abbrev   /'ELEV    '/
-      data paramlist(271)%g1tblver /129/
-      data paramlist(271)%grib1val /217/
-      data paramlist(271)%grib2dsc /0/
-      data paramlist(271)%grib2cat /1/
-      data paramlist(271)%grib2num /198/ 
-      data paramlist(271)%abbrev   /'MINRH   '/
-      data paramlist(272)%g1tblver /129/
-      data paramlist(272)%grib1val /218/
-      data paramlist(272)%grib2dsc /0/
-      data paramlist(272)%grib2cat /1/
-      data paramlist(272)%grib2num /27/ 
-      data paramlist(272)%abbrev   /'MAXRH   '/
-      data paramlist(273)%g1tblver /130/
-      data paramlist(273)%grib1val /161/
-      data paramlist(273)%grib2dsc /0/
-      data paramlist(273)%grib2cat /1/
-      data paramlist(273)%grib2num /29/ 
-      data paramlist(273)%abbrev   /'ASNOW   '/
-      data paramlist(274)%g1tblver /129/
-      data paramlist(274)%grib1val /165/
-      data paramlist(274)%grib2dsc /0/
-      data paramlist(274)%grib2cat /16/
-      data paramlist(274)%grib2num /192/ 
-      data paramlist(274)%abbrev   /'REFZR   '/
-      data paramlist(275)%g1tblver /129/
-      data paramlist(275)%grib1val /166/
-      data paramlist(275)%grib2dsc /0/
-      data paramlist(275)%grib2cat /16/
-      data paramlist(275)%grib2num /193/ 
-      data paramlist(275)%abbrev   /'REFZI   '/
-      data paramlist(276)%g1tblver /129/
-      data paramlist(276)%grib1val /167/
-      data paramlist(276)%grib2dsc /0/
-      data paramlist(276)%grib2cat /16/
-      data paramlist(276)%grib2num /194/ 
-      data paramlist(276)%abbrev   /'REFZC   '/
-      data paramlist(277)%g1tblver /129/
-      data paramlist(277)%grib1val /192/
-      data paramlist(277)%grib2dsc /0/
-      data paramlist(277)%grib2cat /2/
-      data paramlist(277)%grib2num /198/ 
-      data paramlist(277)%abbrev   /'LAUV    '/
-      data paramlist(278)%g1tblver /129/
-      data paramlist(278)%grib1val /193/
-      data paramlist(278)%grib2dsc /0/
-      data paramlist(278)%grib2cat /2/
-      data paramlist(278)%grib2num /199/ 
-      data paramlist(278)%abbrev   /'LOUV    '/
-      data paramlist(279)%g1tblver /129/
-      data paramlist(279)%grib1val /188/
-      data paramlist(279)%grib2dsc /0/
-      data paramlist(279)%grib2cat /2/
-      data paramlist(279)%grib2num /200/ 
-      data paramlist(279)%abbrev   /'LAVV    '/
-      data paramlist(280)%g1tblver /129/
-      data paramlist(280)%grib1val /189/
-      data paramlist(280)%grib2dsc /0/
-      data paramlist(280)%grib2cat /2/
-      data paramlist(280)%grib2num /201/ 
-      data paramlist(280)%abbrev   /'LOVV    '/
-      data paramlist(281)%g1tblver /129/
-      data paramlist(281)%grib1val /207/
-      data paramlist(281)%grib2dsc /0/
-      data paramlist(281)%grib2cat /2/
-      data paramlist(281)%grib2num /202/ 
-      data paramlist(281)%abbrev   /'LAPP    '/
-      data paramlist(282)%g1tblver /129/
-      data paramlist(282)%grib1val /208/
-      data paramlist(282)%grib2dsc /0/
-      data paramlist(282)%grib2cat /2/
-      data paramlist(282)%grib2num /203/ 
-      data paramlist(282)%abbrev   /'LOPP    '/
-      data paramlist(283)%g1tblver /129/
-      data paramlist(283)%grib1val /198/
-      data paramlist(283)%grib2dsc /10/
-      data paramlist(283)%grib2cat /3/
-      data paramlist(283)%grib2num /195/ 
-      data paramlist(283)%abbrev   /'SSHG    '/
-      data paramlist(284)%g1tblver /1/
-      data paramlist(284)%grib1val /33/
-      data paramlist(284)%grib2dsc /0/
-      data paramlist(284)%grib2cat /2/
-      data paramlist(284)%grib2num /2/ 
-      data paramlist(284)%abbrev   /'U GRD   '/
-      data paramlist(285)%g1tblver /1/
-      data paramlist(285)%grib1val /34/
-      data paramlist(285)%grib2dsc /0/
-      data paramlist(285)%grib2cat /2/
-      data paramlist(285)%grib2num /3/ 
-      data paramlist(285)%abbrev   /'V GRD   '/
-      data paramlist(286)%g1tblver /1/
-      data paramlist(286)%grib1val /2/
-      data paramlist(286)%grib2dsc /0/
-      data paramlist(286)%grib2cat /3/
-      data paramlist(286)%grib2num /1/ 
-      data paramlist(286)%abbrev   /'PRMSL   '/
-      data paramlist(287)%g1tblver /1/
-      data paramlist(287)%grib1val /7/
-      data paramlist(287)%grib2dsc /0/
-      data paramlist(287)%grib2cat /3/
-      data paramlist(287)%grib2num /5/ 
-      data paramlist(287)%abbrev   /'HGT     '/
-      data paramlist(288)%g1tblver /128/
-      data paramlist(288)%grib1val /186/
-      data paramlist(288)%grib2dsc /10/
-      data paramlist(288)%grib2cat /3/
-      data paramlist(288)%grib2num /196/ 
-      data paramlist(288)%abbrev   /'WTMPC   '/
-      data paramlist(289)%g1tblver /128/
-      data paramlist(289)%grib1val /187/
-      data paramlist(289)%grib2dsc /10/
-      data paramlist(289)%grib2cat /3/
-      data paramlist(289)%grib2num /197/ 
-      data paramlist(289)%abbrev   /'SALIN   '/
-      data paramlist(290)%g1tblver /128/
-      data paramlist(290)%grib1val /177/
-      data paramlist(290)%grib2dsc /10/
-      data paramlist(290)%grib2cat /1/
-      data paramlist(290)%grib2num /192/ 
-      data paramlist(290)%abbrev   /'P2OMLT  '/
-      data paramlist(291)%g1tblver /128/
-      data paramlist(291)%grib1val /178/
-      data paramlist(291)%grib2dsc /10/
-      data paramlist(291)%grib2cat /1/
-      data paramlist(291)%grib2num /193/ 
-      data paramlist(291)%abbrev   /'OMLU    '/
-      data paramlist(292)%g1tblver /128/
-      data paramlist(292)%grib1val /179/
-      data paramlist(292)%grib2dsc /10/
-      data paramlist(292)%grib2cat /1/
-      data paramlist(292)%grib2num /194/ 
-      data paramlist(292)%abbrev   /'OMLV    '/
-      data paramlist(293)%g1tblver /128/
-      data paramlist(293)%grib1val /183/
-      data paramlist(293)%grib2dsc /10/
-      data paramlist(293)%grib2cat /1/
-      data paramlist(293)%grib2num /195/ 
-      data paramlist(293)%abbrev   /'UBARO   '/
-      data paramlist(294)%g1tblver /128/
-      data paramlist(294)%grib1val /184/
-      data paramlist(294)%grib2dsc /10/
-      data paramlist(294)%grib2cat /1/
-      data paramlist(294)%grib2num /196/ 
-      data paramlist(294)%abbrev   /'VBARO   '/
-      data paramlist(295)%g1tblver /129/
-      data paramlist(295)%grib1val /179/
-      data paramlist(295)%grib2dsc /0/
-      data paramlist(295)%grib2cat /19/
-      data paramlist(295)%grib2num /205/ 
-      data paramlist(295)%abbrev   /'FLIGHT  '/
-      data paramlist(296)%g1tblver /129/
-      data paramlist(296)%grib1val /185/
-      data paramlist(296)%grib2dsc /0/
-      data paramlist(296)%grib2cat /19/
-      data paramlist(296)%grib2num /206/ 
-      data paramlist(296)%abbrev   /'CICEL   '/
-      data paramlist(297)%g1tblver /129/
-      data paramlist(297)%grib1val /186/
-      data paramlist(297)%grib2dsc /0/
-      data paramlist(297)%grib2cat /19/
-      data paramlist(297)%grib2num /207/ 
-      data paramlist(297)%abbrev   /'CIVIS   '/
-      data paramlist(298)%g1tblver /129/
-      data paramlist(298)%grib1val /187/
-      data paramlist(298)%grib2dsc /0/
-      data paramlist(298)%grib2cat /19/
-      data paramlist(298)%grib2num /208/ 
-      data paramlist(298)%abbrev   /'CIFLT   '/
-      data paramlist(299)%g1tblver /129/
-      data paramlist(299)%grib1val /177/
-      data paramlist(299)%grib2dsc /0/
-      data paramlist(299)%grib2cat /19/
-      data paramlist(299)%grib2num /209/ 
-      data paramlist(299)%abbrev   /'LAVNI   '/
-      data paramlist(300)%g1tblver /129/
-      data paramlist(300)%grib1val /178/
-      data paramlist(300)%grib2dsc /0/
-      data paramlist(300)%grib2cat /19/
-      data paramlist(300)%grib2num /210/ 
-      data paramlist(300)%abbrev   /'HAVNI   '/
-      data paramlist(301)%g1tblver /130/
-      data paramlist(301)%grib1val /189/
-      data paramlist(301)%grib2dsc /0/
-      data paramlist(301)%grib2cat /19/
-      data paramlist(301)%grib2num /211/ 
-      data paramlist(301)%abbrev   /'SBSALB  '/
-      data paramlist(302)%g1tblver /130/
-      data paramlist(302)%grib1val /190/
-      data paramlist(302)%grib2dsc /0/
-      data paramlist(302)%grib2cat /19/
-      data paramlist(302)%grib2num /212/ 
-      data paramlist(302)%abbrev   /'SWSALB  '/
-      data paramlist(303)%g1tblver /130/
-      data paramlist(303)%grib1val /191/
-      data paramlist(303)%grib2dsc /0/
-      data paramlist(303)%grib2cat /19/
-      data paramlist(303)%grib2num /213/ 
-      data paramlist(303)%abbrev   /'NBSALB  '/
-      data paramlist(304)%g1tblver /130/
-      data paramlist(304)%grib1val /192/
-      data paramlist(304)%grib2dsc /0/
-      data paramlist(304)%grib2cat /19/
-      data paramlist(304)%grib2num /214/ 
-      data paramlist(304)%abbrev   /'NWSALB  '/
-      data paramlist(305)%g1tblver /129/
-      data paramlist(305)%grib1val /149/
-      data paramlist(305)%grib2dsc /10/
-      data paramlist(305)%grib2cat /0/
-      data paramlist(305)%grib2num /192/ 
-      data paramlist(305)%abbrev   /'WSTP    '/
-      data paramlist(306)%g1tblver /128/
-      data paramlist(306)%grib1val /188/
-      data paramlist(306)%grib2dsc /0/
-      data paramlist(306)%grib2cat /1/
-      data paramlist(306)%grib2num /211/ 
-      data paramlist(306)%abbrev   /'EMNP    '/
-      data paramlist(307)%g1tblver /128/
-      data paramlist(307)%grib1val /192/
-      data paramlist(307)%grib2dsc /0/
-      data paramlist(307)%grib2cat /3/
-      data paramlist(307)%grib2num /205/ 
-      data paramlist(307)%abbrev   /'LAYTH   '/
-      data paramlist(308)%g1tblver /129/
-      data paramlist(308)%grib1val /219/
-      data paramlist(308)%grib2dsc /0/
-      data paramlist(308)%grib2cat /6/
-      data paramlist(308)%grib2num /13/ 
-      data paramlist(308)%abbrev   /'CEIL    '/
-      data paramlist(309)%g1tblver /129/
-      data paramlist(309)%grib1val /220/
-      data paramlist(309)%grib2dsc /0/
-      data paramlist(309)%grib2cat /19/
-      data paramlist(309)%grib2num /12/ 
-      data paramlist(309)%abbrev   /'PBLREG  '/
-      data paramlist(310)%g1tblver /130/
-      data paramlist(310)%grib1val /179/
-      data paramlist(310)%grib2dsc /2/
-      data paramlist(310)%grib2cat /0/
-      data paramlist(310)%grib2num /210/ 
-      data paramlist(310)%abbrev   /'ACOND   '/
-      data paramlist(311)%g1tblver /130/
-      data paramlist(311)%grib1val /198/
-      data paramlist(311)%grib2dsc /0/
-      data paramlist(311)%grib2cat /1/
-      data paramlist(311)%grib2num /212/ 
-      data paramlist(311)%abbrev   /'SBSNO   '/
-      data paramlist(312)%g1tblver /2/
-      data paramlist(312)%grib1val /199/
-      data paramlist(312)%grib2dsc /2/
-      data paramlist(312)%grib2cat /3/
-      data paramlist(312)%grib2num /198/ 
-      data paramlist(312)%abbrev   /'EVBS    '/
-      data paramlist(313)%g1tblver /2/
-      data paramlist(313)%grib1val /200/
-      data paramlist(313)%grib2dsc /2/
-      data paramlist(313)%grib2cat /0/
-      data paramlist(313)%grib2num /208/ 
-      data paramlist(313)%abbrev   /'EVCW    '/
-      data paramlist(314)%g1tblver /2/
-      data paramlist(314)%grib1val /210/
-      data paramlist(314)%grib2dsc /2/
-      data paramlist(314)%grib2cat /0/
-      data paramlist(314)%grib2num /209/ 
-      data paramlist(314)%abbrev   /'TRANS   '/
-      data paramlist(315)%g1tblver /129/
-      data paramlist(315)%grib1val /182/
-      data paramlist(315)%grib2dsc /0/
-      data paramlist(315)%grib2cat /2/
-      data paramlist(315)%grib2num /204/ 
-      data paramlist(315)%abbrev   /'VEDH    '/
-      data paramlist(316)%g1tblver /128/
-      data paramlist(316)%grib1val /40/
-      data paramlist(316)%grib2dsc /0/
-      data paramlist(316)%grib2cat /1/
-      data paramlist(316)%grib2num /213/ 
-      data paramlist(316)%abbrev   /'A RAIN  '/
-      data paramlist(317)%g1tblver /128/
-      data paramlist(317)%grib1val /41/
-      data paramlist(317)%grib2dsc /0/
-      data paramlist(317)%grib2cat /1/
-      data paramlist(317)%grib2num /214/ 
-      data paramlist(317)%abbrev   /'A SNOW  '/
-      data paramlist(318)%g1tblver /128/
-      data paramlist(318)%grib1val /42/
-      data paramlist(318)%grib2dsc /0/
-      data paramlist(318)%grib2cat /1/
-      data paramlist(318)%grib2num /215/ 
-      data paramlist(318)%abbrev   /'A ICE   '/
-      data paramlist(319)%g1tblver /128/
-      data paramlist(319)%grib1val /43/
-      data paramlist(319)%grib2dsc /0/
-      data paramlist(319)%grib2cat /1/
-      data paramlist(319)%grib2num /216/ 
-      data paramlist(319)%abbrev   /'A FRZR  '/
-      data paramlist(320)%g1tblver /2/
-      data paramlist(320)%grib1val /241/
-      data paramlist(320)%grib2dsc /0/
-      data paramlist(320)%grib2cat /0/
-      data paramlist(320)%grib2num /195/ 
-      data paramlist(320)%abbrev   /'LRGHR   '/
-      data paramlist(321)%g1tblver /2/
-      data paramlist(321)%grib1val /242/
-      data paramlist(321)%grib2dsc /0/
-      data paramlist(321)%grib2cat /0/
-      data paramlist(321)%grib2num /196/ 
-      data paramlist(321)%abbrev   /'CNVHR   '/
-      data paramlist(322)%g1tblver /140/
-      data paramlist(322)%grib1val /168/
-      data paramlist(322)%grib2dsc /0/
-      data paramlist(322)%grib2cat /19/
-      data paramlist(322)%grib2num /217/ 
-      data paramlist(322)%abbrev   /'MEIP    '/
-      data paramlist(323)%g1tblver /140/
-      data paramlist(323)%grib1val /169/
-      data paramlist(323)%grib2dsc /0/
-      data paramlist(323)%grib2cat /19/
-      data paramlist(323)%grib2num /218/ 
-      data paramlist(323)%abbrev   /'MAIP    '/
-      data paramlist(324)%g1tblver /140/
-      data paramlist(324)%grib1val /170/
-      data paramlist(324)%grib2dsc /0/
-      data paramlist(324)%grib2cat /19/
-      data paramlist(324)%grib2num /219/ 
-      data paramlist(324)%abbrev   /'MECTP   '/
-      data paramlist(325)%g1tblver /140/
-      data paramlist(325)%grib1val /171/
-      data paramlist(325)%grib2dsc /0/
-      data paramlist(325)%grib2cat /19/
-      data paramlist(325)%grib2num /220/ 
-      data paramlist(325)%abbrev   /'MACTP   '/
-      data paramlist(326)%g1tblver /140/
-      data paramlist(326)%grib1val /172/
-      data paramlist(326)%grib2dsc /0/
-      data paramlist(326)%grib2cat /19/
-      data paramlist(326)%grib2num /221/ 
-      data paramlist(326)%abbrev   /'MECAT   '/
-      data paramlist(327)%g1tblver /140/
-      data paramlist(327)%grib1val /173/
-      data paramlist(327)%grib2dsc /0/
-      data paramlist(327)%grib2cat /19/
-      data paramlist(327)%grib2num /222/ 
-      data paramlist(327)%abbrev   /'MACAT   '/
-      data paramlist(328)%g1tblver /140/
-      data paramlist(328)%grib1val /174/
-      data paramlist(328)%grib2dsc /0/
-      data paramlist(328)%grib2cat /19/
-      data paramlist(328)%grib2num /223/ 
-      data paramlist(328)%abbrev   /'CBHE    '/
-      data paramlist(329)%g1tblver /140/
-      data paramlist(329)%grib1val /175/
-      data paramlist(329)%grib2dsc /0/
-      data paramlist(329)%grib2cat /19/
-      data paramlist(329)%grib2num /224/ 
-      data paramlist(329)%abbrev   /'PCBB    '/
-      data paramlist(330)%g1tblver /140/
-      data paramlist(330)%grib1val /176/
-      data paramlist(330)%grib2dsc /0/
-      data paramlist(330)%grib2cat /19/
-      data paramlist(330)%grib2num /225/ 
-      data paramlist(330)%abbrev   /'PCBT    '/
-      data paramlist(331)%g1tblver /140/
-      data paramlist(331)%grib1val /177/
-      data paramlist(331)%grib2dsc /0/
-      data paramlist(331)%grib2cat /19/
-      data paramlist(331)%grib2num /226/ 
-      data paramlist(331)%abbrev   /'PECBB   '/
-      data paramlist(332)%g1tblver /140/
-      data paramlist(332)%grib1val /178/
-      data paramlist(332)%grib2dsc /0/
-      data paramlist(332)%grib2cat /19/
-      data paramlist(332)%grib2num /227/ 
-      data paramlist(332)%abbrev   /'PECBT   '/
-      data paramlist(333)%g1tblver /140/
-      data paramlist(333)%grib1val /179/
-      data paramlist(333)%grib2dsc /0/
-      data paramlist(333)%grib2cat /19/
-      data paramlist(333)%grib2num /228/ 
-      data paramlist(333)%abbrev   /'HCBB    '/
-      data paramlist(334)%g1tblver /140/
-      data paramlist(334)%grib1val /180/
-      data paramlist(334)%grib2dsc /0/
-      data paramlist(334)%grib2cat /19/
-      data paramlist(334)%grib2num /229/ 
-      data paramlist(334)%abbrev   /'HCBT    '/
-      data paramlist(335)%g1tblver /140/
-      data paramlist(335)%grib1val /181/
-      data paramlist(335)%grib2dsc /0/
-      data paramlist(335)%grib2cat /19/
-      data paramlist(335)%grib2num /230/ 
-      data paramlist(335)%abbrev   /'HECBB   '/
-      data paramlist(336)%g1tblver /140/
-      data paramlist(336)%grib1val /182/
-      data paramlist(336)%grib2dsc /0/
-      data paramlist(336)%grib2cat /19/
-      data paramlist(336)%grib2num /231/ 
-      data paramlist(336)%abbrev   /'HECBT   '/
+      data paramlist(256) /gribparam(1,91,10,2,0,'ICE C   ')/
+      data paramlist(257) /gribparam(0,49,10,1,2,'UOGRD   ')/
+      data paramlist(258) /gribparam(0,50,10,1,3,'VOGRD   ')/
+      data paramlist(259) /gribparam(0,80,10,3,0,'WTMP    ')/
+      data paramlist(260) /gribparam(0,82,10,3,1,'DSL M   ')/
+      data paramlist(261) /gribparam(0,88,10,4,3,'SALTY   ')/
+      data paramlist(262) /gribparam(1,49,10,1,2,'UOGRD   ')/
+      data paramlist(263) /gribparam(1,50,10,1,3,'VOGRD   ')/
+      data paramlist(264) /gribparam(1,80,10,3,0,'WTMP    ')/
+      data paramlist(265) /gribparam(1,88,10,4,3,'SALTY   ')/
+      data paramlist(266) /gribparam(1,40,0,2,9,'DZDT    ')/
+      data paramlist(267) /gribparam(1,67,0,19,3,'MIXHT   ')/
+      data paramlist(268) /gribparam(3,2,0,3,1,'PRMSL   ')/
+      data paramlist(269) /gribparam(3,7,0,3,5,'HGT     ')/
+      data paramlist(270) /gribparam(128,130,10,3,194,'ELEV    ')/
+      data paramlist(271) /gribparam(129,217,0,1,198,'MINRH   ')/
+      data paramlist(272) /gribparam(129,218,0,1,27,'MAXRH   ')/
+      data paramlist(273) /gribparam(130,161,0,1,29,'ASNOW   ')/
+      data paramlist(274) /gribparam(129,165,0,16,192,'REFZR    ')/
+      data paramlist(275) /gribparam(129,166,0,16,193,'REFZI    ')/
+      data paramlist(276) /gribparam(129,167,0,16,194,'REFZC    ')/
+      data paramlist(277) /gribparam(129,192,0,2,198,'LAUV    ')/
+      data paramlist(278) /gribparam(129,193,0,2,199,'LOUV    ')/
+      data paramlist(279) /gribparam(129,188,0,2,200,'LAVV    ')/
+      data paramlist(280) /gribparam(129,189,0,2,201,'LOVV    ')/
+      data paramlist(281) /gribparam(129,207,0,2,202,'LAPP    ')/
+      data paramlist(282) /gribparam(129,208,0,2,203,'LOPP    ')/
+      data paramlist(283) /gribparam(129,198,10,3,195,'SSHG    ')/
+      data paramlist(284) /gribparam(1,33,0,2,2,'U GRD   ')/
+      data paramlist(285) /gribparam(1,34,0,2,3,'V GRD   ')/
+      data paramlist(286) /gribparam(1,2,0,3,1,'PRMSL   ')/
+      data paramlist(287) /gribparam(1,7,0,3,5,'HGT     ')/
+      data paramlist(288) /gribparam(128,186,10,4,192,'WTMPC   ')/
+      data paramlist(289) /gribparam(128,187,10,4,193,'SALIN   ')/
+      data paramlist(290) /gribparam(128,177,10,3,196,'P2OMLT  ')/
+      data paramlist(291) /gribparam(128,178,10,1,192,'OMLU    ')/
+      data paramlist(292) /gribparam(128,179,10,1,193,'OMLV    ')/
+      data paramlist(293) /gribparam(128,183,10,1,194,'UBARO   ')/
+      data paramlist(294) /gribparam(128,184,10,1,195,'VBARO   ')/
+      data paramlist(295) /gribparam(129,179,0,19,205,'FLGHT   ')/
+      data paramlist(296) /gribparam(129,185,0,19,206,'CICEL   ')/
+      data paramlist(297) /gribparam(129,186,0,19,207,'CIVIS   ')/
+      data paramlist(298) /gribparam(129,187,0,19,208,'CIFLT   ')/
+      data paramlist(299) /gribparam(129,177,0,19,209,'LAVNI   ')/
+      data paramlist(300) /gribparam(129,178,0,19,210,'HAVNI   ')/
+      data paramlist(301) /gribparam(130,189,0,19,211,'SBSALB  ')/
+      data paramlist(302) /gribparam(130,190,0,19,212,'SWSALB  ')/
+      data paramlist(303) /gribparam(130,191,0,19,213,'NBSALB  ')/
+      data paramlist(304) /gribparam(130,192,0,19,214,'NWSALB  ')/
+      data paramlist(305) /gribparam(129,149,10,0,192,'WSTP    ')/
+      data paramlist(306) /gribparam(128,188,0,1,211,'EMNP    ')/
+      data paramlist(307) /gribparam(128,192,0,3,205,'LAYTH   ')/
+      data paramlist(308) /gribparam(129,219,0,6,13,'CEIL    ')/
+      data paramlist(309) /gribparam(129,220,0,19,12,'PBLREG ')/
+      data paramlist(310) /gribparam(130,179,2,0,210,'ACOND  ')/
+      data paramlist(311) /gribparam(130,198,0,1,212,'SBSNO  ')/
+      data paramlist(312) /gribparam(2,199,2,3,198,'EVBS    ')/
+      data paramlist(313) /gribparam(2,200,2,0,208,'EVCW    ')/
+      data paramlist(314) /gribparam(2,210,2,0,209,'TRANS   ')/
+      data paramlist(315) /gribparam(129,182,0,2,204,'VEDH    ')/
+      data paramlist(320) /gribparam(2,241,0,0,195,'LRGHR   ')/
+      data paramlist(321) /gribparam(2,242,0,0,196,'CNVHR   ')/
+      data paramlist(322) /gribparam(140,168,0,19,217,'MEIP    ')/
+      data paramlist(323) /gribparam(140,169,0,19,218,'MAIP    ')/
+      data paramlist(324) /gribparam(140,170,0,19,219,'MECTP   ')/
+      data paramlist(325) /gribparam(140,171,0,19,220,'MACTP   ')/
+      data paramlist(326) /gribparam(140,172,0,19,221,'MECAT   ')/
+      data paramlist(327) /gribparam(140,173,0,19,222,'MACAT   ')/
+      data paramlist(328) /gribparam(140,174,0,19,223,'CBHE    ')/
+      data paramlist(329) /gribparam(140,175,0,19,224,'PCBB    ')/
+      data paramlist(330) /gribparam(140,176,0,19,225,'PCBT    ')/
+      data paramlist(331) /gribparam(140,177,0,19,226,'PECBB   ')/
+      data paramlist(332) /gribparam(140,178,0,19,227,'PECBT   ')/
+      data paramlist(333) /gribparam(140,179,0,19,228,'HCBB    ')/
+      data paramlist(334) /gribparam(140,180,0,19,229,'HCBT    ')/
+      data paramlist(335) /gribparam(140,181,0,19,230,'HECBB   ')/
+      data paramlist(336) /gribparam(140,182,0,19,231,'HECBT   ')/
+      data paramlist(337) /gribparam(129,76,0,6,6,'C WAT   ')/
+! Added 8/24/2007
+      data paramlist(338) /gribparam(0,104,10,0,7,'SWDIR   ')/
+      data paramlist(339) /gribparam(0,105,10,0,8,'SWELL   ')/
+      data paramlist(340) /gribparam(0,106,10,0,9,'SWPER   ')/
+      data paramlist(341) /gribparam(0,102,10,0,5,'WVHGT   ')/
+      data paramlist(342) /gribparam(129,213,3,192,0,'SBT122  ')/
+      data paramlist(343) /gribparam(129,214,3,192,1,'SBT123  ')/
+      data paramlist(344) /gribparam(129,215,3,192,2,'SBT124  ')/
+      data paramlist(345) /gribparam(129,216,3,192,3,'SBT125  ')/
+      data paramlist(346) /gribparam(129,221,3,192,4,'SBC123  ')/
+      data paramlist(347) /gribparam(129,222,3,192,5,'SBC124  ')/
+      data paramlist(348) /gribparam(129,228,10,3,192,'SURGE   ')/
+      data paramlist(349) /gribparam(129,229,10,3,193,'ETSRG   ')/
+      data paramlist(350) /gribparam(2,149,0,2,14,'PVORT   ')/
+      data paramlist(351) /gribparam(2,150,0,192,1,'COVMZ   ')/
+      data paramlist(352) /gribparam(2,151,0,192,2,'COVTZ   ')/
+      data paramlist(353) /gribparam(2,152,0,192,3,'COVTM   ')/
+      data paramlist(354) /gribparam(129,202,0,0,197,'THFLX   ')/
+      data paramlist(355) /gribparam(3,33,0,2,2,'U GRD   ')/
+      data paramlist(356) /gribparam(3,34,0,2,3,'V GRD   ')/
+      data paramlist(357) /gribparam(3,40,0,2,9,'DZDT    ')/
+      data paramlist(358) /gribparam(3,124,0,2,17,'UFLX   ')/
+      data paramlist(359) /gribparam(3,125,0,2,18,'VFLX   ')/
+      data paramlist(360) /gribparam(3,8,0,3,6,'DIST    ')/
+      data paramlist(361) /gribparam(3,13,0,0,2,'POT     ')/
+      data paramlist(362) /gribparam(3,88,10,4,3,'SALTY   ')/
+      data paramlist(363) /gribparam(3,49,10,1,2,'UOGRD   ')/
+      data paramlist(364) /gribparam(3,50,10,1,3,'VOGRD   ')/
+      data paramlist(365) /gribparam(2,215,0,0,198,'TTDIA    ')/
+      data paramlist(366) /gribparam(2,217,0,0,199,'TTPHY    ')/
+      data paramlist(367) /gribparam(130,154,2,3,199,'LSPA    ')/
+      data paramlist(368) /gribparam(2,250,0,4,197,'SWHR    ')/
+      data paramlist(369) /gribparam(2,251,0,5,194,'LWHR    ')/
+      data paramlist(370) /gribparam(2,160,0,4,198,'CSUSF   ')/
+      data paramlist(371) /gribparam(2,162,0,5,195,'CSULF   ')/
+      data paramlist(372) /gribparam(2,163,0,5,196,'CSDLF   ')/
+      data paramlist(373) /gribparam(2,164,0,4,199,'CFNSF   ')/
+      data paramlist(374) /gribparam(2,165,0,5,197,'CFNLF   ')/
+      data paramlist(375) /gribparam(2,166,0,4,200,'VBDSF   ')/
+      data paramlist(376) /gribparam(2,167,0,4,201,'VDDSF   ')/
+      data paramlist(377) /gribparam(2,168,0,4,202,'NBDSF   ')/
+      data paramlist(378) /gribparam(2,169,0,4,203,'NDDSF   ')/
+      data paramlist(379) /gribparam(2,206,0,7,196,'UVI     ')/
+      data paramlist(380) /gribparam(2,219,0,0,200,'TSD1D   ')/
+      data paramlist(381) /gribparam(2,220,0,3,206,'NLGSP   ')/
+      data paramlist(382) /gribparam(2,244,0,0,201,'SHAHR   ')/
+      data paramlist(383) /gribparam(2,246,0,0,202,'VDFHR   ')/
+      data paramlist(384) /gribparam(2,243,0,1,213,'CNVMR   ')/
+      data paramlist(385) /gribparam(2,245,0,1,214,'SHAMR   ')/
+      data paramlist(386) /gribparam(2,249,0,1,215,'VDFMR   ')/
+      data paramlist(387) /gribparam(2,247,0,2,208,'VDFUA   ')/
+      data paramlist(388) /gribparam(2,248,0,2,209,'VDFVA   ')/
+      data paramlist(389) /gribparam(3,202,0,7,195,'CWDI    ')/
+      data paramlist(390) /gribparam(2,232,0,4,204,'DTRF    ')/
+      data paramlist(391) /gribparam(2,233,0,4,205,'UTRF    ')/
+      data paramlist(392) /gribparam(2,231,0,6,200,'MFLUX   ')/
+      data paramlist(393) /gribparam(2,202,0,7,195,'CWDI    ')/
+      data paramlist(394) /gribparam(2,203,0,19,232,'VAFTD   ')/
+      data paramlist(395) /gribparam(3,238,0,1,201,'SNOWC   ')/
+      data paramlist(396) /gribparam(3,66,0,1,11,'SNO D   ')/
+      data paramlist(397) /gribparam(2,133,0,7,2,'KX      ')/
+      data paramlist(398) /gribparam(2,134,0,7,5,'SX      ')/
+      data paramlist(399) /gribparam(128,191,10,4,194,'BKENG   ')/
+      data paramlist(400) /gribparam(129,195,10,4,195,'DBSS    ')/
+      data paramlist(401) /gribparam(128,171,10,3,197,'AOHFLX  ')/
+      data paramlist(402) /gribparam(128,180,10,3,198,'ASHFL   ')/
+      data paramlist(403) /gribparam(128,193,10,3,199,'SSTT    ')/
+      data paramlist(404) /gribparam(128,194,10,3,200,'SSST    ')/
+      data paramlist(405) /gribparam(128,190,10,3,201,'KENG    ')/
+      data paramlist(406) /gribparam(128,185,10,4,196,'INTFD   ')/
+      data paramlist(407) /gribparam(129,199,10,3,202,'SLTFL   ')/
+      data paramlist(408) /gribparam(129,197,10,4,197,'OHC     ')/
+      data paramlist(409) /gribparam(2,159,0,1,216,'CONP    ')/
+      data paramlist(410) /gribparam(2,175,0,191,195,'MLYNO   ')/
+      data paramlist(411) /gribparam(129,223,0,1,65,'RPRATE  ')/
+      data paramlist(412) /gribparam(129,224,0,1,66,'SPRATE  ')/
+      data paramlist(413) /gribparam(129,225,0,1,67,'FPRATE  ')/
+      data paramlist(414) /gribparam(129,226,0,1,68,'IPRATE  ')/
+      data paramlist(415) /gribparam(129,227,0,7,197,'UPHL    ')/
+      data paramlist(416) /gribparam(3,87,2,0,4,'VEG     ')/
+      data paramlist(417) /gribparam(129,130,1,1,195,'CWR     ')/
+      data paramlist(418) /gribparam(2,240,0,192,4,'COVTW   ')/
+      data paramlist(419) /gribparam(133,164,0,192,5,'COVZZ   ')/
+      data paramlist(420) /gribparam(133,165,0,192,6,'COVMM   ')/
+      data paramlist(421) /gribparam(133,166,0,192,7,'COVQZ   ')/
+      data paramlist(422) /gribparam(133,167,0,192,8,'COVQM   ')/
+      data paramlist(423) /gribparam(133,168,0,192,9,'COVTVV  ')/
+      data paramlist(424) /gribparam(133,169,0,192,10,'COVQVV  ')/
+      data paramlist(425) /gribparam(133,203,0,192,11,'COVPSPS ')/
+      data paramlist(426) /gribparam(133,206,0,192,12,'COVQQ   ')/
+      data paramlist(427) /gribparam(133,220,0,192,13,'COVVVVV ')/
+      data paramlist(428) /gribparam(133,234,0,192,14,'COVTT   ')/
+      data paramlist(429) /gribparam(133,201,0,0,203,'THZ0    ')/
+      data paramlist(430) /gribparam(133,195,0,1,218,'QZ0     ')/
+      data paramlist(431) /gribparam(133,204,0,1,219,'QMAX    ')/
+      data paramlist(432) /gribparam(133,205,0,1,220,'QMIN    ')/
+      data paramlist(433) /gribparam(133,181,0,2,210,'GWDU    ')/
+      data paramlist(434) /gribparam(133,182,0,2,211,'GWDV    ')/
+      data paramlist(435) /gribparam(133,183,0,2,212,'CNVU    ')/
+      data paramlist(436) /gribparam(133,184,0,2,213,'CNVV    ')/
+      data paramlist(437) /gribparam(133,236,0,2,214,'WTEND   ')/
+      data paramlist(438) /gribparam(133,154,0,2,215,'OMGALF  ')/
+      data paramlist(439) /gribparam(133,196,0,2,216,'CNGWDU  ')/
+      data paramlist(440) /gribparam(133,197,0,2,217,'CNGWDV  ')/
+      data paramlist(441) /gribparam(133,202,0,3,207,'CNVUMF  ')/
+      data paramlist(442) /gribparam(133,209,0,3,208,'CNVDMF  ')/
+      data paramlist(443) /gribparam(133,219,0,3,209,'CNVDEMF ')/
+      data paramlist(444) /gribparam(133,173,0,1,217,'LRGMR   ')/
+      data paramlist(445) /gribparam(133,174,0,14,195,'VDFOZ   ')/
+      data paramlist(446) /gribparam(133,175,0,14,196,'POZ     ')/
+      data paramlist(447) /gribparam(133,188,0,14,197,'TOZ     ')/
+      data paramlist(448) /gribparam(133,139,0,14,198,'POZT    ')/
+      data paramlist(449) /gribparam(133,239,0,14,199,'POZO    ')/
+      data paramlist(450) /gribparam(133,185,2,0,208,'AKHS    ')/
+      data paramlist(451) /gribparam(133,186,2,0,209,'AKMS    ')/
+      data paramlist(452) /gribparam(133,193,0,19,218,'EPSR    ')/
+      data paramlist(453) /gribparam(130,229,0,0,192,'SNOHF   ')/
+      data paramlist(454) /gribparam(129,194,0,0,204,'TCHP    ')/
+! Added 5/29/2008
+      data paramlist(455) /gribparam(2,185,0,19,219,'TPFI    ')/
+      data paramlist(456) /gribparam(130,182,0,7,198,'LAI     ')/
+      data paramlist(457) /gribparam(2,173,0,3,210,'LMH     ')/
+      data paramlist(458) /gribparam(2,174,0,2,218,'LMV     ')/
+! Added 6/30/2008   Add GRIB1 parameters in Table version 131
+       data paramlist(459) /gribparam(131,1,0,3,0,'PRES')/
+       data paramlist(460) /gribparam(131,2,0,3,1,'PRMSL')/
+       data paramlist(461) /gribparam(131,3,0,3,2,'PTEND')/
+       data paramlist(462) /gribparam(131,4,0,2,14,'PVORT')/
+       data paramlist(463) /gribparam(131,5,0,3,3,'ICAHT')/
+       data paramlist(464) /gribparam(131,6,0,3,4,'GP')/
+       data paramlist(465) /gribparam(131,7,0,3,5,'HGT')/
+       data paramlist(466) /gribparam(131,8,0,3,6,'DIST')/
+       data paramlist(467) /gribparam(131,9,0,3,7,'HSTDV')/
+       data paramlist(468) /gribparam(131,10,0,14,0,'TOZNE')/
+       data paramlist(469) /gribparam(131,11,0,0,0,'TMP')/
+       data paramlist(470) /gribparam(131,12,0,0,1,'VTMP')/
+       data paramlist(471) /gribparam(131,13,0,0,2,'POT')/
+       data paramlist(472) /gribparam(131,14,0,0,3,'EPOT')/
+       data paramlist(473) /gribparam(131,15,0,0,4,'TMAX')/
+       data paramlist(474) /gribparam(131,16,0,0,5,'TMIN')/
+       data paramlist(475) /gribparam(131,17,0,0,6,'DPT')/
+       data paramlist(476) /gribparam(131,18,0,0,7,'DEPR')/
+       data paramlist(477) /gribparam(131,19,0,0,8,'LAPR')/
+       data paramlist(478) /gribparam(131,20,0,19,0,'VIS')/
+       data paramlist(479) /gribparam(131,21,0,15,6,'RDSP1')/
+       data paramlist(480) /gribparam(131,22,0,15,7,'RDSP2')/
+       data paramlist(481) /gribparam(131,23,0,15,8,'RDSP3')/
+       data paramlist(482) /gribparam(131,24,0,7,0,'PLI')/
+       data paramlist(483) /gribparam(131,25,0,0,9,'TMPA')/
+       data paramlist(484) /gribparam(131,26,0,3,8,'PRESA')/
+       data paramlist(485) /gribparam(131,27,0,3,9,'GPA')/
+       data paramlist(486) /gribparam(131,28,10,0,0,'WVSP1')/
+       data paramlist(487) /gribparam(131,29,10,0,1,'WVSP2')/
+       data paramlist(488) /gribparam(131,30,10,0,2,'WVSP3')/
+       data paramlist(489) /gribparam(131,31,0,2,0,'WDIR')/
+       data paramlist(490) /gribparam(131,32,0,2,1,'WIND')/
+       data paramlist(491) /gribparam(131,33,0,2,2,'UGRD')/
+       data paramlist(492) /gribparam(131,34,0,2,3,'VGRD')/
+       data paramlist(493) /gribparam(131,35,0,2,4,'STRM')/
+       data paramlist(494) /gribparam(131,36,0,2,5,'VPOT')/
+       data paramlist(495) /gribparam(131,37,0,2,6,'MNTSF')/
+       data paramlist(496) /gribparam(131,38,0,2,7,'SGCVV')/
+       data paramlist(497) /gribparam(131,39,0,2,8,'VVEL')/
+       data paramlist(498) /gribparam(131,40,0,2,9,'DZDT')/
+       data paramlist(499) /gribparam(131,41,0,2,10,'ABSV')/
+       data paramlist(500) /gribparam(131,42,0,2,11,'ABSD')/
+       data paramlist(501) /gribparam(131,43,0,2,12,'RELV')/
+       data paramlist(502) /gribparam(131,44,0,2,13,'RELD')/
+       data paramlist(503) /gribparam(131,45,0,2,15,'VUCSH')/
+       data paramlist(504) /gribparam(131,46,0,2,16,'VVCSH')/
+       data paramlist(505) /gribparam(131,47,10,1,0,'DIRC')/
+       data paramlist(506) /gribparam(131,48,10,1,1,'SPC')/
+       data paramlist(507) /gribparam(131,49,10,1,2,'UOGRD')/
+       data paramlist(508) /gribparam(131,50,10,1,3,'VOGRD')/
+       data paramlist(509) /gribparam(131,51,0,1,0,'SPFH')/
+       data paramlist(510) /gribparam(131,52,0,1,1,'RH')/
+       data paramlist(511) /gribparam(131,53,0,1,2,'MIXR')/
+       data paramlist(512) /gribparam(131,54,0,1,3,'PWAT')/
+       data paramlist(513) /gribparam(131,55,0,1,4,'VAPP')/
+       data paramlist(514) /gribparam(131,56,0,1,5,'SATD')/
+       data paramlist(515) /gribparam(131,57,0,1,6,'EVP')/
+       data paramlist(516) /gribparam(131,58,0,6,0,'CICE')/
+       data paramlist(517) /gribparam(131,59,0,1,7,'PRATE')/
+       data paramlist(518) /gribparam(131,60,0,19,2,'TSTM')/
+       data paramlist(519) /gribparam(131,61,0,1,8,'APCP')/
+       data paramlist(520) /gribparam(131,62,0,1,9,'NCPCP')/
+       data paramlist(521) /gribparam(131,63,0,1,10,'ACPCP')/
+       data paramlist(522) /gribparam(131,64,0,1,12,'SRWEQ')/
+       data paramlist(523) /gribparam(131,65,0,1,13,'WEASD')/
+       data paramlist(524) /gribparam(131,66,0,1,11,'SNOD')/
+       data paramlist(525) /gribparam(131,67,0,19,3,'MIXHT')/
+       data paramlist(526) /gribparam(131,68,10,4,2,'TTHDP')/
+       data paramlist(527) /gribparam(131,69,10,4,0,'MTHD')/
+       data paramlist(528) /gribparam(131,70,10,4,1,'MTHA')/
+       data paramlist(529) /gribparam(131,71,0,6,1,'TCDC')/
+       data paramlist(530) /gribparam(131,72,0,6,2,'CDCON')/
+       data paramlist(531) /gribparam(131,73,0,6,3,'LCDC')/
+       data paramlist(532) /gribparam(131,74,0,6,4,'MCDC')/
+       data paramlist(533) /gribparam(131,75,0,6,5,'HCDC')/
+       data paramlist(534) /gribparam(131,76,0,6,6,'CWAT')/
+       data paramlist(535) /gribparam(131,77,0,7,1,'BLI')/
+       data paramlist(536) /gribparam(131,78,0,1,14,'SNOC')/
+       data paramlist(537) /gribparam(131,79,0,1,15,'SNOL')/
+       data paramlist(538) /gribparam(131,80,10,3,0,'WTMP')/
+       data paramlist(539) /gribparam(131,81,2,0,0,'LAND')/
+       data paramlist(540) /gribparam(131,82,10,3,1,'DSLM')/
+       data paramlist(541) /gribparam(131,83,2,0,1,'SFCR')/
+       data paramlist(542) /gribparam(131,84,0,19,1,'ALBDO')/
+       data paramlist(543) /gribparam(131,85,2,0,2,'TSOIL')/
+       data paramlist(544) /gribparam(131,86,2,0,3,'SOILM')/
+       data paramlist(545) /gribparam(131,87,2,0,4,'VEG')/
+       data paramlist(546) /gribparam(131,88,10,4,3,'SALTY')/
+       data paramlist(547) /gribparam(131,89,0,3,10,'DEN')/
+       data paramlist(548) /gribparam(131,90,2,0,5,'WATR')/
+       data paramlist(549) /gribparam(131,91,10,2,0,'ICEC')/
+       data paramlist(550) /gribparam(131,92,10,2,1,'ICETK')/
+       data paramlist(551) /gribparam(131,93,10,2,2,'DICED')/
+       data paramlist(552) /gribparam(131,94,10,2,3,'SICED')/
+       data paramlist(553) /gribparam(131,95,10,2,4,'UICE')/
+       data paramlist(554) /gribparam(131,96,10,2,5,'VICE')/
+       data paramlist(555) /gribparam(131,97,10,2,6,'ICEG')/
+       data paramlist(556) /gribparam(131,98,10,2,7,'ICED')/
+       data paramlist(557) /gribparam(131,99,0,1,16,'SNOM')/
+       data paramlist(558) /gribparam(131,100,10,0,3,'HTSGW')/
+       data paramlist(559) /gribparam(131,101,10,0,4,'WVDIR')/
+       data paramlist(560) /gribparam(131,102,10,0,5,'WVHGT')/
+       data paramlist(561) /gribparam(131,103,10,0,6,'WVPER')/
+       data paramlist(562) /gribparam(131,104,10,0,7,'SWDIR')/
+       data paramlist(563) /gribparam(131,105,10,0,8,'SWELL')/
+       data paramlist(564) /gribparam(131,106,10,0,9,'SWPER')/
+       data paramlist(565) /gribparam(131,107,10,0,10,'DIRPW')/
+       data paramlist(566) /gribparam(131,108,10,0,11,'PERPW')/
+       data paramlist(567) /gribparam(131,109,10,0,12,'DIRSW')/
+       data paramlist(568) /gribparam(131,110,10,0,13,'PERSW')/
+       data paramlist(569) /gribparam(131,111,0,4,0,'NSWRS')/
+       data paramlist(570) /gribparam(131,112,0,5,0,'NLWRS')/
+       data paramlist(571) /gribparam(131,113,0,4,1,'NSWRT')/
+       data paramlist(572) /gribparam(131,114,0,5,1,'NLWRT')/
+       data paramlist(573) /gribparam(131,115,0,5,2,'LWAVR')/
+       data paramlist(574) /gribparam(131,116,0,4,2,'SWAVR')/
+       data paramlist(575) /gribparam(131,117,0,4,3,'GRAD')/
+       data paramlist(576) /gribparam(131,118,0,4,4,'BRTMP')/
+       data paramlist(577) /gribparam(131,119,0,4,5,'LWRAD')/
+       data paramlist(578) /gribparam(131,120,0,4,6,'SWRAD')/
+       data paramlist(579) /gribparam(131,121,0,0,10,'LHTFL')/
+       data paramlist(580) /gribparam(131,122,0,0,11,'SHTFL')/
+       data paramlist(581) /gribparam(131,123,0,2,20,'BLYDP')/
+       data paramlist(582) /gribparam(131,124,0,2,17,'UFLX')/
+       data paramlist(583) /gribparam(131,125,0,2,18,'VFLX')/
+       data paramlist(584) /gribparam(131,126,0,2,19,'WMIXE')/
+       data paramlist(585) /gribparam(131,127,255,255,255,'IMGD')/
+       data paramlist(586) /gribparam(131,128,0,3,1,'MSLSA')/
+       data paramlist(587) /gribparam(131,130,0,3,192,'MSLET')/
+       data paramlist(588) /gribparam(131,131,0,7,192,'LFTX')/
+       data paramlist(589) /gribparam(131,132,0,7,193,'4LFTX')/
+       data paramlist(590) /gribparam(131,134,0,3,212,'PRESN')/
+       data paramlist(591) /gribparam(131,135,0,1,197,'MCONV')/
+       data paramlist(592) /gribparam(131,136,0,2,192,'VWSH')/
+       data paramlist(593) /gribparam(131,137,0,2,219,'PVMWW')/
+       data paramlist(594) /gribparam(131,140,0,1,192,'CRAIN')/
+       data paramlist(595) /gribparam(131,141,0,1,193,'CFRZR')/
+       data paramlist(596) /gribparam(131,142,0,1,194,'CICEP')/
+       data paramlist(597) /gribparam(131,143,0,1,195,'CSNOW')/
+       data paramlist(598) /gribparam(131,144,2,0,192,'SOILW')/
+       data paramlist(599) /gribparam(131,145,0,1,200,'PEVPR')/
+       data paramlist(600) /gribparam(131,146,2,2,210,'VEGT')/
+       data paramlist(601) /gribparam(131,147,2,3,200,'BARET')/
+       data paramlist(602) /gribparam(131,148,2,3,201,'AVSFT')/
+       data paramlist(603) /gribparam(131,149,2,3,202,'RADT')/
+       data paramlist(604) /gribparam(131,150,2,2,211,'SSTOR')/
+       data paramlist(605) /gribparam(131,151,2,2,212,'LSOIL')/
+       data paramlist(606) /gribparam(131,152,2,2,213,'EWATR')/
+       data paramlist(607) /gribparam(131,153,0,1,22,'CLWMR')/
+       data paramlist(608) /gribparam(131,155,2,0,193,'GFLUX')/
+       data paramlist(609) /gribparam(131,156,0,7,7,'CIN')/
+       data paramlist(610) /gribparam(131,157,0,7,6,'CAPE')/
+       data paramlist(611) /gribparam(131,158,0,19,11,'TKE')/
+       data paramlist(612) /gribparam(131,159,0,19,192,'MXSALB')/
+       data paramlist(613) /gribparam(131,160,2,3,192,'SOILL')/
+       data paramlist(614) /gribparam(131,161,0,1,29,'ASNOW')/
+       data paramlist(615) /gribparam(131,162,0,1,221,'ARAIN')/
+       data paramlist(616) /gribparam(131,163,2,0,214,'GWREC')/
+       data paramlist(617) /gribparam(131,164,2,0,215,'QREC')/
+       data paramlist(618) /gribparam(131,165,0,1,222,'SNOWT')/
+       data paramlist(619) /gribparam(131,166,0,4,200,'VBDSF')/
+       data paramlist(620) /gribparam(131,167,0,4,201,'VDDSF')/
+       data paramlist(621) /gribparam(131,168,0,4,202,'NBDSF')/
+       data paramlist(622) /gribparam(131,169,0,4,203,'NDDSF')/
+       data paramlist(623) /gribparam(131,170,0,19,193,'SNFALB')/
+       data paramlist(624) /gribparam(131,171,2,3,193,'RLYRS')/
+       data paramlist(625) /gribparam(131,172,0,2,193,'MFLX')/
+       data paramlist(626) /gribparam(131,173,0,3,210,'LMH')/
+       data paramlist(627) /gribparam(131,174,0,2,218,'LMV')/
+       data paramlist(628) /gribparam(131,175,0,191,195,'MLYNO')/
+       data paramlist(629) /gribparam(131,176,0,191,192,'NLAT')/
+       data paramlist(630) /gribparam(131,177,0,191,193,'ELON')/
+       data paramlist(631) /gribparam(131,178,0,1,23,'ICMR')/
+       data paramlist(632) /gribparam(131,179,2,0,210,'ACOND')/
+       data paramlist(633) /gribparam(131,180,0,1,17,'SNOAG')/
+       data paramlist(634) /gribparam(131,181,2,0,199,'CCOND')/
+       data paramlist(635) /gribparam(131,182,0,7,198,'LAI')/
+       data paramlist(636) /gribparam(131,183,2,0,216,'SFCRH')/
+       data paramlist(637) /gribparam(131,184,0,19,19,'SALBD')/
+       data paramlist(638) /gribparam(131,187,2,0,217,'NDVI')/
+       data paramlist(639) /gribparam(131,188,2,0,206,'RDRIP')/
+       data paramlist(640) /gribparam(131,189,2,0,218,'LANDN')/
+       data paramlist(641) /gribparam(131,190,0,7,8,'HLCY')/
+       data paramlist(642) /gribparam(131,191,0,191,196,'NLATN')/
+       data paramlist(643) /gribparam(131,192,0,191,197,'ELONN')/
+       data paramlist(644) /gribparam(131,194,1,1,193,'CPOFP')/
+       data paramlist(645) /gribparam(131,196,0,2,194,'USTM')/
+       data paramlist(646) /gribparam(131,197,0,2,195,'VSTM')/
+       data paramlist(647) /gribparam(131,198,0,1,212,'SBSNO')/
+       data paramlist(648) /gribparam(131,199,2,3,198,'EVBS')/
+       data paramlist(649) /gribparam(131,200,2,0,208,'EVCW')/
+       data paramlist(650) /gribparam(131,202,0,1,223,'APCPN')/
+       data paramlist(651) /gribparam(131,203,2,0,200,'RSMIN')/
+       data paramlist(652) /gribparam(131,204,0,4,192,'DSWRF')/
+       data paramlist(653) /gribparam(131,205,0,5,192,'DLWRF')/
+       data paramlist(654) /gribparam(131,206,0,1,224,'ACPCPN')/
+       data paramlist(655) /gribparam(131,207,2,0,194,'MSTAV')/
+       data paramlist(656) /gribparam(131,208,2,0,195,'SFEXC')/
+       data paramlist(657) /gribparam(131,210,2,0,209,'TRANS')/
+       data paramlist(658) /gribparam(131,211,0,4,193,'USWRF')/
+       data paramlist(659) /gribparam(131,212,0,5,193,'ULWRF')/
+       data paramlist(660) /gribparam(131,213,0,6,192,'CDLYR')/
+       data paramlist(661) /gribparam(131,214,0,1,196,'CPRAT')/
+       data paramlist(662) /gribparam(131,216,0,0,193,'TTRAD')/
+       data paramlist(663) /gribparam(131,218,0,3,211,'HGTN')/
+       data paramlist(664) /gribparam(131,219,2,0,201,'WILT')/
+       data paramlist(665) /gribparam(130,220,2,3,203,'FLDCP')/
+       data paramlist(666) /gribparam(131,221,0,3,196,'HPBL')/
+       data paramlist(667) /gribparam(131,222,2,3,194,'SLTYP')/
+       data paramlist(668) /gribparam(131,223,2,0,196,'CNWAT')/
+       data paramlist(669) /gribparam(131,224,2,3,0,'SOTYP')/
+       data paramlist(670) /gribparam(131,225,2,0,198,'VGTYP')/
+       data paramlist(671) /gribparam(131,226,2,0,197,'BMIXL')/
+       data paramlist(672) /gribparam(131,227,2,0,219,'AMIXL')/
+       data paramlist(673) /gribparam(131,228,0,1,199,'PEVAP')/
+       data paramlist(674) /gribparam(131,229,0,0,192,'SNOHF')/
+       data paramlist(675) /gribparam(131,230,2,3,195,'SMREF')/
+       data paramlist(676) /gribparam(131,231,2,3,196,'SMDRY')/
+       data paramlist(677) /gribparam(131,232,2,0,220,'WVINC')/
+       data paramlist(678) /gribparam(131,233,2,0,221,'WCINC')/
+       data paramlist(679) /gribparam(131,234,1,0,192,'BGRUN')/
+       data paramlist(680) /gribparam(131,235,1,0,193,'SSRUN')/
+       data paramlist(681) /gribparam(131,237,2,0,222,'WVCONV')/
+       data paramlist(682) /gribparam(131,238,0,1,201,'SNOWC')/
+       data paramlist(683) /gribparam(131,239,0,1,208,'SNOT')/
+       data paramlist(684) /gribparam(131,240,2,3,197,'POROS')/
+       data paramlist(685) /gribparam(131,241,2,0,223,'WCCONV')/
+       data paramlist(686) /gribparam(131,242,2,0,224,'WVUFLX')/
+       data paramlist(687) /gribparam(131,243,2,0,225,'WVVFLX')/
+       data paramlist(688) /gribparam(131,244,2,0,226,'WCUFLX')/
+       data paramlist(689) /gribparam(131,245,2,0,227,'WCVFLX')/
+       data paramlist(690) /gribparam(131,246,2,0,202,'RCS')/
+       data paramlist(691) /gribparam(131,247,2,0,203,'RCT')/
+       data paramlist(692) /gribparam(131,248,2,0,204,'RCQ')/
+       data paramlist(693) /gribparam(131,249,2,0,205,'RCSOL')/
+       data paramlist(694) /gribparam(131,250,0,4,197,'SWHR')/
+       data paramlist(695) /gribparam(131,251,0,5,194,'LWHR')/
+       data paramlist(696) /gribparam(131,252,0,2,196,'CD')/
+       data paramlist(697) /gribparam(131,253,0,2,197,'FRICV')/
+       data paramlist(698) /gribparam(131,254,0,7,194,'RI')/
+       data paramlist(699) /gribparam(129,62,0,1,9,'NCPCP')/
+       data paramlist(700) /gribparam(129,63,0,1,10,'ACPCP')/
+       data paramlist(701) /gribparam(131,220,2,3,203,'FLDCP')/
 
       contains
 
@@ -2220,6 +909,4 @@
            return
          end subroutine
 
-
       end module
-

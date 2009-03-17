@@ -53,7 +53,8 @@
       integer,intent(inout) :: idrstmpl(*)
       integer,intent(out) :: lcpack
 
-      real(4) :: ref
+      real(4) :: ref,rmin4
+      real(8) :: rmin,rmax
       integer(4) :: iref
       integer :: ifld(width*height)
       integer,parameter :: zero=0
@@ -148,7 +149,8 @@
 !
 !  Fill in ref value and number of bits in Template 5.0
 !
-      call mkieee(rmin,ref,1)   ! ensure reference value is IEEE format
+      rmin4=rmin
+      call mkieee(rmin4,ref,1)   ! ensure reference value is IEEE format
 !      call gbyte(ref,idrstmpl(1),0,32)
       iref=transfer(ref,iref)
       idrstmpl(1)=iref

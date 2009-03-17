@@ -75,6 +75,23 @@ C 2005-01-04  COOKE        Added grids 160, 161 and corrected longitude of orien
 C 2005-03-03  VUONG        MOVED GRID 170 TO GRID 174 AND ADD GRID 170
 C 2005-03-21  VUONG        ADDED GRIDS 130
 C 2005-09-12  VUONG        ADDED GRIDS 163
+C 2006-10-27  VUONG        CORRECTED X AND Y-DIRECTION GRID LENGTH FOR GRIDS 252
+C 2006-11-16  VUONG        CHANGED THE LONGITUDE FROM NEGATIVE TO POSITIVE DEGREE FOR GRIDS 252
+C 2006-12-12  VUONG        CHANGED DATA REPRESENTATION TYPE (OCTET 6) FROM 0 TO 1 FOR GRID 254
+C                          ADD GRID 120 (CURVILINEAR ORTHOGONAL GRID)
+C 2006-12-27  VUONG        CORRECTED THE LAT/LON DIRECTION INCREMENT FOR GRID 160
+C 2007-03-21  VUONG        CORRECTED THE LAT/LON DIRECTION INCREMENT, RESOULUTION,
+C                          SCANNING MODE FOR GRID 235 AND GRID TYPE 204 FOR GRID 120
+C 2007-04-24  VUONG        CORRECTED THE LAT/LON DIRECTION INCREMENT, RESOULUTION,
+C                          FOR GRIDS (219,173,220,171,233,238,239,244,253) AND ADDED
+C                          GRID 176.
+C 2007-06-11  VUONG        ADDED NEW GRIDS (11,12,13,14,15,16,18,122,123,124,125,138
+C                          180, 181, 182, 183) AND CORRECTED THE LAT/LON DIRECTION
+C                          INCREMENT FOR GRID 240.
+C 2007-11-06  VUONG        CORRECTED THE SCANNING MODE FOR GRIDS (11,12,13,14,15,16,18)
+C                          CHANGED GRID 198 FROM ARAKAWA STAGGERED E-GRID TO POLAR 
+C                          STEREOGRAPHIC GRID ADDED NEW GRID 10, 99, 150, 151, 197
+C 2008-01-17  VUONG        ADDED NEW GRID 195 AND CHANGED GRID 196 (ARAKAWA-E TO MERCATOR)
 C
 C USAGE:    CALL W3FI71 (IGRID, IGDS, IERR)
 C   INPUT ARGUMENT LIST:
@@ -238,6 +255,23 @@ C           IGDS(13) = SCANNING MODE FLAGS (CODE TABLE 8)
 C           IGDS(14) = ... THROUGH ...
 C           IGDS(18) = ... NOT USED FOR THIS GRID
 C
+C       CURVILINEAR ORTHOGONAL GRID
+C           IGDS( 1) = NUMBER OF VERTICAL COORDINATES
+C           IGDS( 2) = PV, PL OR 255
+C           IGDS( 3) = DATA REPRESENTATION TYPE (CODE TABLE 6) [204]
+C           IGDS( 4) = NI  - NUMBER OF DATA POINTS IN EACH ROW
+C           IGDS( 5) = NJ  - NUMBER OF ROWS
+C           IGDS( 6) = RESERVED (SET TO 0)
+C           IGDS( 7) = RESERVED (SET TO 0)
+C           IGDS( 8) = RESOLUTION AND COMPONENT FLAG (CODE TABLE 7)
+C           IGDS( 9) = RESERVED (SET TO 0)
+C           IGDS(10) = RESERVED (SET TO 0)
+C           IGDS(11) = RESERVED (SET TO 0)
+C           IGDS(12) = RESERVED (SET TO 0)
+C           IGDS(13) = SCANNING MODE FLAGS (CODE TABLE 8)
+C           IGDS(14) = ... THROUGH ...
+C           IGDS(18) = ... NOT USED FOR THIS GRID
+C
 C   SUBPROGRAM CAN BE CALLED FROM A MULTIPROCESSING ENVIRONMENT.
 C
 C ATTRIBUTES:
@@ -255,6 +289,15 @@ C
       INTEGER       GRD5  (18)
       INTEGER       GRD6  (18)
       INTEGER       GRD8  (18)
+      INTEGER       GRD10 (18)
+      INTEGER       GRD11 (18)
+      INTEGER       GRD12 (18)
+      INTEGER       GRD13 (18)
+      INTEGER       GRD14 (18)
+      INTEGER       GRD15 (18)
+      INTEGER       GRD16 (18)
+      INTEGER       GRD17 (18)
+      INTEGER       GRD18 (18)
       INTEGER       GRD21 (55)
       INTEGER       GRD22 (55)
       INTEGER       GRD23 (55)
@@ -296,6 +339,7 @@ C
       INTEGER       GRD96 (18)
       INTEGER       GRD97 (18)
       INTEGER       GRD98 (18)
+      INTEGER       GRD99 (18)
       INTEGER       GRD100(18)
       INTEGER       GRD101(18)
       INTEGER       GRD103(18)
@@ -304,13 +348,21 @@ C
       INTEGER       GRD106(18)
       INTEGER       GRD107(18)
       INTEGER       GRD110(18)
+      INTEGER       GRD120(18)
+      INTEGER       GRD122(18)
+      INTEGER       GRD123(18)
+      INTEGER       GRD124(18)
+      INTEGER       GRD125(18)
       INTEGER       GRD126(18)
       INTEGER       GRD127(18)
       INTEGER       GRD130(18)
+      INTEGER       GRD138(18)
       INTEGER       GRD145(18)
       INTEGER       GRD146(18)
       INTEGER       GRD147(18)
       INTEGER       GRD148(18)
+      INTEGER       GRD150(18)
+      INTEGER       GRD151(18)
       INTEGER       GRD160(18)
       INTEGER       GRD161(18)
       INTEGER       GRD163(18)
@@ -320,10 +372,17 @@ C
       INTEGER       GRD173(18)
       INTEGER       GRD174(18)
       INTEGER       GRD175(18)
+      INTEGER       GRD176(18)
+      INTEGER       GRD180(18)
+      INTEGER       GRD181(18)
+      INTEGER       GRD182(18)
+      INTEGER       GRD183(18)
       INTEGER       GRD190(18)
       INTEGER       GRD192(18)
       INTEGER       GRD194(18)
+      INTEGER       GRD195(18)
       INTEGER       GRD196(18)
+      INTEGER       GRD197(18)
       INTEGER       GRD198(18)
       INTEGER       GRD201(18)
       INTEGER       GRD202(18)
@@ -394,6 +453,24 @@ C
      &  190500, 190500, 0, 64, 0, 0, 0, 0, 0/
       DATA  GRD8  / 0, 255, 1, 116, 44, -48670,    3104, 128,   61050,
      &       0, 318830, 318830, 22500, 64, 0, 0, 0, 0/
+      DATA  GRD10 / 0, 255, 0, 180, 139,  64000,   1000, 128,  -74000,
+     &   359000, 1000, 2000,  0, 0, 0, 0, 0, 0/
+      DATA  GRD11 / 0, 255, 0, 720, 311,  77500,      0, 128,  -77500,
+     &   359500, 500,  500,  0, 0, 0, 0, 0, 0/
+      DATA  GRD12 / 0, 255, 0, 301, 331,  55000, 260000, 128,       0,
+     &   310000, 166,  166,  0, 0, 0, 0, 0, 0/
+      DATA  GRD13 / 0, 255, 0, 241, 151,  50000, 210000, 128,   25000,
+     &   250000, 166,  166,  0, 0, 0, 0, 0, 0/
+      DATA  GRD14 / 0, 255, 0, 511, 301,  30000, 130000, 128,  -20000,
+     &   215000, 166,  166,  0, 0, 0, 0, 0, 0/
+      DATA  GRD15 / 0, 255, 0, 401, 187,  75000, 140000, 128,   44000,
+     &   240000, 166,  250,  0, 0, 0, 0, 0, 0/
+      DATA  GRD16 / 0, 255, 0, 548, 391,  74000, 165000, 128,   48000,
+     &   237933,  66,  133,  0, 0, 0, 0, 0, 0/
+      DATA  GRD17 / 0, 255, 0, 736, 526,  50000, 195000, 128,   15000,
+     &   244000,  66,   66,  0, 0, 0, 0, 0, 0/
+      DATA  GRD18 / 0, 255, 0, 586, 481,  47000, 261000, 128,   15000,
+     &   300000,  66,   66,  0, 0, 0, 0, 0, 0/
       DATA  GRD21 / 0,  33, 0,65535,37,      0,       0, 128,   90000,
      &  180000,   2500, 5000, 64, 0, 0, 0, 0, 0,
      & 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37,
@@ -548,6 +625,8 @@ C
      &  -66500,     53, 53,64, 0, 0, 0, 0, 0/
       DATA  GRD98 / 0, 255, 4, 192, 94,  88542,       0, 128,  -88542,
      &    -1875, 47,1875, 0, 0, 0, 0, 0, 0/
+      DATA  GRD99 / 0, 255,203,669,1165, -7450, -144140, 136,   54000,
+     & -106000,    90, 77, 64, 0, 0, 0, 0, 0/
       DATA  GRD100/ 0, 255, 5,  83, 83,  17108, -129296,   8, -105000,
      &   91452,  91452, 0, 64, 0, 0, 0, 0, 0/
       DATA  GRD101/ 0, 255, 5, 113, 91,  10528, -137146,   8, -105000,
@@ -564,12 +643,24 @@ C
      &   45373,  45373, 0, 64, 0, 0, 0, 0, 0/
       DATA  GRD110/ 0, 255, 0, 464,224,  25063, -124938, 128,   52938,
      & -67063,    125, 125, 64, 0, 0, 0, 0, 0/
+      DATA  GRD120/ 0, 255,204,1200,1684,     0,      0,   8,       0,
+     &      0,      0,   0, 64, 0, 0, 0, 0, 0/
+      DATA  GRD122/ 0, 255,204, 350, 465,     0,      0,   8,       0,
+     &      0,      0,   0, 64, 0, 0, 0, 0, 0/
+      DATA  GRD123/ 0, 255,204, 280, 360,     0,      0,   8,       0,
+     &      0,      0,   0, 64, 0, 0, 0, 0, 0/
+      DATA  GRD124/ 0, 255,204, 240, 314,     0,      0,   8,       0,
+     &      0,      0,   0, 64, 0, 0, 0, 0, 0/
+      DATA  GRD125/ 0, 255,204, 300, 340,     0,      0,   8,       0,
+     &      0,      0,   0, 64, 0, 0, 0, 0, 0/
       DATA  GRD126/ 0, 255, 4, 384,190,  89277,       0, 128,  -89277,
      &    -938,    95, 938, 0, 0, 0, 0, 0, 0/
       DATA  GRD127/ 0, 255, 4, 768,384,  89642,       0, 128,  -89642,
      &    -469,   192, 469, 0, 0, 0, 0, 0, 0/
       DATA  GRD130/ 0, 255, 3, 451,337,  16281, -126138,  8,   -95000,
      &   13545,  13545, 0, 64, 0, 25000, 25000, 0, 0/
+      DATA  GRD138/ 0, 255, 3, 468,288,  21017, -123282,   8,  -97000,
+     &   12000,  12000, 0, 64, 0, 33000, 45000, 0, 0/
       DATA  GRD145/ 0, 255, 3, 169,145,  32174,  -90159,   8,  -79500,
      &   12000,  12000, 0, 64, 0, 36000, 46000, 0, 0/
       DATA  GRD146/ 0, 255, 3, 166,142,  32353,  -89994,   8,  -79500,
@@ -578,34 +669,52 @@ C
      &   12000,  12000, 0, 64, 0, 33000, 45000, 0, 0/
       DATA  GRD148/ 0, 255, 3, 442,265,  21821, -120628,   8,  -97000,
      &   12000,  12000, 0, 64, 0, 33000, 45000, 0, 0/
+      DATA  GRD150/ 0, 255, 0, 401,201,   5000, -100000, 128,   25000,
+     &  -60000,   100, 100, 64, 0, 0, 0, 0, 0/ 
+      DATA  GRD151/ 0, 255, 5, 478, 429, -745,  215860,   8,  -110000,
+     &  33812, 33812,   0, 64, 0, 0, 0, 0, 0/
       DATA  GRD160/ 0, 255, 5, 180,156,  19132, -185837,   8, -150000,
-     &   47500,  47500, 0, 64, 0, 0, 0, 0, 0/
+     &   47625,  47625, 0, 64, 0, 0, 0, 0, 0/
       DATA  GRD161/ 0, 255, 0, 137,102,  50750,  271750,  72,    -250,
      &  -19750,    500,500, 0, 0, 0, 0, 0, 0/ 
       DATA  GRD163/ 0, 255, 3,1008,722,  20600, -118300,   8,  -95000,
      &    5000,   5000, 0, 64, 0, 38000, 38000, 0, 0/
       DATA  GRD170/ 0, 255, 4, 512, 256, 89463,       0, 128,  -89463,
      &    -703,   128, 703, 0, 0, 0, 0, 0, 0/
-      DATA  GRD171/ 0, 255, 5, 770,930,  25009, -119560,  72,  -80000,
+      DATA  GRD171/ 0, 255, 5, 770,930,  25032, -119560,   0,  -80000,
      &   12700,  12700, 0, 64, 0, 0, 0, 0, 0/
-      DATA  GRD172/ 0, 255, 5, 690,710, -36900, -220194,  72, -260000,
+      DATA  GRD172/ 0, 255, 5, 690,710, -36866, -220194,   0, -260000,
      &   12700,  12700, 128, 64, 0, 0, 0, 0, 0/
-      DATA  GRD173/ 0, 255, 0,4320,2160, 89958,     417, 128,   89958,
-     &  359958,    83,  83, 64, 0, 0, 0, 0, 0/
+      DATA  GRD173/ 0, 255, 0,4320,2160, 89958,      42, 128,  -89958,
+     &  359958,    83,  83,  0, 0, 0, 0, 0, 0/
       DATA  GRD174/ 0, 255, 4,2880,1440, 89938,      62,  72,  -89938,
      &     -62,   125, 125,64, 0, 0, 0, 0, 0/
       DATA  GRD175/ 0, 255, 0, 556,334,      0,  130000, 128,   30060,
      &  180040,    90,  90, 64, 0, 0, 0, 0, 0/
+      DATA  GRD176/ 0, 255, 0, 327,235,  49100,  -92200, 128,   40910,
+     &  -75900,    35,  50, 0, 0, 0, 0, 0, 0/
+      DATA  GRD180/ 0, 255, 0, 759,352,  55054, -127000, 128,   17146,
+     &  -45136,   108, 108, 0, 0, 0, 0, 0, 0/
+      DATA  GRD181/ 0, 255, 0, 370,278,  30054, -100000, 128,     138,
+     &  -60148,   108, 108, 0, 0, 0, 0, 0, 0/
+      DATA  GRD182/ 0, 255, 0, 278,231,  32973, -170000, 128,    8133,
+     & -140084,   108, 108, 0, 0, 0, 0, 0, 0/
+      DATA  GRD183/ 0, 255, 0, 648,278,  75054, -200000, 128,   45138,
+     & -130124,   108, 108, 0, 0, 0, 0, 0, 0/
       DATA  GRD190 / 0, 255,203, 92,141,   182, -149887, 136,   52000,
      & -111000,    577,538,64, 0, 0, 0, 0, 0/
       DATA  GRD192 / 0, 255,203,237,387, -3441, -148799, 136,   50000,
      & -111000,    225,207,64, 0, 0, 0, 0, 0/
       DATA  GRD194 / 0, 255,203, 89,143, 16444, -162244, 136,   20250,
      & -157350,     53, 53,64, 0, 0, 0, 0, 0/
-      DATA  GRD196/ 0, 255,201,45903,1,  23476,  -96745, 136,     151,
-     &     305,     67, 66, 64, 0, 0, 0, 0, 0/
-      DATA  GRD198/ 0, 255,203,160,261,  -3441, -148799, 136,   50000,
-     & -111000,    333,308,64, 0, 0, 0, 0, 0/
+      DATA  GRD195/ 0, 255, 1, 177,129,  16829,  -68196, 128,   19747,
+     &  -63972,  2500,  2500, 20000, 64, 0, 0, 0, 0/
+      DATA  GRD196/ 0, 255, 1, 321,225,  18067, -161626, 128,   23082,
+     & -153969,  2500,  2500, 20000, 64, 0, 0, 0, 0/
+      DATA  GRD197/ 0, 255, 3,1073,689,  20192, -121550,   8,  -95000,
+     &    5079,   5079, 0, 64, 0, 25000, 25000, 0, 0/
+      DATA  GRD198/ 0, 255, 5, 825, 553, 40530,  -178571,  8,  -150000,
+     &  5953, 5953,   0, 64, 0, 0, 0, 0, 0/
       DATA  GRD201/ 0, 255, 5,  65, 65, -20826, -150000,   8, -105000,
      &  381000, 381000, 0, 64, 0, 0, 0, 0, 0/
       DATA  GRD202/ 0, 255, 5,  65, 43,   7838, -141028,   8, -105000,
@@ -642,9 +751,9 @@ C
      &   22500,  22500, 0, 64, 0, 0, 0, 0, 0/
       DATA  GRD218/ 0, 255, 3, 614,428,  12190, -133459,   8,  -95000,
      &   12191,  12191, 0, 64, 0, 25000, 25000, 0, 0/
-      DATA  GRD219/ 0, 255, 5, 385,465,  25008, -119559,  72,  -80000,
+      DATA  GRD219/ 0, 255, 5, 385,465,  25032, -119560,   0,  -80000,
      &   25400,  25400, 0, 64, 0, 0, 0, 0, 0/
-      DATA  GRD220/ 0, 255, 5, 345,355, -36889, -220194,  72, -80000,
+      DATA  GRD220/ 0, 255, 5, 345,355, -36866, -220194,   0, -260000,
      &   25400,  25400, 128, 64, 0, 0, 0, 0, 0/
       DATA  GRD221/ 0, 255, 3, 349,277,   1000, -145500,   8, -107000,
      &   32463,  32463, 0, 64, 0, 50000, 50000, 0, 0/
@@ -671,29 +780,29 @@ C
       DATA  GRD232/ 0, 255, 0, 360, 91,      0,       0, 128,   90000,
      &   -1000,   1000, 1000, 64, 0, 0, 0, 0, 0/
       DATA  GRD233/ 0, 255, 0, 288,157,  78000,       0, 128,  -78000,
-     &   -1250,   1250, 1000, 64, 0, 0, 0, 0, 0/
+     &   -1250,   1000, 1250,  0, 0, 0, 0, 0, 0/
       DATA  GRD234/ 0, 255, 0, 133,121,  15000,  -98000, 128,  -45000,
      &  -65000,    250,  250, 64, 0, 0, 0, 0, 0/
-      DATA  GRD235/ 0, 255, 0, 720,360,  89750,     250,  72,  -89750,
-     &    -250,    250, 1000, 64, 0, 0, 0, 0, 0/
+      DATA  GRD235/ 0, 255, 0, 720,360,  89750,     250, 128,  -89750,
+     &    -250,    500,  500,  0, 0, 0, 0, 0, 0/
       DATA  GRD236/ 0, 255, 3, 151,113,  16281,  233862,   8,  -95000,
      &   40635,  40635, 0, 64, 0, 25000, 25000, 0, 0/
       DATA  GRD237/ 0, 255, 3,  54, 47,  16201,  285720,   8, -107000,
      &   32463,  32463, 0, 64, 0, 50000, 50000, 0, 0/
-      DATA  GRD238/ 0, 255, 0, 275, 203,  50750, 261750,  72,    -205,   
-     &   -29750, 0,  0, 64, 0, 0, 0, 0, 0/
-      DATA  GRD239/ 0, 255, 0, 155, 123, 75750,  159500,  72,   44750, 
-     &  -123500,  0, 0, 64, 0, 0, 0, 0, 0/
+      DATA  GRD238/ 0, 255, 0, 275, 203,  50250, 261750, 128,    -250,   
+     &   -29750, 250, 250,  0, 0, 0, 0, 0, 0/
+      DATA  GRD239/ 0, 255, 0, 155, 123, 75250,  159500, 128,   44750, 
+     &  -123500, 250, 500,  0, 0, 0, 0, 0, 0/
       DATA  GRD240/ 0, 255, 5, 1121, 881, 23098, -119036,  8, -105000,
-     &   47625,  47625, 0, 64, 0, 0, 0, 0, 0/
+     &   4763,  4763, 0, 64, 0, 0, 0, 0, 0/
       DATA  GRD241/ 0, 255, 3, 549,445,  -4850, -151100,   8, -111000,
      &   22000,  22000, 0, 64, 0, 45000, 45000, 0, 0/
       DATA  GRD242/ 0, 255, 5, 553,425,  30000, -173000,   8, -135000,
      &   11250,  11250, 0, 64, 0, 0, 0, 0, 0/
       DATA  GRD243/ 0, 255, 0, 126,101,  10000, -170000, 128,   50000,
      &  -120000, 400, 400, 64, 0, 0, 0, 0, 0/
-      DATA  GRD244/ 0, 255, 0, 275, 203,  50750, 261750,  72,    -205,   
-     &   -29750, 0,  0, 64, 0, 0, 0, 0, 0/
+      DATA  GRD244/ 0, 255, 0, 275, 203,  50250, 261750, 128,    -250,   
+     &   -29750, 250,  250, 0, 0, 0, 0, 0, 0/
       DATA  GRD245/ 0, 255, 3, 336,372,  22980, -92840,   8,   -80000,
      &   8000,  8000, 0, 64, 0, 35000, 35000, 0, 0/
       DATA  GRD246/ 0, 255, 3, 332,371,  25970, -127973,  8,  -115000,
@@ -708,12 +817,12 @@ C
      & -151950,    75,  75, 64, 0, 0, 0, 0, 0/
       DATA  GRD251/ 0, 255, 0, 332,210,  26350,  -83050, 128,   47250,
      &  -49950,    100,  100, 64, 0, 0, 0, 0, 0/
-      DATA  GRD252/ 0, 255, 3, 301,225,  16281, -126138,  8,   -95000,
-     &   20317,  20317, 0, 64, 0, 25000, 25000, 0, 0/
-      DATA  GRD253/ 0, 255, 0, 373,224,  60500, -170250,  72,    4750,
-     &  -77250,    75,  75, 64, 0, 0, 0, 0, 0/
-      DATA  GRD254/ 0, 255, 0, 369,300, -35000, -250000, 128,   60789,
-     & -109129, 20000,   0, 64, 40000, 40000, 0, 0, 0/
+      DATA  GRD252/ 0, 255, 3, 301,225,  16281, 233862,  8,   265000,
+     &   20318,  20318, 0, 64, 0, 25000, 25000, 0, 0/
+      DATA  GRD253/ 0, 255, 0, 373,224,  60500,  189750, 128,    4750,
+     &  -77250,   250, 250, 0, 0, 0, 0, 0, 0/
+      DATA  GRD254/ 0, 255, 1, 369,300, -35000, -250000, 128,   60789,
+     & -109129, 40000,40000, 20000, 64, 0, 0, 0, 0/
 C
       IERR = 0
 C
@@ -778,6 +887,51 @@ C
       ELSE IF (IGRID.EQ.8) THEN
         DO I = 1,18
           IGDS(I) = GRD8(I)
+        END DO
+C
+      ELSE IF (IGRID.EQ.10) THEN
+        DO I = 1,18
+          IGDS(I) = GRD10(I)
+        END DO
+C
+      ELSE IF (IGRID.EQ.11) THEN
+        DO I = 1,18
+          IGDS(I) = GRD11(I)
+        END DO
+C
+      ELSE IF (IGRID.EQ.12) THEN
+        DO I = 1,18
+          IGDS(I) = GRD12(I)
+        END DO
+C
+      ELSE IF (IGRID.EQ.13) THEN
+        DO I = 1,18
+          IGDS(I) = GRD13(I)
+        END DO
+C
+      ELSE IF (IGRID.EQ.14) THEN
+        DO I = 1,18
+          IGDS(I) = GRD14(I)
+        END DO
+C
+      ELSE IF (IGRID.EQ.15) THEN
+        DO I = 1,18
+          IGDS(I) = GRD15(I)
+        END DO
+C
+      ELSE IF (IGRID.EQ.16) THEN
+        DO I = 1,18
+          IGDS(I) = GRD16(I)
+        END DO
+C
+      ELSE IF (IGRID.EQ.17) THEN
+        DO I = 1,18
+          IGDS(I) = GRD17(I)
+        END DO
+C
+      ELSE IF (IGRID.EQ.18) THEN
+        DO I = 1,18
+          IGDS(I) = GRD18(I)
         END DO
 C
       ELSE IF (IGRID.EQ.21) THEN
@@ -985,6 +1139,11 @@ C
           IGDS(I) = GRD98(I)
  204    CONTINUE
 C
+      ELSE IF (IGRID.EQ.99) THEN
+        DO I = 1,18
+          IGDS(I) = GRD99(I)
+        ENDDO
+C
       ELSE IF (IGRID.EQ.100) THEN
         DO 205 I = 1,18
           IGDS(I) = GRD100(I)
@@ -1025,6 +1184,31 @@ C
           IGDS(I) = GRD110(I)
         ENDDO
 C
+      ELSE IF (IGRID.EQ.120) THEN
+        DO I = 1,18
+          IGDS(I) = GRD120(I)
+        ENDDO
+C
+      ELSE IF (IGRID.EQ.122) THEN
+        DO I = 1,18
+          IGDS(I) = GRD122(I)
+        ENDDO
+C
+      ELSE IF (IGRID.EQ.123) THEN
+        DO I = 1,18
+          IGDS(I) = GRD123(I)
+        ENDDO
+C
+      ELSE IF (IGRID.EQ.124) THEN
+        DO I = 1,18
+          IGDS(I) = GRD124(I)
+        ENDDO
+C
+      ELSE IF (IGRID.EQ.125) THEN
+        DO I = 1,18
+          IGDS(I) = GRD125(I)
+        ENDDO
+C
       ELSE IF (IGRID.EQ.126) THEN
         DO 245 I = 1,18
           IGDS(I) = GRD126(I)
@@ -1038,6 +1222,11 @@ C
       ELSE IF (IGRID.EQ.130) THEN
         DO I = 1,18
           IGDS(I) = GRD130(I)
+        ENDDO
+C
+      ELSE IF (IGRID.EQ.138) THEN
+        DO I = 1,18
+          IGDS(I) = GRD138(I)
         ENDDO
 C
       ELSE IF (IGRID.EQ.145) THEN
@@ -1058,6 +1247,16 @@ C
       ELSE IF (IGRID.EQ.148) THEN
         DO I = 1,18
           IGDS(I) = GRD148(I)
+        ENDDO
+C
+      ELSE IF (IGRID.EQ.150) THEN
+        DO I = 1,18
+          IGDS(I) = GRD150(I)
+        ENDDO
+C
+      ELSE IF (IGRID.EQ.151) THEN
+        DO I = 1,18
+          IGDS(I) = GRD151(I)
         ENDDO
 C
       ELSE IF (IGRID.EQ.160) THEN
@@ -1104,6 +1303,31 @@ C
           IGDS(I) = GRD175(I)
         ENDDO
 C
+      ELSE IF (IGRID.EQ.176) THEN
+        DO I = 1,18
+          IGDS(I) = GRD176(I)
+        ENDDO
+C
+      ELSE IF (IGRID.EQ.180) THEN
+        DO I = 1,18
+          IGDS(I) = GRD180(I)
+        ENDDO
+C
+      ELSE IF (IGRID.EQ.181) THEN
+        DO I = 1,18
+          IGDS(I) = GRD181(I)
+        ENDDO
+C
+      ELSE IF (IGRID.EQ.182) THEN
+        DO I = 1,18
+          IGDS(I) = GRD182(I)
+        ENDDO
+C
+      ELSE IF (IGRID.EQ.183) THEN
+        DO I = 1,18
+          IGDS(I) = GRD183(I)
+        ENDDO
+C
       ELSE IF (IGRID.EQ.190) THEN
         DO 2190 I = 1,18
           IGDS(I) = GRD190(I)
@@ -1119,10 +1343,20 @@ C
           IGDS(I) = GRD194(I)
  2192   CONTINUE
 C
+      ELSE IF (IGRID.EQ.195) THEN
+        DO I = 1,18
+          IGDS(I) = GRD195(I)
+        END DO
+C
       ELSE IF (IGRID.EQ.196) THEN
         DO 249 I = 1,18
           IGDS(I) = GRD196(I)
  249    CONTINUE
+C
+      ELSE IF (IGRID.EQ.197) THEN
+        DO I = 1,18
+          IGDS(I) = GRD197(I)
+        END DO
 C
       ELSE IF (IGRID.EQ.198) THEN
         DO 2490 I = 1,18

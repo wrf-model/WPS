@@ -36,6 +36,7 @@ LIB	=	libg2_4.a
 #MODDIR=.
 #FFLAGS=-O3 -g -I $(MODDIR)
 #CFLAGS=-O3 $(DEFS) $(INCDIR)
+#CFLAGS=-O3 $(DEFS) $(INCDIR) -D__64BIT__
 #ARFLAGS=
 #--------------------------------------
 

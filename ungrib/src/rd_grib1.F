@@ -92,6 +92,15 @@ SUBROUTINE rd_grib1(IUNIT, gribflnm, level, field, hdate,  &
   character(LEN=19) :: hdate
   integer :: igherr
 
+! Variables for thinned grids:
+  logical :: lthinned = .FALSE.
+  real, allocatable, dimension(:) :: thinnedDataArray
+  integer, dimension(74) :: npoints_acc
+  real :: mj, xmj
+  integer :: np, ny, nx
+  real :: Va, Vb, Vc, Vd
+  real, external :: oned
+
   ierr = 0
 
 ! If the file GRIBFLNM has not been opened, then IUARR(IUNIT) should be Zero.
@@ -433,8 +442,90 @@ SUBROUTINE rd_grib1(IUNIT, gribflnm, level, field, hdate,  &
   if (allocated(rdatarray)) deallocate(rdatarray)
   allocate(rdatarray(map%nx * map%ny))
 
+! If nx=65535, assume the grid is a thinned grid.
+! Process only the NCEP grid IDs is 37 to 44.
+  if (map%nx.eq.65535) then
+     if ( (icenter .ne. 7) .or. (KSEC1(5).lt.37) .or. (KSEC1(5).gt.44) ) then
+        write(*,*) 'Originating center is ',icenter
+        write(*,*) 'Grid ID is ',KSEC1(5),' Only WAFS grids 37-44 are supported'
+        write(*,'(" ***** STOP in Subroutine RD_GRIB1.",//)')
+        stop
+     endif
+     lthinned = .TRUE.
+     map%nx = 73
+     map%dx = 1.25
+  else
+     lthinned = .FALSE.
+  endif
+
 ! Unpack the 2D slab from the GRIB record, and put it in array rdatarray
+
+  if (lthinned) then
+    if (allocated(thinnedDataArray)) deallocate(thinnedDataArray)
+    allocate(thinnedDataArray(map%nx * map%ny))
+    call gribdata(thinnedDataArray,3447)
+
+    ! Calculate how many points for each latitude, and accumulate into array
+    if ((KSEC1(5).ge.37).and.(KSEC1(5).le.40)) then
+       ! Northern hemisphere:
+       npoints_acc(1)=0
+       npoints_acc(2)=73
+       do i=1,72
+          np = int(2.0+(90.0/1.25)*cos(i*1.25*3.1415926/180.0))
+          npoints_acc(i+2)=npoints_acc(i+1)+np
+       enddo
+    else
+       ! Southern Hemisphere:
+       npoints_acc(1)=0
+       npoints_acc(2)=2
+       do i=1,71
+          ii = 72-i
+          np = int(2.0+(90.0/1.25)*cos(ii*1.25*3.1415926/180.0))
+          npoints_acc(i+2)=npoints_acc(i+1)+np
+       enddo
+       npoints_acc(74) = npoints_acc(73) + 73
+    endif
+
+    ! for row number i (where i=1 is the southern edge of the grid)
+    !   npoints_acc(i+1)-npoints_acc(i) = number of points in this line
+    !   npoints_acc(i)+1 = index into thinned array for first point of line
+
+    do ny=1,73
+       np = npoints_acc(ny+1)-npoints_acc(ny) ! Number of points in this line.
+       do nx=1,73
+          ! Calulate the x index (mj) of thinned array (real value)
+          mj = (nx-1.0)*(np-1.0)/(72.0)
+
+          if (abs(mj - int(mj)) < 1.E-10) then
+             rdatarray((ny-1)*73+nx) = thinnedDataArray(npoints_acc(ny)+1+int(mj))
+          else
+             ! Get the 2 closest values from thinned array
+             Vb = thinnedDataArray(npoints_acc(ny)+1+int(mj))
+             Vc = thinnedDataArray(npoints_acc(ny)+1+int(mj)+1)
+             ! Get the next two closest, if available:
+             Va = -999999.
+             Vd = -999999.
+             if (mj > 1.0) then
+                Va = thinnedDataArray(npoints_acc(ny)+1+int(mj)-1)
+             endif
+             if (mj < np-2) then
+                Vd = thinnedDataArray(npoints_acc(ny)+1+int(mj)+2)
+             endif
+
+             if ((Va < -999998.) .or. (Vd < -999998.)) then
+                ! Use 2-point linear interpolation.
+                rdatarray((ny-1)*73+nx) = Vb*(int(mj)+1.0-mj) + Vc*(mj-int(mj))
+             else
+                ! Use 4-point overlapping parabolic interpolation.
+                xmj = mj - float(int(mj))
+                rdatarray((ny-1)*73+nx) = oned(xmj,Va,Vb,Vc,Vd)
+             endif
+          endif
+       enddo
+    enddo
+else
   call gribdata(rdatarray,map%nx*map%ny)
+endif
 
 ! Some grids are broken and need to be reordered (e.g. NCEP-II in 1997).
 ! WPS assumes that the grids are ordered consistently with the start location.
@@ -457,3 +548,20 @@ SUBROUTINE rd_grib1(IUNIT, gribflnm, level, field, hdate,  &
   call deallogrib
 
 END subroutine rd_grib1
+
+real function oned(x, a, b, c, d) Result (Answer)
+  implicit none
+  real :: x ! Proportion of the way between B and C.  Between 0.0 and 1.0
+  real :: a, b, c, d
+
+  if (abs(x) < 1.E-10) then
+     Answer = B
+     return
+  endif
+  IF(abs(x-1.) < 1.E-10) then
+     Answer = C
+     return
+  endif
+  Answer = (1.0-X)*(B+X*(0.5*(C-A)+X*(0.5*(C+A)-B)))+X*(C+(1.0-X)*(0.5 &
+       *(B-D)+(1.0-X)*(0.5*(B+D)-C)))
+end function oned

@@ -10,6 +10,7 @@
 ! PROGRAM HISTORY LOG:
 ! 2006-09-07  Gordon   -  Modified from Steve Gilbert's params.f for NCEP GRIB data
 ! 2007-04-20  Vuong    -  Add more parameters
+! 2007-10-11  Vuong    -  Add more parameters
 !
 ! USAGE:    use params
 !
@@ -19,7 +20,7 @@
 !
 !$$$
 
-      integer,parameter :: MAXPARAM=174
+      integer,parameter :: MAXPARAM=177
 
       type gribparam
           integer :: g1tblver
@@ -207,6 +208,10 @@
       data paramlist(172) /gribparam(1,34,0,2,3,'V GRD   ')/
       data paramlist(173) /gribparam(1,2,0,3,1,'PRMSL   ')/
       data paramlist(174) /gribparam(1,7,0,3,5,'HGT     ')/
+! Added 10/11/2007- Add more parameters
+      data paramlist(175) /gribparam(1,11,0,0,0,'TMP     ')/
+      data paramlist(176) /gribparam(1,52,0,1,1,'R H     ')/
+      data paramlist(177) /gribparam(1,41,0,2,10,'ABS V   ')/
 
       contains
 

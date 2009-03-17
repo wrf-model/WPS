@@ -15,6 +15,7 @@ C PROGRAM HISTORY LOG:
 C 2003-06-17  Gilbert
 C 2004-04-27  Gilbert - Added support for gaussian grids.
 C 2007-04-16  Vuong   - Added Curvilinear Orthogonal grids.
+C 2007-05-29  Vuong   - Added Rotate Lat/Lon E-grid (203)
 C
 C USAGE:    CALL gdt2gds(igds,igdstmpl,idefnum,ideflist,kgds,igrid,iret)
 C   INPUT ARGUMENT LIST:
@@ -232,6 +233,53 @@ C$$$
            kgds(8)=0
            kgds(9)=0
            kgds(10)=0
+           kgds(11)=igdstmpl(19)          ! Scanning mode
+           kgds(12)=0
+           kgds(13)=0
+           kgds(14)=0
+           kgds(15)=0
+           kgds(16)=0
+           kgds(17)=0
+           kgds(18)=0
+           kgds(19)=0
+           kgds(20)=255
+           kgds(21)=0
+           kgds(22)=0
+           !
+           !  Process irreg grid stuff, if necessary
+           !
+           if ( idefnum.ne.0 ) then
+              if ( igdstmpl(8).eq.-1 ) then
+                 kgds(2)=65535
+                 kgds(9)=65535
+              endif
+              if ( igdstmpl(9).eq.-1 ) then
+                 kgds(3)=65535
+                 kgds(10)=65535
+              endif
+              kgds(19)=0
+              kgds(20)=33
+              if ( kgds(1).eq.1.OR.kgds(1).eq.3 ) kgds(20)=43
+              kgds(21)=igds(2)                   ! num of grid points
+              do j=1,idefnum
+                 kgds(21+j)=ideflist(j)
+              enddo
+           endif
+        elseif (igds(5).eq.32768) then    ! Rotate Lat/Lon grid
+           kgds(1)=0                      ! Arakawa Staggerred E/B grid
+           kgds(2)=igdstmpl(8)            ! Ni
+           kgds(3)=igdstmpl(9)            ! Nj
+           kgds(4)=igdstmpl(12)/1000      ! Lat of 1st grid point
+           kgds(5)=igdstmpl(13)/1000      ! Long of 1st grid point
+           kgds(6)=0                      ! resolution and component flags
+           if (igdstmpl(1)==2 ) kgds(6)=64
+           if ( btest(igdstmpl(14),4).OR.btest(igdstmpl(14),5) )
+     &         kgds(6)=kgds(6)+128
+           if ( btest(igdstmpl(14),3) ) kgds(6)=kgds(6)+8
+           kgds(7)=igdstmpl(15)/1000      ! Lat of last grid point
+           kgds(8)=igdstmpl(16)/1000      ! Long of last grid point
+           kgds(9)=igdstmpl(17)/1000      ! Di
+           kgds(10)=igdstmpl(18)/1000     ! Dj
            kgds(11)=igdstmpl(19)          ! Scanning mode
            kgds(12)=0
            kgds(13)=0

@@ -70,7 +70,20 @@ g2lib-1.0.8 - October 2006 - Modified Product Definition Templates 4.5 and 4.9
                            - Fixed several rounding error bugs during encoding.
                            - Added new local parameter conversion entries
 
-g2lib-1.0.9 - MAY  2007    - Modified Grid Definition Template 3.igds(5) (3.204)
+g2lib-1.0.9 - MAY  2007    - Modified Grid Definition Template 3.igds(5)(3.204)
                              to add Curvilinear Orthogonal grids.
                            - Added new local parameter conversion entries
 
+g2lib-1.1.0  -December 2007 - Added new local parameters conversion entries
+                            - Declared the variable rmin,rmax in routine (jpcpack.f
+                              and pngpack.f) with double precision fix bug causing
+                              seg fault when using JPEG2000 encoding algorithm.
+
+g2lib-1.1.1  -January 2008  - Added new local parameters conversion entries
+
+g2lib-1.1.7  -August  2008  - Added new local parameters conversion entries
+                              and table 131
+                            - Added a new Grid Definition Template number
+                              3.32768 (Added Rotate Lat/Lon E-grid)
+
+g2lib-1.1.8  -November 2008 - Added new local parameters conversion entries

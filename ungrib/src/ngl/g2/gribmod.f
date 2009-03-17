@@ -148,6 +148,8 @@
 !
 ! PROGRAM HISTORY LOG:
 ! 2002-01-23  Gilbert
+! 2007-04-24  Vuong     -  Added GDT 3.204  Curvilinear Orthogonal Grids
+! 2008-05-29  Vuong     -  Added GDT 3.32768  Rotate Lat/Lon E-grid
 !
 ! USAGE:    use grib_mod
 !
@@ -157,7 +159,7 @@
 !
 !$$$
 
-      character(len=12) :: G2_VERSION="g2lib-1.0.9"
+      character(len=12) :: G2_VERSION="g2lib-1.1.8"
 
       type gribfield
           integer :: version,discipline

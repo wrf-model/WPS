@@ -111,6 +111,7 @@
       integer(4) :: ire00,allones
       integer :: mappds(ipdstmplen),intbmap(ngrdpts),mapdrs(idrstmplen)
       integer,parameter :: zero=0,one=1,four=4,five=5,six=6,seven=7
+      integer,parameter :: minsize=50000
       integer iofst,ibeg,lencurr,len,mappdslen,mapdrslen,lpos3
       integer width,height,ndpts
       integer lensec3,lensec4,lensec5,lensec6,lensec7
@@ -298,7 +299,9 @@
          pfld=>fld;
       endif
       lcpack=0
-      allocate(cpack(ndpts*4),stat=istat)
+      nsize=ndpts*4
+      if (nsize .lt. minsize) nsize=minsize
+      allocate(cpack(nsize),stat=istat)
       if (idrsnum.eq.0) then      !  Simple Packing
         call simpack(pfld,ndpts,idrstmpl,cpack,lcpack)
       elseif (idrsnum.eq.2.or.idrsnum.eq.3) then      !  Complex Packing
@@ -337,6 +340,7 @@
            width=ndpts
            height=1
         endif
+        lcpack=nsize
         call jpcpack(pfld,width,height,idrstmpl,cpack,lcpack)
 #endif  /* USE_JPEG2000 */
 #ifdef USE_PNG
