@@ -10,6 +10,7 @@ module coefficients
    !
    ! Notes: Obtain table of coefficients for input by this routine from
    !        http://www.ecmwf.int/products/data/technical/model_levels/index.html
+   !
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
    subroutine read_coeffs()
       
@@ -68,7 +69,7 @@ module coefficients
 end module coefficients
 
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! calc_ecmwf_p
 !
 ! The purpose of this program is to compute a 3d pressure field for ECMWF 
@@ -76,7 +77,13 @@ end module coefficients
 !    reading a PSFC field from intermediate files, the A and B coefficients 
 !    from a text file, ecmwf_coeffs, and writes the pressure data to an 
 !    intermediate file.
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! 
+! November 2008
+! Note: This program now also computes height for each level, this is needed by real
+!       modified by: Daniel van Dijke, MeteoConsult B.V., The Netherlands
+!                    Chiel van Heerwaarden, Wageningen University, The Netherlands
+!                    
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 program calc_ecmwf_p
 
    use coefficients
@@ -91,14 +98,14 @@ program calc_ecmwf_p
    implicit none
 
    ! Local variables
-   integer :: i, idiff, n_times, t, istatus, fg_idx
+   integer :: i, idiff, n_times, t, istatus, fg_idx, counter
    real :: a_full, b_full
    character (len=19) :: valid_date, temp_date
    character (len=128) :: input_name
-   real, allocatable, dimension(:,:) :: psfc
-   real, allocatable, dimension(:,:,:) :: tt, qv
+   real, allocatable, dimension(:,:) :: psfc, hgtsfc, hgtprev, pstart, pend
+   real, allocatable, dimension(:,:,:) :: tt, qv, hgt_3ddata
    logical :: is_psfc
-   type (met_data) :: ecmwf_data, p_data, rh_data
+   type (met_data) :: ecmwf_data, p_data, rh_data, hgt_data
 
 
    !
@@ -186,6 +193,20 @@ program calc_ecmwf_p
                         psfc(:,:) = ecmwf_data%slab(:,:)
                      end if
 
+                  !CvH_DvD: - Store geopotential height
+                  else if (trim(ecmwf_data%field) == 'SOILHGT' .and. ecmwf_data%xlvl == 200100.) then
+                     hgt_data = ecmwf_data
+                     hgt_data%field = 'GHT       '
+                     hgt_data%units = 'm'
+                     hgt_data%desc  = 'Height'
+                     if (.not. allocated(hgtsfc)) then
+                        allocate(hgtsfc(ecmwf_data%nx,ecmwf_data%ny))
+                     end if
+                     call mprintf(.true.,STDOUT,'Found %s field in %s:%s', &
+                                  s1=ecmwf_data%field, s2=input_name, s3=temp_date(1:13))
+
+                     hgtsfc(:,:) = ecmwf_data%slab(:,:)
+
                   ! Have we found temperature?
                   else if (trim(ecmwf_data%field) == 'TT') then
 
@@ -230,6 +251,8 @@ program calc_ecmwf_p
 
                allocate(p_data%slab(p_data%nx,p_data%ny))
                allocate(rh_data%slab(rh_data%nx,rh_data%ny))
+               !CvH_DvD: add HGT variable
+               allocate(hgt_data%slab(hgt_data%nx,hgt_data%ny))
 
                call write_met_init(trim(get_path(input_name))//'PRES', .false., temp_date(1:13), istatus)
 
@@ -244,7 +267,70 @@ program calc_ecmwf_p
                else
                   call mprintf(.true.,WARN,'Either TT or SPECHUMD not found. No RH will be computed.')
                end if
+               
+               
+               
+               !CvH_DvD: if tt, qv and hgtsfc are available compute hgt            
+               if (allocated(tt) .and. allocated(qv) .and. allocated(hgtsfc)) then
 
+                  if (.not. allocated(hgtprev)) then
+                    allocate(hgtprev(ecmwf_data%nx,ecmwf_data%ny))
+                  end if
+                  if (.not. allocated(pstart)) then
+                    allocate(pstart(ecmwf_data%nx,ecmwf_data%ny))
+                  end if
+                  if (.not. allocated(pend)) then
+                    allocate(pend(ecmwf_data%nx,ecmwf_data%ny))
+                  end if
+                  if (.not. allocated(hgt_3ddata)) then
+                    allocate(hgt_3ddata(ecmwf_data%nx,ecmwf_data%ny, n_levels))
+                  end if
+                                                     
+                  ! CvH_DvD: interpolate Q and T if they are not availalbe at all levels             
+                  do i = n_levels, 1, -1
+                    if (tt(1,1,i) .eq. 0) then  ! CvH_DvD: If TT is zero, level is unknown, so moisture is zero too 
+                      if (i .ne. n_levels) then
+                        counter=1
+                        ! CvH_DvD: Find first available level
+                        do while ((tt(1,1,i-counter) .eq. 0) .and. (i-counter .gt. 1)) 
+                          counter=counter+1
+                        end do
+                        if (tt(1,1,i-counter) .gt. 0) then 
+                          ! CvH_DvD: If TT is zero, we're at the top level which is missing, so use previous level, 
+                          ! mod level will remove it anyway
+                          tt(:,:,i)=tt(:,:,i+1)+(tt(:,:,i-counter)-tt(:,:,i+1))/(counter+1)
+                          qv(:,:,i)=qv(:,:,i+1)+(qv(:,:,i-counter)-qv(:,:,i+1))/(counter+1)
+                        else
+                          tt(:,:,i)=tt(:,:,i+1)
+                          qv(:,:,i)=qv(:,:,i+1)
+                        end if                                          
+                      else
+                        write(6,*) 'WARNING First level is missing!' ! CvH_DvD: First level should be there! 
+                      end if
+                    end if 
+                  end do                           
+                        
+                  ! CvH_DvD: first previous hgt is surface hgt/soilgeo
+                  hgtprev = hgtsfc
+                  ! CvH_DvD: - Loop from surface to top, note: 1=top & n_levels=surface
+                  do i = n_levels, 1, -1
+                      ! CvH_DvD: compute half level pressure at current half-level
+                      pend   = 0.5 * (a(i-1) + a(i)) + psfc * 0.5 * (b(i-1) + b(i))       
+                      if (i .eq. n_levels) then               
+                        ! CvH_DvD: use Tv not T, use Psfc and T_halflevel_1=AveT lowest level            
+                        hgt_3ddata(:,:,i) = hgtprev + 287.05 * tt(:,:,i) * (1. + 0.61 * qv(:,:,i)) * log(psfc/pend) / 9.81    
+                      else
+                        ! CvH_DvD: compute half level pressure beneath current half-level
+                        pstart = 0.5 * (a(i+1) + a(i)) + psfc * 0.5 * (b(i+1) + b(i))     
+                        ! CvH_DvD: use Tv not T, create T at full leve beneath current half level              
+                        hgt_3ddata(:,:,i) = hgtprev + 287.05 * (tt(:,:,i) + tt(:,:,i+1))/2  * (1. + 0.61 * (qv(:,:,i)+qv(:,:,i+1))/2) * log(pstart/pend) / 9.81  
+                      end if
+                      hgtprev = hgt_3ddata(:,:,i)
+                  end do
+               
+               end if
+              
+               
                do i = 1, n_levels
 
                   a_full = 0.5 * (a(i-1) + a(i))   ! A and B are dimensioned (0:n_levels)
@@ -257,6 +343,13 @@ program calc_ecmwf_p
                      rh_data%xlvl = real(i)
                      call calc_rh(tt(:,:,i), qv(:,:,i), p_data%slab, rh_data%slab, rh_data%nx, rh_data%ny)
                      call write_next_met_field(rh_data, istatus) 
+                     
+                     if (allocated(hgtsfc)) then
+                        ! CvH_DvD: put hgt_3ddata into hgt_data object
+                        hgt_data%xlvl = real(i)
+                        hgt_data%slab = hgt_3ddata(:,:,i)
+                        call write_next_met_field(hgt_data, istatus)
+                     end if
                   end if
 
                   call write_next_met_field(p_data, istatus) 
@@ -267,19 +360,29 @@ program calc_ecmwf_p
   
                deallocate(p_data%slab)
                deallocate(rh_data%slab)
+               ! CvH_DvD: deallocate stuff
+               deallocate(hgt_data%slab)
 
             end if
 
             if (allocated(tt))   deallocate(tt)
             if (allocated(qv))   deallocate(qv)
             if (allocated(psfc)) deallocate(psfc)
+            ! CvH_DvD: deallocate stuff
+            if (allocated(hgt_3ddata)) deallocate(hgt_3ddata)
+            if (allocated(pstart)) deallocate(pstart)
+            if (allocated(pend)) deallocate(pend)
+            if (allocated(hgtprev)) deallocate(hgtprev)
+        
 
          else
             call mprintf(.true.,ERROR,'Problem opening %s at time %s', s1=input_name, s2=temp_date(1:13))
          end if
 
       end do 
-
+      ! CvH_DvD: only now deallocate hgtsfc, 
+      ! because oper EC does not have hgtsfc @ fps
+      if (allocated(hgtsfc)) deallocate(hgtsfc) 
       fg_idx = fg_idx + 1
       input_name = fg_name(fg_idx)
 
