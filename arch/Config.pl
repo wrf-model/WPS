@@ -7,6 +7,7 @@
 
 $sw_perl_path = perl ;
 $sw_netcdf_path = "" ;
+$sw_netcdff_lib = "" ;
 $sw_phdf5_path=""; 
 $sw_jasperlib_path=""; 
 $sw_jasperinc_path=""; 
@@ -27,6 +28,10 @@ while ( substr( $ARGV[0], 0, 1 ) eq "-" )
   if ( substr( $ARGV[0], 1, 7 ) eq "netcdf=" )
   {
     $sw_netcdf_path = substr( $ARGV[0], 8 ) ;
+  }
+  if ( substr( $ARGV[0], 1, 8 ) eq "netcdff=" )
+  {
+    $sw_netcdff_lib = substr( $ARGV[0], 9 ) ;
   }
   if ( substr( $ARGV[0], 1, 6 ) eq "phdf5=" )
   {
@@ -273,7 +278,10 @@ close ARCH_PREAMBLE ;
 printf CONFIGURE_WRF "# Settings for %s", $optstr[$optchoice] ;
 print CONFIGURE_WRF @machopts  ;
 open ARCH_POSTAMBLE, "< arch/postamble" or die "cannot open arch/postamble" ;
-while ( <ARCH_POSTAMBLE> ) { print CONFIGURE_WRF } ;
+while ( <ARCH_POSTAMBLE> ) { 
+   $_ =~ s:CONFIGURE_NETCDFF_LIB:$sw_netcdff_lib:g ;
+   print CONFIGURE_WRF ;
+} 
 close ARCH_POSTAMBLE ;
 close CONFIGURE_WRF ;
 
