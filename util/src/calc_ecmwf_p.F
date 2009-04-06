@@ -318,12 +318,12 @@ program calc_ecmwf_p
                       pend   = 0.5 * (a(i-1) + a(i)) + psfc * 0.5 * (b(i-1) + b(i))       
                       if (i .eq. n_levels) then               
                         ! CvH_DvD: use Tv not T, use Psfc and T_halflevel_1=AveT lowest level            
-                        hgt_3ddata(:,:,i) = hgtprev + 287.0 * tt(:,:,i) * (1. + 0.61 * qv(:,:,i)) * log(psfc/pend) / 9.81    
+                        hgt_3ddata(:,:,i) = hgtprev + 287.05 * tt(:,:,i) * (1. + 0.61 * qv(:,:,i)) * log(psfc/pend) / 9.81    
                       else
                         ! CvH_DvD: compute half level pressure beneath current half-level
                         pstart = 0.5 * (a(i+1) + a(i)) + psfc * 0.5 * (b(i+1) + b(i))     
                         ! CvH_DvD: use Tv not T, create T at full leve beneath current half level              
-                        hgt_3ddata(:,:,i) = hgtprev + 287.0 * (tt(:,:,i) + tt(:,:,i+1))/2  * (1. + 0.61 * (qv(:,:,i)+qv(:,:,i+1))/2) * log(pstart/pend) / 9.81  
+                        hgt_3ddata(:,:,i) = hgtprev + 287.05 * (tt(:,:,i) + tt(:,:,i+1))/2  * (1. + 0.61 * (qv(:,:,i)+qv(:,:,i+1))/2) * log(pstart/pend) / 9.81  
                       end if
                       hgtprev = hgt_3ddata(:,:,i)
                   end do
