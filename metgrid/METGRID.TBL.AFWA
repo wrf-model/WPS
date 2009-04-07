@@ -1,40 +1,40 @@
 ========================================
 name=ST
-	z_dim_name=num_st_levels
+	z_dim_name=num_st_layers
         derived=yes
 # IF
-        fill_lev = 1 : ST000010(200100)
-        fill_lev = 2 : ST010040(200100)
-        fill_lev = 3 : ST040100(200100)
-        fill_lev = 4 : ST100200(200100)
+        fill_lev =  10 : ST000010(200100)
+        fill_lev =  40 : ST010040(200100)
+        fill_lev = 100 : ST040100(200100)
+        fill_lev = 200 : ST100200(200100)
 # ELSE IF
-        fill_lev = 1 : ST000010(200100)
-        fill_lev = 2 : ST010200(200100)
+        fill_lev =  10 : ST000010(200100)
+        fill_lev = 200 : ST010200(200100)
 # ELSE
-        fill_lev = 1 : ST000007(200100)
-        fill_lev = 2 : ST007028(200100)
-        fill_lev = 3 : ST028100(200100)
-        fill_lev = 4 : ST100255(200100)
+        fill_lev =   7 : ST000007(200100)
+        fill_lev =  28 : ST007028(200100)
+        fill_lev = 100 : ST028100(200100)
+        fill_lev = 255 : ST100255(200100)
 ========================================
 name=SM
-        z_dim_name=num_sm_levels
+        z_dim_name=num_sm_layers
         derived=yes
 # IF
-        fill_lev = 1 : SM000010(200100)
-        fill_lev = 2 : SM010040(200100)
-        fill_lev = 3 : SM040100(200100)
-        fill_lev = 4 : SM100200(200100)
+        fill_lev =  10 : SM000010(200100)
+        fill_lev =  40 : SM010040(200100)
+        fill_lev = 100 : SM040100(200100)
+        fill_lev = 200 : SM100200(200100)
 # ELSE IF
-        fill_lev = 1 : SM000010(200100)
-        fill_lev = 2 : SM010200(200100)
+        fill_lev =  10: SM000010(200100)
+        fill_lev = 200 : SM010200(200100)
 # ELSE
-        fill_lev = 1 : SM000007(200100)
-        fill_lev = 2 : SM007028(200100)
-        fill_lev = 3 : SM028100(200100)
-        fill_lev = 4 : SM100255(200100)
+        fill_lev =   7 : SM000007(200100)
+        fill_lev =  28 : SM007028(200100)
+        fill_lev = 100 : SM028100(200100)
+        fill_lev = 255 : SM100255(200100)
 ========================================
 name=SW
-        z_dim_name=num_sw_levels
+        z_dim_name=num_sw_layers
         derived=yes
 # IF
         fill_lev = 1 : SW000010(200100)
@@ -45,25 +45,37 @@ name=SW
         fill_lev = 1 : SW000010(200100)
         fill_lev = 2 : SW010200(200100)
 ========================================
+name=SOIL_LAYERS
+        derived=yes
+        z_dim_name=num_st_layers
+        flag_in_output=FLAG_SOIL_LAYERS
+        fill_lev=all:vertical_index; level_template=ST
+========================================
 name=SOILM
         z_dim_name=num_soilm_levels
         derived=yes
-        fill_lev = 1 : SOILM000(200100)      
-        fill_lev = 2 : SOILM005(200100)      
-        fill_lev = 3 : SOILM020(200100)      
-        fill_lev = 4 : SOILM040(200100)      
-        fill_lev = 5 : SOILM160(200100)      
-        fill_lev = 6 : SOILM300(200100)      
+        fill_lev =   0 : SOILM000(200100)      
+        fill_lev =   5 : SOILM005(200100)      
+        fill_lev =  20 : SOILM020(200100)      
+        fill_lev =  40 : SOILM040(200100)      
+        fill_lev = 160 : SOILM160(200100)      
+        fill_lev = 300 : SOILM300(200100)      
 ========================================
 name=SOILT
         z_dim_name=num_soilt_levels
         derived=yes
-        fill_lev = 1 : SOILT000(200100)      
-        fill_lev = 2 : SOILT005(200100)      
-        fill_lev = 3 : SOILT020(200100)      
-        fill_lev = 4 : SOILT040(200100)      
-        fill_lev = 5 : SOILT160(200100)      
-        fill_lev = 6 : SOILT300(200100)      
+        fill_lev =   0 : SOILT000(200100)      
+        fill_lev =   5 : SOILT005(200100)      
+        fill_lev =  20 : SOILT020(200100)      
+        fill_lev =  40 : SOILT040(200100)      
+        fill_lev = 160 : SOILT160(200100)      
+        fill_lev = 300 : SOILT300(200100)      
+========================================
+name=SOIL_LEVELS
+        derived=yes
+        z_dim_name=num_soilt_levels
+        flag_in_output=FLAG_SOIL_LEVELS
+        fill_lev=all:vertical_index; level_template=SOILT
 ========================================
 name=PRES
         z_dim_name=num_metgrid_levels
@@ -605,7 +617,7 @@ name=T ; output_name=TT  # If we get T, use entry from TT and
 ========================================
 name=TT
         mandatory=yes    # MUST HAVE THIS FIELD
-        interp_option=four_pt+average_4pt
+        interp_option=sixteen_pt+four_pt+average_4pt
         fill_missing=0.
 ========================================
 name=U ; output_name=UU  # If we get U, use entry from UU and
