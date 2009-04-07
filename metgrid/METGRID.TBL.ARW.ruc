@@ -90,6 +90,9 @@ name=LANDSEA
         fill_missing=-1.
         fill_lev=200100:LANDMASK(1)
 ========================================
+name=XICE ; output_name=SEAICE  # If we get XICE, use entry from SEAICE and
+                                #   write the field out as SEAICE
+========================================
 name=SEAICE 
         interp_option=four_pt+average_4pt
         interp_mask=LANDSEA(1) 
