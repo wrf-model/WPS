@@ -401,7 +401,7 @@ name=T ; output_name=TT  # If we get T, use entry from TT and
 ========================================
 name=TT
         mandatory=yes    # MUST HAVE THIS FIELD
-        interp_option=four_pt+average_4pt
+        interp_option=sixteen_pt+four_pt+average_4pt
         fill_missing=0.
 ========================================
 name=U ; output_name=UU  # If we get U, use entry from UU and
