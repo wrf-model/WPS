@@ -6,7 +6,7 @@ COMPRESSION_INC		=
 FDEFS			=
 NCARG_LIBS		=
 NCARG_LIBS2		=	-L/usr/local/lib64/r4i4 -lncarg -lncarg_gks -lncarg_c \
-				-L/usr/X11R6/lib -lX11
+				-L/usr/X11R6/lib -lX11 -lpng_ncl -lz_ncl
 FC		=	xlf90_r
 SFC		=	xlf90_r
 FFLAGS		=	-qfree=f90
@@ -29,7 +29,7 @@ COMPRESSION_INC         =       -I/contrib/libpng/include -I/contrib/zlib/includ
 
 NCARG_LIBS		=
 NCARG_LIBS2		=	-L/usr/local/lib64/r4i4 -lncarg -lncarg_gks -lncarg_c \
-				-L/usr/X11R6/lib -lX11
+				-L/usr/X11R6/lib -lX11 -lpng_ncl -lz_ncl
 FC		=	xlf90_r
 SFC		=	xlf90_r
 FFLAGS		=	-qfree=f90
@@ -52,7 +52,7 @@ COMPRESSION_INC		=
 FDEFS			=
 NCARG_LIBS		=
 NCARG_LIBS2		=	-L/usr/local/lib64/r4i4 -lncarg -lncarg_gks -lncarg_c \
-				-L/usr/X11R6/lib -lX11
+				-L/usr/X11R6/lib -lX11 -lpng_ncl -lz_ncl
 FC		=	mpxlf90_r
 SFC		=	xlf90_r
 FFLAGS		=	-qfree=f90
@@ -75,7 +75,7 @@ COMPRESSION_INC         =       -I/contrib/libpng/include -I/contrib/zlib/includ
 
 NCARG_LIBS		=
 NCARG_LIBS2		=	-L/usr/local/lib64/r4i4 -lncarg -lncarg_gks -lncarg_c \
-				-L/usr/X11R6/lib -lX11
+				-L/usr/X11R6/lib -lX11 -lpng_ncl -lz_ncl
 FC		=	mpxlf90_r
 SFC		=	xlf90_r
 FFLAGS		=	-qfree=f90
