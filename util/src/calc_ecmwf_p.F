@@ -196,7 +196,7 @@ program calc_ecmwf_p
                   !CvH_DvD: - Store geopotential height
                   else if (trim(ecmwf_data%field) == 'SOILHGT' .and. ecmwf_data%xlvl == 200100.) then
                      hgt_data = ecmwf_data
-                     hgt_data%field = 'GHT       '
+                     hgt_data%field = 'GHT      '
                      hgt_data%units = 'm'
                      hgt_data%desc  = 'Height'
                      if (.not. allocated(hgtsfc)) then
@@ -206,6 +206,21 @@ program calc_ecmwf_p
                                   s1=ecmwf_data%field, s2=input_name, s3=temp_date(1:13))
 
                      hgtsfc(:,:) = ecmwf_data%slab(:,:)
+
+                  ! Have we found surface geopotential?
+                  else if (trim(ecmwf_data%field) == 'SOILGEO' .and. ecmwf_data%xlvl == 1.) then
+                     hgt_data = ecmwf_data
+                     hgt_data%field = 'GHT      '
+                     hgt_data%units = 'm'      ! units on output after conversion to height
+                     hgt_data%desc  = 'Height'
+                     if (.not. allocated(hgtsfc)) then
+                        allocate(hgtsfc(ecmwf_data%nx,ecmwf_data%ny))
+                     end if
+                     call mprintf(.true.,STDOUT,'Found %s field in %s:%s', &
+                                  s1=ecmwf_data%field, s2=input_name, s3=temp_date(1:13))
+             
+                     hgtsfc(:,:) = ecmwf_data%slab(:,:)/9.81
+
 
                   ! Have we found temperature?
                   else if (trim(ecmwf_data%field) == 'TT') then
@@ -349,6 +364,10 @@ program calc_ecmwf_p
                         hgt_data%xlvl = real(i)
                         hgt_data%slab = hgt_3ddata(:,:,i)
                         call write_next_met_field(hgt_data, istatus)
+                     else
+                        call mprintf(.true., WARN, &
+                                     'Either SOILHGT or SOILGEO are required to create 3-d GHT field, which is required '// &
+                                     'for a correct vertical interpolation in real.')
                      end if
                   end if
 
