@@ -1,16 +1,16 @@
-WRF Pre-Processing System Version 3.0.1, r.457 (August 4, 2008)
+WRF Pre-Processing System Version 3.1, r.502 (April 8, 2009)
 
 http://www.mmm.ucar.edu/wrf/users/
 
 The WRF Pre-Processing System (WPS) is a collection
-of Fortran and C programs that provides data which are
-input to the real.exe program.  There are three main
-programs and a number of auxillary programs that
-are part of WPS.  Both the ARW and NMM dynamical cores
-in WRF are supported by WPS.
+of Fortran and C programs that provides data used as
+input to the real.exe and real_nmm.exe programs. There 
+are three main programs and a number of auxillary 
+programs that are part of WPS.  Both the ARW and NMM 
+dynamical cores in WRF are supported by WPS.
 
 For questions and help to run the program, please see the 
-User's Guide at http://www.mmm.ucar.edu/wrf/users/docs/user_guide/contents.html
+User's Guide at http://www.mmm.ucar.edu/wrf/users/docs/user_guide_V3/contents.html
 and send email to wrfhelp@ucar.edu.
 
 ===================================================
@@ -29,22 +29,22 @@ geogrid
 1) Defines the model horizontal domain
 2) Horizontally interpolates static data to the model
 domain
-3) Output conforms to the WRF IO API
+3) Output conforms to the WRF I/O API
 
 ungrib
 ------
 1) Decodes Grib Edition 1 and 2 data
 2) Uses tables to decide which variables to extract
-3) Isobaric and generalized vertical coordinates
-4) Output is in non WRF-API form, referred to as an
+3) Supports isobaric and generalized vertical coordinates
+4) Output is in a non-WRF-I/O-API form, referred to as an
    intermediate format
 
 metgrid
 -------
-1) Ingest static data and raw met fields
-2) Horizontally interpolate met fields to the model
-   domain
-3) Output conforms to WRF IO API
+1) Ingest static data and raw meteorological fields
+2) Horizontally interpolate meteorological fields to the 
+   model domain
+3) Output conforms to WRF I/O API
 
 
 
@@ -54,7 +54,7 @@ Parallelism
 The geogrid and metgrid programs may be run as
 distributed memory parallel jobs to reduce the 
 time-to-solution.  These two programs use MPI calls
-directly, compared to WRF which has an abstraction
+directly, compared to WRF, which has an abstraction
 layer (RSL or RSL_LITE).
 
 
@@ -67,27 +67,29 @@ external to the WPS source code: zlib, png, and jasper.
 It is recommended that users request support from their
 system administrators when installing these packages.
 Users can compile the code without these libraries by 
-selecting the "no GRIB2" options in the build.
+selecting the "NO GRIB2" options in the build.
 
 
 
 
 Building WPS
 
-Similar to the WRF package, WPS uses a two-step:
-./configure
-./compile
-build mechanism, which directs the unix make underneath.
+Similar to the WRF package, WPS uses a two-step build
+mechanism,
+   ./configure
+   ./compile
+which directs the unix make underneath.
 If the user is on a recognized architecture, the
 configure script will display a list of available
 compile options (usually serial vs parallel, Grib 2
-enabled vs a "no Grib 2" option).  For some OS options,
+enabled vs a "NO GRIB2" option).  For some OS options,
 there are multiple compilers that are supported.
 
-The configure option lists both "build Grib2" and
-"do not build Grib2" options.  It is suggested that
-the first builds be without the Grib Edition 2
+The configure option lists both "build GRIB2" and
+"do not build GRIB2" options.  It is suggested that
+the first builds be without the GRIB Edition 2
 capability.
+
 
 Running WPS (for serially compiled code)
 
@@ -100,10 +102,11 @@ geogrid.exe
 
 ungrib.exe
 ----------
-- edit namelist.wps for start_date and end_date, output file prefix (&share and &ungrib sections)
+- edit namelist.wps for start_date and end_date, output file prefix 
+  (&share and &ungrib sections)
 - link correct Vtable:
   ls -l ungrib/Variable_Tables
-  For NCEP GFS (or AVN, FNL) data,
+  For example, for NCEP GFS (or AVN, FNL) data,
   ln -sf ungrib/Variable_Tables/Vtable.GFS Vtable
 - link grib data files:
   link_grib.csh /data-directory/file*
@@ -127,7 +130,7 @@ purpose: computes a daily mean of the surface air
 temperature, reads the namelist.wps file
 
 usage:
-./avg_tsfc.exe
+avg_tsfc.exe
 
 
 g1print.exe
@@ -136,7 +139,7 @@ purpose: read a Grib Edition 1 file, output
 information to build a Vtable
 
 usage:
-./g1print.exe GRIB1_file
+g1print.exe GRIB1_file
 
 
 g2print.exe
@@ -145,18 +148,18 @@ purpose: read a Grib Edition 2 file, output
 information to build a Vtable
 
 usage:
-./g2print.exe GRIB2_file
+g2print.exe GRIB2_file
 
 
 mod_levs.exe
 ------------
 purpose: reduce levels in a intermediate file
-so that different Grib sources may be used
+so that different GRIB sources may be used
 for the initial and lateral boundary time periods
 
 usage:
-./mod_levs.exe OLD_intermetdiate:date_string \
-               NEW_intermetdiate:date_string
+mod_levs.exe OLD_intermetdiate:date_string \
+             NEW_intermetdiate:date_string
 Processes a single file at a time, uses the 
 pressure levels defined in the namelist.wps file.
 
@@ -167,7 +170,7 @@ horizontal plots of each field and level in the
 intermediate file
 
 usage:
-./plotfmt.exe intermediate_file:date_string
+plotfmt.exe intermediate_file:date_string
 
 
 plotgrids.exe
@@ -178,7 +181,7 @@ all of the domain locations plotted, reads the
 namelist.wps file to get the domain information
 
 usage:
-./plotgrids.exe
+plotgrids.exe
 
 
 rd_intermediate.exe
@@ -187,8 +190,22 @@ purpose: read an intermediate file and print
 the information to the screen
 
 usage:
-./rd_intermediate.exe intermediate_file:date_string
+rd_intermediate.exe intermediate_file:date_string
 
+
+
+calc_ecmwf_p.exe
+-------------------
+purpose: when using ECMWF model data in GRIB format,
+computes the 3-d pressure, height, and RH fields from
+the output of ungrib.exe, and writes these fields to
+a new set of intermediate files to be used in addition
+to those produced by ungrib. All times between the start_date
+and end_date specified in the &share namelist will be
+processed.
+
+usage:
+calc_ecmwf_p.exe
 
 
 
@@ -196,7 +213,7 @@ Static Input Data
 
 The static input data is provided in two tar files: one
 contains full resolution data (30", 2', 5' and 10') and the other
-contains only 10' low resolution data. The data may be downloaded 
+contains only 10' low-resolution data. The data may be downloaded 
 from http://www.mmm.ucar.edu/wrf/users/download/get_source.html.
 
 
@@ -204,7 +221,7 @@ from http://www.mmm.ucar.edu/wrf/users/download/get_source.html.
 
 Meteorological Input Data
 
-The meteorological input data for WPS is the Grib
+The meteorological input data for WPS is the GRIB
 Edition 1 GFS data from NCEP.  A test
 data set (Jan 2000, 24/12Z to 25/12Z) is available from
 http://www.mmm.ucar.edu/wrf/users/download/get_source.html.
