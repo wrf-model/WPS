@@ -534,8 +534,6 @@ subroutine compute_spechumd_qvapor(ix, jx, plvl)
   real :: lat1, lon1, dx, dy
   real, dimension(ix,jx) :: QVAPOR, SPECHUMD
 
-  real startlat, startlon, deltalat, deltalon
-
   call get_storage(nint(plvl), 'QV', QVAPOR, ix, jx)
 
   SPECHUMD = QVAPOR/(1.+QVAPOR)
@@ -557,8 +555,6 @@ subroutine compute_t_vptmp(ix, jx, plvl)
   real, dimension(ix,jx) :: T, VPTMP, P, Q
 
   real, parameter :: rovcp=0.28571
-
-  real startlat, startlon, deltalat, deltalon
 
   call get_storage(nint(plvl), 'VPTMP',  VPTMP, ix, jx)
   IF (nint(plvl) .LT. 200) THEN
@@ -592,8 +588,6 @@ subroutine compute_rh_spechumd(ix, jx)
   real, parameter :: svpt0=273.15
   real, parameter :: eps = 0.622
 
-  real startlat, startlon, deltalat, deltalon
-
   call get_storage(200100, 'TT',        T, ix, jx)
   call get_storage(200100, 'PSFC',     P, ix, jx)
   call get_storage(200100, 'SPECHUMD', Q, ix, jx)
@@ -618,8 +612,6 @@ subroutine compute_rh_spechumd_upa(ix, jx, plvl)
   real, parameter :: svp3=29.65
   real, parameter :: svpt0=273.15
   real, parameter :: eps = 0.622
-
-  real startlat, startlon, deltalat, deltalon
 
   IF ( nint(plvl).LT. 200) THEN
     call get_storage(nint(plvl), 'PRESSURE', P, ix, jx)
@@ -650,9 +642,6 @@ subroutine compute_rh_vapp_upa(ix, jx, plvl)
   real, parameter :: svp2=17.67
   real, parameter :: svp3=29.65
   real, parameter :: svpt0=273.15
-  real, parameter :: eps = 0.622
-
-  real :: startlat, startlon, deltalat, deltalon
 
   allocate(RH(ix,jx))
 
