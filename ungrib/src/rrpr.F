@@ -548,7 +548,7 @@ subroutine compute_spechumd_qvapor(ix, jx, plvl)
 end subroutine compute_spechumd_qvapor
 
 subroutine compute_t_vptmp(ix, jx, plvl)
-! Compute relative humidity from specific humidity.
+! Compute temperature from virtual potential temperature
   use storage_module
   implicit none
   integer :: ix, jx
