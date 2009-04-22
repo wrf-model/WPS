@@ -73,6 +73,7 @@
       real , dimension(maxlvl) :: plvl
       integer :: nlvl
       integer , dimension(maxlvl) :: level_array
+      logical :: first = .true.
 
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 C  SET ARGUMENTS
@@ -110,6 +111,7 @@ C  SET ARGUMENTS
 
       ! Open a byte-addressable file.
       CALL BAOPENR(junit,gribflnm,IOS)
+      first = .true.
       if (ios.eq.0) then 
       VERSION: do
 
@@ -167,7 +169,8 @@ C  SET ARGUMENTS
          ! ----
          ! Once per file fill in date, model and projection values.
 
-         if (lskip.lt.10) then 
+         if (first) then 
+           first = .false.
 
            ! Build the 19-character date string, based on GRIB2 header date
            ! and time information, including forecast time information:

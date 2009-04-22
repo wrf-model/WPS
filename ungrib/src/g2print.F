@@ -182,6 +182,7 @@ end program g2print
       integer :: nlvl
       integer , dimension(maxlvl) :: level_array
       logical :: verbose=.false.
+      logical :: first = .true.
       integer :: debug_level
       character(len=4) :: tmp4
       character(len=40) :: string
@@ -233,6 +234,7 @@ end program g2print
       if (verbose) write(6,*) 'begin r_grib2, flnm = ',gribflnm
       ! Open a byte-addressable file.
       CALL BAOPENR(junit,gribflnm,IOS)
+      first = .true.
       if (verbose) write(6,*) 'back from baopenr, ios = ',ios
       if (ios.eq.0) then 
       VERSION: do
@@ -291,7 +293,8 @@ end program g2print
          ! ----
          ! Once per file fill in date, model and projection values.
 
-         if (lskip.lt.10) then 
+         if (first) then 
+           first = .false.
 
            ! Build the 19-character date string, based on GRIB2 header date
            ! and time information, including forecast time information:
