@@ -447,6 +447,10 @@ end program g2print
                map%source = 'GFDL Hurricane Model'
              elseif (iprocess.eq.80) then
                map%source = 'NCEP GFS Ensemble'
+             elseif (iprocess.eq.129) then
+               map%source = 'NCEP GODAS'
+             elseif (iprocess.eq.25) then
+               map%source = 'NCEP SNOW COVER ANALYSIS'
              else
                map%source = 'unknown model from NCEP'
                write (6,*) 'unknown NCEP model, iprocess = ',iprocess

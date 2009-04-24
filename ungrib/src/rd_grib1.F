@@ -173,6 +173,8 @@ SUBROUTINE rd_grib1(IUNIT, gribflnm, level, field, hdate,  &
       map%source = 'GFDL Hurricane Model'
     elseif (iprocess.eq.129) then
       map%source = 'NCEP GODAS'
+    elseif (iprocess.eq.25) then
+      map%source = 'NCEP SNOW COVER ANALYSIS'
     else
       map%source = 'unknown model from NCEP'
     end if
