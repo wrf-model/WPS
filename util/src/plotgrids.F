@@ -272,8 +272,8 @@ program plotgrids
                 ixdim=ixdim(1), &
                 jydim=jydim(1))
 
-   call ij_to_latlon(map_projection, 1., 1., rlats, rlons)
-   call ij_to_latlon(map_projection, real(e_we(1)), real(e_sn(1)) , rlate, rlone)
+   call ij_to_latlon(map_projection, 0.5, 0.5, rlats, rlons)
+   call ij_to_latlon(map_projection, real(e_we(1))-0.5, real(e_sn(1))-0.5, rlate, rlone)
 
    call opngks
 
