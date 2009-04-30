@@ -461,6 +461,8 @@ end program g2print
              else
                map%source = 'AFWA'
              endif
+           else if (icenter .eq. 58) then
+               map%source = 'US Navy FNOC'
            else if (icenter .eq. 98) then
              map%source = 'ECMWF'
            else if (icenter .eq. 34) then

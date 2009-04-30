@@ -282,12 +282,16 @@ end subroutine parse_args
        field = table131(param)
      else if ( centerid .eq. 57 ) then
        field = afwa(param)
+     else if ( centerid .eq. 58 .and. ptv .eq. 2 ) then    ! navysst
+       field = table2(param)
      else if ( centerid .eq. 59 .and. ptv .eq. 2 ) then    ! GSD
        field = table2(param)
      else if ( centerid .eq. 59 .and. ptv .eq. 129 ) then
        field = table129(param)
-     else if ( centerid .eq. 98 .and. ptv .eq. 128 ) then
+     else if ( centerid .eq. 98 .and. ptv .eq. 128 ) then  ! ECMWF
        field = ecmwf(param)
+     else if ( ptv .eq. 2 ) then  ! previous default behavior - assume table 2 is ncep table 2
+       field = table2(param)
      else
        field = '     '
      endif

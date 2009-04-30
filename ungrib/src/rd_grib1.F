@@ -189,6 +189,8 @@ SUBROUTINE rd_grib1(IUNIT, gribflnm, level, field, hdate,  &
     endif
     write(tmp8,'("GRID ",i3)') KSEC1(5)
     map%source(25:32) = tmp8
+  else if (icenter .eq. 58) then
+    map%source = 'US Navy FNOC'
   else if (icenter .eq. 59) then
       if (iprocess .eq. 120) then
         map%source = 'NOAA GSD Rapid Refresh'

@@ -264,6 +264,8 @@ C  SET ARGUMENTS
              else
                map%source = 'AFWA'
              endif
+           else if ( icenter .eq. 58 ) then
+             map%source = 'US Navy FNOC'
            else if (icenter .eq. 59) then
              if (iprocess.eq.120) then
                map%source = 'NOAA GSD Rapid Refresh'
