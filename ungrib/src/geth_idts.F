@@ -84,15 +84,15 @@
       scold = 0
       olen = len(odate)
 
-      read(odate(1:4),  '(I4)') yrold
-      read(odate(6:7),  '(I2)') moold
-      read(odate(9:10), '(I2)') dyold
+      read(odate(1:4),  '(I4)', err=101) yrold
+      read(odate(6:7),  '(I2)', err=101) moold
+      read(odate(9:10), '(I2)', err=101) dyold
       if (olen.ge.13) then
-         read(odate(12:13),'(I2)') hrold
+         read(odate(12:13),'(I2)', err=101) hrold
          if (olen.ge.16) then
-            read(odate(15:16),'(I2)') miold
+            read(odate(15:16),'(I2)', err=101) miold
             if (olen.ge.19) then
-               read(odate(18:19),'(I2)') scold
+               read(odate(18:19),'(I2)', err=101) scold
             endif
          endif
       endif
@@ -105,15 +105,15 @@
       scnew = 0
       nlen = len(ndate)
 
-      read(ndate(1:4),  '(I4)') yrnew
-      read(ndate(6:7),  '(I2)') monew
-      read(ndate(9:10), '(I2)') dynew
+      read(ndate(1:4),  '(I4)', err=102) yrnew
+      read(ndate(6:7),  '(I2)', err=102) monew
+      read(ndate(9:10), '(I2)', err=102) dynew
       if (nlen.ge.13) then
-         read(ndate(12:13),'(I2)') hrnew
+         read(ndate(12:13),'(I2)', err=102) hrnew
          if (nlen.ge.16) then
-            read(ndate(15:16),'(I2)') minew
+            read(ndate(15:16),'(I2)', err=102) minew
             if (nlen.ge.19) then
-               read(ndate(18:19),'(I2)') scnew
+               read(ndate(18:19),'(I2)', err=102) scnew
             endif
          endif
       endif
@@ -276,6 +276,14 @@
          idts = idts * isign
       endif
 
+
+      return
+  101 write(6,*) 'Error reading odate. odate = ',odate
+      write(6,*) 'Most likely an error in namelist.wps'
+      stop 'geth_idts 101'
+  102 write(6,*) 'Error reading ndate. ndate = ',ndate
+      write(6,*) 'Most likely an error in namelist.wps'
+      stop 'geth_idts 102'
 
 !**************************  Subroutine End  ***************************
 
