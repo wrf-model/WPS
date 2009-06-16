@@ -64,9 +64,9 @@ clean:
 superclean:	clean
 
 .F.o:
-	$(CPP) $(FDEFS) $*.F > $*.f
-	$(FC) -c $(F77FLAGS) $*.f
-	/bin/rm -f $*.f
+	$(CPP) $(FDEFS) $*.F > $*.f90
+	$(FC) -c $(F77FLAGS) $*.f90
+	/bin/rm -f $*.f90
 
 .f.o:
 	$(FC) -c $(F77FLAGS) $*.f
