@@ -857,6 +857,72 @@ CFLAGS          =       -O
 CPP             =       /usr/bin/cpp -C -P -traditional
 CPPFLAGS        =       -D_UNDERSCORE -DBYTESWAP -DLINUX -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -DBIT32 -DMACOS -D_MPI
 
+###########################################################                                                                                           
+#ARCH   Darwin, INTEL, Intel compiler,  serial, NO GRIB2
+#
+COMPRESSION_LIBS        = 
+COMPRESSION_INC         = 
+FDEFS                   = 
+FC              =       ifort
+SFC             =       ifort
+FFLAGS          =       -FR -convert big_endian
+F77FLAGS        =       -FI -convert big_endian
+FNGFLAGS        =       $(FFLAGS)
+LDFLAGS         = 
+CC              =       icc
+SCC             =       icc
+CFLAGS          =       -w
+CPP             =       /usr/bin/cpp -C -P -traditional
+CPPFLAGS        =       -D_UNDERSCORE -DBYTESWAP -DLINUX -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -DBIT32 -DMACOS
+
+###########################################################                                                                                           
+#ARCH   Darwin, INTEL, Intel compiler,  serial
+#
+FC              =       ifort
+SFC             =       ifort
+FFLAGS          =       -FR -convert big_endian
+F77FLAGS        =       -FI -convert big_endian
+FNGFLAGS        =       $(FFLAGS)
+LDFLAGS         = 
+CC              =       icc
+SCC             =       icc
+CFLAGS          =       -w
+CPP             =       /usr/bin/cpp -C -P -traditional
+CPPFLAGS        =       -D_UNDERSCORE -DBYTESWAP -DLINUX -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -DBIT32 -DMACOS
+
+###########################################################                                                                                           
+#ARCH   Darwin, INTEL, Intel compiler,  DM PARALLEL, NO GRIB2
+#
+COMPRESSION_LIBS        = 
+COMPRESSION_INC         = 
+FDEFS                   = 
+FC              =       mpif90
+SFC             =       ifort
+FFLAGS          =       -FR -convert big_endian
+F77FLAGS        =       -FI -convert big_endian
+FNGFLAGS        =       $(FFLAGS)
+LDFLAGS         = 
+CC              =       mpicc
+SCC             =       icc
+CFLAGS          =       -w
+CPP             =       /usr/bin/cpp -C -P -traditional
+CPPFLAGS        =       -D_UNDERSCORE -DBYTESWAP -DLINUX -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -DBIT32 -DMACOS -D_MPI
+
+###########################################################                                                                                           
+#ARCH   Darwin, INTEL, Intel compiler,  DM PARALLEL
+#
+FC              =       mpif90
+SFC             =       ifort
+FFLAGS          =       -FR -convert big_endian
+F77FLAGS        =       -FI -convert big_endian
+FNGFLAGS        =       $(FFLAGS)
+LDFLAGS         = 
+CC              =       mpicc
+SCC             =       icc
+CFLAGS          =       -w
+CPP             =       /usr/bin/cpp -C -P -traditional
+CPPFLAGS        =       -D_UNDERSCORE -DBYTESWAP -DLINUX -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -DBIT32 -DMACOS -D_MPI
+
 ###########################################################
 #ARCH	Darwin	serial, xlf compiler, NO GRIB2
 #
