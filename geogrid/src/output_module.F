@@ -1099,6 +1099,7 @@ module output_module
                                 dx, dy, cen_lat, moad_cen_lat, cen_lon,                             &
                                 stand_lon, truelat1, truelat2, pole_lat, pole_lon,                  &
                                 parent_grid_ratio, sr_x, sr_y, corner_lats, corner_lons,            &
+                                num_metgrid_soil_levs,                                              &
                                 flags, nflags)
  
       implicit none
@@ -1110,6 +1111,7 @@ module output_module
                  map_proj, is_water, is_lake, is_ice, is_urban, i_soilwater,          &
                  grid_id, parent_id, i_parent_start, j_parent_start,                  &
                  i_parent_end, j_parent_end, parent_grid_ratio, sr_x, sr_y, num_land_cat
+      integer, intent(in), optional :: num_metgrid_soil_levs
       integer, intent(in), optional :: nflags
       real, intent(in) :: dx, dy, cen_lat, moad_cen_lat, cen_lon, stand_lon, truelat1, truelat2, &
                  pole_lat, pole_lon
@@ -1233,6 +1235,9 @@ module output_module
          call ext_put_dom_ti_integer_scalar('sr_x',sr_x)
          call ext_put_dom_ti_integer_scalar('sr_y',sr_y)
 #ifdef _METGRID
+         if (present(num_metgrid_soil_levs)) then
+            call ext_put_dom_ti_integer_scalar('NUM_METGRID_SOIL_LEVELS', num_metgrid_soil_levs)
+         end if
          call ext_put_dom_ti_integer_scalar('FLAG_METGRID', 1)
 #endif
 

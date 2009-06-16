@@ -630,6 +630,8 @@ integer, parameter :: BDR_WIDTH = 3
                  sd1, ed1, sd2, ed2, sd3, ed3, &
                  u_idx, bdr_wdth
       integer :: nmet_flags
+      integer :: num_metgrid_soil_levs
+      integer, pointer, dimension(:) :: soil_levels
       real :: rx, ry
       real :: threshold
       logical :: do_gcell_interp
@@ -1154,6 +1156,24 @@ integer, parameter :: BDR_WIDTH = 3
       else
          met_flags(num_entries+1) = ' '
       end if
+
+      ! Find out how many soil levels or layers we have; this assumes a field named ST
+      field % header % field = 'ST'
+      nullify(soil_levels)
+      call storage_get_levels(field, soil_levels)
+
+      if (.not. associated(soil_levels)) then
+         field % header % field = 'SOILT'
+         nullify(soil_levels)
+         call storage_get_levels(field, soil_levels)
+      end if
+
+      if (associated(soil_levels)) then
+         num_metgrid_soil_levs = size(soil_levels) 
+         deallocate(soil_levels)
+      else
+         num_metgrid_soil_levs = 0
+      end if
    
       ! First write out global attributes
       call mprintf(.true.,LOGFILE,'Writing global attributes to output.')
@@ -1167,7 +1187,7 @@ integer, parameter :: BDR_WIDTH = 3
                               j_parent_start, i_parent_end, j_parent_end, dom_dx, dom_dy,    &
                               cen_lat, moad_cen_lat, cen_lon, stand_lon, truelat1, truelat2, &
                               pole_lat, pole_lon, parent_grid_ratio, sub_x, sub_y,           &
-                              corner_lats, corner_lons, met_flags, nmet_flags)
+                              corner_lats, corner_lons, num_metgrid_soil_levs, met_flags, nmet_flags)
 
       deallocate(met_flags)
     
