@@ -1168,6 +1168,12 @@ integer, parameter :: BDR_WIDTH = 3
          call storage_get_levels(field, soil_levels)
       end if
 
+      if (.not. associated(soil_levels)) then
+         field % header % field = 'STC_WPS'
+         nullify(soil_levels)
+         call storage_get_levels(field, soil_levels)
+      end if
+
       if (associated(soil_levels)) then
          num_metgrid_soil_levs = size(soil_levels) 
          deallocate(soil_levels)
