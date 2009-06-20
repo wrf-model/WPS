@@ -531,7 +531,6 @@ subroutine compute_spechumd_qvapor(ix, jx, plvl)
   implicit none
   integer :: ix, jx
   real :: plvl
-  real :: lat1, lon1, dx, dy
   real, dimension(ix,jx) :: QVAPOR, SPECHUMD
 
   call get_storage(nint(plvl), 'QV', QVAPOR, ix, jx)
@@ -551,7 +550,6 @@ subroutine compute_t_vptmp(ix, jx, plvl)
   implicit none
   integer :: ix, jx
   real :: plvl
-  real :: lat1, lon1, dx, dy
   real, dimension(ix,jx) :: T, VPTMP, P, Q
 
   real, parameter :: rovcp=0.28571
@@ -579,7 +577,6 @@ subroutine compute_rh_spechumd(ix, jx)
   use storage_module
   implicit none
   integer :: ix, jx
-  real :: lat1, lon1, dx, dy
   real, dimension(ix,jx) :: T, P, RH, Q
 
   real, parameter :: svp1=611.2
@@ -604,7 +601,6 @@ subroutine compute_rh_spechumd_upa(ix, jx, plvl)
   implicit none
   integer :: ix, jx
   real :: plvl
-  real :: lat1, lon1, dx, dy
   real, dimension(ix,jx) :: T, P, RH, Q
 
   real, parameter :: svp1=611.2
@@ -634,7 +630,6 @@ subroutine compute_rh_vapp_upa(ix, jx, plvl)
   implicit none
   integer :: ix, jx
   real :: plvl
-  real :: lat1, lon1, dx, dy
   real, dimension(ix,jx) :: P, ES
   real, pointer, dimension(:,:) :: T, E, RH
 
@@ -664,7 +659,6 @@ subroutine compute_rh_depr(ix, jx, plvl)
   implicit none
   integer :: ix, jx
   real :: plvl
-  real :: lat1, lon1, dx, dy
   real, dimension(ix,jx) :: t, depr, rh
 
   real, parameter :: Xlv = 2.5e6
@@ -690,7 +684,6 @@ subroutine compute_rh_dewpt(ix,jx)
   use storage_module
   implicit none
   integer :: ix, jx
-  real :: lat1, lon1, dx, dy
   real, dimension(ix,jx) :: t, dp, rh
 
   real, parameter :: Xlv = 2.5e6

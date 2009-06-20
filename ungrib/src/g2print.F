@@ -467,6 +467,8 @@ end program g2print
              map%source = 'ECMWF'
            else if (icenter .eq. 34) then
              map%source = 'JMA'
+           else if (icenter .eq. 74 .or. icenter .eq. 75 ) then
+             map%source = 'UKMO'
            else
              map%source = 'unknown model and orig center'
            end if

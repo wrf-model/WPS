@@ -201,6 +201,8 @@ SUBROUTINE rd_grib1(IUNIT, gribflnm, level, field, hdate,  &
         map%source = 'NCAR'
   else if (icenter .eq. 98) then
       map%source = 'ECMWF'
+  else if (icenter .eq. 74 .or. icenter .eq. 75 ) then
+      map%source = 'UKMO'
   else
     map%source = 'unknown model and orig center'
   end if
@@ -280,6 +282,7 @@ SUBROUTINE rd_grib1(IUNIT, gribflnm, level, field, hdate,  &
            if ((level1(i).eq.lvl1) .or. (level1(i) == splatcode) ) then
               if (level2(i).eq.lvl2) then
                  field=namvar(i)
+                 level = -999.
                  if (ktype.eq.100) then ! Pressure-level
                     level=lvl1
                  elseif (ktype.eq.102) then
@@ -299,6 +302,12 @@ SUBROUTINE rd_grib1(IUNIT, gribflnm, level, field, hdate,  &
                     level = 201500.
                  elseif (ktype .eq. 237 .or. ktype .eq. 238 ) then  ! depth of ocean layer
                     level = 201600.
+                 endif
+                 if (level .lt. -998. ) then
+                   write(6,*) 'Could not find a level for this Vtable entry'
+                   write(6,*) 'iparm = ',iparm,' ktype = ',ktype,' lvl1 = ',lvl1,' lvl2 = ',lvl2
+                   write(6,*) 'Fix the Vtable or modify rd_grib1.F'
+                   stop 'rd_grib1'
                  endif
               endif
            endif
