@@ -147,10 +147,10 @@ subroutine parse_table(debug_level,vtable_columns)
            endif
         enddo
 
-        call mprintf((tot_bars.eq.7.and.vtable_columns.eq.11),ERROR, &
+        call mprintf((tot_bars.eq.7.and.vtable_columns.ge.11),ERROR, &
           'Vtable does not contain Grib2 decoding information.'// &
-          '11 columns of information is expected.'// &
-          '*** stopping parse_table ***')
+          ' 11 or 12 columns of information is expected.'// &
+          ' *** stopping parse_table ***')
 
 
         istart = 1
@@ -449,10 +449,10 @@ subroutine parse_table(debug_level,vtable_columns)
   if (debug_level .gt. 0) then
      write(*,'(//"Read from file ''Vtable'' by subroutine PARSE_TABLE:")')
      do i = 1, maxvar
-        if (vtable_columns.eq.11) then
-           write(*,'(4I6, 3x,A10, 4I6)')&
+        if (vtable_columns.ge.11) then
+           write(*,'(4I6, 3x,A10, 5I6)')&
              gcode(i), lcode(i), level1(i), level2(i), namvar(i), &
-             g2code(1,i), g2code(2,i), g2code(3,i), g2code(4,i)
+             g2code(1,i), g2code(2,i), g2code(3,i), g2code(4,i), g2code(5,i)
         else 
            write(*,'(4I6, 3x,A10)')&
              gcode(i), lcode(i), level1(i), level2(i), namvar(i)
