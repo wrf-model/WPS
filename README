@@ -1,4 +1,4 @@
-WRF Pre-Processing System Version 3.1, r.502 (April 8, 2009)
+WRF Pre-Processing System Version 3.1.1, r.526 (July 31, 2009)
 
 http://www.mmm.ucar.edu/wrf/users/
 
@@ -10,7 +10,7 @@ programs that are part of WPS.  Both the ARW and NMM
 dynamical cores in WRF are supported by WPS.
 
 For questions and help to run the program, please see the 
-User's Guide at http://www.mmm.ucar.edu/wrf/users/docs/user_guide_V3/contents.html
+User's Guide at http://www.mmm.ucar.edu/wrf/users/docs/user_guide_V3.1/contents.html
 and send email to wrfhelp@ucar.edu.
 
 ===================================================
