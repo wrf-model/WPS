@@ -384,10 +384,11 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_level, out_f
            endif
         enddo
 
-! Repair GFS RH
-        if (index(map%source,'NCEP GFS') .ne. 0) then
+! Repair GFS and ECMWF pressure-level RH
+        if (index(map%source,'NCEP GFS') .ne. 0 .or.  &
+            index(map%source,'ECMWF') .ne. 0 ) then
 	  call mprintf(.true.,DEBUG, &
-             "RRPR:   Adjusting GFS RH values ")
+             "RRPR:   Adjusting GFS/ECMWF RH values ")
 	  do k = 1, nlvl
 	    if ( is_there(nint(plvl(k)),'RH') .and. &
 	         is_there(nint(plvl(k)),'TT') ) then
