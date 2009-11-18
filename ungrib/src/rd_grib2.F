@@ -303,7 +303,8 @@ C  SET ARGUMENTS
               map%lon1 = gfld%igdtmpl(13)
               write(tmp8,'(b8.8)') gfld%igdtmpl(14)
               if (tmp8(5:5) .eq. '0') map%grid_wind = .false.
-              map%r_earth = earth_radius (gfld%igdtmpl(1))
+              map%r_earth = earth_radius (gfld%igdtmpl(1),
+     &                         gfld%igdtmpl(2),gfld%igdtmpl(3))
 
               if ((gfld%igdtmpl(10) .eq. 0).OR.
      &            (gfld%igdtmpl(10) .eq. 255)) THEN
@@ -356,7 +357,8 @@ C  SET ARGUMENTS
               map%lon1 = gfld%igdtmpl(11) / scale_factor
               write(tmp8,'(b8.8)') gfld%igdtmpl(12)
               if (tmp8(5:5) .eq. '0') map%grid_wind = .false.
-              map%r_earth = earth_radius (gfld%igdtmpl(1))
+              map%r_earth = earth_radius (gfld%igdtmpl(1),
+     &                       gfld%igdtmpl(2),gfld%igdtmpl(3))
 
            elseif (gfld%igdtnum.eq.30) then ! Lambert Conformal Grid
               map%igrid = 3
@@ -371,7 +373,8 @@ C  SET ARGUMENTS
               map%lon1 = gfld%igdtmpl(11) / scale_factor
               write(tmp8,'(b8.8)') gfld%igdtmpl(12)
               if (tmp8(5:5) .eq. '0') map%grid_wind = .false.
-              map%r_earth = earth_radius (gfld%igdtmpl(1))
+              map%r_earth = earth_radius (gfld%igdtmpl(1),
+     &                       gfld%igdtmpl(2),gfld%igdtmpl(3))
 
            elseif(gfld%igdtnum.eq.40) then ! Gaussian Grid (we will call it lat/lon)
               map%igrid = 4
@@ -383,7 +386,8 @@ C  SET ARGUMENTS
               map%lon1 = gfld%igdtmpl(13)  ! Lo1 - lon of 1st grid point
               write(tmp8,'(b8.8)') gfld%igdtmpl(14)  ! resolution/component flag
               if (tmp8(5:5) .eq. '0') map%grid_wind = .false.
-              map%r_earth = earth_radius (gfld%igdtmpl(1))
+              map%r_earth = earth_radius (gfld%igdtmpl(1),
+     &                       gfld%igdtmpl(2),gfld%igdtmpl(3))
 
               ! Scale dx/dy values to degrees, default range is 1e6.
               if (map%dx.gt.10000) then 
@@ -899,15 +903,20 @@ C  SET ARGUMENTS
       end subroutine ncep_grid_num
 !*****************************************************************************!
 
-      function earth_radius (icode)
+      function earth_radius (icode, iscale, irad_m)
 ! Grib2 Code Table 3.2. Returns the spherical earth's radius in km.
       use module_debug
       real :: earth_radius
       integer :: icode
+      integer :: iscale, irad_m
       if ( icode .eq. 0 ) then
         earth_radius = 6367470. * .001
+      else if ( icode .eq. 1) then
+        earth_radius = 0.001 * float(irad_m) / 10**iscale
       else if ( icode .eq. 6 ) then
         earth_radius = 6371229. * .001
+      else if ( icode .eq. 8 ) then
+        earth_radius = 6371200. * .001
       else
         call mprintf(.true.,ERROR,
      &    "unknown earth radius for code %i",newline=.true.,i1=icode)
