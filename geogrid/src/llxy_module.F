@@ -135,6 +135,7 @@ module llxy_module
          call map_set(iprojection, proj_stack(SOURCE_PROJ), &
                       lat1=user_known_lat, &
                       lon1=user_known_lon, &
+                      nxmax=nint(360.0 / user_dlon), &
                       nlat=nint(user_dlat), &
                       loninc=user_dlon, &
                       r_earth=earth_radius)

@@ -2202,6 +2202,9 @@ MODULE map_utils
  
       END IF
 
+      if ( i <  real(proj%nxmin)-0.5 ) i = i + real(proj%nxmax - proj%nxmin + 1)
+      if ( i >= real(proj%nxmax)+0.5 ) i = i - real(proj%nxmax - proj%nxmin + 1)
+
    END SUBROUTINE llij_gauss 
   
 END MODULE map_utils
