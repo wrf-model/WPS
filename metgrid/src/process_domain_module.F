@@ -1485,16 +1485,16 @@ integer, parameter :: BDR_WIDTH = 3
                          field%r_arr, data_count, &
                          sm1, em1, sm2, em2, 1, 1, &
                          istagger, &
-                         new_pts, NAN, interp_mask_val(idx), mask_field%r_arr)
+                         new_pts, missing_value(idx), interp_mask_val(idx), mask_field%r_arr)
          else
             call accum_continuous(slab, &
                          minx+bdr, maxx-bdr, miny, maxy, 1, 1, &
                          field%r_arr, data_count, &
                          sm1, em1, sm2, em2, 1, 1, &
                          istagger, &
-                         new_pts, NAN, -1.) ! The -1 is the maskval, but since we
-                                            !   we do not give an optional mask, no
-                                            !   no need to worry about -1s in data
+                         new_pts, missing_value(idx), -1.) ! The -1 is the maskval, but since we
+                                                           !   we do not give an optional mask, no
+                                                           !   no need to worry about -1s in data
          end if
 
          orig_selected_proj = iget_selected_domain()
