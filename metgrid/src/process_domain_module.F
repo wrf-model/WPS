@@ -1481,14 +1481,14 @@ integer, parameter :: BDR_WIDTH = 3
 
          if (interp_mask_status == 0) then
             call accum_continuous(slab, &
-                         minx+bdr, maxx-bdr, miny, maxy, 1, 1, &
+                         minx, maxx, miny, maxy, 1, 1, bdr, &
                          field%r_arr, data_count, &
                          sm1, em1, sm2, em2, 1, 1, &
                          istagger, &
                          new_pts, missing_value(idx), interp_mask_val(idx), mask_field%r_arr)
          else
             call accum_continuous(slab, &
-                         minx+bdr, maxx-bdr, miny, maxy, 1, 1, &
+                         minx, maxx, miny, maxy, 1, 1, bdr, &
                          field%r_arr, data_count, &
                          sm1, em1, sm2, em2, 1, 1, &
                          istagger, &
@@ -2408,7 +2408,7 @@ integer, parameter :: BDR_WIDTH = 3
    !   within a source tile, and not just for a single grid point.
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
    subroutine accum_continuous(src_array, &
-                               src_min_x, src_max_x, src_min_y, src_max_y, src_min_z, src_max_z, &
+                               src_min_x, src_max_x, src_min_y, src_max_y, src_min_z, src_max_z, bdr_width, &
                                dst_array, n, &
                                start_i, end_i, start_j, end_j, start_k, end_k, &
                                istagger, &
@@ -2421,7 +2421,7 @@ integer, parameter :: BDR_WIDTH = 3
    
       ! Arguments
       integer, intent(in) :: start_i, end_i, start_j, end_j, start_k, end_k, istagger, &
-                             src_min_x, src_max_x, src_min_y, src_max_y, src_min_z, src_max_z
+                             src_min_x, src_max_x, src_min_y, src_max_y, src_min_z, src_max_z, bdr_width
       real, intent(in) :: maskval, msgval
       real, dimension(src_min_x:src_max_x, src_min_y:src_max_y, src_min_z:src_max_z), intent(in) :: src_array
       real, dimension(start_i:end_i, start_j:end_j, start_k:end_k), intent(inout) :: dst_array, n
@@ -2448,8 +2448,8 @@ integer, parameter :: BDR_WIDTH = 3
    
       call process_continuous_block(src_array, where_maps_to, &
                                src_min_x, src_min_y, src_min_z, src_max_x, src_max_y, src_max_z, &
-                               src_min_x, src_min_y, src_min_z, &
-                               src_max_x, src_max_y, src_max_z, &
+                               src_min_x+bdr_width, src_min_y, src_min_z, &
+                               src_max_x-bdr_width, src_max_y, src_max_z, &
                                dst_array, n, start_i, end_i, start_j, end_j, start_k, end_k, &
                                istagger, &
                                new_pts, rsr_x, rsr_y, msgval, maskval, mask_array)
