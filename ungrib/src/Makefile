@@ -16,10 +16,18 @@ all:			lib$(LIBTARGET).a $(EXE)
 
 ungrib.exe:		$(OBJS1) lib$(LIBTARGET).a
 			$(RM) $@
-			$(FC) -o $@ $(LDFLAGS) $(OBJS1) \
+			if [ -z $(COMPILING_ON_CYGWIN_NT) ] ; then \
+			  $(FC) -o $@ $(LDFLAGS) $(OBJS1) \
 				-L./ngl -lw3 -lg2_4 \
 				$(COMPRESSION_LIBS) \
-				-L. -l$(LIBTARGET)
+				-L. -l$(LIBTARGET) ; \
+                        else \
+			  $(FC) -o $@ $(LDFLAGS) $(OBJS1) \
+				./ngl/w3/libw3.a ./ngl/g2/libg2_4.a \
+				$(COMPRESSION_LIBS) \
+				lib$(LIBTARGET).a ; \
+                        fi
+
 
 lib$(LIBTARGET).a:	$(OBJS2)
 			$(RM) lib$(LIBTARGET).a
@@ -30,11 +38,19 @@ g1print.exe:		g1print.o gribcode.o module_debug.o debug_cio.o lib$(LIBTARGET).a
 			$(FC) -o $(@) $(LDFLAGS) g1print.o gribcode.o module_debug.o debug_cio.o lib$(LIBTARGET).a
 
 g2print.exe:		filelist.o gridinfo.o g2print.o
-			$(FC) -o $(@) $(LDFLAGS) g2print.o \
+			if [ -z $(COMPILING_ON_CYGWIN_NT) ] ; then \
+			  $(FC) -o $(@) $(LDFLAGS) g2print.o \
 				filelist.o gridinfo.o \
 				-L. -l$(LIBTARGET) \
 				-L./ngl -lw3 -lg2_4 \
-				$(COMPRESSION_LIBS)
+				$(COMPRESSION_LIBS) ; \
+                        else \
+			  $(FC) -o $(@) $(LDFLAGS) g2print.o \
+				filelist.o gridinfo.o \
+				lib$(LIBTARGET).a  \
+				./ngl/w3/libw3.a ./ngl/g2/libg2_4.a \
+				$(COMPRESSION_LIBS) ; \
+                        fi
 
 g2print.o:		table.o gridinfo.o new_storage.o filelist.o module_datarray.o \
 				ngl/g2/gribmod.o ngl/g2/params.o g2print.F

@@ -251,6 +251,9 @@ my @preamble;
 # apply substitutions to the preamble...
 while ( <ARCH_PREAMBLE> )
   {
+  if ( $sw_os eq "CYGWIN_NT" ) {
+    $_ =~ s/^WRF_DIR.*$/COMPILING_ON_CYGWIN_NT = yes/ ;  # will get from environment
+  }
   # ESMF substitutions in preamble
   if ( $sw_esmflib_path && $sw_esmfinc_path )
     {
@@ -270,6 +273,7 @@ while ( <ARCH_PREAMBLE> )
     $_ =~ s:ESMFIODEFS::g ;
     $_ =~ s:ESMFTARGET:esmf_time:g ;
     }
+  $_ =~ s:CONFIGURE_NETCDFF_LIB:$sw_netcdff_lib:g ;
   @preamble = ( @preamble, $_ ) ;
   }
 close ARCH_PREAMBLE ;

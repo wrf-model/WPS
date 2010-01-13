@@ -1237,5 +1237,61 @@ CFLAGS          =       -g
 CPP             =       /usr/bin/cpp -C -P -traditional
 CPPFLAGS        =       -D_UNDERSCORE -DBYTESWAP -DLINUXG95 -DIO_NETCDF -DBIT32 -D_MPI
 
+###########################################################
+#ARCH	PC CYGWIN_NT i686, x86_64, PGI compiler on Windows serial, NO GRIB2
+#
+COMPRESSION_LIBS        =
+COMPRESSION_INC         =
+FDEFS                   =
+FC              =       pgf90
+SFC             =       pgf90
+FFLAGS          =       -Mfree -g
+F77FLAGS        =       -Mfixed -g
+FNGFLAGS        =       $(FFLAGS)
+LDFLAGS         =       -g
+CC              =       pgcc
+SCC             =       pgcc
+CFLAGS          =       -g
+CPP             =       cpp -C -P -traditional
+CPPFLAGS        =       -D_UNDERSCORE -DBYTESWAP -DLINUX -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -DBIT32
+CPPFLAGS        =       -D_UNDERSCORE -DBYTESWAP -DWIN32 -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -DBIT32
+#NCARG_LIBS2     =       -L${PGI}/linux86/6.1/lib -lpgftnrtl -lpgc \
+#                        -L/usr/lib/gcc-lib/i386-redhat-linux/3.2.3 -lg2c
+
+WRF_LIB         =       $(WRF_DIR)/external/io_grib1/libio_grib1.a \
+                        $(WRF_DIR)/external/io_grib_share/libio_grib_share.a \
+                        $(WRF_DIR)/external/io_int/libwrfio_int.a \
+                        $(WRF_DIR)/external/io_netcdf/libwrfio_nf.a \
+                        $(NETCDF)/lib/libnetcdf.lib
+
+
+###########################################################
+#ARCH	PC CYGWIN_NT i686, x86_64, PGI compiler on Windows DM PARALLEL, NO GRIB2
+#
+COMPRESSION_LIBS        =
+COMPRESSION_INC         =
+FDEFS                   =
+FC              =       pgf90 -Mmpi=msmpi
+SFC             =       pgf90
+FFLAGS          =       -Mfree -g
+F77FLAGS        =       -Mfixed -g
+FNGFLAGS        =       $(FFLAGS)
+LDFLAGS         =       -g
+CC              =       pgcc -Mmpi=msmpi
+SCC             =       pgcc
+CFLAGS          =       -g
+CPP             =       cpp -C -P -traditional
+CPPFLAGS        =       -D_UNDERSCORE -DBYTESWAP -DLINUX -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -DBIT32
+CPPFLAGS        =       -D_UNDERSCORE -DBYTESWAP -D_WIN32 -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -DBIT32
+#NCARG_LIBS2     =       -L${PGI}/linux86/6.1/lib -lpgftnrtl -lpgc \
+#                        -L/usr/lib/gcc-lib/i386-redhat-linux/3.2.3 -lg2c
+
+WRF_LIB         =       $(WRF_DIR)/external/io_grib1/libio_grib1.a \
+                        $(WRF_DIR)/external/io_grib_share/libio_grib_share.a \
+                        $(WRF_DIR)/external/io_int/libwrfio_int.a \
+                        $(WRF_DIR)/external/io_netcdf/libwrfio_nf.a \
+                        $(NETCDF)/lib/libnetcdf.lib
+
 ##################################################################
 #ARCH	NULL
+

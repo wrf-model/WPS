@@ -21,6 +21,17 @@ else
 	set WRF_DIR_PRE	=	${DEV_TOP}/
 endif
 
+## test for Cygwin on Windows
+grep CYGWIN_NT configure.wps >& /dev/null
+if ( $status == 0 ) then
+   set WRF_DIR_PRE = 
+   ls -l */*/*cio.c | grep '^l'
+   if ( $status == 0 ) then
+     echo Symbolic links are not handled properly by pgcc on Windows.  Run arch/fixlinks in this directory and try again.
+     exit
+   endif
+endif
+
 if      ( ${#argv} == 0 ) then
 	set names	=	( geogrid ungrib metgrid g1print g2print plotfmt rd_intermediate plotgrids mod_levs avg_tsfc calc_ecmwf_p )
 	set NAMES	=	( GEOGRID UNGRIB METGRID GRIBUTIL GRIBUTIL UTIL     UTIL            UTIL      UTIL    UTIL      UTIL )

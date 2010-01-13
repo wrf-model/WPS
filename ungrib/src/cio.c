@@ -41,9 +41,11 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <sys/types.h>
-#include <unistd.h>
-#include <sys/ioctl.h>
-#include <sys/uio.h>
+#ifndef _WIN32
+# include <unistd.h>
+# include <sys/ioctl.h>
+# include <sys/uio.h>
+#endif
 
 /* ****************************************************************** */
 

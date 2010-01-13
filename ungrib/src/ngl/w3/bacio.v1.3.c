@@ -10,7 +10,13 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#include <unistd.h>
+#ifndef _WIN32
+# include <unistd.h>
+#else
+# define S_IRWXU 00700
+# define S_IRWXG 00070
+# define S_IRWXO 00007
+#endif
 #ifdef MACOS
 #include <malloc/malloc.h>
 #else

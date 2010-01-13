@@ -11,6 +11,7 @@ all:
 
 metgrid.exe: $(OBJS)
 	$(FC) $(LDFLAGS) -o $@ $(OBJS) \
+                $(WRF_DIR)/frame/module_driver_constants.o \
 		$(WRF_DIR)/frame/pack_utils.o $(WRF_DIR)/frame/module_machine.o \
 		$(WRF_DIR)/frame/module_internal_header_util.o \
                 $(WRF_INCLUDE) \
