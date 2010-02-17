@@ -99,12 +99,6 @@ name=SEAICE
         masked=land
         fill_missing=0.
 ========================================
-name=H0ML 
-        interp_option=four_pt+average_4pt
-        interp_mask=LANDSEA(1) 
-        masked=land
-        fill_missing=0.
-========================================
 name=SNOW
         interp_option=four_pt+average_4pt
         masked=water 
@@ -506,4 +500,25 @@ name=SNOWH
 name=SOILHGT
         interp_option=four_pt+average_4pt
         flag_in_output=FLAG_SOILHGT
+========================================
+name=H0ML 
+        interp_option=four_pt+average_4pt
+        interp_mask=LANDSEA(1) 
+        masked=land
+        fill_missing=0.
+========================================
+name=TMOML
+        interp_option=nearest_neighbor
+#       interp_option=sixteen_pt+four_pt+wt_average_4pt+search
+        masked=land
+        interp_mask=landmask(1)
+        missing_value=200.
+        fill_missing=-20.
+========================================
+name=T0 
+        interp_option=four_pt+average_4pt+search
+        masked=land
+        interp_mask=landmask(1)
+        missing_value=200.
+        fill_missing=-20.
 ========================================
