@@ -9,6 +9,11 @@ name=ST
         fill_lev = 200 : ST100200(200100)
 # ELSE IF
         fill_lev =  10 : ST000010(200100)
+        fill_lev =  35 : ST010035(200100)
+        fill_lev = 100 : ST035100(200100)
+        fill_lev = 255 : ST100255(200100)
+# ELSE IF
+        fill_lev =  10 : ST000010(200100)
         fill_lev = 200 : ST010200(200100)
 # ELSE
         fill_lev =   7 : ST000007(200100)
@@ -24,6 +29,11 @@ name=SM
         fill_lev =  40 : SM010040(200100)
         fill_lev = 100 : SM040100(200100)
         fill_lev = 200 : SM100200(200100)
+# ELSE IF
+        fill_lev =  10 : SM000010(200100)
+        fill_lev =  35 : SM010035(200100)
+        fill_lev = 100 : SM035100(200100)
+        fill_lev = 255 : SM100255(200100)
 # ELSE IF
         fill_lev =  10: SM000010(200100)
         fill_lev = 200 : SM010200(200100)
@@ -97,6 +107,7 @@ name=SEAICE
         interp_option=four_pt+average_4pt
         interp_mask=LANDSEA(1) 
         masked=land
+        missing_value=-1.E30
         fill_missing=0.
 ========================================
 name=SNOW
@@ -170,8 +181,17 @@ name=SM000010
         interp_option=sixteen_pt+four_pt+average_4pt+search
         masked=water
         interp_mask=LANDSEA(0)
+        missing_value=-1.E30
         fill_missing=1.
         flag_in_output=FLAG_SM000010
+========================================
+name=SM010035
+        interp_option=sixteen_pt+four_pt+average_4pt+search
+        masked=water
+        interp_mask=LANDSEA(0)
+        missing_value=-1.E30
+        fill_missing=1.
+        flag_in_output=FLAG_SM010035
 ========================================
 name=SM010040
         interp_option=sixteen_pt+four_pt+average_4pt+search
@@ -179,6 +199,14 @@ name=SM010040
         interp_mask=LANDSEA(0)
         fill_missing=1.
         flag_in_output=FLAG_SM010040
+========================================
+name=SM035100
+        interp_option=sixteen_pt+four_pt+average_4pt+search
+        masked=water
+        interp_mask=LANDSEA(0)
+        missing_value=-1.E30
+        fill_missing=1.
+        flag_in_output=FLAG_SM035100
 ========================================
 name=SM040100
         interp_option=sixteen_pt+four_pt+average_4pt+search
@@ -205,8 +233,17 @@ name=ST000010
         interp_option=sixteen_pt+four_pt+average_4pt+search
         masked=water
         interp_mask=LANDSEA(0)
+        missing_value=-1.E30
         fill_missing=285.
         flag_in_output=FLAG_ST000010
+========================================
+name=ST010035
+        interp_option=sixteen_pt+four_pt+average_4pt+search
+        masked=water
+        interp_mask=LANDSEA(0)
+        missing_value=-1.E30
+        fill_missing=285.
+        flag_in_output=FLAG_ST010035
 ========================================
 name=ST010040
         interp_option=sixteen_pt+four_pt+average_4pt+search
@@ -214,6 +251,14 @@ name=ST010040
         interp_mask=LANDSEA(0)
         fill_missing=285.
         flag_in_output=FLAG_ST010040
+========================================
+name=ST035100
+        interp_option=sixteen_pt+four_pt+average_4pt+search
+        masked=water
+        interp_mask=LANDSEA(0)
+        missing_value=-1.E30
+        fill_missing=285.
+        flag_in_output=FLAG_ST035100
 ========================================
 name=ST040100
         interp_option=sixteen_pt+four_pt+average_4pt+search
@@ -261,6 +306,7 @@ name=SM100255
         interp_option=sixteen_pt+four_pt+average_4pt+search
         masked=water
         interp_mask=LANDSEA(0)
+        missing_value=-1.E30
         fill_missing=1.
         flag_in_output=FLAG_SM100255
 ========================================
@@ -289,6 +335,7 @@ name=ST100255
         interp_option=sixteen_pt+four_pt+average_4pt+search
         masked=water
         interp_mask=LANDSEA(0)
+        missing_value=-1.E30
         fill_missing=285.
         flag_in_output=FLAG_ST100255
 ========================================
@@ -388,7 +435,9 @@ name=RH
 name=SPECHUMD
         interp_option=sixteen_pt+four_pt+average_4pt
         fill_missing=0.
-        fill_lev=200100:const(0.)
+        missing_value=-1.E30
+        fill_lev=200100:const(-1)
+        flag_in_output=FLAG_SH
 ========================================
 name=TAVGSFC
         interp_option=four_pt

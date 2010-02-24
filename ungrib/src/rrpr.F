@@ -612,12 +612,14 @@ subroutine compute_rh_spechumd_upa(ix, jx, plvl)
 
   IF ( nint(plvl).LT. 200) THEN
     call get_storage(nint(plvl), 'PRESSURE', P, ix, jx)
-  ELSE
-    P = plvl
+!dave ukmo
+! ELSE
+!   P = plvl
   ENDIF
   call get_storage(nint(plvl), 'TT',        T, ix, jx)
   call get_storage(nint(plvl), 'SPECHUMD', Q, ix, jx)
 
+  Q = MAX ( Q , 1.E-9 )
   rh = 1.E2 * (p*q/(q*(1.-eps) + eps))/(svp1*exp(svp2*(t-svpt0)/(T-svp3)))
   
   call put_storage(nint(plvl), 'RH', rh, ix, jx)

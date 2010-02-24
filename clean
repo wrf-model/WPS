@@ -10,8 +10,8 @@ endif
 
 set nonomatch
 
-set DIRS = ( geogrid ungrib metgrid ungrib  ungrib   util     util      util        util        util    )
-set EXES = ( geogrid ungrib metgrid g1print g2print plotfmt plotgrids mod_levs rd_intermediate avg_tsfc )
+set DIRS = ( geogrid ungrib metgrid ungrib  ungrib   util     util      util        util        util       util    )
+set EXES = ( geogrid ungrib metgrid g1print g2print plotfmt plotgrids mod_levs rd_intermediate avg_tsfc height_ukmo)
 
 set i = 1
 foreach dir ( $DIRS )

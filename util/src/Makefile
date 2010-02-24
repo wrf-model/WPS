@@ -1,6 +1,7 @@
 include ../../configure.wps
 
-OBJS	=	plotgrids.o avg_tsfc.o calc_ecmwf_p.o elev_angle.o plotfmt.o rd_intermediate.o mod_levs.o \
+OBJS	=	plotgrids.o avg_tsfc.o calc_ecmwf_p.o elev_angle.o plotfmt.o rd_intermediate.o \
+		mod_levs.o height_ukmo.o \
 		cio.o gridinfo_module.o misc_definitions_module.o module_debug.o module_stringutil.o \
 		read_met_module.o write_met_module.o module_date_pack.o met_data_module.o constants_module.o
 
@@ -70,6 +71,15 @@ mod_levs.exe: mod_levs.o module_debug.o read_met_module.o write_met_module.o mis
 
 mod_levs.o: module_debug.o read_met_module.o write_met_module.o mod_levs.F
 
+height_ukmo.exe: height_ukmo.o cio.o module_debug.o gridinfo_module.o read_met_module.o \
+		write_met_module.o module_date_pack.o misc_definitions_module.o met_data_module.o
+	$(SFC) $(LDFLAGS) -o $@ height_ukmo.o cio.o module_debug.o gridinfo_module.o \
+		read_met_module.o write_met_module.o module_date_pack.o \
+		misc_definitions_module.o met_data_module.o
+
+height_ukmo.o: height_ukmo.F cio.o module_debug.o gridinfo_module.o read_met_module.o \
+		write_met_module.o module_date_pack.o misc_definitions_module.o
+
 module_map_utils.o: module_map_utils.F misc_definitions_module.o constants_module.o module_debug.o
 
 cio.o: cio.c
@@ -92,6 +102,7 @@ module_date_pack.o: module_date_pack.F
 
 clean:
 	$(RM) $(OBJS) *.f90 *.mod
-	$(RM) plotgrids.exe plotfmt.exe avg_tsfc.exe elev_angle.exe calc_ecmwf_p.exe rd_intermediate.exe mod_levs.exe
+	$(RM) plotgrids.exe plotfmt.exe avg_tsfc.exe elev_angle.exe calc_ecmwf_p.exe rd_intermediate.exe \
+	mod_levs.exe height_ukmo.exe
 
 superclean:	clean

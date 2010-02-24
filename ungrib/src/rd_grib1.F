@@ -371,6 +371,22 @@ SUBROUTINE rd_grib1(IUNIT, gribflnm, level, field, hdate,  &
      map%dy = ginfo(9)
      map%lat1 = ginfo(3)
      map%lon1 = ginfo(4)
+     !  If this is global data, then the dx and dy are more accurately
+     !  computed by the number of points than the 3 digits grib permits.
+     if ( ABS(map%nx * map%dx - 360.) .lt. 1 ) then
+        if ( ABS ( map%dx - (360./real(map%nx)) ) .gt. 0.00001 ) then
+           !print *,'old dx = ',ginfo(8)
+           map%dx = 360./real(map%nx)
+           !print *,'new dx = ',map%dx
+        endif
+     endif
+     if ( ABS((map%ny-1) * map%dy - 2.*abs(map%lat1)) .lt. 1 ) then
+        if ( ABS ( map%dy - (2.*abs(map%lat1)/real(map%ny-1)) ) .gt. 0.00001 ) then
+           !print *,'old dy = ',ginfo(9)
+           map%dy = 2.*abs(map%lat1)/real(map%ny-1)
+           !print *,'new dy = ',map%dy
+        endif
+     endif
      write(tmp8,'(b8.8)') infogrid(5)
      if (tmp8(5:5) .eq. '0') map%grid_wind = .false.
      if (icenter .eq. 7 .and. KSEC1(5) .eq. 173 ) then  ! correction for ncep grid 173
