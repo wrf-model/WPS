@@ -375,10 +375,10 @@ end program g2print
           endif
 
           if (debug_level .le. 50) then
-          write(6,*) '---------------------------------------------------------------------------'
-          write(6,*) ' rec Prod Cat Param  Lvl    Lvl      Lvl   Name          Time          Fcst'
-          write(6,*) ' num Disc     num    code   one      two                               hour'
-          write(6,*) '---------------------------------------------------------------------------'
+          write(6,*) '---------------------------------------------------------------------------------------'
+          write(6,*) ' rec Prod Cat Param  Lvl    Lvl      Lvl     Prod    Name            Time          Fcst'
+          write(6,*) ' num Disc     num    code   one      two     Templ                                 hour'
+          write(6,*) '---------------------------------------------------------------------------------------'
           endif
 
            year  =gfld%idsect(6)     !(FOUR-DIGIT) YEAR OF THE DATA
@@ -446,6 +446,8 @@ end program g2print
              elseif (iprocess.eq.70) then
                map%source = 'GFDL Hurricane Model'
              elseif (iprocess.eq.80) then
+               map%source = 'NCEP GFS Ensemble'
+             elseif (iprocess.eq.107) then          ! renumbered as of 23 Feb 2010
                map%source = 'NCEP GFS Ensemble'
              elseif (iprocess.eq.129) then
                map%source = 'NCEP GODAS'
@@ -896,8 +898,8 @@ end program g2print
 
          write(6,987) itot,gfld%discipline,gfld%ipdtmpl(1),  &
            gfld%ipdtmpl(2),gfld%ipdtmpl(10),int(level),&
-           lvl2,pabbrev,hdate,fcst
-  987     format(2i4,i5,i4,i8,i8,i8,a10,a20,i5.2)
+           lvl2,gfld%ipdtnum,pabbrev,hdate,fcst
+  987     format(2i4,i5,i4,i8,i8,i8,i8,3x,a10,a20,i5.2)
          endif
 
          ! Deallocate arrays decoding GRIB2 record.

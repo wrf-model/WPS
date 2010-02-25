@@ -245,6 +245,8 @@ C  SET ARGUMENTS
                map%source = 'GFDL Hurricane Model'
              elseif (iprocess.eq.80) then
                map%source = 'NCEP GFS Ensemble'
+             elseif (iprocess.eq.107) then             ! renumbered as of 23 Feb 2010
+               map%source = 'NCEP GFS Ensemble'
              elseif (iprocess.eq.129) then
                map%source = 'NCEP GODAS'
              elseif (iprocess.eq.25) then
@@ -283,10 +285,12 @@ C  SET ARGUMENTS
            else
              map%source = 'unknown model and orig center'
            end if
+           call mprintf(.true.,DEBUG,"G2 source is = %s ",
+     &                  newline=.true., s1=map%source)
 
            !--
 
-           ! Store information about the grid on which the data is. 
+           ! Store information about the grid containing the data.
            ! This stuff gets stored in the MAP variable, as defined in 
            ! module GRIDINFO.
 
@@ -424,6 +428,9 @@ C  SET ARGUMENTS
      &          "see Code Table 3.1: Grid Definition Template Number",
      &          newline=.true.)
            endif
+
+           call mprintf(.true.,DEBUG,"G2 igrid = %i ,  dx = %f ,  dy = %
+     &f ", newline=.true., i1 = map%igrid, f1=map%dx, f2=map%dy)
          
            if (icenter.eq.7) then
              call ncep_grid_num (gfld%igdtnum)
@@ -542,6 +549,10 @@ C  SET ARGUMENTS
 !MGD          write(6,*) 'looking for ',gfld%discipline,gfld%ipdtmpl(1),
 !MGD     &       gfld%ipdtmpl(2),gfld%ipdtmpl(10)
 !MGD          endif
+           call mprintf(.true.,DEBUG,"G2 Searching the g2code array (Vta
+     &ble) for this grib field %i %i %i %i ", newline=.true., 
+     & i1 = gfld%discipline, i2 = gfld%ipdtmpl(1), 
+     & i3 = gfld%ipdtmpl(2), i4 = gfld%ipdtmpl(10) )
 
          ! Test this data record against list of desired variables 
          ! found in Vtable.

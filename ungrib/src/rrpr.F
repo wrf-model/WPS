@@ -387,15 +387,15 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_level, out_f
 ! Repair GFS and ECMWF pressure-level RH
         if (index(map%source,'NCEP GFS') .ne. 0 .or.  &
             index(map%source,'ECMWF') .ne. 0 ) then
-	  call mprintf(.true.,DEBUG, &
+          call mprintf(.true.,DEBUG, &
              "RRPR:   Adjusting GFS/ECMWF RH values ")
-	  do k = 1, nlvl
-	    if ( is_there(nint(plvl(k)),'RH') .and. &
-	         is_there(nint(plvl(k)),'TT') ) then
-	      call fix_gfs_rh (map%nx, map%ny, plvl(k))
-	    endif
-	  enddo
-	endif
+          do k = 1, nlvl
+            if ( is_there(nint(plvl(k)),'RH') .and. &
+                 is_there(nint(plvl(k)),'TT') ) then
+              call fix_gfs_rh (map%nx, map%ny, plvl(k))
+            endif
+          enddo
+        endif
 !
 ! Check to see if we need to fill RH above 300 mb:
 !
@@ -404,17 +404,19 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_level, out_f
            allocate(scr2d(map%nx,map%ny))
 
            do k = 1, nlvl
-!   Set missing RH to 10% between 300 and 70 hPa. Use P/1000 above 70 hPa.
+!   Set missing RH to 5% between 300 and 70 hPa. Set RH to 0 above 70 hPa.
 !   The stratospheric RH will be adjusted further in real.
               if (plvl(k).le.7000.) then
-	        scr2d = plvl(k) / 1000.
-	      else if (plvl(k).lt.30000.) then
-	        scr2d = 10.
-	      endif
+                scr2d = 0.
+              else if (plvl(k).lt.30000.) then
+                scr2d = 5.
+              endif
               if (plvl(k).lt.30000. .and. plvl(k) .gt. 10. ) then
               ! levels higher than .1 mb are special - do not fill
                  if (.not. is_there(nint(plvl(k)), 'RH')) then
                     call put_storage(nint(plvl(k)),'RH',scr2d,map%nx,map%ny)
+                    call mprintf(.true.,DEBUG, &
+                 "RRPR:   RH missing at %i hPa, inserting synthetic RH ",i1=nint(plvl(k)/100.))
                  endif
               endif
            enddo
@@ -612,14 +614,12 @@ subroutine compute_rh_spechumd_upa(ix, jx, plvl)
 
   IF ( nint(plvl).LT. 200) THEN
     call get_storage(nint(plvl), 'PRESSURE', P, ix, jx)
-!dave ukmo
-! ELSE
-!   P = plvl
+  ELSE
+    P = plvl
   ENDIF
   call get_storage(nint(plvl), 'TT',        T, ix, jx)
   call get_storage(nint(plvl), 'SPECHUMD', Q, ix, jx)
 
-  Q = MAX ( Q , 1.E-9 )
   rh = 1.E2 * (p*q/(q*(1.-eps) + eps))/(svp1*exp(svp2*(t-svpt0)/(T-svp3)))
   
   call put_storage(nint(plvl), 'RH', rh, ix, jx)
