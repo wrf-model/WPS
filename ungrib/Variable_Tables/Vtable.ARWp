@@ -17,7 +17,7 @@ Param| Type |Level1|Level2| Name     |  Units  | Description                    
   33 | 105  |  10  |      | UU       | m s-1   | U                 at 10 m               |  0  |  2  |  2  | 103 |
   34 | 105  |  10  |      | VV       | m s-1   | V                 at 10 m               |  0  |  2  |  3  | 103 |
    1 |   1  |   0  |      | PSFC     | Pa      | Surface Pressure                        |  0  |  3  |  0  |   1 |
- 130 | 102  |   0  |      | PMSL     | Pa      | Sea-level Pressure                      |  0  |  3  |  1  | 101 |
+   2 | 102  |   0  |      | PMSL     | Pa      | Sea-level Pressure                      |  0  |  3  |  1  | 101 |
  144 |   1  |   0  |      | SOILM000 | kg m-3  | Soil Moist   0 cm below ground          |  2  |  0  | 192 |   1 |
  144 | 111  |   5  |      | SOILM005 | kg m-3  | Soil Moist   5 cm below ground          |  2  |  0  | 192 | 106 |
  144 | 111  |  20  |      | SOILM020 | kg m-3  | Soil Moist  20 cm below ground          |  2  |  0  | 192 | 106 |
