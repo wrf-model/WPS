@@ -10,8 +10,8 @@ endif
 
 set nonomatch
 
-set DIRS = ( geogrid ungrib metgrid ungrib  ungrib   util     util      util        util        util       util    )
-set EXES = ( geogrid ungrib metgrid g1print g2print plotfmt plotgrids mod_levs rd_intermediate avg_tsfc height_ukmo)
+set DIRS = ( geogrid ungrib metgrid ungrib  ungrib   util     util      util        util        util       util         util    )
+set EXES = ( geogrid ungrib metgrid g1print g2print plotfmt plotgrids mod_levs rd_intermediate avg_tsfc calc_ecmwf_p height_ukmo)
 
 set i = 1
 foreach dir ( $DIRS )
@@ -19,14 +19,11 @@ foreach dir ( $DIRS )
 		( cd $dir ; make -i DEV_TOP="${DEV_TOP}" TARGET="$EXES[$i].exe" clean )
 	endif
 	/bin/rm -f $EXES[$i].exe
+        if ( $EXES[$i] == "g1print" || $EXES[$i] == "g2print" ) then
+           /bin/rm -f util/$EXES[$i].exe
+        endif
 	@ i ++
 end
-
-#	The nuclear option
-
-find . -name \*.exe -exec \rm {} \; 
-find . -name \*.o -exec \rm {} \; 
-find . -name \*.a -exec \rm {} \; 
 
 #rm gmeta
 
