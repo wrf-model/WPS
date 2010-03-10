@@ -495,6 +495,17 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_level, out_f
         endif
         endif
 
+! ECMWF snow depth is in meters (Table 128). Convert to kg/m2 
+! 
+        if (is_there(200100, 'SNOW_EC')) then
+           call get_dims(200100, 'SNOW_EC')
+           allocate(scr2d(map%nx,map%ny))
+           call get_storage(200100, 'SNOW_EC', scr2d, map%nx, map%ny)
+	   scr2d = scr2d * 1000.
+           call put_storage(200100, 'SNOW', scr2d, map%nx, map%ny)
+           deallocate(scr2d)
+        endif
+
 ! If we've got a SEAICE field, make sure that it is all Zeros and Ones:
 
         if (is_there(200100, 'SEAICE')) then

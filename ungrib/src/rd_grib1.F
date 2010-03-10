@@ -152,17 +152,23 @@ SUBROUTINE rd_grib1(IUNIT, gribflnm, level, field, hdate,  &
 
   if (icenter.eq.7) then
     if (iprocess.eq.83 .or. iprocess.eq.84) then
-      map%source = 'NCEP NAM Model'
+      map%source = 'NCEP MESO NAM Model'
     elseif (iprocess.eq.81) then
       map%source = 'NCEP GFS Analysis'
     elseif (iprocess.eq.82) then
       map%source = 'NCEP GFS GDAS/FNL'
+    elseif (iprocess.eq.89) then
+      map%source = 'NCEP NMM '
     elseif (iprocess.eq.96) then
       map%source = 'NCEP GFS Model'
     elseif (iprocess.eq.109) then
       map%source = 'NCEP RTMA'
+    elseif (iprocess.eq.86 .or. iprocess.eq.100) then
+      map%source = 'NCEP RUC Model'    ! 60 km
+    elseif (iprocess.eq.101) then
+      map%source = 'NCEP RUC Model'    ! 40 km
     elseif (iprocess.eq.105) then
-      map%source = 'NCEP RUC Model'
+      map%source = 'NCEP RUC Model'    ! 20 km
     elseif (iprocess.eq.140) then
       map%source = 'NCEP NARR'
     elseif (iprocess.eq.195) then

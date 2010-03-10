@@ -20,7 +20,8 @@ Code | Code |   1  |   2  | Name     |  Units   | Description                   
  235 |  1   |   0  |      | SKINTEMP | K        | Sea-Surface Temperature                  |
   31 |  1   |   0  |      | SEAICE   | 0/1 Flag | Sea-Ice-Flag                             |
   34 |  1   |   0  |      | SST      | K        | Sea-Surface Temperature                  |
- 141 |  1   |   0  |      | SNOW     | kg m-2   |Water Equivalent of Accumulated Snow Depth|
+ 141 |  1   |   0  |      | SNOW_EC  | m        |                                          |
+     |  1   |   0  |      | SNOW     | kg m-2   |Water Equivalent of Accumulated Snow Depth|
  139 | 112  |   0  |   7  | ST000007 | K        | T of 0-7 cm ground layer                 |
  170 | 112  |   7  |  28  | ST007028 | K        | T of 7-28 cm ground layer                |
  183 | 112  |  28  | 100  | ST028100 | K        | T of 28-100 cm ground layer              |
@@ -30,3 +31,9 @@ Code | Code |   1  |   2  | Name     |  Units   | Description                   
   41 | 112  |  28  | 100  | SM028100 | fraction | Soil moisture of 28-100 cm ground layer  |
   42 | 112  | 100  | 255  | SM100255 | fraction | Soil moisture of 100-255 cm ground layer |
 -----+------+------+------+----------+----------+------------------------------------------+
+#
+#  Grib codes are from Table 128 
+#  http://www.ecmwf.int/products/data/technical/GRIB_tables/table_128.html
+#  
+# snow depth is converted to the proper units in rrpr.F
+
