@@ -282,6 +282,7 @@ contains
     integer :: isz5 = 32
     integer :: iflag
     integer :: ierr
+    character :: pname*132
 
     ierr = 0
 ! Unpack the GRIB Edition number, located in the eighth byte (bits 57-64)     !
@@ -324,13 +325,18 @@ contains
 
     elseif (ied.eq.2) then
        ! Grib2
-       write(*,'("I was expecting a Grib1 file, but this is a Grib2 file.")')
-       write(*,'("Most likely this is because your GRIBFILE.XXX files")')
-       write(*,'("are not all the same type.")')
-       write(*,'("WPS can handle both file types, but a separate ungrib")')
-       write(*,'("job must be run for each Grib type.")')
-       write(*,'("\t*** stopping gribcode ***")')
-       stop
+       CALL getarg ( 0 , pname )
+       write(*,'("*** stopping in gribcode ***\n")')
+       write(*,'("\tI was expecting a Grib1 file, but this is a Grib2 file.")')
+       if ( index(pname,'ungrib.exe') .ne. 0 ) then
+         write(*,'("\tIt is possible this is because your GRIBFILE.XXX files")')
+         write(*,'("\tare not all of the same type.")')
+         write(*,'("\tWPS can handle both file types, but a separate ungrib")')
+         write(*,'("\tjob must be run for each Grib type.\n")')
+       else
+         write(*,'("\tUse g2print on Grib2 files\n")')
+       endif
+       stop 'gribsize in gribcode'
     else
        write(*,'("Error trying to read grib edition number in gribsize.")')
        write(*,'("Possible corrupt grib file.")')
@@ -383,10 +389,9 @@ contains
     integer, parameter :: LENTMP=100
     integer, dimension(lentmp) :: trec
 
-    integer :: isz
+    integer :: isz, itest, icnt
 
     integer, save :: gtest = 0
-    integer :: itest
 
 ! Set the integer variable GTEST to hold the integer representation of the
 ! character string 'GRIB'.   This integer variable is later compared to
@@ -400,6 +405,7 @@ contains
        endif
     endif
     ierr = 0
+    icnt = 0
 
     LOOP : DO
 ! Read LENTMP bytes into holding array TREC.
@@ -424,6 +430,14 @@ contains
 
 ! Advance the file pointer one byte.
        call bn_seek(nunit, 1, 0, 0)
+       icnt = icnt + 1
+       if ( icnt .gt. 100000) then       ! stop if we cannot find the GRIB string
+         write(*,'("*** stopping in findgrib in gribcode ***\n")')
+         write(*,'("\tI could not find the GRIB string in the input file")')
+         write(*,'("\tafter testing the first 100,000 bytes.")')
+         write(*,'("\tEither the file is corrupt or it is not a GRIB file.\n")')
+         stop 'findgrib'
+       endif
 
     ENDDO LOOP
 

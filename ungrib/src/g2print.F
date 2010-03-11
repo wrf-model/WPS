@@ -83,9 +83,9 @@
            ! If we need to read a new grib record, then read one.
 
               if (grib_version.ne.2) then 
-                 write(6,*) 'calling r_grib1 with iunit ', nunit1
-                 write(6,*) 'flnm = ',gribflnm
-                 write(6,*) 'GRIB 1 not yet supported in this code'
+!                write(6,*) 'calling r_grib1 with iunit ', nunit1
+!                write(6,*) 'flnm = ',gribflnm
+                 write(6,*) 'This is a Grib1 file. Please use g1print.\n'
                  stop
                  ! Read one record at a time from GRIB1 (and older Editions) 
 !                call r_grib1(nunit1, gribflnm, level, field, &
@@ -1012,6 +1012,8 @@ end program g2print
 
          ! Check for EOF, or problem
          if (lgrib.eq.0) then
+            write(*,'("\n\tThere is a problem with the input file.")')
+            write(*,'("\tPerhaps it is not a Grib2 file?\n")')
             STOP "Grib2 file or date problem, stopping in edition_num."
          endif
  
