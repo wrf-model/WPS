@@ -602,7 +602,7 @@ name=PMSL
 name=RH
         interp_option=sixteen_pt+four_pt+average_4pt
         fill_missing=0.
-        fill_lev=200100:const(0.)
+        fill_lev=200100:const(-1.E30)
 ========================================    
 name=SPECHUMD
         interp_option=sixteen_pt+four_pt+average_4pt
@@ -622,6 +622,7 @@ name=TT
         mandatory=yes    # MUST HAVE THIS FIELD
         interp_option=sixteen_pt+four_pt+average_4pt
         fill_missing=0.
+        fill_lev=200100:const(-1.E30)
 ========================================
 name=U ; output_name=UU  # If we get U, use entry from UU and
                          #   write the field out as UU
@@ -632,6 +633,7 @@ name=UU
         is_u_field=yes
         output_stagger=U
         fill_missing=0.
+        fill_lev=200100:const(-1.E30)
 ========================================
 name=V ; output_name=VV  # If we get V, use entry from VV and
                          #   write the field out as VV
@@ -642,6 +644,7 @@ name=VV
         is_v_field=yes
         output_stagger=V
         fill_missing=0.
+        fill_lev=200100:const(-1.E30)
 ========================================
 name=SST
         interp_option=sixteen_pt+four_pt
