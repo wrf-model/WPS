@@ -1153,6 +1153,76 @@ CPP             =       /usr/bin/cpp -C -P -traditional
 CPPFLAGS        =       -D_DOUBLEUNDERSCORE -DBYTESWAP -DIO_NETCDF -DBIT32 -DMACOS -D_MPI
 RANLIB		=	ranlib
 
+###########################################################
+#ARCH	Darwin, INTEL, gfortran compiler,	serial, NO GRIB2
+#
+COMPRESSION_LIBS        =
+COMPRESSION_INC         =
+FDEFS                   =
+FC              =       gfortran
+SFC             =       gfortran
+FFLAGS          =       -ffree-form -O -fconvert=big-endian
+F77FLAGS        =       -ffixed-form -O -fconvert=big-endian
+FNGFLAGS        =       $(FFLAGS)
+LDFLAGS         =
+CC              =       gcc
+SCC             =       gcc
+CFLAGS          =
+CPP             =       /usr/bin/cpp -C -P -traditional
+CPPFLAGS        =       -D_UNDERSCORE -DBYTESWAP -DIO_NETCDF -DBIT32 -DMACOS
+RANLIB          =       ranlib
+
+###########################################################
+#ARCH	Darwin, INTEL, gfortran compiler,	serial
+#
+FC              =       gfortran
+SFC             =       gfortran
+FFLAGS          =       -ffree-form -O -fconvert=big-endian
+F77FLAGS        =       -ffixed-form -O -fconvert=big-endian
+FNGFLAGS        =       $(FFLAGS)
+LDFLAGS         =
+CC              =       gcc
+SCC             =       gcc
+CFLAGS          =
+CPP             =       /usr/bin/cpp -C -P -traditional
+CPPFLAGS        =       -D_UNDERSCORE -DBYTESWAP -DIO_NETCDF -DBIT32 -DMACOS
+RANLIB          =       ranlib
+
+###########################################################
+#ARCH	Darwin, INTEL, gfortran compiler,	DM PARALLEL, NO GRIB2
+#
+COMPRESSION_LIBS        =
+COMPRESSION_INC         =
+FDEFS                   =
+FC              =       mpif90 -f90=gfortran
+SFC             =       gfortran
+FFLAGS          =       -ffree-form -O -fconvert=big-endian
+F77FLAGS        =       -ffixed-form -O -fconvert=big-endian
+FNGFLAGS        =       $(FFLAGS)
+LDFLAGS         =
+CC              =       mpicc -cc=gcc
+SCC             =       gcc
+CFLAGS          =
+CPP             =       /usr/bin/cpp -C -P -traditional
+CPPFLAGS        =       -D_UNDERSCORE -DBYTESWAP -DIO_NETCDF -DBIT32 -DMACOS -D_MPI
+RANLIB          =       ranlib
+
+###########################################################
+#ARCH	Darwin, INTEL, gfortran compiler,	DM PARALLEL
+#
+FC              =       mpif90 -f90=gfortran
+SFC             =       gfortran
+FFLAGS          =       -ffree-form -O -fconvert=big-endian
+F77FLAGS        =       -ffixed-form -O -fconvert=big-endian
+FNGFLAGS        =       $(FFLAGS)
+LDFLAGS         =
+CC              =       mpicc -cc=gcc
+SCC             =       gcc
+CFLAGS          =
+CPP             =       /usr/bin/cpp -C -P -traditional
+CPPFLAGS        =       -D_UNDERSCORE -DBYTESWAP -DIO_NETCDF -DBIT32 -DMACOS -D_MPI
+RANLIB          =       ranlib
+
 ##################################################################
 #ARCH	UNICOS/mp  machine crayx1                      DM parallel
 #  Cray X1/X1E (MPI, MSP mode)
