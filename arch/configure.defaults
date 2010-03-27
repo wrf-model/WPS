@@ -924,161 +924,7 @@ CPP             =       /usr/bin/cpp -C -P -traditional
 CPPFLAGS        =       -D_UNDERSCORE -DBYTESWAP -DLINUX -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -DBIT32 -DMACOS -D_MPI
 
 ###########################################################
-#ARCH	Darwin	serial, xlf compiler, NO GRIB2
-#
-COMPRESSION_LIBS	=
-COMPRESSION_INC		=
-FDEFS			=
-NCARG_LIBS	=	-L$(NCARG_ROOT)/lib -lncarg -lcgm -lncarg_gks -lncarg_c \
-			-L/usr/X11R6/lib -lX11 \
-			-L/opt/ibmcmp/xlf/8.1/lib -lg2c
-FC		=	xlf90_r
-SFC		=	xlf90_r
-FFLAGS		=	-qfree
-F77FLAGS	=	-qfixed
-FNGFLAGS	=	$(FFLAGS) -qextname
-LDFLAGS		=	-Wl,-stack_size,10000000,-stack_addr,0xc0000000
-CC		=	gcc-3.3 # NCAR silly thing
-CC		=	cc
-SCC		=	$(CC)
-CFLAGS		=	-O
-CPP		=	/usr/bin/cpp -C -P
-CPPFLAGS	=	-DAIX -DMACOS -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -DBIT32
-RANLIB		=	ranlib
-
-###########################################################
-#ARCH	Darwin	serial, xlf compiler
-#
-NCARG_LIBS	=	-L$(NCARG_ROOT)/lib -lncarg -lcgm -lncarg_gks -lncarg_c \
-			-L/usr/X11R6/lib -lX11 \
-			-L/opt/ibmcmp/xlf/8.1/lib -lg2c
-FC		=	xlf90_r
-SFC		=	xlf90_r
-FFLAGS		=	-qfree
-F77FLAGS	=	-qfixed
-FNGFLAGS	=	$(FFLAGS) -qextname
-LDFLAGS		=	-Wl,-stack_size,10000000,-stack_addr,0xc0000000
-CC		=	gcc-3.3 # NCAR silly thing
-CC		=	cc
-SCC		=	$(CC)
-CFLAGS		=	-O
-CPP		=	/usr/bin/cpp -C -P
-CPPFLAGS	=	-DAIX -DMACOS -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -DBIT32
-RANLIB		=	ranlib
-
-###########################################################
-#ARCH	Darwin	serial, xlf gcc3.3 SystemStubs, NO GRIB2
-#
-COMPRESSION_LIBS	=
-COMPRESSION_INC		=
-FDEFS			=
-NCARG_LIBS	=	-L$(NCARG_ROOT)/lib -lncarg -lcgm -lncarg_gks -lncarg_c \
-			-L/usr/X11R6/lib -lX11 \
-			-L/opt/ibmcmp/xlf/8.1/lib -lg2c
-FC		=	xlf90_r
-SFC		=	xlf90_r
-FFLAGS		=	-qfree
-F77FLAGS	=	-qfixed
-FNGFLAGS	=	$(FFLAGS) -qextname
-LDFLAGS		=	-Wl,-stack_size,10000000,-stack_addr,0xc0000000 -L/usr/lib -lSystemStubs
-CC		=	gcc-3.3
-SCC		=	$(CC)
-CFLAGS		=	-O
-CPP		=	/usr/bin/cpp -C -P
-CPPFLAGS	=	-DAIX -DMACOS -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -DBIT32
-RANLIB		=	ranlib
-
-###########################################################
-#ARCH	Darwin	serial, xlf gcc3.3 SystemStubs
-#
-NCARG_LIBS	=	-L$(NCARG_ROOT)/lib -lncarg -lcgm -lncarg_gks -lncarg_c \
-			-L/usr/X11R6/lib -lX11 \
-			-L/opt/ibmcmp/xlf/8.1/lib -lg2c
-FC		=	xlf90_r
-SFC		=	xlf90_r
-FFLAGS		=	-qfree
-F77FLAGS	=	-qfixed
-FNGFLAGS	=	$(FFLAGS) -qextname
-LDFLAGS		=	-Wl,-stack_size,10000000,-stack_addr,0xc0000000 -L/usr/lib -lSystemStubs
-CC		=	gcc-3.3
-SCC		=	$(CC)
-CFLAGS		=	-O
-CPP		=	/usr/bin/cpp -C -P
-CPPFLAGS	=	-DAIX -DMACOS -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -DBIT32
-RANLIB		=	ranlib
-
-###########################################################
-#ARCH	Darwin	serial, PPC, g95 compiler,	serial, NO GRIB2
-#
-COMPRESSION_LIBS	=
-COMPRESSION_INC		=
-FDEFS			=
-FC              =       g95
-SFC             =       g95
-FFLAGS          =       -ffree-form -g -fno-second-underscore
-F77FLAGS        =       -ffixed-form -g -fno-second-underscore
-FNGFLAGS	=	$(FFLAGS)
-LDFLAGS         =       -g
-CC              =       gcc
-SCC             =       gcc
-CFLAGS          =       -g
-CPP             =       /usr/bin/cpp -C -P -traditional
-CPPFLAGS        =       -D_UNDERSCORE -DBYTESWAP -DLINUXG95 -DIO_NETCDF -DBIT32
-RANLIB		=	ranlib
-
-###########################################################
-#ARCH	Darwin	serial, PPC, g95 compiler,	serial
-#
-FC              =       g95
-SFC             =       g95
-FFLAGS          =       -ffree-form -g -fno-second-underscore
-F77FLAGS        =       -ffixed-form -g -fno-second-underscore
-FNGFLAGS	=	$(FFLAGS)
-LDFLAGS         =       -g
-CC              =       gcc
-SCC             =       gcc
-CFLAGS          =       -g
-CPP             =       /usr/bin/cpp -C -P -traditional
-CPPFLAGS        =       -D_UNDERSCORE -DBYTESWAP -DLINUXG95 -DIO_NETCDF -DBIT32
-RANLIB		=	ranlib
-
-###########################################################
-#ARCH	Darwin	serial, PPC, g95 compiler,	DM PARALLEL, NO GRIB2
-#
-COMPRESSION_LIBS	=
-COMPRESSION_INC		=
-FDEFS			=
-FC              =       mpif90 -f90=g95
-SFC             =       g95
-FFLAGS          =       -ffree-form -g -fno-second-underscore
-F77FLAGS        =       -ffixed-form -g -fno-second-underscore
-FNGFLAGS	=	$(FFLAGS)
-LDFLAGS         =       -g
-CC              =       mpicc -cc=gcc
-SCC             =       gcc
-CFLAGS          =       -g
-CPP             =       /usr/bin/cpp -C -P -traditional
-CPPFLAGS        =       -D_UNDERSCORE -DBYTESWAP -DLINUXG95 -DIO_NETCDF -DBIT32 -D_MPI
-RANLIB		=	ranlib
-
-###########################################################
-#ARCH	Darwin	serial, PPC, g95 compiler,	DM PARALLEL
-#
-FC              =       mpif90 -f90=g95
-SFC             =       g95
-FFLAGS          =       -ffree-form -g -fno-second-underscore
-F77FLAGS        =       -ffixed-form -g -fno-second-underscore
-FNGFLAGS	=	$(FFLAGS)
-LDFLAGS         =       -g
-CC              =       mpicc -cc=gcc
-SCC             =       gcc
-CFLAGS          =       -g
-CPP             =       /usr/bin/cpp -C -P -traditional
-CPPFLAGS        =       -D_UNDERSCORE -DBYTESWAP -DLINUXG95 -DIO_NETCDF -DBIT32 -D_MPI
-RANLIB		=	ranlib
-
-###########################################################
-#ARCH	Darwin	serial, INTEL, g95 compiler,	serial, NO GRIB2
+#ARCH	Darwin, INTEL, g95 compiler,	serial, NO GRIB2
 #
 COMPRESSION_LIBS	=
 COMPRESSION_INC		=
@@ -1097,7 +943,7 @@ CPPFLAGS        =       -D_DOUBLEUNDERSCORE -DBYTESWAP -DIO_NETCDF -DBIT32 -DMAC
 RANLIB		=	ranlib
 
 ###########################################################
-#ARCH	Darwin	serial, INTEL, g95 compiler,	serial
+#ARCH	Darwin, INTEL, g95 compiler,	serial
 #
 COMPRESSION_LIBS	=	-L/stink/gill/WPS_LIBS/local/lib \
 				-ljasper -lpng12 -lpng -lz
@@ -1116,7 +962,7 @@ CPPFLAGS        =       -D_DOUBLEUNDERSCORE -DBYTESWAP -DIO_NETCDF -DBIT32 -DMAC
 RANLIB		=	ranlib
 
 ###########################################################
-#ARCH	Darwin	serial, INTEL, g95 compiler,	DM PARALLEL, NO GRIB2
+#ARCH	Darwin, INTEL, g95 compiler,	DM PARALLEL, NO GRIB2
 #
 COMPRESSION_LIBS	=
 COMPRESSION_INC		=
@@ -1135,7 +981,7 @@ CPPFLAGS        =       -D_DOUBLEUNDERSCORE -DBYTESWAP -DIO_NETCDF -DBIT32 -DMAC
 RANLIB		=	ranlib
 
 ###########################################################
-#ARCH	Darwin	serial, INTEL, g95 compiler,	DM PARALLEL
+#ARCH	Darwin, INTEL, g95 compiler,	DM PARALLEL
 #
 COMPRESSION_LIBS	=	-L/stink/gill/WPS_LIBS/local/lib \
 				-ljasper -lpng12 -lpng -lz
@@ -1222,6 +1068,160 @@ CFLAGS          =
 CPP             =       /usr/bin/cpp -C -P -traditional
 CPPFLAGS        =       -D_UNDERSCORE -DBYTESWAP -DIO_NETCDF -DBIT32 -DMACOS -D_MPI
 RANLIB          =       ranlib
+
+###########################################################
+#ARCH	Darwin, PPC, xlf compiler, NO GRIB2
+#
+COMPRESSION_LIBS	=
+COMPRESSION_INC		=
+FDEFS			=
+NCARG_LIBS	=	-L$(NCARG_ROOT)/lib -lncarg -lcgm -lncarg_gks -lncarg_c \
+			-L/usr/X11R6/lib -lX11 \
+			-L/opt/ibmcmp/xlf/8.1/lib -lg2c
+FC		=	xlf90_r
+SFC		=	xlf90_r
+FFLAGS		=	-qfree
+F77FLAGS	=	-qfixed
+FNGFLAGS	=	$(FFLAGS) -qextname
+LDFLAGS		=	-Wl,-stack_size,10000000,-stack_addr,0xc0000000
+CC		=	gcc-3.3 # NCAR silly thing
+CC		=	cc
+SCC		=	$(CC)
+CFLAGS		=	-O
+CPP		=	/usr/bin/cpp -C -P
+CPPFLAGS	=	-DAIX -DMACOS -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -DBIT32
+RANLIB		=	ranlib
+
+###########################################################
+#ARCH	Darwin, PPC, xlf compiler
+#
+NCARG_LIBS	=	-L$(NCARG_ROOT)/lib -lncarg -lcgm -lncarg_gks -lncarg_c \
+			-L/usr/X11R6/lib -lX11 \
+			-L/opt/ibmcmp/xlf/8.1/lib -lg2c
+FC		=	xlf90_r
+SFC		=	xlf90_r
+FFLAGS		=	-qfree
+F77FLAGS	=	-qfixed
+FNGFLAGS	=	$(FFLAGS) -qextname
+LDFLAGS		=	-Wl,-stack_size,10000000,-stack_addr,0xc0000000
+CC		=	gcc-3.3 # NCAR silly thing
+CC		=	cc
+SCC		=	$(CC)
+CFLAGS		=	-O
+CPP		=	/usr/bin/cpp -C -P
+CPPFLAGS	=	-DAIX -DMACOS -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -DBIT32
+RANLIB		=	ranlib
+
+###########################################################
+#ARCH	Darwin, PPC, xlf gcc3.3 SystemStubs, NO GRIB2
+#
+COMPRESSION_LIBS	=
+COMPRESSION_INC		=
+FDEFS			=
+NCARG_LIBS	=	-L$(NCARG_ROOT)/lib -lncarg -lcgm -lncarg_gks -lncarg_c \
+			-L/usr/X11R6/lib -lX11 \
+			-L/opt/ibmcmp/xlf/8.1/lib -lg2c
+FC		=	xlf90_r
+SFC		=	xlf90_r
+FFLAGS		=	-qfree
+F77FLAGS	=	-qfixed
+FNGFLAGS	=	$(FFLAGS) -qextname
+LDFLAGS		=	-Wl,-stack_size,10000000,-stack_addr,0xc0000000 -L/usr/lib -lSystemStubs
+CC		=	gcc-3.3
+SCC		=	$(CC)
+CFLAGS		=	-O
+CPP		=	/usr/bin/cpp -C -P
+CPPFLAGS	=	-DAIX -DMACOS -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -DBIT32
+RANLIB		=	ranlib
+
+###########################################################
+#ARCH	Darwin, PPC, xlf gcc3.3 SystemStubs
+#
+NCARG_LIBS	=	-L$(NCARG_ROOT)/lib -lncarg -lcgm -lncarg_gks -lncarg_c \
+			-L/usr/X11R6/lib -lX11 \
+			-L/opt/ibmcmp/xlf/8.1/lib -lg2c
+FC		=	xlf90_r
+SFC		=	xlf90_r
+FFLAGS		=	-qfree
+F77FLAGS	=	-qfixed
+FNGFLAGS	=	$(FFLAGS) -qextname
+LDFLAGS		=	-Wl,-stack_size,10000000,-stack_addr,0xc0000000 -L/usr/lib -lSystemStubs
+CC		=	gcc-3.3
+SCC		=	$(CC)
+CFLAGS		=	-O
+CPP		=	/usr/bin/cpp -C -P
+CPPFLAGS	=	-DAIX -DMACOS -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -DBIT32
+RANLIB		=	ranlib
+
+###########################################################
+#ARCH	Darwin, PPC, g95 compiler,	serial, NO GRIB2
+#
+COMPRESSION_LIBS	=
+COMPRESSION_INC		=
+FDEFS			=
+FC              =       g95
+SFC             =       g95
+FFLAGS          =       -ffree-form -g -fno-second-underscore
+F77FLAGS        =       -ffixed-form -g -fno-second-underscore
+FNGFLAGS	=	$(FFLAGS)
+LDFLAGS         =       -g
+CC              =       gcc
+SCC             =       gcc
+CFLAGS          =       -g
+CPP             =       /usr/bin/cpp -C -P -traditional
+CPPFLAGS        =       -D_UNDERSCORE -DBYTESWAP -DLINUXG95 -DIO_NETCDF -DBIT32
+RANLIB		=	ranlib
+
+###########################################################
+#ARCH	Darwin, PPC, g95 compiler,	serial
+#
+FC              =       g95
+SFC             =       g95
+FFLAGS          =       -ffree-form -g -fno-second-underscore
+F77FLAGS        =       -ffixed-form -g -fno-second-underscore
+FNGFLAGS	=	$(FFLAGS)
+LDFLAGS         =       -g
+CC              =       gcc
+SCC             =       gcc
+CFLAGS          =       -g
+CPP             =       /usr/bin/cpp -C -P -traditional
+CPPFLAGS        =       -D_UNDERSCORE -DBYTESWAP -DLINUXG95 -DIO_NETCDF -DBIT32
+RANLIB		=	ranlib
+
+###########################################################
+#ARCH	Darwin, PPC, g95 compiler,	DM PARALLEL, NO GRIB2
+#
+COMPRESSION_LIBS	=
+COMPRESSION_INC		=
+FDEFS			=
+FC              =       mpif90 -f90=g95
+SFC             =       g95
+FFLAGS          =       -ffree-form -g -fno-second-underscore
+F77FLAGS        =       -ffixed-form -g -fno-second-underscore
+FNGFLAGS	=	$(FFLAGS)
+LDFLAGS         =       -g
+CC              =       mpicc -cc=gcc
+SCC             =       gcc
+CFLAGS          =       -g
+CPP             =       /usr/bin/cpp -C -P -traditional
+CPPFLAGS        =       -D_UNDERSCORE -DBYTESWAP -DLINUXG95 -DIO_NETCDF -DBIT32 -D_MPI
+RANLIB		=	ranlib
+
+###########################################################
+#ARCH	Darwin, PPC, g95 compiler,	DM PARALLEL
+#
+FC              =       mpif90 -f90=g95
+SFC             =       g95
+FFLAGS          =       -ffree-form -g -fno-second-underscore
+F77FLAGS        =       -ffixed-form -g -fno-second-underscore
+FNGFLAGS	=	$(FFLAGS)
+LDFLAGS         =       -g
+CC              =       mpicc -cc=gcc
+SCC             =       gcc
+CFLAGS          =       -g
+CPP             =       /usr/bin/cpp -C -P -traditional
+CPPFLAGS        =       -D_UNDERSCORE -DBYTESWAP -DLINUXG95 -DIO_NETCDF -DBIT32 -D_MPI
+RANLIB		=	ranlib
 
 ##################################################################
 #ARCH	UNICOS/mp  machine crayx1                      DM parallel
