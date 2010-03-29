@@ -428,30 +428,30 @@ COMPRESSION_INC		=
 FDEFS			=
 FC              =       g95
 SFC             =       g95
-FFLAGS          =       -ffree-form -O -fno-second-underscore
-F77FLAGS        =       -ffixed-form -O -fno-second-underscore
+FFLAGS          =       -ffree-form -O -fendian=big
+F77FLAGS        =       -ffixed-form -O -fendian=big
 FNGFLAGS	=	$(FFLAGS)
 LDFLAGS         =       
 CC              =       gcc
 SCC             =       gcc
 CFLAGS          =       
 CPP             =       /usr/bin/cpp -C -P -traditional
-CPPFLAGS        =       -D_UNDERSCORE -DBYTESWAP -DLINUXG95 -DIO_NETCDF -DBIT32
+CPPFLAGS        =       -D_DOUBLEUNDERSCORE -DBYTESWAP -DLINUXG95 -DIO_NETCDF -DBIT32
 
 ###########################################################
 #ARCH	PC Linux i486 i586 i686, g95 compiler,	serial
 #
 FC              =       g95
 SFC             =       g95
-FFLAGS          =       -ffree-form -O -fno-second-underscore
-F77FLAGS        =       -ffixed-form -O -fno-second-underscore
+FFLAGS          =       -ffree-form -O -fendian=big
+F77FLAGS        =       -ffixed-form -O -fendian=big
 FNGFLAGS	=	$(FFLAGS)
 LDFLAGS         =       
 CC              =       gcc
 SCC             =       gcc
 CFLAGS          =       
 CPP             =       /usr/bin/cpp -C -P -traditional
-CPPFLAGS        =       -D_UNDERSCORE -DBYTESWAP -DLINUXG95 -DIO_NETCDF -DBIT32
+CPPFLAGS        =       -D_DOUBLEUNDERSCORE -DBYTESWAP -DLINUXG95 -DIO_NETCDF -DBIT32
 
 ###########################################################
 #ARCH	PC Linux i486 i586 i686, g95 compiler,   DM PARALLEL, NO GRIB2
@@ -461,30 +461,30 @@ COMPRESSION_INC		=
 FDEFS			=
 FC              =       mpif90 -f90=g95
 SFC             =       g95
-FFLAGS          =       -ffree-form -O -fno-second-underscore
-F77FLAGS        =       -ffixed-form -O -fno-second-underscore
+FFLAGS          =       -ffree-form -O -fendian=big
+F77FLAGS        =       -ffixed-form -O -fendian=big
 FNGFLAGS	=	$(FFLAGS)
 LDFLAGS         =       
 CC              =       mpicc -cc=gcc
 SCC             =       gcc
 CFLAGS          =       
 CPP             =       /usr/bin/cpp -C -P -traditional
-CPPFLAGS        =       -D_UNDERSCORE -DBYTESWAP -DLINUXG95 -DIO_NETCDF -DBIT32 -D_MPI
+CPPFLAGS        =       -D_DOUBLEUNDERSCORE -DBYTESWAP -DLINUXG95 -DIO_NETCDF -DBIT32 -D_MPI
 
 ###########################################################
 #ARCH	PC Linux i486 i586 i686, g95 compiler,   DM PARALLEL
 #
 FC              =       mpif90 -f90=g95
 SFC             =       g95
-FFLAGS          =       -ffree-form -O -fno-second-underscore
-F77FLAGS        =       -ffixed-form -O -fno-second-underscore
+FFLAGS          =       -ffree-form -O -fendian=big
+F77FLAGS        =       -ffixed-form -O -fendian=big
 FNGFLAGS	=	$(FFLAGS)
 LDFLAGS         =       
 CC              =       mpicc -cc=gcc
 SCC             =       gcc
 CFLAGS          =       
 CPP             =       /usr/bin/cpp -C -P -traditional
-CPPFLAGS        =       -D_UNDERSCORE -DBYTESWAP -DLINUXG95 -DIO_NETCDF -DBIT32 -D_MPI
+CPPFLAGS        =       -D_DOUBLEUNDERSCORE -DBYTESWAP -DLINUXG95 -DIO_NETCDF -DBIT32 -D_MPI
 
 ###########################################################
 #ARCH	PC Linux i486 i586 i686, gfortran compiler,	serial, NO GRIB2
