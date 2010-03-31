@@ -804,6 +804,7 @@ SCC             =       pgcc
 CFLAGS          =       -O
 CPP             =       /usr/bin/cpp -C -P -traditional
 CPPFLAGS        =       -D_UNDERSCORE -DBYTESWAP -DLINUX -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -DBIT32 -DMACOS
+RANLIB = ranlib
 
 ###########################################################
 #ARCH	Darwin, INTEL, PGI compiler,	serial
@@ -821,6 +822,7 @@ SCC             =       pgcc
 CFLAGS          =       -O
 CPP             =       /usr/bin/cpp -C -P -traditional
 CPPFLAGS        =       -D_UNDERSCORE -DBYTESWAP -DLINUX -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -DBIT32 -DMACOS
+RANLIB = ranlib
 
 ###########################################################
 #ARCH	Darwin, INTEL, PGI compiler,	DM PARALLEL, NO GRIB2
@@ -839,6 +841,7 @@ SCC             =       pgcc
 CFLAGS          =       -O
 CPP             =       /usr/bin/cpp -C -P -traditional
 CPPFLAGS        =       -D_UNDERSCORE -DBYTESWAP -DLINUX -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -DBIT32 -DMACOS -D_MPI
+RANLIB = ranlib
 
 ###########################################################
 #ARCH	Darwin, INTEL, PGI compiler,	DM PARALLEL
@@ -856,6 +859,7 @@ SCC             =       pgcc
 CFLAGS          =       -O
 CPP             =       /usr/bin/cpp -C -P -traditional
 CPPFLAGS        =       -D_UNDERSCORE -DBYTESWAP -DLINUX -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -DBIT32 -DMACOS -D_MPI
+RANLIB = ranlib
 
 ###########################################################                                                                                           
 #ARCH   Darwin, INTEL, Intel compiler,  serial, NO GRIB2

@@ -15,20 +15,20 @@ endif
 set DEV_TOP = `pwd`
 set first_char = `grep ^WRF_DIR configure.wps | awk '{print $3}' | cut -c -1`
 
-if ( "$first_char" == "/" ) then
-	set WRF_DIR_PRE	=
-else
-	set WRF_DIR_PRE	=	${DEV_TOP}/
-endif
 
 ## test for Cygwin on Windows
 grep CYGWIN_NT configure.wps >& /dev/null
 if ( $status == 0 ) then
-   set WRF_DIR_PRE = 
    ls -l */*/*cio.c | grep '^l'
    if ( $status == 0 ) then
      echo Symbolic links are not handled properly by pgcc on Windows.  Run arch/fixlinks in this directory and try again.
      exit
+   endif
+else
+   if ( "$first_char" == "/" ) then
+	set WRF_DIR_PRE	=
+   else
+	set WRF_DIR_PRE	=	${DEV_TOP}/
    endif
 endif
 

@@ -13,15 +13,20 @@ bad_idea:
 all:
 	@if [ -e $(WRF_DIR_PRE)$(WRF_DIR)/frame/module_internal_header_util.o ] ; then \
 		( cd src ; \
-		$(MAKE) $(TARGET) \
-			WRF_DIR="$(WRF_DIR_PRE)$(WRF_DIR)" \
-			FC="$(FC)" \
-			CC="$(CC)" \
-			CPP="$(CPP)" \
-			FFLAGS="$(FFLAGS)" \
-			CFLAGS="$(CFLAGS)" \
-			LDFLAGS="$(LDFLAGS)" \
-			CPPFLAGS="$(CPPFLAGS) -D_$(CPP_TARGET)" ) ; \
+                  if [ "$(COMPILING_ON_CYGWIN_NT)" = yes ] ; then \
+                    WRF_DIR2=$(WRF_DIR) ; \
+                  else \
+                    WRF_DIR2=$(WRF_DIR_PRE)$(WRF_DIR) ; \
+                  fi ; \
+		  $(MAKE) $(TARGET) \
+			  WRF_DIR="$$WRF_DIR2" \
+			  FC="$(FC)" \
+			  CC="$(CC)" \
+			  CPP="$(CPP)" \
+			  FFLAGS="$(FFLAGS)" \
+			  CFLAGS="$(CFLAGS)" \
+			  LDFLAGS="$(LDFLAGS)" \
+			  CPPFLAGS="$(CPPFLAGS) -D_$(CPP_TARGET)" ) ; \
 		if [ -e $(TARGET) ] ; then \
 			$(RM) $(TARGET) ; \
 		fi ; \

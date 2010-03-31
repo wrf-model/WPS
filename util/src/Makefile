@@ -75,7 +75,7 @@ height_ukmo.exe: height_ukmo.o cio.o module_debug.o gridinfo_module.o read_met_m
 		write_met_module.o module_date_pack.o misc_definitions_module.o met_data_module.o
 	$(SFC) $(LDFLAGS) -o $@ height_ukmo.o cio.o module_debug.o gridinfo_module.o \
 		read_met_module.o write_met_module.o module_date_pack.o \
-		misc_definitions_module.o met_data_module.o
+		misc_definitions_module.o met_data_module.o constants_module.o
 
 height_ukmo.o: height_ukmo.F cio.o module_debug.o gridinfo_module.o read_met_module.o \
 		write_met_module.o module_date_pack.o misc_definitions_module.o

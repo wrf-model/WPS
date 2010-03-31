@@ -13,8 +13,13 @@ bad_idea:
 all:
 	( cd src/ngl ; $(MAKE) DEV_TOP="$(DEV_TOP)" CC="$(SCC)" FC="$(SFC)" RANLIB="$(RANLIB)" all )
 	( cd src ; \
+        if [ "$(COMPILING_ON_CYGWIN_NT)" = yes ] ; then \
+          WRF_DIR2=$(WRF_DIR) ; \
+        else \
+          WRF_DIR2=$(WRF_DIR_PRE)$(WRF_DIR) ; \
+        fi ; \
 	$(MAKE) $(TARGET) \
-		WRF_DIR="$(WRF_DIR_PRE)$(WRF_DIR)" \
+		WRF_DIR="$$WRF_DIR2" \
 		FC="$(SFC)" \
 		CC="$(CC)" \
 		CPP="$(CPP)" \
