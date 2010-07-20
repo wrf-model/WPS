@@ -107,6 +107,24 @@ name=SEAICE
         masked=land
         fill_missing=0.
 ========================================
+name=ICEMASK
+        interp_option=nearest_neighbor
+        output=no
+========================================
+name=ICEFRAC
+        interp_option=four_pt+average_4pt
+        interp_mask=ICEMASK(1)
+        masked=land
+        fill_missing=0.
+        flag_in_output=FLAG_ICEFRAC
+========================================
+name=ICEDEPTH
+        interp_option=four_pt+average_4pt
+        interp_mask=ICEMASK(1) 
+        masked=land
+        fill_missing=0.
+        flag_in_output=FLAG_ICEDEPTH
+========================================
 name=H0ML 
         interp_option=four_pt+average_4pt
         interp_mask=LANDSEA(1) 

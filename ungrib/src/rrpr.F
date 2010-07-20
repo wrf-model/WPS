@@ -513,6 +513,29 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_level, out_f
            call make_zero_or_one(map%nx, map%ny)
         endif
 
+! If we've got an ICEMASK field, re-flag it for output to met_em and real:
+!     Field  | GRIB In  |  Out
+!    -------------------------
+!    water   |    0     |  0 
+!    land    |   -1     |  1
+!    ice     |    1     |  0
+
+        if (is_there(200100, 'ICEMASK')) then
+           call get_dims(200100, 'ICEMASK')
+           call re_flag_ice_mask(map%nx, map%ny)
+        endif
+
+! If we have an ICEFRAC field, convert from % to fraction
+        if (is_there(200100, 'ICEFRAC')) then
+           call get_dims(200100, 'ICEFRAC')
+           allocate(scr2d(map%nx,map%ny))
+           call get_storage(200100, 'ICEFRAC', scr2d, map%nx, map%ny)
+	   scr2d = scr2d / 100.
+           call put_storage(200100, 'ICEFRAC', scr2d, map%nx, map%ny)
+           deallocate(scr2d)
+        endif
+
+
 	call mprintf(.true.,INFORM, &
            "RRPR: hdate = %s ",s1=hdate)
         call output(hdate, nlvl, maxlvl, plvl, interval, 2, out_format, prefix, debug_level)
@@ -538,6 +561,26 @@ subroutine make_zero_or_one(ix, jx)
   call put_storage(200100, 'SEAICE',seaice, ix, jx)
 end subroutine make_zero_or_one
 
+subroutine re_flag_ice_mask(ix, jx)
+!
+! Change land points from -1 to 1
+! Change ice  points from  1 to 0
+! Water       points stay    at 0
+!
+  use storage_module
+  implicit none
+  integer :: ix, jx
+  real, dimension(ix,jx) :: iceflag
+
+  call get_storage(200100, 'ICEMASK',iceflag, ix, jx)
+  where(iceflag > 0.5)     ! Ice points, set to water value
+     iceflag = 0.0
+  end where
+  where(iceflag < -0.5)    ! Land points
+     iceflag = 1.0
+  end where
+  call put_storage(200100, 'ICEMASK',iceflag, ix, jx)
+end subroutine re_flag_ice_mask
 
 subroutine compute_spechumd_qvapor(ix, jx, plvl)
 ! Compute specific humidity from water vapor mixing ratio.
