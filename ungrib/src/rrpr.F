@@ -673,6 +673,7 @@ subroutine compute_rh_spechumd_upa(ix, jx, plvl)
   ENDIF
   call get_storage(nint(plvl), 'TT',        T, ix, jx)
   call get_storage(nint(plvl), 'SPECHUMD', Q, ix, jx)
+  Q=MAX(1.E-10,Q)
 
   rh = 1.E2 * (p*q/(q*(1.-eps) + eps))/(svp1*exp(svp2*(t-svpt0)/(T-svp3)))
   
