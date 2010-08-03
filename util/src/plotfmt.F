@@ -126,6 +126,7 @@ subroutine plt2d(tcr2d, iz, jz, llflag, &
   integer, dimension(liwk) :: iwrk
 
   integer :: ilev
+  integer :: found_it
   character(len=8) :: hlev
 
 ! declarations for windowing
@@ -148,8 +149,13 @@ subroutine plt2d(tcr2d, iz, jz, llflag, &
     if (.not. is_used) exit
   end do
   open(funit,file='namelist.wps',status='old',form='formatted',err=1000)
-  read(funit,plotfmt)
+  read(funit,plotfmt,iostat=found_it)
   close(funit)
+  if(found_it .gt. 0 ) then
+     print *,'error reading the plotfmt namelist record in namelist.wps'
+     print *,'you may have: ix, jx, ioff, joff ONLY'
+     stop 1234
+  end if
 
 
 ! ioff = 250     ! e.g. east of the Philippines from 0.5 degree GFS
