@@ -719,9 +719,10 @@ integer, parameter :: BDR_WIDTH = 3
                      if (idx > num_entries) idx = num_entries ! The last entry is a default
                   end if
 
-                  ! Do a simple check to see whether this is a global lat/lon dataset
-                  if ( (fg_data%iproj == PROJ_LATLON .or. fg_data%iproj == PROJ_GAUSS) .and. &
-                      abs(fg_data%nx * fg_data%deltalon - 360.) < 0.0001) then
+                  ! Do a simple check to see whether this is a global dataset
+                  ! Note that we do not currently support regional Gaussian grids
+                  if ((fg_data%iproj == PROJ_LATLON .and. abs(fg_data%nx * fg_data%deltalon - 360.) < 0.0001) &
+                       .or. (fg_data%iproj == PROJ_GAUSS)) then
                      bdr_wdth = BDR_WIDTH
                      allocate(halo_slab(1-BDR_WIDTH:fg_data%nx+BDR_WIDTH,1:fg_data%ny))
 
@@ -1327,8 +1328,9 @@ integer, parameter :: BDR_WIDTH = 3
                   mask_field%map%stagger = M
 
                   ! Do a simple check to see whether this is a global lat/lon dataset
-                  if ( (fg_data%iproj == PROJ_LATLON .or. fg_data%iproj == PROJ_GAUSS) .and. &
-                      abs(fg_data%nx * fg_data%deltalon - 360.) < 0.0001) then
+                  ! Note that we do not currently support regional Gaussian grids
+                  if ((fg_data%iproj == PROJ_LATLON .and. abs(fg_data%nx * fg_data%deltalon - 360.) < 0.0001) &
+                       .or. (fg_data%iproj == PROJ_GAUSS)) then
                      allocate(mask_field%r_arr(1-BDR_WIDTH:fg_data%nx+BDR_WIDTH,1:fg_data%ny))
 
                      mask_field%r_arr(1:fg_data%nx,                      1:fg_data%ny) = &
