@@ -58,7 +58,7 @@ if ( "$1" == '-a' ) then
 		if ( -d $dir ) then 
 			( cd $dir ; make -i DEV_TOP="${DEV_TOP}" TARGET="${dir}.exe" superclean >& /dev/null )
 		endif
-		if ( -l ${dir}.exe ) then
+		if { test -h ${dir}.exe } then
 			/bin/rm -f ${dir}.exe
 		endif
 	end
