@@ -312,6 +312,15 @@ C  SET ARGUMENTS
               map%r_earth = earth_radius (gfld%igdtmpl(1),
      &                         gfld%igdtmpl(2),gfld%igdtmpl(3))
 
+! Fix for NCEP 1/12 degree grids (e.g. rtgsst)
+              if (icenter .eq. 7 .and. map%dx .eq. 83000. .and. map%nx 
+     &              .eq. 4320) then
+                map%lat1 = 89958333.
+                map%lon1 = 41667.
+                map%dx = 83333.333 * sign(1.0,map%dx)
+                map%dy = 83333.333 * sign(1.0,map%dy)
+              endif
+
               if ((gfld%igdtmpl(10) .eq. 0).OR.
      &            (gfld%igdtmpl(10) .eq. 255)) THEN
           ! Scale lat/lon values to 0-180, default range is 1e6.
