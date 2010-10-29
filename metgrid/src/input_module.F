@@ -175,10 +175,6 @@ module input_module
 #ifdef IO_BINARY
          if (io_form_input == BINARY) then
             call ext_int_get_var_info(handle, cname, ndim, memorder, stagger, domain_start, domain_end, wrftype, istatus)
-            call ext_int_get_var_ti_integer(handle, 'sr_x', &
-                                            trim(cname), temp(1), 1, temp(3), istatus)
-            call ext_int_get_var_ti_integer(handle, 'sr_y', &
-                                            trim(cname), temp(2), 1, temp(3), istatus)
          end if
 #endif
 #ifdef IO_NETCDF
@@ -199,8 +195,6 @@ module input_module
                                             trim(cname), temp(2), 1, temp(3), istatus)
          end if
 #endif
-         sr_x = temp(1)
-         sr_y = temp(2)
      
          call mprintf((istatus /= 0),ERROR,'In read_next_field(), problems with ext_pkg_get_var_info()')
 
@@ -247,16 +241,20 @@ module input_module
 #endif
      
          call mprintf((istatus /= 0),ERROR,'In read_next_field(), got error code %i.', i1=istatus)
-     
+
          if (io_form_input == BINARY) then
             qd = q_remove(unit_desc)
             cunits = qd%units
             cdesc = qd%description
             stagger = qd%stagger
+            sr_x = qd%sr_x
+            sr_y = qd%sr_y
          else
             cunits = ' '
             cdesc = ' '
             stagger = ' '
+            sr_x = temp(1)
+            sr_y = temp(2)
         
 #ifdef IO_NETCDF
             if (io_form_input == NETCDF) then
@@ -386,6 +384,7 @@ module input_module
       integer :: istatus, i
       real :: wps_version
       character (len=128) :: cunits, cdesc, cstagger
+      integer, dimension(3) :: sr
       type (q_data) :: qd
   
       if (my_proc_id == IO_NODE .or. do_tiled_input) then
@@ -397,6 +396,7 @@ module input_module
                cunits = ' '
                cdesc = ' '
                cstagger = ' '
+               sr = 0
                call ext_int_get_var_ti_char(handle, 'units', 'VAR', cunits, istatus)
          
                if (istatus == 0) then
@@ -404,14 +404,23 @@ module input_module
           
                   if (istatus == 0) then
                      call ext_int_get_var_ti_char(handle, 'stagger', 'VAR', cstagger, istatus)
+
+                    if (istatus == 0) then
+                    call ext_int_get_var_ti_integer(handle, 'sr_x', 'VAR', sr(1), 1, sr(3), istatus)
+
+                        if (istatus == 0) then
+                        call ext_int_get_var_ti_integer(handle, 'sr_y', 'VAR', sr(2), 1, sr(3), istatus)
          
-                     qd%units = cunits
-                     qd%description = cdesc
-                     qd%stagger = cstagger
-                     call q_insert(unit_desc, qd)
-        
+                             qd%units = cunits
+                             qd%description = cdesc
+                             qd%stagger = cstagger
+                             qd%sr_x = sr(1)
+                             qd%sr_y = sr(2)
+                             call q_insert(unit_desc, qd)
+ 
+                        end if
+                    end if
                   end if
-       
                end if
             end do
          end if

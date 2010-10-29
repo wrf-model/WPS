@@ -16,6 +16,7 @@ module queue_module
 #endif
 #ifdef _METGRID
       integer :: x, y
+      integer :: sr_x, sr_y
       character (len=128) :: units, description, stagger
 #endif
    end type q_data
