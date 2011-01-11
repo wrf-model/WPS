@@ -237,6 +237,8 @@ C  SET ARGUMENTS
                map%source = 'NCEP RUC Model'    ! 40 km
              elseif (iprocess.eq.105) then
                map%source = 'NCEP RUC Model'    ! 20 km
+             elseif (iprocess.eq.107) then
+               map%source = 'NCEP GEFS'
              elseif (iprocess.eq.109) then
                map%source = 'NCEP RTMA'
              elseif (iprocess.eq.140) then

@@ -161,6 +161,8 @@ SUBROUTINE rd_grib1(IUNIT, gribflnm, level, field, hdate,  &
       map%source = 'NCEP NMM '
     elseif (iprocess.eq.96) then
       map%source = 'NCEP GFS Model'
+    elseif (iprocess.eq.107) then
+      map%source = 'NCEP GEFS'
     elseif (iprocess.eq.109) then
       map%source = 'NCEP RTMA'
     elseif (iprocess.eq.86 .or. iprocess.eq.100) then
