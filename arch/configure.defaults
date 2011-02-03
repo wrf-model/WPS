@@ -557,6 +557,76 @@ CPPFLAGS        =       -D_UNDERSCORE -DBYTESWAP -DLINUX -DIO_NETCDF -DBIT32 -D_
 RANLIB          =       ranlib
 
 ###########################################################
+#ARCH    PC Linux x86_64, gfortran compiler,	serial, NO GRIB2
+#
+COMPRESSION_LIBS        =
+COMPRESSION_INC         =
+FDEFS                   =
+FC              =       gfortran
+SFC             =       gfortran
+FFLAGS          =       -ffree-form -O -fconvert=big-endian -frecord-marker=4
+F77FLAGS        =       -ffixed-form -O -fconvert=big-endian -frecord-marker=4
+FNGFLAGS        =       $(FFLAGS)
+LDFLAGS         =
+CC              =       gcc
+SCC             =       gcc
+CFLAGS          =
+CPP             =       /usr/bin/cpp -C -P -traditional
+CPPFLAGS        =       -D_UNDERSCORE -DBYTESWAP -DLINUX -DIO_NETCDF -DBIT32
+RANLIB          =       ranlib
+
+###########################################################
+#ARCH    PC Linux x86_64, gfortran compiler,	serial
+#
+FC              =       gfortran
+SFC             =       gfortran
+FFLAGS          =       -ffree-form -O -fconvert=big-endian -frecord-marker=4
+F77FLAGS        =       -ffixed-form -O -fconvert=big-endian -frecord-marker=4
+FNGFLAGS        =       $(FFLAGS)
+LDFLAGS         =
+CC              =       gcc
+SCC             =       gcc
+CFLAGS          =
+CPP             =       /usr/bin/cpp -C -P -traditional
+CPPFLAGS        =       -D_UNDERSCORE -DBYTESWAP -DLINUX -DIO_NETCDF -DBIT32
+RANLIB          =       ranlib
+
+###########################################################
+#ARCH    PC Linux x86_64, gfortran compiler,	DM PARALLEL, NO GRIB2
+#
+COMPRESSION_LIBS        =
+COMPRESSION_INC         =
+FDEFS                   =
+FC              =       mpif90 -f90=gfortran
+SFC             =       gfortran
+FFLAGS          =       -ffree-form -O -fconvert=big-endian -frecord-marker=4
+F77FLAGS        =       -ffixed-form -O -fconvert=big-endian -frecord-marker=4
+FNGFLAGS        =       $(FFLAGS)
+LDFLAGS         =
+CC              =       mpicc -cc=gcc
+SCC             =       gcc
+CFLAGS          =
+CPP             =       /usr/bin/cpp -C -P -traditional
+CPPFLAGS        =       -D_UNDERSCORE -DBYTESWAP -DLINUX -DIO_NETCDF -DBIT32 -D_MPI
+RANLIB          =       ranlib
+
+###########################################################
+#ARCH    PC Linux x86_64, gfortran compiler,	DM PARALLEL
+#
+FC              =       mpif90 -f90=gfortran
+SFC             =       gfortran
+FFLAGS          =       -ffree-form -O -fconvert=big-endian -frecord-marker=4
+F77FLAGS        =       -ffixed-form -O -fconvert=big-endian -frecord-marker=4
+FNGFLAGS        =       $(FFLAGS)
+LDFLAGS         =
+CC              =       mpicc -cc=gcc
+SCC             =       gcc
+CFLAGS          =
+CPP             =       /usr/bin/cpp -C -P -traditional
+CPPFLAGS        =       -D_UNDERSCORE -DBYTESWAP -DLINUX -DIO_NETCDF -DBIT32 -D_MPI
+RANLIB          =       ranlib
+
+###########################################################
 #ARCH    PC Linux x86_64 (IA64 and Opteron), PGI compiler 5.2 or higher, serial, NO GRIB2
 #
 COMPRESSION_LIBS	=
