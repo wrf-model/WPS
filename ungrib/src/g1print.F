@@ -255,7 +255,7 @@ end subroutine parse_args
 ! This routine contains the tables for the various grib parameters
 ! Each individual parameter contains the info to identify itself.
 ! We don't have the complete tables here, just enough for normal wrf use.
-! wgrib has more complete NCEP tables.
+! wgrib has more complete NCEP tables. (look in WRFV3/external/io_grib1/WGRIB)
 !
 !  ptv - parameter table version
 !  centerid - id number ofthe originating center
@@ -268,8 +268,8 @@ end subroutine parse_args
     logical :: first=.true.
     character (len=5), intent(out) :: field
     character(len=5) :: table2(255), table129(255), afwa(255), ecmwf(255), &
-      table131(255)
-    common /paramids/ table2, table129, table131, afwa, ecmwf
+      table131(255), table132(255)
+    common /paramids/ table2, table129, table131, table132, afwa, ecmwf
 
      field = '     '
      if (first) call init_tables
@@ -280,6 +280,8 @@ end subroutine parse_args
        field = table129(param)
      else if ( centerid .eq. 7 .and. ptv .eq. 131 ) then
        field = table131(param)
+     else if ( centerid .eq. 7 .and. ptv .eq. 132 ) then
+       field = table132(param)
      else if ( centerid .eq. 57 ) then
        field = afwa(param)
      else if ( centerid .eq. 58 .and. ptv .eq. 2 ) then    ! navysst
@@ -447,8 +449,8 @@ end subroutine init_tables
 
     block data  ptables
     character(len=5) :: table2(255), table129(255), afwa(255), ecmwf(255), &
-      table131(255)
-    common /paramids/ table2, table129, table131, afwa, ecmwf
+      table131(255), table132(255)
+    common /paramids/ table2, table129, table131, table132, afwa, ecmwf
 
   data table2 /'PRES','PRMSL','PTEND','PVORT','ICAHT','GP','HGT','DIST',&
        'HSTDV','TOZNE','TMP','VTMP','POT','EPOT','T MAX','T MIN','DPT',&
@@ -541,4 +543,35 @@ end subroutine init_tables
        'SNOHF','SMREF','SMDRY','WVINC','WCINC','BGRUN','SSRUN','    ','WVCON',&
        'SNOWC','SNOT','POROS','WCCON','WVUFL','WVVFL','WCUFL','WCVFL','RCS  ',&
        'RCT','RCQ','RCSOL','SWHR','LWHR','CD','FRICV','RI','  '/
+  data table132 /'PRES','PRMSL','PTEND','PVORT','ICAHT','GP','HGT','DIST',&
+       'HSTDV','TOZNE','TMP','VTMP','POT','EPOT','T MAX','T MIN','DPT',&
+       'DEPR','LAPR','VIS','RDSP1','RDSP2','RDSP3','PLI','TMP A','PRESA',&
+       'GP A','WVSP1','WVSP2','WVSP3','WDIR','WIND','U GRD','V GRD','STRM',&
+       'V POT','MNTSF','SGCVV','V VEL','DZDT','ABS V','ABD D','REL V','REL D',&
+       'VUCSH','VVCSG','DIR C','SP C','UOGRD','VOGRD','SPF H','R H','MIXR',&
+       'P WAT','VAPP','SAT D','EVP','C ICE','PRATE','TSTM','A PCP','NCPCP',&
+       'ACPCP','SRWEQ','WEASD','SNO D','MIXHT','TTHDP','MTHD','MTH A','T CDC',&
+       'CDCON','L CDC','M CDC','H CDC','C WAT','BLI','SNO C','SNO L','WTMP',&
+       'LAND','DSL M','SFC R','ALBDO','TSOIL','SOILM','VEG','SALTY','DEN',&
+       'WATR','ICE C','ICETK','DICED','SICED','U ICE','V ICE','ICE G','ICE D',&
+       'SNO M','HTSGW','WVDIR','WVHGT','WVPER','SWDIR','SWELL','SWPER','DIRPW',&
+       'PERPW','DIRSW','PERSW','NSWRS','NLWRS','NSWRT','NLWRT','LWAVR','SWAVR',&
+       'GRAD','BRTMP','LWRAD','SWRAD','LHTFL','SHTFL','BLYDP','U FLX','V FLX',&
+       'WMIXE','IMG D',&
+! Table 132    NCEP2  originally the same as table 2, but they diverged.
+       'MSLSA','MSLMA','MSLET','LFT X','4LFTX','K X','S X','MCONV','VW SH',&
+       'TSLSA','BVF 2','PV MW','CRAIN','CFRZR','CICEP','CSNOW','SOILW',&
+       'PEVPR','CWORK','U-GWD','V-GWD','PV','     ','     ','     ','MFXDV',&
+       '    ','GFLUX','CIN','CAPE','TKE','CONDP','CSUSF','CSDSF','CSULF',&
+       'CSDLF','CFNSF','CFNLF','VBDSF','VDDSF','NBDSF','NDDSF','USTR',&
+       'VSTR','M FLX','LMH','LMV','SGLYR','NLAT','ELON','UMAS','VMAS','XPRATE',&
+       'LPS X','LPS Y','HGT X','HGT Y','STDZ','STDU','STDV','STDQ','STDTP','CBUW',&
+       'CBVW','CBUQN','CBVQ','CBTW ','CBQW ','CBMZW','CBTZW','CBTMW','STDRH','SDTZ',&
+       'ICWAT','SDTU','SDTV','DSWRF','DLWRF','SDTQ','MSTAV','SFEXC','MIXLY','SDTT',&
+       'USWRF','ULWRF','CDLYR','CPRAT','TTDIA','TTRAD','TTPHY','PREIX','TSD1D',&
+       'NLGSP','SDTRH','5WAVH','CNWAT','PLTRS','RHCLD','BMIXL','AMIXL','PEVAP',&
+       'SNOHF','SNOEV','MFLUX','DTRF','UTRF','BGRUN','SSRUN','    ','O3TOT',&
+       'SNOWC','SNOT','GLCR ','LRGHR','CNVHR','CNVMR','SHAHR','SHAMR','VDFHR',&
+       'VDFUA','VDFVA','VDFMR','SWHR','LWHR','CD','FRICV','RI','  '/
+
     end

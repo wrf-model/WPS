@@ -3,7 +3,6 @@
 !                                                                             !
   use table
   use gridinfo
-  use storage_module
   use filelist
   use datarray
   implicit none
@@ -151,7 +150,6 @@ end program g2print
       use params
       use table          ! Included to define g2code
       use gridinfo       ! Included to define map%
-      use storage_module ! Included sub put_storage
 
       real, allocatable, dimension(:) :: hold_array
       parameter(msk1=32000,msk2=4000)
@@ -171,11 +169,9 @@ end program g2print
       integer :: currlen
       logical :: unpack, expand
       type(gribfield) :: gfld
-      ! For subroutine put_storage
       real :: level
       real :: scale_factor
       integer :: iplvl, lvl2
-      character (len=9) :: my_field
       ! For subroutine outout
       integer , parameter :: maxlvl = 100
       real , dimension(maxlvl) :: plvl

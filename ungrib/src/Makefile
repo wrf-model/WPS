@@ -52,7 +52,7 @@ g2print.exe:		filelist.o gridinfo.o g2print.o
 				$(COMPRESSION_LIBS) ; \
                         fi
 
-g2print.o:		table.o gridinfo.o new_storage.o filelist.o module_datarray.o \
+g2print.o:		table.o gridinfo.o filelist.o module_datarray.o \
 				ngl/g2/gribmod.o ngl/g2/params.o g2print.F
 			$(CPP) $(CPPFLAGS) $*.F > $*.f90
 			$(FC) -c $(FFLAGS) $(FCSUFFIX) $*.f90 -I. -I./ngl/g2
