@@ -6,8 +6,8 @@ Code | Code |   1  |   2  | Name     |  Units   | Description                   
  132 | 109  |   *  |      | VV       | m s-1    | V                                        |
  133 | 109  |   *  |      | SPECHUMD | kg kg-1  | Specific humidity                        |
  152 | 109  |   *  |      | LOGSFP   | Pa       | Log surface pressure                     |
- 129 | 109  |   *  |      | SOILGEO  | m        | Surface geopotential                     |
-     | 109  |   *  |      | SOILHGT  | m        | Terrain field of source analysis         |
+ 129 |  1   |   0  |      | SOILGEO  | m        |                                          |
+     |  1   |   0  |      | SOILHGT  | m        | Terrain field of source analysis         |
  165 |  1   |   0  |      | UU       | m s-1    | U                                        | At 10 m
  166 |  1   |   0  |      | VV       | m s-1    | V                                        | At 10 m
  167 |  1   |   0  |      | TT       | K        | Temperature                              | At 2 m
