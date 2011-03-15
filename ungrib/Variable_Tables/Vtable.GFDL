@@ -15,5 +15,5 @@ Param| Type |Level1|Level2| Name     |  Units   | Description                   
   81 |  1   |   0  |      | LANDSEA  |          | Land/Sea flag                            |
    8 |  1   |   0  |      | SOILHGT  | m        | Terrain field of source analysis         | 
   11 |  1   |   0  |      | SKINTEMP | K        | Skin temperature (can use for SST also)  | 
-  11 | 111  |  50  |      | ST010040 | K        | Temperature at 50 cm below               |
+  11 | 111  |  50  |      | SOILT050 | K        | Temperature at 50 cm below               |
 -----+------+------+------+----------+----------+------------------------------------------+
