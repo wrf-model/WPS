@@ -80,6 +80,8 @@ name=SOILT
         fill_lev =  40 : SOILT040(200100)      
         fill_lev = 160 : SOILT160(200100)      
         fill_lev = 300 : SOILT300(200100)      
+        fill_lev =  49 : SOILT050(200100)
+        fill_lev =  51 : SOILT050(200100)
 ========================================
 name=SOIL_LEVELS
         derived=yes
@@ -422,6 +424,13 @@ name=SOILT300
         interp_mask=LANDSEA(0)
         fill_missing=285.
         flag_in_output=FLAG_SOILT300
+========================================
+name=SOILT050
+        interp_option=sixteen_pt+four_pt+average_4pt+search
+        masked=water
+        interp_mask=LANDSEA(0)
+        fill_missing=285.
+        flag_in_output=FLAG_SOILT050
 ========================================
 name=PMSL
         interp_option=sixteen_pt+four_pt+average_4pt
