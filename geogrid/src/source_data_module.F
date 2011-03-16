@@ -222,6 +222,92 @@ module source_data_module
       allocate(is_fill_missing(num_entries))
       allocate(is_subgrid(num_entries))
 
+      source_wordsize=0
+      source_endian=0
+      source_fieldtype=0
+      source_dest_fieldtype=0
+      source_proj=0
+      source_priority=0
+      source_dx=0
+      source_dy=0
+      source_known_x=0
+      source_known_y=0
+      source_known_lat=0
+      source_known_lon=0
+      source_truelat1=0
+      source_truelat2=0
+      source_stdlon=0
+      source_fieldname=' '
+      source_path=' '
+      source_interp_string=' '
+      source_tile_x=0
+      source_tile_y=0
+      source_tile_z=0
+      source_tile_z_start=0
+      source_tile_z_end=0
+      source_category_min=0
+      source_category_max=0
+      source_tile_bdr=0
+      source_masked=0
+      source_output_stagger=0
+      source_row_order=0
+      source_dominant_category=' '
+      source_dominant_only=' '
+      source_dfdx=' '
+      source_dfdy=' '
+      source_scale_factor=0
+      source_z_dim_name=' '
+      source_units=' '
+      source_descr=' '
+      source_smooth_option=0
+      source_smooth_passes=0
+      source_missing_value=0
+      source_fill_missing=0
+
+      is_wordsize=.false.
+      is_endian=.false.
+      is_fieldtype=.false.
+      is_dest_fieldtype=.false.
+      is_proj=.false.
+      is_priority=.false.
+      is_dx=.false.
+      is_dy=.false.
+      is_known_x=.false.
+      is_known_y=.false.
+      is_known_lat=.false.
+      is_known_lon=.false.
+      is_truelat1=.false.
+      is_truelat2=.false.
+      is_stdlon=.false.
+      is_fieldname=.false.
+      is_path=.false.
+      is_tile_x=.false.
+      is_tile_y=.false.
+      is_tile_z=.false.
+      is_tile_z_start=.false.
+      is_tile_z_end=.false.
+      is_category_min=.false.
+      is_category_max=.false.
+      is_tile_bdr=.false.
+      is_masked=.false.
+      is_halt_missing=.false.
+      is_output_stagger=.false.
+      is_row_order=.false.
+      is_dominant_category=.false.
+      is_dominant_only=.false.
+      is_dfdx=.false.
+      is_dfdy=.false.
+      is_scale_factor=.false.
+      is_z_dim_name=.false.
+      is_units=.false.
+      is_descr=.false.
+      is_smooth_option=.false.
+      is_smooth_passes=.false.
+      is_signed=.false.
+      is_missing_value=.false.
+      is_fill_missing=.false.
+      is_subgrid=.false.
+
       write(source_mminlu,'(a4)') 'USGS'
       source_iswater = 16
       source_islake = -1
@@ -247,6 +333,8 @@ module source_data_module
          if (nparams > 0) i = i + 1  
          nparams = 0
          if (i <= num_entries) then
+!BUG: Are these initializations needed now that we've added initializations for
+!     all options after their initial allocation above?
             is_path(i) = .false.
             is_masked(i) = .false.
             is_halt_missing(i) = .false.
