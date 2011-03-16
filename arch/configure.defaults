@@ -502,7 +502,7 @@ CC              =       gcc
 SCC             =       gcc
 CFLAGS          =
 CPP             =       /usr/bin/cpp -C -P -traditional
-CPPFLAGS        =       -D_UNDERSCORE -DBYTESWAP -DLINUX -DIO_NETCDF -DBIT32
+CPPFLAGS        =       -D_UNDERSCORE -DBYTESWAP -DLINUX -DIO_NETCDF -DBIT32 -DNO_SIGNAL
 RANLIB          =       ranlib
 
 ###########################################################
@@ -518,7 +518,7 @@ CC              =       gcc
 SCC             =       gcc
 CFLAGS          =
 CPP             =       /usr/bin/cpp -C -P -traditional
-CPPFLAGS        =       -D_UNDERSCORE -DBYTESWAP -DLINUX -DIO_NETCDF -DBIT32
+CPPFLAGS        =       -D_UNDERSCORE -DBYTESWAP -DLINUX -DIO_NETCDF -DBIT32 -DNO_SIGNAL
 RANLIB          =       ranlib
 
 ###########################################################
@@ -537,7 +537,7 @@ CC              =       mpicc -cc=gcc
 SCC             =       gcc
 CFLAGS          =
 CPP             =       /usr/bin/cpp -C -P -traditional
-CPPFLAGS        =       -D_UNDERSCORE -DBYTESWAP -DLINUX -DIO_NETCDF -DBIT32 -D_MPI
+CPPFLAGS        =       -D_UNDERSCORE -DBYTESWAP -DLINUX -DIO_NETCDF -DBIT32 -D_MPI -DNO_SIGNAL
 RANLIB          =       ranlib
 
 ###########################################################
@@ -553,7 +553,7 @@ CC              =       mpicc -cc=gcc
 SCC             =       gcc
 CFLAGS          =
 CPP             =       /usr/bin/cpp -C -P -traditional
-CPPFLAGS        =       -D_UNDERSCORE -DBYTESWAP -DLINUX -DIO_NETCDF -DBIT32 -D_MPI
+CPPFLAGS        =       -D_UNDERSCORE -DBYTESWAP -DLINUX -DIO_NETCDF -DBIT32 -D_MPI -DNO_SIGNAL
 RANLIB          =       ranlib
 
 ###########################################################
@@ -572,7 +572,7 @@ CC              =       gcc
 SCC             =       gcc
 CFLAGS          =
 CPP             =       /usr/bin/cpp -C -P -traditional
-CPPFLAGS        =       -D_UNDERSCORE -DBYTESWAP -DLINUX -DIO_NETCDF -DBIT32
+CPPFLAGS        =       -D_UNDERSCORE -DBYTESWAP -DLINUX -DIO_NETCDF -DBIT32 -DNO_SIGNAL
 RANLIB          =       ranlib
 
 ###########################################################
@@ -588,7 +588,7 @@ CC              =       gcc
 SCC             =       gcc
 CFLAGS          =
 CPP             =       /usr/bin/cpp -C -P -traditional
-CPPFLAGS        =       -D_UNDERSCORE -DBYTESWAP -DLINUX -DIO_NETCDF -DBIT32
+CPPFLAGS        =       -D_UNDERSCORE -DBYTESWAP -DLINUX -DIO_NETCDF -DBIT32 -DNO_SIGNAL
 RANLIB          =       ranlib
 
 ###########################################################
@@ -607,7 +607,7 @@ CC              =       mpicc -cc=gcc
 SCC             =       gcc
 CFLAGS          =
 CPP             =       /usr/bin/cpp -C -P -traditional
-CPPFLAGS        =       -D_UNDERSCORE -DBYTESWAP -DLINUX -DIO_NETCDF -DBIT32 -D_MPI
+CPPFLAGS        =       -D_UNDERSCORE -DBYTESWAP -DLINUX -DIO_NETCDF -DBIT32 -D_MPI -DNO_SIGNAL
 RANLIB          =       ranlib
 
 ###########################################################
@@ -623,7 +623,7 @@ CC              =       mpicc -cc=gcc
 SCC             =       gcc
 CFLAGS          =
 CPP             =       /usr/bin/cpp -C -P -traditional
-CPPFLAGS        =       -D_UNDERSCORE -DBYTESWAP -DLINUX -DIO_NETCDF -DBIT32 -D_MPI
+CPPFLAGS        =       -D_UNDERSCORE -DBYTESWAP -DLINUX -DIO_NETCDF -DBIT32 -D_MPI -DNO_SIGNAL
 RANLIB          =       ranlib
 
 ###########################################################
@@ -1089,7 +1089,7 @@ CC              =       gcc
 SCC             =       gcc
 CFLAGS          =
 CPP             =       /usr/bin/cpp -C -P -traditional
-CPPFLAGS        =       -D_UNDERSCORE -DBYTESWAP -DIO_NETCDF -DBIT32 -DMACOS
+CPPFLAGS        =       -D_UNDERSCORE -DBYTESWAP -DIO_NETCDF -DBIT32 -DMACOS -DNO_SIGNAL
 RANLIB          =       ranlib
 
 ###########################################################
@@ -1105,7 +1105,7 @@ CC              =       gcc
 SCC             =       gcc
 CFLAGS          =
 CPP             =       /usr/bin/cpp -C -P -traditional
-CPPFLAGS        =       -D_UNDERSCORE -DBYTESWAP -DIO_NETCDF -DBIT32 -DMACOS
+CPPFLAGS        =       -D_UNDERSCORE -DBYTESWAP -DIO_NETCDF -DBIT32 -DMACOS -DNO_SIGNAL
 RANLIB          =       ranlib
 
 ###########################################################
@@ -1124,7 +1124,7 @@ CC              =       mpicc -cc=gcc
 SCC             =       gcc
 CFLAGS          =
 CPP             =       /usr/bin/cpp -C -P -traditional
-CPPFLAGS        =       -D_UNDERSCORE -DBYTESWAP -DIO_NETCDF -DBIT32 -DMACOS -D_MPI
+CPPFLAGS        =       -D_UNDERSCORE -DBYTESWAP -DIO_NETCDF -DBIT32 -DMACOS -D_MPI -DNO_SIGNAL
 RANLIB          =       ranlib
 
 ###########################################################
@@ -1140,7 +1140,7 @@ CC              =       mpicc -cc=gcc
 SCC             =       gcc
 CFLAGS          =
 CPP             =       /usr/bin/cpp -C -P -traditional
-CPPFLAGS        =       -D_UNDERSCORE -DBYTESWAP -DIO_NETCDF -DBIT32 -DMACOS -D_MPI
+CPPFLAGS        =       -D_UNDERSCORE -DBYTESWAP -DIO_NETCDF -DBIT32 -DMACOS -D_MPI -DNO_SIGNAL
 RANLIB          =       ranlib
 
 ###########################################################
