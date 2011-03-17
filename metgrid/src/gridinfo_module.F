@@ -15,11 +15,12 @@ module gridinfo_module
    ! Variables
    integer :: interval_seconds, max_dom, io_form_input, io_form_output, debug_level
    integer, dimension(MAX_DOMAINS) :: subgrid_ratio_x, subgrid_ratio_y
+   integer :: process_only_bdy
    character (len=MAX_FILENAME_LEN) :: opt_output_from_geogrid_path, &
                           opt_output_from_metgrid_path, opt_metgrid_tbl_path 
    character (len=128), dimension(MAX_DOMAINS) :: start_date, end_date
    character (len=MAX_FILENAME_LEN), dimension(MAX_DOMAINS) :: fg_name, constants_name
-   logical :: do_tiled_input, do_tiled_output, opt_ignore_dom_center, nocolons
+   logical :: do_tiled_input, do_tiled_output, nocolons
    logical, dimension(MAX_DOMAINS) :: grid_is_active
    character (len=1) :: gridtype
  
@@ -50,8 +51,8 @@ module gridinfo_module
                         interval_seconds, io_form_geogrid, opt_output_from_geogrid_path, &
                         debug_level, active_grid, nocolons, &
                         subgrid_ratio_x, subgrid_ratio_y
-      namelist /metgrid/ io_form_metgrid, fg_name, constants_name, opt_output_from_metgrid_path, &
-                         opt_metgrid_tbl_path, opt_ignore_dom_center 
+      namelist /metgrid/ io_form_metgrid, fg_name, constants_name, process_only_bdy, opt_output_from_metgrid_path, &
+                         opt_metgrid_tbl_path
         
       ! Set defaults
       io_form_geogrid = 2
@@ -81,10 +82,10 @@ module gridinfo_module
          subgrid_ratio_x(i) = 1
          subgrid_ratio_y(i) = 1
       end do
+      process_only_bdy = 0
       opt_output_from_geogrid_path = './'
       opt_output_from_metgrid_path = './'
       opt_metgrid_tbl_path = 'metgrid/'
-      opt_ignore_dom_center = .false.
       interval_seconds = INVALID
   
       ! Read parameters from Fortran namelist
@@ -209,13 +210,9 @@ module gridinfo_module
          end if
       end do
       call mprintf(.true.,LOGFILE,'  IO_FORM_METGRID       = %i',i1=io_form_metgrid)
+      call mprintf(.true.,LOGFILE,'  PROCESS_ONLY_BDY      = %i',i1=process_only_bdy)
       call mprintf(.true.,LOGFILE,'  OPT_OUTPUT_FROM_METGRID_PATH = %s',s1=opt_output_from_metgrid_path)
       call mprintf(.true.,LOGFILE,'  OPT_METGRID_TBL_PATH  = %s',s1=opt_metgrid_tbl_path)
-      if (opt_ignore_dom_center) then
-         call mprintf(.true.,LOGFILE,'  OPT_IGNORE_DOM_CENTER = .TRUE.')
-      else
-         call mprintf(.true.,LOGFILE,'  OPT_IGNORE_DOM_CENTER = .FALSE.')
-      end if
       call mprintf(.true.,LOGFILE,'/')
 
 
@@ -241,6 +238,10 @@ module gridinfo_module
                    'In namelist, max_dom must be <= %i. To run with more'// &
                    ' than %i domains, increase the MAX_DOMAINS parameter.', &
                    i1=MAX_DOMAINS, i2=MAX_DOMAINS)
+
+      call mprintf(gridtype /= 'C' .and. process_only_bdy /= 0, ERROR, &
+                   'The use of process_only_bdy is only currently supported in the "ARW" core. '// &
+                   'For "NMM", please set process_only_bdy to 0 in the namelist.')
   
       ! Handle IO_FORM+100
       if (io_form_geogrid > 100) then

@@ -1100,7 +1100,7 @@ module output_module
                                 stand_lon, truelat1, truelat2, pole_lat, pole_lon,                  &
                                 parent_grid_ratio, sr_x, sr_y, corner_lats, corner_lons,            &
                                 num_metgrid_soil_levs,                                              &
-                                flags, nflags)
+                                flags, nflags, flag_excluded_middle)
  
       implicit none
   
@@ -1113,6 +1113,7 @@ module output_module
                  i_parent_end, j_parent_end, parent_grid_ratio, sr_x, sr_y, num_land_cat
       integer, intent(in), optional :: num_metgrid_soil_levs
       integer, intent(in), optional :: nflags
+      integer, intent(in), optional :: flag_excluded_middle
       real, intent(in) :: dx, dy, cen_lat, moad_cen_lat, cen_lon, stand_lon, truelat1, truelat2, &
                  pole_lat, pole_lon
       real, dimension(16), intent(in) :: corner_lats, corner_lons
@@ -1239,6 +1240,9 @@ module output_module
             call ext_put_dom_ti_integer_scalar('NUM_METGRID_SOIL_LEVELS', num_metgrid_soil_levs)
          end if
          call ext_put_dom_ti_integer_scalar('FLAG_METGRID', 1)
+         if (present(flag_excluded_middle)) then
+            call ext_put_dom_ti_integer_scalar('FLAG_EXCLUDED_MIDDLE', flag_excluded_middle)
+         end if
 #endif
 
          if (present(nflags) .and. present(flags)) then

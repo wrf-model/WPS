@@ -33,7 +33,7 @@ module process_domain_module
                  west_east_dim, south_north_dim, bottom_top_dim, map_proj, &
                  is_water, is_lake, is_ice, is_urban, i_soilwater, &
                  grid_id, parent_id, i_parent_start, j_parent_start, &
-                 i_parent_end, j_parent_end, parent_grid_ratio, sub_x, sub_y, num_land_cat
+                 i_parent_end, j_parent_end, parent_grid_ratio, sub_x, sub_y, num_land_cat, process_bdy_width
       real :: cen_lat, moad_cen_lat, cen_lon, stand_lon, truelat1, truelat2, &
               dom_dx, dom_dy, pole_lat, pole_lon
       real, dimension(16) :: corner_lats, corner_lons
@@ -105,7 +105,7 @@ module process_domain_module
                           j_parent_start, i_parent_end, j_parent_end, dom_dx, dom_dy, &
                           cen_lat, moad_cen_lat, cen_lon, stand_lon, truelat1, truelat2, &
                           pole_lat, pole_lon, parent_grid_ratio, sub_x, sub_y, &
-                          corner_lats, corner_lons, output_flags)
+                          corner_lats, corner_lons, output_flags, 0)
 
       !
       ! Begin time-dependent processing
@@ -135,6 +135,12 @@ module process_domain_module
             td_output_flags(i) = output_flags(i)
             got_this_field(i)  = got_const_field(i)
          end do
+
+         if (t > 0) then
+            process_bdy_width = process_only_bdy
+         else
+            process_bdy_width = 0
+         end if
    
          call process_single_met_time(.false., temp_date, n, extra_row, extra_col, xlat, xlon, &
                              xlat_u, xlon_u, xlat_v, xlon_v, landmask, &
@@ -151,7 +157,7 @@ module process_domain_module
                              j_parent_start, i_parent_end, j_parent_end, dom_dx, dom_dy, &
                              cen_lat, moad_cen_lat, cen_lon, stand_lon, truelat1, truelat2, &
                              pole_lat, pole_lon, parent_grid_ratio, sub_x, sub_y, &
-                             corner_lats, corner_lons, td_output_flags)
+                             corner_lats, corner_lons, td_output_flags, process_bdy_width)
    
       end do  ! Loop over n_times
 
@@ -580,7 +586,7 @@ module process_domain_module
                              j_parent_start, i_parent_end, j_parent_end, dom_dx, dom_dy, &
                              cen_lat, moad_cen_lat, cen_lon, stand_lon, truelat1, truelat2, &
                              pole_lat, pole_lon, parent_grid_ratio, sub_x, sub_y, &
-                             corner_lats, corner_lons, output_flags)
+                             corner_lats, corner_lons, output_flags, process_bdy_width)
    
       use bitarray_module
       use gridinfo_module
@@ -607,7 +613,8 @@ module process_domain_module
                  sn_mem_s, sn_mem_e, sn_mem_stag_s, sn_mem_stag_e, &
                  is_water, is_lake, is_ice, is_urban, i_soilwater, &
                  grid_id, parent_id, i_parent_start, j_parent_start, &
-                 i_parent_end, j_parent_end, parent_grid_ratio, sub_x, sub_y, num_land_cat
+                 i_parent_end, j_parent_end, parent_grid_ratio, sub_x, sub_y, num_land_cat, &
+                 process_bdy_width
 ! BUG: Should we be passing these around as pointers, or just declare them as arrays?
       real, pointer, dimension(:,:) :: landmask
       real, intent(in) :: dom_dx, dom_dy, cen_lat, moad_cen_lat, cen_lon, stand_lon, &
@@ -842,8 +849,9 @@ integer, parameter :: BDR_WIDTH = 3
                      if (do_const_processing .or. field%header%time_dependent) then
                         call interp_met_field(input_name, fg_data%field, U, M, &
                                      field, xlat_u, xlon_u, we_mem_stag_s, we_mem_stag_e, sn_mem_s, sn_mem_e, &
+                                     we_domain_s, we_domain_e, sn_domain_s, sn_domain_e, &
                                      halo_slab, 1-bdr_wdth, fg_data%nx+bdr_wdth, 1, fg_data%ny, bdr_wdth, do_gcell_interp, &
-                                     field%modified_mask)
+                                     field%modified_mask, process_bdy_width)
                      else
                         call mprintf(.true.,INFORM,' - already processed this field from constant file.')
                      end if
@@ -874,8 +882,9 @@ integer, parameter :: BDR_WIDTH = 3
                      if (do_const_processing .or. field%header%time_dependent) then
                         call interp_met_field(input_name, fg_data%field, V, M, &
                                      field, xlat_v, xlon_v, we_mem_s, we_mem_e, sn_mem_stag_s, sn_mem_stag_e, &
+                                     we_domain_s, we_domain_e, sn_domain_s, sn_domain_e, &
                                      halo_slab, 1-bdr_wdth, fg_data%nx+bdr_wdth, 1, fg_data%ny, bdr_wdth, do_gcell_interp, &
-                                     field%modified_mask)
+                                     field%modified_mask, process_bdy_width)
                      else
                         call mprintf(.true.,INFORM,' - already processed this field from constant file.')
                      end if
@@ -909,8 +918,9 @@ integer, parameter :: BDR_WIDTH = 3
                      if (do_const_processing .or. field%header%time_dependent) then
                         call interp_met_field(input_name, fg_data%field, VV, M, &
                                      field, xlat_v, xlon_v, we_mem_s, we_mem_e, sn_mem_s, sn_mem_e, &
+                                     we_domain_s, we_domain_e, sn_domain_s, sn_domain_e, &
                                      halo_slab, 1-bdr_wdth, fg_data%nx+bdr_wdth, 1, fg_data%ny, bdr_wdth, do_gcell_interp, &
-                                     field%modified_mask)
+                                     field%modified_mask, process_bdy_width)
                      else
                         call mprintf(.true.,INFORM,' - already processed this field from constant file.')
                      end if
@@ -939,14 +949,16 @@ integer, parameter :: BDR_WIDTH = 3
                         if (gridtype == 'C') then
                            call interp_met_field(input_name, fg_data%field, M, M, &
                                         field, xlat, xlon, we_mem_s, we_mem_e, sn_mem_s, sn_mem_e, &
+                                        we_domain_s, we_domain_e, sn_domain_s, sn_domain_e, &
                                         halo_slab, 1-bdr_wdth, fg_data%nx+bdr_wdth, 1, fg_data%ny, bdr_wdth, do_gcell_interp, &
-                                        field%modified_mask, landmask)
+                                        field%modified_mask, process_bdy_width, landmask)
       
                         else if (gridtype == 'E') then
                            call interp_met_field(input_name, fg_data%field, HH, M, &
                                         field, xlat, xlon, we_mem_s, we_mem_e, sn_mem_s, sn_mem_e, &
+                                        we_domain_s, we_domain_e, sn_domain_s, sn_domain_e, &
                                         halo_slab, 1-bdr_wdth, fg_data%nx+bdr_wdth, 1, fg_data%ny, bdr_wdth, do_gcell_interp, &
-                                        field%modified_mask, landmask)
+                                        field%modified_mask, process_bdy_width, landmask)
                         end if
                      else
                         call mprintf(.true.,INFORM,' - already processed this field from constant file.')
@@ -1194,7 +1206,8 @@ integer, parameter :: BDR_WIDTH = 3
                               j_parent_start, i_parent_end, j_parent_end, dom_dx, dom_dy,    &
                               cen_lat, moad_cen_lat, cen_lon, stand_lon, truelat1, truelat2, &
                               pole_lat, pole_lon, parent_grid_ratio, sub_x, sub_y,           &
-                              corner_lats, corner_lons, num_metgrid_soil_levs, met_flags, nmet_flags)
+                              corner_lats, corner_lons, num_metgrid_soil_levs,               &
+                              met_flags, nmet_flags, process_bdy_width)
 
       deallocate(met_flags)
     
@@ -1375,8 +1388,9 @@ integer, parameter :: BDR_WIDTH = 3
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
    subroutine interp_met_field(input_name, short_fieldnm, ifieldstagger, istagger, &
                                field, xlat, xlon, sm1, em1, sm2, em2, &
+                               sd1, ed1, sd2, ed2, &
                                slab, minx, maxx, miny, maxy, bdr, do_gcell_interp, &
-                               new_pts, landmask)
+                               new_pts, process_bdy_width, landmask)
 
       use bitarray_module
       use interp_module
@@ -1390,7 +1404,9 @@ integer, parameter :: BDR_WIDTH = 3
       ! Arguments
       integer, intent(in) :: ifieldstagger, istagger, &
                              sm1, em1, sm2, em2, &
-                             minx, maxx, miny, maxy, bdr
+                             sd1, ed1, sd2, ed2, &
+                             minx, maxx, miny, maxy, bdr, &
+                             process_bdy_width
       real, dimension(minx:maxx,miny:maxy), intent(in) :: slab
       real, dimension(sm1:em1,sm2:em2), intent(in) :: xlat, xlon
       real, dimension(sm1:em1,sm2:em2), intent(in), optional :: landmask
@@ -1402,7 +1418,7 @@ integer, parameter :: BDR_WIDTH = 3
 
       ! Local variables
       integer :: i, j, idx, idxt, orig_selected_proj, interp_mask_status, &
-                 interp_land_mask_status, interp_water_mask_status
+                 interp_land_mask_status, interp_water_mask_status, process_width
       integer, pointer, dimension(:) :: interp_array
       real :: rx, ry, temp
       real, pointer, dimension(:,:) :: data_count
@@ -1425,6 +1441,16 @@ integer, parameter :: BDR_WIDTH = 3
          call mprintf(.true.,WARN,'Entry in METGRID.TBL not found for field %s. '// &
                       'Default options will be used for this field!', s1=short_fieldnm)
          idx = num_entries ! The last entry is a default
+      end if
+
+      if (process_bdy_width == 0) then
+         process_width = max(ed1-sd1+1, ed2-sd2+1)
+      else
+         process_width = process_bdy_width
+        ! Add two extra rows/cols to accommodate staggered fields: one extra row/col for
+        !    averaging to mass points in real, and one beyond that for averaging during 
+        !    wind rotation 
+        if (ifieldstagger /= M) process_width = process_width + 2
       end if
 
       field%header%dim1(1) = sm1 
@@ -1503,6 +1529,13 @@ integer, parameter :: BDR_WIDTH = 3
          call select_domain(SOURCE_PROJ)
          do j=sm2,em2
             do i=sm1,em1
+
+               if (abs(i - sd1) >= process_width .and. (abs(i - ed1) >= process_width) .and. &
+                   abs(j - sd2) >= process_width .and. (abs(j - ed2) >= process_width)) then
+                  field%r_arr(i,j) = fill_missing(idx)
+                  call bitarray_set(new_pts, i-sm1+1, j-sm2+1)
+                  cycle
+               end if
 
                if (present(landmask)) then
 
@@ -1591,6 +1624,14 @@ integer, parameter :: BDR_WIDTH = 3
          call select_domain(SOURCE_PROJ)
          do j=sm2,em2
             do i=sm1,em1
+
+               if (abs(i - sd1) >= process_width .and. (abs(i - ed1) >= process_width) .and. &
+                   abs(j - sd2) >= process_width .and. (abs(j - ed2) >= process_width)) then
+                  field%r_arr(i,j) = fill_missing(idx)
+                  call bitarray_set(new_pts, i-sm1+1, j-sm2+1)
+                  cycle
+               end if
+
                if (present(landmask)) then
 
                   if (masked(idx) == MASKED_BOTH) then
