@@ -12,11 +12,11 @@ Param| Type |Level1|Level2| Name     | Units   | Description                    
   34 | 105  |  10  |      | VV       | m s-1   | V                 at 10 m               |  0  |  2  |  3  | 103 | 1 |
    1 |   1  |   0  |      | PSFC     | Pa      | Surface Pressure                        |  0  |  3  |  0  |   1 | 1 |
    2 | 102  |   0  |      | PMSL     | Pa      | Sea-level Pressure                      |  0  |  3  |  1  | 101 | 1 |
- 144 | 112  |   0  |  10  | SM000010 | kg m-3  | Soil Moist 0-10 cm below grn layer (Up) |  2  |  0  | 192 | 106 | 1 |
- 144 | 112  |  10  |  40  | SM010040 | kg m-3  | Soil Moist 10-40 cm below grn layer     |  2  |  0  | 192 | 106 | 1 |
- 144 | 112  |  40  | 100  | SM040100 | kg m-3  | Soil Moist 40-100 cm below grn layer    |  2  |  0  | 192 | 106 | 1 |
- 144 | 112  | 100  | 200  | SM100200 | kg m-3  | Soil Moist 100-200 cm below gr layer    |  2  |  0  | 192 | 106 | 1 |
- 144 | 112  |  10  | 200  | SM010200 | kg m-3  | Soil Moist 10-200 cm below gr layer     |  2  |  0  | 192 | 106 | 1 |
+ 144 | 112  |   0  |  10  | SM000010 | fraction| Soil Moist 0-10 cm below grn layer (Up) |  2  |  0  | 192 | 106 | 1 |
+ 144 | 112  |  10  |  40  | SM010040 | fraction| Soil Moist 10-40 cm below grn layer     |  2  |  0  | 192 | 106 | 1 |
+ 144 | 112  |  40  | 100  | SM040100 | fraction| Soil Moist 40-100 cm below grn layer    |  2  |  0  | 192 | 106 | 1 |
+ 144 | 112  | 100  | 200  | SM100200 | fraction| Soil Moist 100-200 cm below gr layer    |  2  |  0  | 192 | 106 | 1 |
+ 144 | 112  |  10  | 200  | SM010200 | fraction| Soil Moist 10-200 cm below gr layer     |  2  |  0  | 192 | 106 | 1 |
   11 | 112  |   0  |  10  | ST000010 | K       | T 0-10 cm below ground layer (Upper)    |  0  |  0  |  0  | 106 | 1 |
   11 | 112  |  10  |  40  | ST010040 | K       | T 10-40 cm below ground layer (Upper)   |  0  |  0  |  0  | 106 | 1 |
   11 | 112  |  40  | 100  | ST040100 | K       | T 40-100 cm below ground layer (Upper)  |  0  |  0  |  0  | 106 | 1 |
@@ -27,8 +27,6 @@ Param| Type |Level1|Level2| Name     | Units   | Description                    
    7 |   1  |   0  |      | SOILHGT  | m       | Terrain field of source analysis        |  0  |  3  |  5  |   1 | 1 |
   11 |   1  |   0  |      | SKINTEMP | K       | Skin temperature (can use for SST also) |  0  |  0  |  0  |   1 | 1 |
   65 |   1  |   0  |      | SNOW     | kg m-2  | Water equivalent snow depth             |  0  |  1  | 13  |   1 | 1 |
- 224 |   1  |   0  |      | SOILCAT  | Tab4.213| Dominant soil type cat.(not in GFS file)|  2  |  3  |  0  |   1 | 1 |
- 225 |   1  |   0  |      | VEGCAT   | Tab4.212| Dominant land use cat. (not in GFS file)|  2  |  0  | 198 |   1 | 1 |
 -----+------+------+------+----------+---------+-----------------------------------------+---------------------------+
 #
 #

@@ -20,14 +20,12 @@ Code | Code |   1  |   2  | Name     |  Units   | Description                   
   85 | 112  |  10  | 40   | ST010040 | K        | T of 10-40 cm ground layer (.flx file)   |
   85 | 112  |  40  |100   | ST040100 | K        | T of 40-100 cm ground layer (.flx file)  |
   85 | 112  | 100  |200   | ST100200 | K        | T of 100-200 cm ground layer (.flx file) |
- 144 | 112  |  0   | 10   | SM000010 | kg m-3   | Soil Moisture of 0-10 cm gnd layer (.flx)|
- 144 | 112  | 10   | 40   | SM010040 | kg m-3   | Soil Moisture of 10-40 cm ground layer   |
- 144 | 112  | 40   |100   | SM040100 | kg m-3   | Soil Moisture of 40-100 cm ground layer  |
- 144 | 112  |100   |200   | SM100200 | kg m-3   | Soil Moisture of 100-200 cm ground layer |
+ 144 | 112  |  0   | 10   | SM000010 | fraction | Soil Moisture of 0-10 cm gnd layer (.flx)|
+ 144 | 112  | 10   | 40   | SM010040 | fraction | Soil Moisture of 10-40 cm ground layer   |
+ 144 | 112  | 40   |100   | SM040100 | fraction | Soil Moisture of 40-100 cm ground layer  |
+ 144 | 112  |100   |200   | SM100200 | fraction | Soil Moisture of 100-200 cm ground layer |
   81 |  1   |   0  |      | LANDSEA  | proprtn  | Land/Sea flag          (from .fixed file)|
    7 |  1   |   0  |      | SOILHGT  | m        | Terrain from source analysis             | 
- 224 |  1   |   0  |      | SOILCAT  |          | Dominant soil type category (from .fixed)|
- 225 |  1   |   0  |      | VEGCAT   |          | Dominant land use category  (from .fixed)|
 -----+------+------+------+----------+----------+------------------------------------------+
 #
 #
