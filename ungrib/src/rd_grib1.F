@@ -368,8 +368,15 @@ SUBROUTINE rd_grib1(IUNIT, gribflnm, level, field, hdate,  &
 
   map%startloc = 'SWCORNER'
   map%grid_wind = .true.
-! NCEP's grib1 messages say they use 6367.47, but they really use 6371.229. Hardcode it.
-  map%r_earth = 6371.229   
+! NCEP's grib1 messages (in GDS Octet 17, the Resolution and Component Flags)
+! all have '0' for the earth radius flag which the documentation (written by NCEP)
+! says is 6367.47, but they really use 6371.229. Hardcode it.
+! It's not clear what ECMWF uses. One place says 6367.47 and another 6371.229.
+  if ( index(map%source,'NCEP') .ne. 0 ) then
+    map%r_earth = 6371.229   
+  else
+    map%r_earth = 6367.47   
+  endif
 
   if (ksec2(4).eq.0) then ! Lat/Lon grid
      map%igrid = 0
@@ -455,7 +462,8 @@ SUBROUTINE rd_grib1(IUNIT, gribflnm, level, field, hdate,  &
      if (tmp8(5:5) .eq. '0') map%grid_wind = .false.
 
   else
-     print*, 'Unknown ksec2(4): ', ksec2(4)
+     print*, 'Unknown Data Representation Type, ksec2(4)= ', ksec2(4)
+     stop 'rd_grib1'
   endif
 
 111  format(' igrid      : ', i3, /, &

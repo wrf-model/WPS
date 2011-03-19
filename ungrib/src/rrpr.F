@@ -43,7 +43,7 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_level, out_f
 
   character (LEN=25) :: units
   character (LEN=46) :: Desc
-  real, allocatable, dimension(:,:) :: scr2d
+  real, allocatable, dimension(:,:) :: scr2d, tmp2d
   real, pointer, dimension(:,:) :: ptr2d
 
   integer :: k, kk, mm, n, ierr, ifv
@@ -63,8 +63,6 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_level, out_f
 
 ! Decide the length of date strings to use for output file names.  
 ! DATELEN is 13 for hours, 16 for minutes, and 19 for seconds.
-
-  write(0,*) 'Begin rrpr'
 
   if (mod(interval,3600) == 0) then
      datelen = 13
@@ -333,7 +331,8 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_level, out_f
 
         do k = 1, nlvl
            if (plvl(k).lt.200000.) then
-              if (.not. is_there(nint(plvl(k)), 'RH').and. &
+              if (.not. is_there(nint(plvl(k)), 'RH') .and. &
+                   is_there(nint(plvl(k)), 'TT') .and. &
                    is_there(nint(plvl(k)), 'SPECHUMD')) then
                  call get_dims(nint(plvl(k)), 'TT')
                  call compute_rh_spechumd_upa(map%nx, map%ny, plvl(k))
@@ -347,6 +346,7 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_level, out_f
         do k = 1, nlvl
            if (plvl(k).lt.200000.) then
               if (.not. is_there(nint(plvl(k)),'RH').and. &
+                   is_there(nint(plvl(k)), 'TT') .and. &
                    is_there(nint(plvl(k)),'VAPP')) then
                  call get_dims(nint(plvl(k)),'TT')
                  call compute_rh_vapp_upa(map%nx, map%ny, plvl(k))
@@ -359,6 +359,7 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_level, out_f
         do k = 1, nlvl
            if (plvl(k).lt.200000.) then
               if (.not. is_there(nint(plvl(k)),'RH').and. &
+                   is_there(nint(plvl(k)), 'TT') .and. &
                    is_there(nint(plvl(k)),'DEPR')) then
                  call get_dims(nint(plvl(k)),'TT')
                  call compute_rh_depr(map%nx, map%ny, plvl(k))
@@ -495,7 +496,7 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_level, out_f
         endif
         endif
 
-! ECMWF snow depth is in meters (Table 128). Convert to kg/m2 
+! ECMWF snow depth in meters of water equivalent (Table 128). Convert to kg/m2 
 ! 
         if (is_there(200100, 'SNOW_EC')) then
            call get_dims(200100, 'SNOW_EC')
@@ -506,12 +507,56 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_level, out_f
            deallocate(scr2d)
         endif
 
-! If we've got a SEAICE field, make sure that it is all Zeros and Ones:
+! Convert the ECMWF LANDSEA mask from a fraction to a flag
 
-        if (is_there(200100, 'SEAICE')) then
-           call get_dims(200100, 'SEAICE')
-           call make_zero_or_one(map%nx, map%ny)
+	if ( index(map%source,'ECMWF') .ne. 0) then
+        if (is_there(200100, 'LANDSEA')) then
+           call get_dims(200100, 'LANDSEA')
+           call make_zero_or_one(map%nx, map%ny, 'LANDSEA')
         endif
+        endif
+
+! compute physical snow depth (SNOWH) for various models
+! As of March 2011, this is done here instead of real.
+        if (is_there(200100, 'SNOW') .and. .not. is_there(200100, 'SNOWH')) then
+          call get_dims(200100, 'SNOW')
+          allocate(scr2d(map%nx,map%ny))
+          call get_storage(200100, 'SNOW', scr2d, map%nx, map%ny)
+          if ( index(map%source,'NCEP ') .ne. 0) then
+	    if ( index(map%source,'NMM ') .ne. 0 .and.  &
+	         index(map%source,'NAM ') .ne. 0 .and.  &
+	         index(map%source,'RTMA') .ne. 0 .and.  &
+	         index(map%source,'RUC ') .ne. 0 ) then     ! it's a GFS variant
+	      scr2d = scr2d * 0.01           ! NCEP uses 100:1 ratio for GFS
+	    else
+	      scr2d = scr2d * 0.005          ! NCEP uses 200:1 ratio for NAM
+	    endif
+          else if (index(map%source,'ECMWF') .ne. 0) then
+            if (is_there(200100, 'SNOW_DEN')) then        ! If we have snow density, use it to compute snowh
+	      call get_dims(200100, 'SNOW_DEN')
+	      allocate(tmp2d(map%nx,map%ny))
+	      call get_storage(200100, 'SNOW_DEN', tmp2d, map%nx, map%ny)
+	      scr2d = scr2d / tmp2d 
+              deallocate(tmp2d)
+	    else
+	      scr2d = scr2d * 0.004     ! otherwise, assume a density of 250 mm/m (i.e. 250:1 ratio).
+            endif
+	  else                       ! Other models
+	    scr2d = scr2d * 0.005    ! Use real's default method (200:1)
+          endif
+          call put_storage(200100, 'SNOWH', scr2d, map%nx, map%ny)
+          deallocate(scr2d)
+        endif
+
+! As of March 2011, SEAICE can be a flag or a fraction. It will be converted
+! to the appropriate values in real depending on whether or not the polar mods are used.
+
+!! If we've got a SEAICE field, make sure that it is all Zeros and Ones:
+
+!       if (is_there(200100, 'SEAICE')) then
+!          call get_dims(200100, 'SEAICE')
+!          call make_zero_or_one(map%nx, map%ny, 'SEAICE')
+!       endif
 
 ! If we've got an ICEMASK field, re-flag it for output to met_em and real:
 !     Field  | GRIB In  |  Out
@@ -545,20 +590,21 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_level, out_f
    enddo TIMELOOP
 end subroutine rrpr
 
-subroutine make_zero_or_one(ix, jx)
-! Make sure the SEAICE field is zero or one.
+subroutine make_zero_or_one(ix, jx, infield)
+! Make sure the input field (SEAICE or LANDSEA) is zero or one.
   use storage_module
   implicit none
   integer :: ix, jx
   real, dimension(ix,jx) :: seaice
+  character(len=*) :: infield
 
-  call get_storage(200100, 'SEAICE',seaice, ix, jx)
+  call get_storage(200100, infield, seaice, ix, jx)
   where(seaice > 0.5)
      seaice = 1.0
   elsewhere
      seaice = 0.0
   end where
-  call put_storage(200100, 'SEAICE',seaice, ix, jx)
+  call put_storage(200100, infield, seaice, ix, jx)
 end subroutine make_zero_or_one
 
 subroutine re_flag_ice_mask(ix, jx)
@@ -667,7 +713,11 @@ subroutine compute_rh_spechumd_upa(ix, jx, plvl)
   real, parameter :: eps = 0.622
 
   IF ( nint(plvl).LT. 200) THEN
-    call get_storage(nint(plvl), 'PRESSURE', P, ix, jx)
+    if (is_there(nint(plvl(k)), 'PRESSURE')) then
+      call get_storage(nint(plvl), 'PRESSURE', P, ix, jx)
+    else
+      return     ! if we don't have pressure on model levels, return
+    endif
   ELSE
     P = plvl
   ENDIF
@@ -698,7 +748,15 @@ subroutine compute_rh_vapp_upa(ix, jx, plvl)
 
   allocate(RH(ix,jx))
 
-  P = plvl
+  IF ( nint(plvl).LT. 200) THEN
+    if (is_there(nint(plvl(k)), 'PRESSURE')) then
+      call get_storage(nint(plvl), 'PRESSURE', P, ix, jx)
+    else
+      return     ! if we don't have pressure on model levels, return
+    endif
+  ELSE
+    P = plvl
+  ENDIF
   call refr_storage(nint(plvl), 'TT',    T, ix, jx)
   call refr_storage(nint(plvl), 'VAPP', E, ix, jx)
 
