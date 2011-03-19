@@ -713,7 +713,7 @@ subroutine compute_rh_spechumd_upa(ix, jx, plvl)
   real, parameter :: eps = 0.622
 
   IF ( nint(plvl).LT. 200) THEN
-    if (is_there(nint(plvl(k)), 'PRESSURE')) then
+    if (is_there(nint(plvl), 'PRESSURE')) then
       call get_storage(nint(plvl), 'PRESSURE', P, ix, jx)
     else
       return     ! if we don't have pressure on model levels, return
@@ -749,7 +749,7 @@ subroutine compute_rh_vapp_upa(ix, jx, plvl)
   allocate(RH(ix,jx))
 
   IF ( nint(plvl).LT. 200) THEN
-    if (is_there(nint(plvl(k)), 'PRESSURE')) then
+    if (is_there(nint(plvl), 'PRESSURE')) then
       call get_storage(nint(plvl), 'PRESSURE', P, ix, jx)
     else
       return     ! if we don't have pressure on model levels, return
