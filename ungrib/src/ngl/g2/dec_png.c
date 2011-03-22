@@ -56,6 +56,7 @@ int dec_png(unsigned char *pngbuf,g2int *width,g2int *height,char *cout)
     png_infop info_ptr,end_info;
     png_bytepp row_pointers;
     png_stream read_io_ptr;
+    png_uint_32 h32, w32;
 
 /*  check if stream is a valid PNG format   */
 
@@ -112,8 +113,13 @@ int dec_png(unsigned char *pngbuf,g2int *width,g2int *height,char *cout)
 /*     Get image info, such as size, depth, colortype, etc...   */
 
     /*printf("SAGT:png %d %d %d\n",info_ptr->width,info_ptr->height,info_ptr->bit_depth);*/
-    (void)png_get_IHDR(png_ptr, info_ptr, (png_uint_32 *)width, (png_uint_32 *)height,
+/*    (void)png_get_IHDR(png_ptr, info_ptr, (png_uint_32 *)width, (png_uint_32 *)height,
+               &bit_depth, &color, &interlace, &compres, &filter);*/
+    (void)png_get_IHDR(png_ptr, info_ptr, &w32, &h32,
                &bit_depth, &color, &interlace, &compres, &filter);
+
+    *height = h32;
+    *width = w32;
 
 /*     Check if image was grayscale      */
 

@@ -38,6 +38,7 @@
 ! 2003-09-02  Gilbert   -  Added GDT 3.31 - Albers Equal Area
 ! 2007-04-24  Vuong     -  Added GDT 3.204  Curilinear Orthogonal Grids
 ! 2008-05-29  Vuong     -  Added GDT 3.32768 Rotate Lat/Lon E-grid
+! 2010-05-10  Vuong     -  Added GDT 3.32769 Rotate Lat/Lon Non E-Stagger grid
 !
 ! USAGE:    use gridtemplates
 !
@@ -47,7 +48,7 @@
 !
 !$$$
 
-      integer,parameter :: MAXLEN=200,MAXTEMP=25
+      integer,parameter :: MAXLEN=200,MAXTEMP=26
 
       type gridtemplate
           integer :: template_num
@@ -201,6 +202,12 @@
       data templates(25)%needext /.false./
       data (templates(25)%mapgrid(j),j=1,19)
      &              /1,1,4,1,4,1,4,4,4,4,4,-4,4,1,-4,4,4,4,1/
+
+      data templates(26)%template_num /32769/   ! Rotate Lat/Lon Non-E Stagger grid
+      data templates(26)%mapgridlen /21/
+      data templates(26)%needext /.false./
+      data (templates(26)%mapgrid(j),j=1,21)
+     &              /1,1,4,1,4,1,4,4,4,4,4,-4,4,1,-4,4,4,4,1,4,4/
 
       contains
 

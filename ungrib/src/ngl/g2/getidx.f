@@ -15,6 +15,7 @@ C  ZERO, THEN THE INDEX IS RE READ FROM INDEX FILE ABS(LUGI).
 C
 C PROGRAM HISTORY LOG:
 C 2005-03-15  GILBERT
+C 2009-07-09  VUONG      Fixed bug for checking (LUGB) unit index file
 C
 C USAGE:    CALL GETIDX(LUGB,LUGI,CINDEX,NLEN,NNUM,IRET)
 C
@@ -89,7 +90,7 @@ C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 C  DETERMINE WHETHER INDEX BUFFER NEEDS TO BE INITIALIZED
       LUX=0
       IRET=0
-      IF ( LUGB.LE.0 .AND. LUGB.GT.100 ) THEN
+      IF ( LUGB.LE.0 .OR. LUGB.GT.100 ) THEN
          IRET=90
          RETURN
       ENDIF

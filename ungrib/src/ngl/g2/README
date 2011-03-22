@@ -1,5 +1,5 @@
-                                                           Sep 04, 2008
-
+                                                           June 01, 2009
+                                                           W/NP11:SAG
 
 g2lib Library.
 
@@ -42,8 +42,8 @@ libjasper.a - This library is a C implementation of the JPEG-2000 Part-1
               the -DUSE_JPEG2000 option from the FDEFS variable 
               in the makefile.
 
-              Download version jasper-1.700.2 from the link belows:
-              http://www.nco.ncep.noaa.gov/pmb/codes/GRIB2/
+              Download version jasper-1.900.1 from the JasPer Project's
+              home page, http://www.ece.uvic.ca/~mdadams/jasper/.
         
               More information about JPEG2000 can be found at 
               http://www.jpeg.org/JPEG2000.html.
@@ -55,7 +55,7 @@ libpng.a      This library is a C implementation of the Portable Network
               in the makefile.
 
               If not already installed on your system, download version 
-              libpng-1.2.5 from http://www.libpng.org/pub/png/libpng.html.
+              libpng-1.2.35 from http://www.libpng.org/pub/png/libpng.html.
 
               More information about PNG can be found at 
               http://www.libpng.org/pub/png/.
@@ -67,7 +67,7 @@ libz.a        This library contains compression/decompression routines
               in g2lib/makefile.
 
               If not already installed on your system, download version 
-              zlib-1.1.4 from http://www.gzip.org/zlib/.
+              zlib-1.2.3 from http://www.gzip.org/zlib/.
 
 -------------------------------------------------------------------------------
 

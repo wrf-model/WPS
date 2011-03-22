@@ -150,6 +150,12 @@
 ! 2002-01-23  Gilbert
 ! 2007-04-24  Vuong     -  Added GDT 3.204  Curvilinear Orthogonal Grids
 ! 2008-05-29  Vuong     -  Added GDT 3.32768  Rotate Lat/Lon E-grid
+! 2009-02-17  Vuong     -  Allow negative scale factors and limits for
+!                          Templates 4.5 and 4.9
+! 2009-12-14  Vuong     -  Fixed bug in routine getidx.f
+!                       -  Modified to increase length of seek(512)
+!                       -  Added Templates (Satellite Product) 4.31
+!                       -  Added Templates (ICAO WAFS) 4.15
 !
 ! USAGE:    use grib_mod
 !
@@ -159,7 +165,7 @@
 !
 !$$$
 
-      character(len=12) :: G2_VERSION="g2lib-1.1.8"
+      character(len=12) :: G2_VERSION="g2lib-1.2.2"
 
       type gribfield
           integer :: version,discipline

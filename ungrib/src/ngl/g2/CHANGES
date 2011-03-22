@@ -86,4 +86,25 @@ g2lib-1.1.7  -August  2008  - Added new local parameters conversion entries
                             - Added a new Grid Definition Template number
                               3.32768 (Added Rotate Lat/Lon E-grid)
 
-g2lib-1.1.8  -November 2008 - Added new local parameters conversion entries
+g2lib-1.1.9  -June    2009  - Update Jasper version 1.900.1, libpng-1.2.34 and zlib-1.2.3
+                            - Allow negative scale factors and limits for Templates 4.5 and 4.9
+                            - Fixed bug causing seg fault when using PNG 1.2.35
+                            - Added new local parameters conversion entries
+
+g2lib-1.2.0  -March   2010  - Fixed bug for checking (LUGB) unit index file
+                            - Modified to increase length of seek (512)
+                            - Added Templates (Satellite Product) 4.31
+                            - Added Templates (ICAO WAFS) 4.15
+                            - Added new local parameters conversion entries
+                            - Added Time Range indicator Average (7)
+
+g2lib-1.2.1 - Aug 2010      - Added new local parameters conversion entries
+                            - Added Templates 4.40,4.41,4.42,4.43
+                            - Added a new Grid Definition Template number
+                              3.32769 (Added Rotate Lat/Lon None E-grid)
+                            - Added Type of Ensemble forecast 4 and 192
+                            - Corrected parameters U/V  Max Wind level to use PDT 4.0
+                              for WAFS product
+
+g2lib-1.2.2 - Dec 2010      - Added new local parameters conversion entries
+                            - Corrected Templates 4.42,4.43

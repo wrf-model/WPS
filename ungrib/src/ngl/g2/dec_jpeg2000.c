@@ -19,7 +19,7 @@
    #define dec_jpeg2000 dec_jpeg2000__
 #endif
 
-   int dec_jpeg2000(char *injpc, int *bufsize, int *outfld)
+   int dec_jpeg2000(char *injpc,g2int *bufsize,g2int *outfld)
 /*$$$  SUBPROGRAM DOCUMENTATION BLOCK
 *                .      .    .                                       .
 * SUBPROGRAM:    dec_jpeg2000      Decodes JPEG2000 code stream
@@ -34,7 +34,7 @@
 * PROGRAM HISTORY LOG:
 * 2002-12-02  Gilbert
 *
-* USAGE:     int dec_jpeg2000(char *injpc, int *bufsize, int *outfld)
+* USAGE:     int dec_jpeg2000(char *injpc,g2int *bufsize,g2int *outfld)
 *
 *   INPUT ARGUMENTS:
 *      injpc - Input JPEG2000 code stream.
@@ -62,7 +62,7 @@
 {
 #ifdef USE_JPEG2000
     int ier;
-    int i,j,k,n;
+    g2int i,j,k,n;
     jas_image_t *image=0;
     jas_stream_t *jpcstream,*istream;
     jas_image_cmpt_t cmpt,*pcmpt;

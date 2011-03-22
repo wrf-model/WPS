@@ -26,7 +26,7 @@
 !
 !$$$
 
-      real,intent(in) :: a(num)
+      real(4),intent(in) :: a(num)
       real(4),intent(out) :: rieee(num)
       integer,intent(in) :: num
 

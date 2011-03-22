@@ -1,0 +1,13 @@
+
+  List of the NCEP g2lib files changed for WPS  
+         (merged with g2lib-1.2.2 3/21/11)
+
+  pngpack.F dec_jpeg2000.c dec_png.c enc_jpeg2000.c enc_png.c jpcpack.F 
+  jpcunpack.F pngunpack.F   (mostly to add ifdefs to compile without jasper/png)
+  
+  gf_free.f  (commented out a deallocate)
+        
+  mova2i.c  gbytesc.f ixgb2.f   (changed mova2i to mov_a2i in the wps code)
+
+
+

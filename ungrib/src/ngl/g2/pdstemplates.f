@@ -37,6 +37,12 @@
 ! 2000-05-11  Gilbert
 ! 2001-12-04  Gilbert  -  Added Templates 4.12, 4.12, 4.14,
 !                         4.1000, 4.1001, 4.1002, 4.1100 and 4.1101
+! 2009-05-21  VUONG    -  Allow negative scale factors and limits for
+!                         Templates 4.5 and 4.9
+! 2009-12-14  VUONG    -  Added Templates (Satellite Product) 4.31
+!                         Added Templates (ICAO WAFS) 4.15
+! 2010-08-03  VUONG    -  Added Templates 4.40,4.41,4.42,.4.43 
+! 2010-12-08  Vuong    -  Corrected Product Definition Template 4.42 and 4.43
 !
 ! USAGE:    use pdstemplates
 !
@@ -46,7 +52,7 @@
 !
 !$$$
 
-      integer,parameter :: MAXLEN=200,MAXTEMP=23
+      integer,parameter :: MAXLEN=200,MAXTEMP=29
 
       type pdstemplate
           integer :: template_num
@@ -93,7 +99,7 @@
       data templates(6)%mappdslen /22/
       data templates(6)%needext /.false./
       data (templates(6)%mappds(j),j=1,22)
-     &               /1,1,1,1,1,2,1,1,4,1,-1,-4,1,-1,-4,1,1,1,1,4,1,4/
+     &          /1,1,1,1,1,2,1,1,4,1,-1,-4,1,-1,-4,1,1,1,-1,-4,-1,-4/
 
       data templates(7)%template_num /6/     !  Percentile fcst at level/layer
       data templates(7)%mappdslen /16/
@@ -117,8 +123,8 @@
       data templates(10)%mappdslen /36/
       data templates(10)%needext /.true./
       data (templates(10)%mappds(j),j=1,36)
-     &  /1,1,1,1,1,2,1,1,4,1,-1,-4,1,-1,-4,1,1,1,-1,4,-1,4,2,1,1,1,1,1,
-     &   1,4,1,1,1,4,1,4/
+     &  /1,1,1,1,1,2,1,1,4,1,-1,-4,1,-1,-4,1,1,1,-1,-4,-1,-4,2,1,1,1,
+     &   1,1,1,4,1,1,1,4,1,4/
 
       data templates(11)%template_num /10/     !  Percentile over time interval
       data templates(11)%mappdslen /30/
@@ -203,6 +209,43 @@
       data (templates(23)%mappds(j),j=1,22)
      &               /1,1,1,1,1,2,1,1,4,1,-1,-4,1,-1,-4,4,1,1,1,4,1,4/
 
+      data templates(24)%template_num /31/     !  Satellite Product
+      data templates(24)%mappdslen /5/
+      data templates(24)%needext /.true./
+      data (templates(24)%mappds(j),j=1,5)
+     &                            /1,1,1,1,1/
+
+      data templates(25)%template_num /15/     !  Ave or Accum at level/layer
+      data templates(25)%mappdslen /18/        !  For ICAO WAFS products
+      data templates(25)%needext /.false./
+      data (templates(25)%mappds(j),j=1,18)
+     &  /1,1,1,1,1,2,1,1,4,1,-1,-4,1,-1,-4,1,1,1/
+
+      data templates(26)%template_num /40/     !  Analysis or Forecast at a horizontal or in a
+      data templates(26)%mappdslen /16/        !  horizontal layer at a point in time for 
+      data templates(26)%needext /.false./     !  atmospheric chemical constituents
+      data (templates(26)%mappds(j),j=1,16)
+     &  /1,1,2,1,1,1,2,1,1,4,1,-1,-4,1,-1,-4/
+
+      data templates(27)%template_num /41/     !  Individual ensemble forecast, control and 
+      data templates(27)%mappdslen /19/        !  perturbed, at horizontal level or 
+      data templates(27)%needext /.false./     !  in a horizontal layer at a point in time for
+      data (templates(27)%mappds(j),j=1,19)    !  atmospheric chemical constituents
+     &  /1,1,2,1,1,1,2,1,1,4,1,-1,-4,1,-1,-4,1,1,1/
+
+      data templates(28)%template_num /42/     !  Average, Accumulation, and/or extreme values or other
+      data templates(28)%mappdslen /30/        !  statistically-processed values at horizontal level or 
+      data templates(28)%needext /.true./      !  in a horizontal layer in contnunuous or non-continuous time
+      data (templates(28)%mappds(j),j=1,30)    !  interval for atmospheric chemical constituents
+     &  /1,1,2,1,1,1,2,1,1,4,1,-1,-4,1,-1,-4,2,1,1,1,1,1,1,4,
+     &   1,1,1,4,1,4/
+
+      data templates(29)%template_num /43/     !  Individual ensemble forecast, control and
+      data templates(29)%mappdslen /33/        !  perturbed, at horizontal level or in a horizontal 
+      data templates(29)%needext /.true./      !  layer at a point in a continuous or non-continuous time
+      data (templates(29)%mappds(j),j=1,33)    !  interval for atmospheric chemical constituents
+     &  /1,1,2,1,1,1,2,1,1,4,1,-1,-4,1,-1,-4,1,1,1,2,1,1,1,1,1,1,4,
+     &   1,1,1,4,1,4/
 
       contains
 
@@ -247,8 +290,6 @@
          end function
 
 
-
-
          subroutine getpdstemplate(number,nummap,map,needext,iret)
 !$$$  SUBPROGRAM DOCUMENTATION BLOCK
 !                .      .    .                                       .
@@ -263,6 +304,8 @@
 !
 ! PROGRAM HISTORY LOG:
 ! 2000-05-11  Gilbert
+! 2010-08-03  VUONG    -  Added Templates 4.40,4.41,4.42,.4.43 
+! 2010-12-08  Vuong    -  Corrected Product Definition Template 4.42 and 4.43
 !
 ! USAGE:    CALL getpdstemplate(number,nummap,map,needext,iret)
 !   INPUT ARGUMENT LIST:
@@ -322,6 +365,8 @@
 !
 ! PROGRAM HISTORY LOG:
 ! 2000-05-11  Gilbert
+! 2010-08-03  VUONG    -  Added Templates 4.40,4.41,4.42,.4.43 
+! 2010-12-08  Vuong    -  Corrected Product Definition Template 4.42 and 4.43
 !
 ! USAGE:    CALL extpdstemplate(number,list,nummap,map)
 !   INPUT ARGUMENT LIST:
@@ -444,6 +489,33 @@
                 map(nummap+5)=4
                 nummap=nummap+5
               enddo
+           elseif ( number.eq.31 ) then
+              do j=1,list(5)
+                map(nummap+1)=2
+                map(nummap+2)=2
+                map(nummap+3)=2
+                map(nummap+4)=1
+                map(nummap+5)=4
+                nummap=nummap+5
+              enddo
+           elseif ( number.eq.42 ) then
+              if ( list(23).gt.1 ) then
+                do j=2,list(23)
+                  do k=1,6
+                    map(nummap+k)=map(24+k)
+                  enddo
+                  nummap=nummap+6
+                enddo
+              endif
+           elseif ( number.eq.43 ) then
+              if ( list(26).gt.1 ) then
+                do j=2,list(26)
+                  do k=1,6
+                    map(nummap+k)=map(27+k)
+                  enddo
+                  nummap=nummap+6
+                enddo
+              endif
            endif
 
          end subroutine
