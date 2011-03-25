@@ -670,24 +670,92 @@ NCARG_LIBS2	=	-L${PGI}/linux86-64/5.2/lib -lpgftnrtl -lpgc \
 			-L/usr/lib64 -lg2c
 
 ###########################################################
-#ARCH    Cray XT Linux x86_64 (IA64 and Opteron), PGI compiler 5.2 or higher, DM parallel, NO GRIB2
+#ARCH    Cray XT/XE Linux x86_64 (Opteron), PGI compiler 5.2 or higher, DM parallel
+
+COMPRESSION_LIBS        =       -L/contrib/jasper/lib -ljasper \
+                                -L/contrib/libpng/lib -lpng \
+                                -L/contrib/zlib/lib -lz
+COMPRESSION_INC         =       -I/contrib/zlib/include \
+                                -I/contrib/jasper/include \
+                                -I/contrib/libpng/include
+FDEFS                   =
+FC              =       ftn
+SFC             =       pgf90
+FFLAGS          =       -Mfree -byteswapio -O
+F77FLAGS        =       -Mfixed -byteswapio -O
+FNGFLAGS        =       $(FFLAGS)
+LDFLAGS         =
+CC              =       gcc
+SCC             =       pgcc
+CFLAGS          =       -O
+CPP             =       /lib/cpp -C -P -traditional
+CPPFLAGS        =       -D_UNDERSCORE -DBYTESWAP -DLINUX -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -D_MPI -DBIT32
+NCARG_LIBS2     =
+
+###########################################################
+#ARCH    Cray XT/XE Linux x86_64 (Opteron), PGI compiler 5.2 or higher, DM parallel, NO GRIB2
 #
 COMPRESSION_LIBS        =
 COMPRESSION_INC         =
 FDEFS                   =
 FC              =       ftn
 SFC             =       pgf90
-FFLAGS          =       -Mfree -byteswapio -O3 -fastsse
-F77FLAGS        =       -Mfixed -byteswapio -O3
+FFLAGS          =       -Mfree -byteswapio -O
+F77FLAGS        =       -Mfixed -byteswapio -O
 FNGFLAGS        =       $(FFLAGS)
 LDFLAGS         =
 CC              =       gcc
 SCC             =       pgcc
-CFLAGS          =       -O3
+CFLAGS          =       -O
 CPP             =       /lib/cpp -C -P -traditional
 CPPFLAGS        =       -D_UNDERSCORE -DBYTESWAP -DLINUX -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -D_MPI -DBIT32
-NCARG_LIBS2     =       -L${PGI}/linux86-64/5.2/lib -lpgftnrtl -lpgc \
-                        -L/usr/lib64 -lg2c
+NCARG_LIBS2     =
+#NCARG_LIBS2     =       -L${PGI}/linux86-64/5.2/lib -lpgftnrtl -lpgc \
+#                       -L/usr/lib64 -lg2c
+
+###########################################################
+#ARCH    Cray XT/XE Linux x86_64 (Opteron), Cray CCE compiler 7.0 or higher, DM parallel
+
+COMPRESSION_LIBS        =       -L/contrib/jasper/lib -ljasper \
+                                -L/contrib/libpng/lib -lpng \
+                                -L/contrib/zlib/lib -lz
+COMPRESSION_INC         =       -I/contrib/zlib/include \
+                                -I/contrib/jasper/include \
+                                -I/contrib/libpng/include
+FDEFS                   =
+FC              =       ftn
+SFC             =       ftn
+FFLAGS          =       -ffree -h byteswapio
+F77FLAGS        =       -ffixed -h byteswapio
+FNGFLAGS        =       $(FFLAGS)
+LDFLAGS         =
+CC              =       gcc
+SCC             =       gcc
+CFLAGS          =       -O
+CPP             =       /lib/cpp -C -P -traditional
+CPPFLAGS        =       -D_UNDERSCORE -DBYTESWAP -DLINUX -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -D_MPI -DBIT32
+NCARG_LIBS2     =
+
+###########################################################
+#ARCH    Cray XT/XE Linux x86_64 (Opteron), Cray CCE compiler 7.0 or higher, DM parallel, NO GRIB2
+#
+COMPRESSION_LIBS        =
+COMPRESSION_INC         =
+FDEFS                   =
+FC              =       ftn
+SFC             =       ftn
+FFLAGS          =       -ffree -h byteswapio
+F77FLAGS        =       -ffixed -h byteswapio 
+FNGFLAGS        =       $(FFLAGS)
+LDFLAGS         =
+CC              =       gcc
+SCC             =       gcc
+CFLAGS          =       -O
+CPP             =       /lib/cpp -C -P -traditional
+CPPFLAGS        =       -D_UNDERSCORE -DBYTESWAP -DLINUX -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -D_MPI -DBIT32
+NCARG_LIBS2     =
+#NCARG_LIBS2     =       -L${PGI}/linux86-64/5.2/lib -lpgftnrtl -lpgc \
+#                       -L/usr/lib64 -lg2c
 
 ###########################################################
 #ARCH    PC Linux x86_64 (IA64 and Opteron), PGI compiler 5.2 or higher, DM parallel, NO GRIB2
