@@ -16,6 +16,7 @@ module interp_option_module
    character (len=128), pointer, dimension(:) :: fieldname, interp_method, v_interp_method, &
                     interp_mask, interp_land_mask, interp_water_mask, &
                     flag_in_output, output_name, from_input, z_dim_name, level_template
+   character (len=1), pointer, dimension(:) :: interp_mask_relational, interp_land_mask_relational, interp_water_mask_relational
    type (list), pointer, dimension(:) :: fill_lev_list
    type (list) :: flag_in_output_list
 
@@ -29,7 +30,7 @@ module interp_option_module
    subroutine read_interp_table()
 
       ! Local variables
-      integer :: i, p1, p2, idx, eos, ispace, funit, istatus, nparams
+      integer :: i, p1, p2, idx, eos, ispace, funit, istatus, nparams, s1, s2
       logical :: is_used, have_specification
       character (len=128) :: lev_string, fill_string, flag_string, flag_val
       character (len=BUFSIZE) :: buffer
@@ -90,6 +91,9 @@ module interp_option_module
       allocate(interp_mask_val(num_entries))
       allocate(interp_land_mask_val(num_entries))
       allocate(interp_water_mask_val(num_entries))
+      allocate(interp_mask_relational(num_entries))
+      allocate(interp_land_mask_relational(num_entries))
+      allocate(interp_water_mask_relational(num_entries))
       allocate(level_template(num_entries))
       allocate(flag_in_output(num_entries))
       allocate(output_name(num_entries))
@@ -123,6 +127,9 @@ module interp_option_module
          interp_mask_val(i) = NAN
          interp_land_mask_val(i) = NAN
          interp_water_mask_val(i) = NAN
+         interp_mask_relational(i) = ' '         
+         interp_land_mask_relational(i) = ' '         
+         interp_water_mask_relational(i) = ' '         
          level_template(i) = ' '
          if (gridtype == 'C') then
             output_stagger(i) = M
@@ -299,6 +306,8 @@ module interp_option_module
                         end do
                         p1 = index(buffer(idx+1:ispace-1),'(')
                         p2 = index(buffer(idx+1:ispace-1),')')
+                        s1 = index(buffer(idx+1:ispace-1),'<')
+                        s2 = index(buffer(idx+1:ispace-1),'>')
                         if (p1 == 0 .or. p2 == 0) then
                            call mprintf(.true.,WARN, &
                                         'Problem in specifying interp_mask flag. Setting masked flag to 0.')
@@ -306,9 +315,22 @@ module interp_option_module
                            interp_mask(i)(1:ispace-idx) = buffer(idx+1:ispace-1)
                            interp_mask_val(i) = 0
                         else 
-                           interp_mask(i) = ' '
-                           interp_mask(i)(1:p1) = buffer(idx+1:idx+p1-1)
-                           read(buffer(idx+p1+1:idx+p2-1),*,err=1000) interp_mask_val(i)
+                           ! Parenthesis found; additionally, there may be a relational symbol
+                           if ((s1 /= 0) .OR. (s2 /= 0)) then
+                              if (s1 > 0) then
+                                 interp_mask_relational(i) = buffer(idx+s1:idx+s1)                                 
+                              else if (s2 > 0) then
+                                 interp_mask_relational(i) = buffer(idx+s2:idx+s2)                                 
+                              end if  
+                              interp_mask(i) = ' '      
+                              interp_mask(i)(1:p1) = buffer(idx+1:idx+p1-1)
+                              read(buffer(idx+p1+2:idx+p2-1),*,err=1000) interp_mask_val(i)
+                           else
+                              ! No relational symbol
+                              interp_mask(i) = ' '
+                              interp_mask(i)(1:p1) = buffer(idx+1:idx+p1-1)
+                              read(buffer(idx+p1+1:idx+p2-1),*,err=1000) interp_mask_val(i)
+                           end if 
                         end if
       
                      else if (index('interp_land_mask',trim(buffer(1:idx-1))) /= 0 .and. &
@@ -319,6 +341,8 @@ module interp_option_module
                         end do
                         p1 = index(buffer(idx+1:ispace-1),'(')
                         p2 = index(buffer(idx+1:ispace-1),')')
+                        s1 = index(buffer(idx+1:ispace-1),'<')
+                        s2 = index(buffer(idx+1:ispace-1),'>')
                         if (p1 == 0 .or. p2 == 0) then
                            call mprintf(.true.,WARN, &
                                         'Problem in specifying interp_land_mask flag. Setting masked flag to 0.')
@@ -326,9 +350,22 @@ module interp_option_module
                            interp_land_mask(i)(1:ispace-idx) = buffer(idx+1:ispace-1)
                            interp_land_mask_val(i) = 0
                         else 
-                           interp_land_mask(i) = ' '
-                           interp_land_mask(i)(1:p1) = buffer(idx+1:idx+p1-1)
-                           read(buffer(idx+p1+1:idx+p2-1),*,err=1000) interp_land_mask_val(i)
+                           ! Parenthesis found; additionally, there may be a relational symbol
+                           if ((s1 /= 0) .OR. (s2 /= 0)) then
+                              if (s1 > 0) then
+                                 interp_land_mask_relational(i) = buffer(idx+s1:idx+s1)                                 
+                              else if (s2 > 0) then
+                                 interp_land_mask_relational(i) = buffer(idx+s2:idx+s2)                                 
+                              end if  
+                              interp_land_mask(i) = ' '      
+                              interp_land_mask(i)(1:p1) = buffer(idx+1:idx+p1-1)
+                              read(buffer(idx+p1+2:idx+p2-1),*,err=1000) interp_land_mask_val(i)
+                           else
+                              ! No relational symbol
+                              interp_land_mask(i) = ' '
+                              interp_land_mask(i)(1:p1) = buffer(idx+1:idx+p1-1)
+                              read(buffer(idx+p1+1:idx+p2-1),*,err=1000) interp_land_mask_val(i)
+                           end if 
                         end if
       
                      else if (index('interp_water_mask',trim(buffer(1:idx-1))) /= 0 .and. &
@@ -339,6 +376,8 @@ module interp_option_module
                         end do
                         p1 = index(buffer(idx+1:ispace-1),'(')
                         p2 = index(buffer(idx+1:ispace-1),')')
+                        s1 = index(buffer(idx+1:ispace-1),'<')
+                        s2 = index(buffer(idx+1:ispace-1),'>')
                         if (p1 == 0 .or. p2 == 0) then
                            call mprintf(.true.,WARN, &
                                         'Problem in specifying interp_water_mask flag. Setting masked flag to 0.')
@@ -346,9 +385,22 @@ module interp_option_module
                            interp_water_mask(i)(1:ispace-idx) = buffer(idx+1:ispace-1)
                            interp_water_mask_val(i) = 0
                         else 
-                           interp_water_mask(i) = ' '
-                           interp_water_mask(i)(1:p1) = buffer(idx+1:idx+p1-1)
-                           read(buffer(idx+p1+1:idx+p2-1),*,err=1000) interp_water_mask_val(i)
+                           ! Parenthesis found; additionally, there may be a relational symbol
+                           if ((s1 /= 0) .OR. (s2 /= 0)) then
+                              if (s1 > 0) then
+                                 interp_water_mask_relational(i) = buffer(idx+s1:idx+s1)                                 
+                              else if (s2 > 0) then
+                                 interp_water_mask_relational(i) = buffer(idx+s2:idx+s2)                                 
+                              end if  
+                              interp_water_mask(i) = ' '      
+                              interp_water_mask(i)(1:p1) = buffer(idx+1:idx+p1-1)
+                              read(buffer(idx+p1+2:idx+p2-1),*,err=1000) interp_water_mask_val(i)
+                           else
+                              ! No relational symbol
+                              interp_water_mask(i) = ' '
+                              interp_water_mask(i)(1:p1) = buffer(idx+1:idx+p1-1)
+                              read(buffer(idx+p1+1:idx+p2-1),*,err=1000) interp_water_mask_val(i)
+                           end if 
                         end if
       
                      else if (index('masked',trim(buffer(1:idx-1))) /= 0 .and. &
@@ -436,6 +488,7 @@ module interp_option_module
                      'be a real value, enclosed in parentheses immediately after the field name.') 
    
    1001 call mprintf(.true.,ERROR,'Could not open file METGRID.TBL')
+   1002 call mprintf(.true.,ERROR,'Symbol expected < >. Check METGRID.TBL for missing symbol or erroreous entry')
 
    end subroutine read_interp_table
 
@@ -688,6 +741,9 @@ module interp_option_module
       deallocate(interp_mask_val)
       deallocate(interp_land_mask_val)
       deallocate(interp_water_mask_val)
+      deallocate(interp_mask_relational)
+      deallocate(interp_land_mask_relational)
+      deallocate(interp_water_mask_relational)
       deallocate(level_template)
       deallocate(flag_in_output)
       deallocate(output_name)

@@ -1513,7 +1513,7 @@ integer, parameter :: BDR_WIDTH = 3
                          field%r_arr, data_count, &
                          sm1, em1, sm2, em2, 1, 1, &
                          istagger, &
-                         new_pts, missing_value(idx), interp_mask_val(idx), mask_field%r_arr)
+                         new_pts, missing_value(idx), interp_mask_val(idx), interp_mask_relational(idx), mask_field%r_arr)
          else
             call accum_continuous(slab, &
                          minx, maxx, miny, maxy, 1, 1, bdr, &
@@ -1548,6 +1548,7 @@ integer, parameter :: BDR_WIDTH = 3
                         if (interp_mask_status == 0) then
                            temp = interp_to_latlon(xlat(i,j), xlon(i,j), istagger, interp_array, slab, &
                                                    minx, maxx, miny, maxy, bdr, missing_value(idx), &
+                                                   mask_relational=interp_mask_relational(idx), &
                                                    mask_val=interp_mask_val(idx), mask_field=mask_field%r_arr)
                         else
                            temp = interp_to_latlon(xlat(i,j), xlon(i,j), istagger, interp_array, slab, &
@@ -1585,6 +1586,7 @@ integer, parameter :: BDR_WIDTH = 3
                      if (interp_mask_status == 0) then
                         temp = interp_to_latlon(xlat(i,j), xlon(i,j), istagger, interp_array, slab, &
                                                 minx, maxx, miny, maxy, bdr, missing_value(idx), &
+                                                mask_relational=interp_mask_relational(idx), &
                                                 mask_val=interp_mask_val(idx), mask_field=mask_field%r_arr)
                      else
                         temp = interp_to_latlon(xlat(i,j), xlon(i,j), istagger, interp_array, slab, &
@@ -1641,6 +1643,7 @@ integer, parameter :: BDR_WIDTH = 3
                         if (interp_land_mask_status == 0) then
                            temp = interp_to_latlon(xlat(i,j), xlon(i,j), istagger, interp_array, slab, &
                                                    minx, maxx, miny, maxy, bdr, missing_value(idx), &
+                                                   mask_relational=interp_land_mask_relational(idx), &
                                                    mask_val=interp_land_mask_val(idx), mask_field=mask_land_field%r_arr)
                         else
                            temp = interp_to_latlon(xlat(i,j), xlon(i,j), istagger, interp_array, slab, &
@@ -1652,8 +1655,8 @@ integer, parameter :: BDR_WIDTH = 3
                         if (interp_water_mask_status == 0) then
                            temp = interp_to_latlon(xlat(i,j), xlon(i,j), istagger, interp_array, slab, &
                                                    minx, maxx, miny, maxy, bdr, missing_value(idx), &
-                                                   mask_val=interp_water_mask_val(idx), &
-                                                   mask_field=mask_water_field%r_arr)
+                                                   mask_relational=interp_water_mask_relational(idx), &
+                                                   mask_val=interp_water_mask_val(idx), mask_field=mask_water_field%r_arr)
                         else
                            temp = interp_to_latlon(xlat(i,j), xlon(i,j), istagger, interp_array, slab, &
                                                    minx, maxx, miny, maxy, bdr, missing_value(idx))
@@ -1665,7 +1668,8 @@ integer, parameter :: BDR_WIDTH = 3
 
                      if (interp_mask_status == 0) then
                         temp = interp_to_latlon(xlat(i,j), xlon(i,j), istagger, interp_array, slab, &
-                                                minx, maxx, miny, maxy, bdr,  missing_value(idx), &
+                                                minx, maxx, miny, maxy, bdr, missing_value(idx), &
+                                                mask_relational=interp_mask_relational(idx), &
                                                 mask_val=interp_mask_val(idx), mask_field=mask_field%r_arr)
                      else
                         temp = interp_to_latlon(xlat(i,j), xlon(i,j), istagger, interp_array, slab, &
@@ -1682,6 +1686,7 @@ integer, parameter :: BDR_WIDTH = 3
                   if (interp_mask_status == 0) then
                      temp = interp_to_latlon(xlat(i,j), xlon(i,j), istagger, interp_array, slab, &
                                              minx, maxx, miny, maxy, bdr, missing_value(idx), &
+                                             mask_relational=interp_mask_relational(idx), &
                                              mask_val=interp_mask_val(idx), mask_field=mask_field%r_arr)
                   else
                      temp = interp_to_latlon(xlat(i,j), xlon(i,j), istagger, interp_array, slab, &
@@ -1727,7 +1732,7 @@ integer, parameter :: BDR_WIDTH = 3
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
    function interp_to_latlon(rlat, rlon, istagger, interp_method_list, slab, &
                              minx, maxx, miny, maxy, bdr, source_missing_value, &
-                             mask_field, mask_val)
+                             mask_field, mask_relational, mask_val)
 
       use interp_module
       use llxy_module
@@ -1741,6 +1746,7 @@ integer, parameter :: BDR_WIDTH = 3
       real, dimension(minx:maxx,miny:maxy), intent(in) :: slab
       real, intent(in), optional :: mask_val
       real, dimension(minx:maxx,miny:maxy), intent(in), optional :: mask_field
+      character(len=1), intent(in), optional :: mask_relational
 
       ! Return value
       real :: interp_to_latlon
@@ -1752,12 +1758,15 @@ integer, parameter :: BDR_WIDTH = 3
    
       call lltoxy(rlat, rlon, rx, ry, istagger) 
       if (rx >= minx+bdr-0.5 .and. rx <= maxx-bdr+0.5) then
-         if (present(mask_field) .and. present(mask_val)) then
+         if (present(mask_field) .and. present(mask_val) .and. present (mask_relational)) then
             interp_to_latlon = interp_sequence(rx, ry, 1, slab, minx, maxx, miny, maxy, 1, 1, source_missing_value, &
-                                   interp_method_list, 1, mask_val, mask_field)
+                                               interp_method_list, 1, mask_relational, mask_val, mask_field)
+         else if (present(mask_field) .and. present(mask_val)) then
+            interp_to_latlon = interp_sequence(rx, ry, 1, slab, minx, maxx, miny, maxy, 1, 1, source_missing_value, &
+                                               interp_method_list, 1, maskval=mask_val, mask_array=mask_field)
          else
             interp_to_latlon = interp_sequence(rx, ry, 1, slab, minx, maxx, miny, maxy, 1, 1, source_missing_value, &
-                                   interp_method_list, 1)
+                                               interp_method_list, 1)
          end if
       else
          interp_to_latlon = source_missing_value 
@@ -1770,14 +1779,18 @@ integer, parameter :: BDR_WIDTH = 3
          if (rlon < 0.) then
             call lltoxy(rlat, rlon+360., rx, ry, istagger) 
             if (rx >= minx+bdr-0.5 .and. rx <= maxx-bdr+0.5) then
-               if (present(mask_field) .and. present(mask_val)) then
+               if (present(mask_field) .and. present(mask_val) .and. present(mask_relational)) then
                   interp_to_latlon = interp_sequence(rx, ry, 1, slab, minx, maxx, miny, maxy, &
-                                         1, 1, source_missing_value, &
-                                         interp_method_list, 1, mask_val, mask_field)
+                                                     1, 1, source_missing_value, &
+                                                     interp_method_list, 1, mask_relational, mask_val, mask_field)
+               else if (present(mask_field) .and. present(mask_val)) then
+                  interp_to_latlon = interp_sequence(rx, ry, 1, slab, minx, maxx, miny, maxy, &
+                                                     1, 1, source_missing_value, &
+                                                     interp_method_list, 1, maskval=mask_val, mask_array=mask_field)
                else
                   interp_to_latlon = interp_sequence(rx, ry, 1, slab, minx, maxx, miny, maxy, &
-                                         1, 1, source_missing_value, &
-                                         interp_method_list, 1)
+                                                     1, 1, source_missing_value, &
+                                                     interp_method_list, 1)
                end if
             else
                interp_to_latlon = source_missing_value 
@@ -2455,7 +2468,7 @@ integer, parameter :: BDR_WIDTH = 3
                                dst_array, n, &
                                start_i, end_i, start_j, end_j, start_k, end_k, &
                                istagger, &
-                               new_pts, msgval, maskval, mask_array, sr_x, sr_y)
+                               new_pts, msgval, maskval, mask_relational, mask_array, sr_x, sr_y)
    
       use bitarray_module
       use misc_definitions_module
@@ -2471,6 +2484,7 @@ integer, parameter :: BDR_WIDTH = 3
       real, dimension(src_min_x:src_max_x, src_min_y:src_max_y), intent(in), optional :: mask_array
       integer, intent(in), optional :: sr_x, sr_y
       type (bitarray), intent(inout) :: new_pts
+      character(len=1), intent(in), optional :: mask_relational
    
       ! Local variables
       integer :: i, j
@@ -2495,7 +2509,7 @@ integer, parameter :: BDR_WIDTH = 3
                                src_max_x-bdr_width, src_max_y, src_max_z, &
                                dst_array, n, start_i, end_i, start_j, end_j, start_k, end_k, &
                                istagger, &
-                               new_pts, rsr_x, rsr_y, msgval, maskval, mask_array)
+                               new_pts, rsr_x, rsr_y, msgval, maskval, mask_relational, mask_array)
    
       deallocate(where_maps_to)
    
@@ -2517,7 +2531,7 @@ integer, parameter :: BDR_WIDTH = 3
                                    dst_array, n, &
                                    start_x, end_x, start_y, end_y, start_z, end_z, &
                                    istagger, &
-                                   new_pts, sr_x, sr_y, msgval, maskval, mask_array)
+                                   new_pts, sr_x, sr_y, msgval, maskval, mask_relational, mask_array)
    
       use bitarray_module
       use llxy_module
@@ -2535,6 +2549,7 @@ integer, parameter :: BDR_WIDTH = 3
       real, dimension(src_min_x:src_max_x,src_min_y:src_max_y), intent(in), optional :: mask_array
       real, dimension(start_x:end_x,start_y:end_y,start_z:end_z), intent(inout) :: dst_array, n
       type (bitarray), intent(inout) :: new_pts
+      character(len=1), intent(in), optional :: mask_relational
    
       ! Local variables
       integer :: orig_selected_domain, x_dest, y_dest, i, j, k, center_i, center_j
@@ -2643,7 +2658,30 @@ integer, parameter :: BDR_WIDTH = 3
             end if
    
             ! Sum all the points whose nearest neighbor is this grid point
-            if (present(mask_array)) then
+            if (present(mask_array) .and. present(mask_relational)) then
+               do i=min_i,max_i
+                  do j=min_j,max_j
+                     do k=min_k,max_k
+                        ! Ignore masked/missing values in the source data
+                        if (tile_array(i,j,k) /= msgval) then
+                           if (mask_relational == ' ' .and. mask_array(i,j) /= maskval) then
+                              dst_array(x_dest,y_dest,k) = dst_array(x_dest,y_dest,k) + tile_array(i,j,k) 
+                              n(x_dest,y_dest,k) = n(x_dest,y_dest,k) + 1.0
+                              call bitarray_set(new_pts, x_dest-start_x+1, y_dest-start_y+1)
+                           else if (mask_relational == '<' .and. mask_array(i,j) >= maskval) then
+                              dst_array(x_dest,y_dest,k) = dst_array(x_dest,y_dest,k) + tile_array(i,j,k) 
+                              n(x_dest,y_dest,k) = n(x_dest,y_dest,k) + 1.0
+                              call bitarray_set(new_pts, x_dest-start_x+1, y_dest-start_y+1)
+                           else if (mask_relational == '>' .and. mask_array(i,j) <= maskval) then
+                              dst_array(x_dest,y_dest,k) = dst_array(x_dest,y_dest,k) + tile_array(i,j,k) 
+                              n(x_dest,y_dest,k) = n(x_dest,y_dest,k) + 1.0
+                              call bitarray_set(new_pts, x_dest-start_x+1, y_dest-start_y+1)
+                           end if
+                        end if
+                     end do
+                  end do
+               end do
+            else if (present(mask_array)) then
                do i=min_i,max_i
                   do j=min_j,max_j
                      do k=min_k,max_k
@@ -2690,7 +2728,26 @@ integer, parameter :: BDR_WIDTH = 3
                         end do
                      end if
                      
-                     if (present(mask_array)) then
+                     if (present(mask_array) .and. present(mask_relational)) then
+                        do k=min_k,max_k
+                           ! Ignore masked/missing values
+                           if (tile_array(i,j,k) /= msgval) then
+                              if (mask_relational == ' ' .and. mask_array(i,j) /= maskval) then
+                                 dst_array(x_dest,y_dest,k) = dst_array(x_dest,y_dest,k) + tile_array(i,j,k)
+                                 n(x_dest,y_dest,k) = n(x_dest,y_dest,k) + 1.0
+                                 call bitarray_set(new_pts, x_dest-start_x+1, y_dest-start_y+1)
+                              else if (mask_relational == '<' .and. mask_array(i,j) >= maskval) then
+                                 dst_array(x_dest,y_dest,k) = dst_array(x_dest,y_dest,k) + tile_array(i,j,k)
+                                 n(x_dest,y_dest,k) = n(x_dest,y_dest,k) + 1.0
+                                 call bitarray_set(new_pts, x_dest-start_x+1, y_dest-start_y+1)
+                              else if (mask_relational == '>' .and. mask_array(i,j) <= maskval) then
+                                 dst_array(x_dest,y_dest,k) = dst_array(x_dest,y_dest,k) + tile_array(i,j,k)
+                                 n(x_dest,y_dest,k) = n(x_dest,y_dest,k) + 1.0
+                                 call bitarray_set(new_pts, x_dest-start_x+1, y_dest-start_y+1)
+                              end if
+                           end if
+                        end do
+                     else if (present(mask_array)) then
                         do k=min_k,max_k
                            ! Ignore masked/missing values
                            if ((tile_array(i,j,k) /= msgval) .and. &
@@ -2731,7 +2788,7 @@ integer, parameter :: BDR_WIDTH = 3
                     dst_array, n, &
                     start_x, end_x, start_y, end_y, start_z, end_z, &
                     istagger, &
-                    new_pts, sr_x, sr_y, msgval, maskval, mask_array) 
+                    new_pts, sr_x, sr_y, msgval, maskval, mask_relational, mask_array) 
          
          if (center_i < max_i) then
             ! Recursively process lower-right rectangle
@@ -2744,7 +2801,7 @@ integer, parameter :: BDR_WIDTH = 3
                        start_x, end_x, start_y, &
                        end_y, start_z, end_z, &
                        istagger, &
-                       new_pts, sr_x, sr_y, msgval, maskval, mask_array) 
+                       new_pts, sr_x, sr_y, msgval, maskval, mask_relational, mask_array) 
          end if
    
          if (center_j < max_j) then
@@ -2758,7 +2815,7 @@ integer, parameter :: BDR_WIDTH = 3
                        start_x, end_x, start_y, &
                        end_y, start_z, end_z, &
                        istagger, &
-                       new_pts, sr_x, sr_y, msgval, maskval, mask_array) 
+                       new_pts, sr_x, sr_y, msgval, maskval, mask_relational, mask_array) 
          end if
    
          if (center_i < max_i .and. center_j < max_j) then
@@ -2772,7 +2829,7 @@ integer, parameter :: BDR_WIDTH = 3
                        start_x, end_x, start_y, &
                        end_y, start_z, end_z, &
                        istagger, &
-                       new_pts, sr_x, sr_y, msgval, maskval, mask_array) 
+                       new_pts, sr_x, sr_y, msgval, maskval, mask_relational, mask_array) 
          end if
       end if
    

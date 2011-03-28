@@ -138,7 +138,7 @@ module interp_module
    !   interpolation routines defined in the module.
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
    recursive function interp_sequence(xx, yy, izz, array, start_x, end_x, &
-              start_y, end_y, start_z, end_z, msgval, interp_list, idx, maskval, mask_array)
+              start_y, end_y, start_z, end_z, msgval, interp_list, idx, mask_relational, maskval, mask_array)
  
       implicit none
   
@@ -154,6 +154,7 @@ module interp_module
       integer, intent(in) :: idx
       integer, dimension(:), intent(in) :: interp_list
       real, dimension(start_x:end_x, start_y:end_y), intent(in), optional :: mask_array 
+      character (len=1), intent(in), optional :: mask_relational
   
       ! Return value
       real :: interp_sequence       
@@ -167,42 +168,35 @@ module interp_module
       if (interp_list(idx) == FOUR_POINT) then
          interp_sequence = four_pt(xx, yy, izz, array, start_x, end_x, &
                                    start_y, end_y, start_z, end_z, &
-                                   msgval, interp_list, idx+1, maskval, mask_array)
-
+                                   msgval, interp_list, idx+1, mask_relational, maskval, mask_array)
       else if (interp_list(idx) == AVERAGE4) then
          interp_sequence = four_pt_average(xx, yy, izz, array, start_x, end_x, &
                                            start_y, end_y, start_z, end_z, &
-                                           msgval, interp_list, idx+1, maskval, mask_array)
-
+                                           msgval, interp_list, idx+1, mask_relational, maskval, mask_array)
       else if (interp_list(idx) == W_AVERAGE4) then
          interp_sequence = wt_four_pt_average(xx, yy, izz, array, start_x, end_x, &
                                               start_y, end_y, start_z, end_z, &
-                                              msgval, interp_list, idx+1, maskval, mask_array)
-
+                                              msgval, interp_list, idx+1, mask_relational, maskval, mask_array)
       else if (interp_list(idx) == N_NEIGHBOR) then
          interp_sequence = nearest_neighbor(xx, yy, izz, array, start_x, end_x, &
                                             start_y, end_y, start_z, end_z, &
-                                            msgval, interp_list, idx+1, maskval, mask_array)
-
+                                            msgval, interp_list, idx+1, mask_relational, maskval, mask_array)
       else if (interp_list(idx) == SIXTEEN_POINT) then
          interp_sequence = sixteen_pt(xx, yy, izz, array, start_x, end_x, &
                                       start_y, end_y, start_z, end_z, &
-                                      msgval, interp_list, idx+1, maskval, mask_array)
-
+                                      msgval, interp_list, idx+1, mask_relational, maskval, mask_array)
       else if (interp_list(idx) == SEARCH) then
          interp_sequence = search_extrap(xx, yy, izz, array, start_x, end_x, &
                                          start_y, end_y, start_z, end_z, &
-                                         msgval, interp_list, idx+1, maskval, mask_array)
-
+                                         msgval, interp_list, idx+1, mask_relational, maskval, mask_array)
       else if (interp_list(idx) == AVERAGE16) then
          interp_sequence = sixteen_pt_average(xx, yy, izz, array, start_x, end_x, &
                                               start_y, end_y, start_z, end_z, &
-                                              msgval, interp_list, idx+1, maskval, mask_array)
-
+                                              msgval, interp_list, idx+1, mask_relational, maskval, mask_array)
       else if (interp_list(idx) == W_AVERAGE16) then
          interp_sequence = wt_sixteen_pt_average(xx, yy, izz, array, start_x, end_x, &
                                                  start_y, end_y, start_z, end_z, &
-                                                 msgval, interp_list, idx+1, maskval, mask_array)
+                                                 msgval, interp_list, idx+1, mask_relational, maskval, mask_array)
       end if
  
    end function interp_sequence
@@ -215,7 +209,7 @@ module interp_module
    !   array, the point on the edge of the array nearest to (xx,yy) is returned.
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
    recursive function nearest_neighbor(xx, yy, izz, array, start_x, end_x, &
-              start_y, end_y, start_z, end_z, msgval, interp_list, idx, maskval, mask_array)
+              start_y, end_y, start_z, end_z, msgval, interp_list, idx, mask_relational, maskval, mask_array)
     
       implicit none
   
@@ -231,7 +225,8 @@ module interp_module
       integer, dimension(:), intent(in) :: interp_list
       integer, intent(in) :: idx
       real, dimension(start_x:end_x, start_y:end_y), intent(in), optional :: mask_array 
-  
+      character (len=1), intent(in), optional :: mask_relational
+
       ! Return value
       real :: nearest_neighbor
   
@@ -251,13 +246,23 @@ module interp_module
          nearest_neighbor = msgval
          return
       end if
-  
-      if (present(mask_array) .and. present(maskval)) then
-         if (mask_array(ix,iy) == maskval) then
+
+      if (present(mask_array) .and. present(maskval) .and. present(mask_relational)) then
+         if (mask_relational == '<' .and. mask_array(ix,iy) < maskval) then 
+            nearest_neighbor = msgval
+         else if (mask_relational == '>' .and. mask_array(ix,iy) > maskval) then 
+            nearest_neighbor = msgval
+         else if (mask_relational == ' ' .and. mask_array(ix,iy) == maskval) then
             nearest_neighbor = msgval
          else
             nearest_neighbor = array(ix,iy,izz)
-         end if
+         end if        
+      else if (present(mask_array) .and. present(maskval)) then 
+         if (maskval == mask_array(ix,iy)) then
+            nearest_neighbor = msgval
+         else
+            nearest_neighbor = array(ix,iy,izz)
+         end if        
       else
          nearest_neighbor = array(ix,iy,izz)
       end if
@@ -265,7 +270,7 @@ module interp_module
       ! If we have a missing value, try the next interpolation method in the sequence
       if (nearest_neighbor == msgval) then
          nearest_neighbor = interp_sequence(xx, yy, izz, array, start_x, end_x, start_y, end_y, &
-                             start_z, end_z, msgval, interp_list, idx, maskval, mask_array)
+                             start_z, end_z, msgval, interp_list, idx, mask_relational, maskval, mask_array)
       end if
   
    end function nearest_neighbor
@@ -278,7 +283,7 @@ module interp_module
    !   If no valid value can be found in the array, msgval is returned.
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
    recursive function search_extrap(xx, yy, izz, array, start_x, end_x, &
-              start_y, end_y, start_z, end_z, msgval, interp_list, idx, maskval, mask_array)
+              start_y, end_y, start_z, end_z, msgval, interp_list, idx, mask_relational, maskval, mask_array)
  
       implicit none
   
@@ -295,7 +300,8 @@ module interp_module
       integer, intent(in) :: idx
       real, dimension(start_x:end_x, start_y:end_y), &
           intent(in), optional :: mask_array 
-  
+      character (len=1), intent(in), optional :: mask_relational
+
       ! Return value
       real :: search_extrap
   
@@ -328,8 +334,16 @@ module interp_module
          i = qdata%x
          j = qdata%y
 
-         if (present(mask_array) .and. present(maskval)) then
-            if (array(i,j,izz) /= msgval .and. mask_array(i,j) /= maskval) found_valid = .true. 
+         if (present(mask_array) .and. present(maskval) .and. present(mask_relational)) then
+            if (mask_relational == '>' .and. mask_array(i,j) <= maskval .and. array(i,j,izz) /= msgval) then
+               found_valid = .true.
+            else if (mask_relational == '<' .and. mask_array(i,j) >= maskval .and. array(i,j,izz) /= msgval) then
+               found_valid = .true.
+            else if (mask_relational == ' ' .and. mask_array(i,j) /= maskval .and. array(i,j,izz) /= msgval) then
+               found_valid = .true.
+            end if
+         else if (present(mask_array) .and. present(maskval)) then
+            if (array(i,j,izz) /= msgval .and. mask_array(i,j) /= maskval) found_valid = .true.                  
          else
             if (array(i,j,izz) /= msgval) found_valid = .true. 
          end if
@@ -373,7 +387,28 @@ module interp_module
          search_extrap = array(i,j,izz)
          do while (q_isdata(q))
             qdata = q_remove(q)
-            if (present(mask_array) .and. present(maskval)) then
+            if (present(mask_array) .and. present(maskval) .and. present(mask_relational)) then
+               if (mask_relational == '<' .and. mask_array(qdata%x,qdata%y) >= maskval &
+                   .and. array(qdata%x,qdata%y,izz) /= msgval) then
+                  if ((real(qdata%x)-xx)*(real(qdata%x)-xx)+(real(qdata%y)-yy)*(real(qdata%y)-yy) < distance) then
+                     distance = (real(qdata%x)-xx)*(real(qdata%x)-xx)+(real(qdata%y)-yy)*(real(qdata%y)-yy) 
+                     search_extrap = array(qdata%x, qdata%y, izz)
+                  end if
+               else if (mask_relational == '>' .and. mask_array(qdata%x,qdata%y) <= maskval &
+                        .and. array(qdata%x,qdata%y,izz) /= msgval) then
+                  if ((real(qdata%x)-xx)*(real(qdata%x)-xx)+(real(qdata%y)-yy)*(real(qdata%y)-yy) < distance) then
+                     distance = (real(qdata%x)-xx)*(real(qdata%x)-xx)+(real(qdata%y)-yy)*(real(qdata%y)-yy) 
+                     search_extrap = array(qdata%x, qdata%y, izz)
+                  end if
+               else if (mask_relational == ' ' .and. mask_array(qdata%x,qdata%y) /= maskval &
+                        .and. array(qdata%x,qdata%y,izz) /= msgval) then
+                  if ((real(qdata%x)-xx)*(real(qdata%x)-xx)+(real(qdata%y)-yy)*(real(qdata%y)-yy) < distance) then
+                     distance = (real(qdata%x)-xx)*(real(qdata%x)-xx)+(real(qdata%y)-yy)*(real(qdata%y)-yy) 
+                     search_extrap = array(qdata%x, qdata%y, izz)
+                  end if
+               end if
+                
+            else if (present(mask_array) .and. present(maskval)) then
                if (array(qdata%x,qdata%y,izz) /= msgval .and. mask_array(qdata%x,qdata%y) /= maskval) then
                   if ((real(qdata%x)-xx)*(real(qdata%x)-xx)+(real(qdata%y)-yy)*(real(qdata%y)-yy) < distance) then
                      distance = (real(qdata%x)-xx)*(real(qdata%x)-xx)+(real(qdata%y)-yy)*(real(qdata%y)-yy) 
@@ -406,7 +441,7 @@ module interp_module
    ! Purpose: Average of four surrounding grid point values
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
    recursive function four_pt_average(xx, yy, izz, array, start_x, end_x, &
-              start_y, end_y, start_z, end_z, msgval, interp_list, idx, maskval, mask_array)
+              start_y, end_y, start_z, end_z, msgval, interp_list, idx, mask_relational, maskval, mask_array)
  
       implicit none
   
@@ -424,7 +459,8 @@ module interp_module
       integer, intent(in) :: idx
       real, dimension(start_x:end_x, start_y:end_y), &
           intent(in), optional :: mask_array 
-  
+      character (len=1), intent(in), optional :: mask_relational
+
       ! Return value
       real :: four_pt_average
   
@@ -470,8 +506,28 @@ module interp_module
             return
          end if
       end if
-  
-      if (present(mask_array) .and. present(maskval)) then
+
+      if (present(mask_array) .and. present(maskval) .and. present(mask_relational)) then
+         ! we determine which maskval is useable by... if the symbol > is found, then only 
+         !    values less than 'maskval' can be used and if the symbol < is found,  
+         !    then only the values greater than 'maskval' can be used.
+         if (mask_relational == '>') then
+            if (array(ifx, ify, izz) == msgval .or. mask_array(ifx,ify) > maskval) fxfy = 0.0 
+            if (array(ifx, icy, izz) == msgval .or. mask_array(ifx,icy) > maskval) fxcy = 0.0 
+            if (array(icx, ify, izz) == msgval .or. mask_array(icx,ify) > maskval) cxfy = 0.0 
+            if (array(icx, icy, izz) == msgval .or. mask_array(icx,icy) > maskval) cxcy = 0.0 
+         else if (mask_relational == '<') then
+            if (array(ifx, ify, izz) == msgval .or. mask_array(ifx,ify) < maskval) fxfy = 0.0 
+            if (array(ifx, icy, izz) == msgval .or. mask_array(ifx,icy) < maskval) fxcy = 0.0 
+            if (array(icx, ify, izz) == msgval .or. mask_array(icx,ify) < maskval) cxfy = 0.0 
+            if (array(icx, icy, izz) == msgval .or. mask_array(icx,icy) < maskval) cxcy = 0.0
+         else  !equal
+            if (array(ifx, ify, izz) == msgval .or. mask_array(ifx,ify) == maskval) fxfy = 0.0 
+            if (array(ifx, icy, izz) == msgval .or. mask_array(ifx,icy) == maskval) fxcy = 0.0 
+            if (array(icx, ify, izz) == msgval .or. mask_array(icx,ify) == maskval) cxfy = 0.0 
+            if (array(icx, icy, izz) == msgval .or. mask_array(icx,icy) == maskval) cxcy = 0.0 
+         end if 
+      else if (present(mask_array) .and. present(maskval)) then
          if (array(ifx, ify, izz) == msgval .or. mask_array(ifx,ify) == maskval) fxfy = 0.0 
          if (array(ifx, icy, izz) == msgval .or. mask_array(ifx,icy) == maskval) fxcy = 0.0 
          if (array(icx, ify, izz) == msgval .or. mask_array(icx,ify) == maskval) cxfy = 0.0 
@@ -486,7 +542,7 @@ module interp_module
       ! If all four points are missing, try the next interpolation method in the sequence
       if (fxfy == 0.0 .and. fxcy == 0.0 .and. cxfy == 0.0 .and. cxcy == 0.0) then
          four_pt_average = interp_sequence(xx, yy, izz, array, start_x, end_x, start_y, end_y, &
-                             start_z, end_z, msgval, interp_list, idx, maskval, mask_array)
+                             start_z, end_z, msgval, interp_list, idx, mask_relational, maskval, mask_array)
       else
          four_pt_average = (fxfy * array(ifx, ify, izz) + &
                             fxcy * array(ifx, icy, izz) + &
@@ -503,7 +559,7 @@ module interp_module
    ! Purpose: Weighted average of four surrounding grid point values
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
    recursive function wt_four_pt_average(xx, yy, izz, array, start_x, end_x, &
-              start_y, end_y, start_z, end_z, msgval, interp_list, idx, maskval, mask_array)
+              start_y, end_y, start_z, end_z, msgval, interp_list, idx, mask_relational, maskval, mask_array)
  
       implicit none
   
@@ -521,7 +577,8 @@ module interp_module
       integer, intent(in) :: idx
       real, dimension(start_x:end_x, start_y:end_y), &
           intent(in), optional :: mask_array 
-  
+      character (len=1), intent(in), optional :: mask_relational
+
       ! Return value
       real :: wt_four_pt_average
   
@@ -567,8 +624,28 @@ module interp_module
             return
          end if
       end if
-  
-      if (present(mask_array) .and. present(maskval)) then
+
+      if (present(mask_array) .and. present(maskval) .and. present(mask_relational)) then 
+         ! we determine which maskval is useable by... if the symbol > is found, then only 
+         !    values less than 'maskval' can be used and if the symbol < is found,  
+         !    then only the values greater than 'maskval' can be used.
+         if (mask_relational == '>') then
+            if (array(ifx, ify, izz) == msgval .or. mask_array(ifx,ify) > maskval) fxfy = 0.0 
+            if (array(ifx, icy, izz) == msgval .or. mask_array(ifx,icy) > maskval) fxcy = 0.0 
+            if (array(icx, ify, izz) == msgval .or. mask_array(icx,ify) > maskval) cxfy = 0.0 
+            if (array(icx, icy, izz) == msgval .or. mask_array(icx,icy) > maskval) cxcy = 0.0 
+         else if (mask_relational == '<') then
+            if (array(ifx, ify, izz) == msgval .or. mask_array(ifx,ify) < maskval) fxfy = 0.0 
+            if (array(ifx, icy, izz) == msgval .or. mask_array(ifx,icy) < maskval) fxcy = 0.0 
+            if (array(icx, ify, izz) == msgval .or. mask_array(icx,ify) < maskval) cxfy = 0.0 
+            if (array(icx, icy, izz) == msgval .or. mask_array(icx,icy) < maskval) cxcy = 0.0
+         else  !equal
+            if (array(ifx, ify, izz) == msgval .or. mask_array(ifx,ify) == maskval) fxfy = 0.0 
+            if (array(ifx, icy, izz) == msgval .or. mask_array(ifx,icy) == maskval) fxcy = 0.0 
+            if (array(icx, ify, izz) == msgval .or. mask_array(icx,ify) == maskval) cxfy = 0.0 
+            if (array(icx, icy, izz) == msgval .or. mask_array(icx,icy) == maskval) cxcy = 0.0 
+         end if              
+      else if (present(mask_array) .and. present(maskval)) then
          if (array(ifx, ify, izz) == msgval .or. mask_array(ifx,ify) == maskval) fxfy = 0.0 
          if (array(ifx, icy, izz) == msgval .or. mask_array(ifx,icy) == maskval) fxcy = 0.0 
          if (array(icx, ify, izz) == msgval .or. mask_array(icx,ify) == maskval) cxfy = 0.0 
@@ -583,7 +660,7 @@ module interp_module
       ! If all four points are missing, try the next interpolation method in the sequence
       if (fxfy == 0.0 .and. fxcy == 0.0 .and. cxfy == 0.0 .and. cxcy == 0.0) then
          wt_four_pt_average = interp_sequence(xx, yy, izz, array, start_x, end_x, start_y, end_y, &
-                              start_z, end_z, msgval, interp_list, idx, maskval, mask_array)
+                                start_z, end_z, msgval, interp_list, idx, mask_relational, maskval, mask_array)
       else
          wt_four_pt_average = (fxfy * array(ifx, ify, izz) + &
                                fxcy * array(ifx, icy, izz) + &
@@ -600,7 +677,7 @@ module interp_module
    ! Purpose: Average of sixteen surrounding grid point values
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
    recursive function sixteen_pt_average(xx, yy, izz, array, start_x, end_x, &
-              start_y, end_y, start_z, end_z, msgval, interp_list, idx, maskval, mask_array)
+              start_y, end_y, start_z, end_z, msgval, interp_list, idx, mask_relational, maskval, mask_array)
  
       implicit none
   
@@ -618,7 +695,8 @@ module interp_module
       integer, intent(in) :: idx
       real, dimension(start_x:end_x, start_y:end_y), &
           intent(in), optional :: mask_array 
-  
+      character (len=1), intent(in), optional :: mask_relational
+
       ! Return value
       real :: sixteen_pt_average
   
@@ -635,15 +713,25 @@ module interp_module
       if (ifx < start_x+1 .or. ifx > end_x-2 .or. &
           ify < start_y+1 .or. ify > end_y-2) then
          sixteen_pt_average = interp_sequence(xx, yy, izz, array, start_x, end_x, start_y, end_y, &
-                             start_z, end_z, msgval, interp_list, idx, maskval, mask_array)
+                                start_z, end_z, msgval, interp_list, idx, mask_relational, maskval, mask_array)
          return
       end if
   
       sum_weight = 0.0
       do i=1,4
          do j=1,4
-   
-            if (present(mask_array) .and. present(maskval)) then
+            if (present(mask_array) .and. present(maskval) .and. present(mask_relational)) then
+               if (mask_relational == '>' .and. mask_array(ifx+3-i, ify+3-j) > maskval) then
+                   weights(i,j) = 0.0
+               else if (mask_relational == '<' .and. mask_array(ifx+3-i, ify+3-j) < maskval) then
+                   weights(i,j) = 0.0
+               else if (mask_relational == ' ' .and. mask_array(ifx+3-i, ify+3-j) == maskval) then
+                   weights(i,j) = 0.0
+               else
+                   weights(i,j) = 1.0
+               end if
+               if (array(ifx+3-i, ify+3-j, izz) == msgval) weights(i,j) = 0.0
+            else if (present(mask_array) .and. present(maskval)) then
                if (array(ifx+3-i, ify+3-j, izz) == msgval .or. mask_array(ifx+3-i, ify+3-j) == maskval) then
                   weights(i,j) = 0.0
                else
@@ -665,8 +753,7 @@ module interp_module
       ! If all points are missing, try the next interpolation method in the sequence
       if (sum_weight == 0.0) then
          sixteen_pt_average = interp_sequence(xx, yy, izz, array, start_x, end_x, start_y, end_y, &
-                             start_z, end_z, msgval, interp_list, idx, maskval, mask_array)
-  
+                                start_z, end_z, msgval, interp_list, idx, mask_relational, maskval, mask_array)
       else
          sum = 0.0
          do i=1,4
@@ -686,7 +773,7 @@ module interp_module
    ! Purpose: Weighted average of sixteen surrounding grid point values
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
    recursive function wt_sixteen_pt_average(xx, yy, izz, array, start_x, end_x, &
-              start_y, end_y, start_z, end_z, msgval, interp_list, idx, maskval, mask_array)
+              start_y, end_y, start_z, end_z, msgval, interp_list, idx, mask_relational, maskval, mask_array)
  
       implicit none
   
@@ -704,7 +791,8 @@ module interp_module
       integer, intent(in) :: idx
       real, dimension(start_x:end_x, start_y:end_y), &
           intent(in), optional :: mask_array 
-  
+      character (len=1), intent(in), optional :: mask_relational
+
       ! Return value
       real :: wt_sixteen_pt_average
   
@@ -721,15 +809,25 @@ module interp_module
       if (ifx < start_x+1 .or. ifx > end_x-2 .or. &
           ify < start_y+1 .or. ify > end_y-2) then
          wt_sixteen_pt_average = interp_sequence(xx, yy, izz, array, start_x, end_x, start_y, end_y, &
-                             start_z, end_z, msgval, interp_list, idx, maskval, mask_array)
+                                   start_z, end_z, msgval, interp_list, idx, mask_relational, maskval, mask_array)
          return
       end if
   
       sum_weight = 0.0
       do i=1,4
-         do j=1,4
-   
-            if (present(mask_array) .and. present(maskval)) then
+         do j=1,4  
+            if (present(mask_array) .and. present(maskval) .and. present(mask_relational)) then
+               if (mask_relational == '>' .and. mask_array(ifx+3-i, ify+3-j) > maskval) then
+                   weights(i,j) = 0.0
+               else if (mask_relational == '<' .and. mask_array(ifx+3-i, ify+3-j) < maskval) then
+                   weights(i,j) = 0.0
+               else if (mask_relational == ' ' .and. mask_array(ifx+3-i, ify+3-j) == maskval) then
+                   weights(i,j) = 0.0
+               else
+                   weights(i,j) = max(0., 2.0 - sqrt((xx-real(ifx+3-i))**2+(yy-real(ify+3-j))**2))
+               end if
+               if (array(ifx+3-i, ify+3-j, izz) == msgval) weights(i,j) = 0.0
+            else if (present(mask_array) .and. present(maskval)) then
                if (array(ifx+3-i, ify+3-j, izz) == msgval .or. mask_array(ifx+3-i, ify+3-j) == maskval) then
                   weights(i,j) = 0.0
                else
@@ -751,8 +849,7 @@ module interp_module
       ! If all points are missing, try the next interpolation method in the sequence
       if (sum_weight == 0.0) then
          wt_sixteen_pt_average = interp_sequence(xx, yy, izz, array, start_x, end_x, start_y, end_y, &
-                             start_z, end_z, msgval, interp_list, idx, maskval, mask_array)
-  
+                                   start_z, end_z, msgval, interp_list, idx, mask_relational, maskval, mask_array)
       else
          sum = 0.0
          do i=1,4
@@ -771,8 +868,8 @@ module interp_module
    !
    ! Purpose: Bilinear interpolation among four grid values
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-   recursive function four_pt(xx, yy, izz, array, start_x, end_x, start_y, &
-                       end_y, start_z, end_z, msgval, interp_list, idx, maskval, mask_array)
+   recursive function four_pt(xx, yy, izz, array, start_x, end_x, start_y, end_y, &
+                       start_z, end_z, msgval, interp_list, idx, mask_relational, maskval, mask_array)
  
       implicit none
   
@@ -784,13 +881,12 @@ module interp_module
       real, intent(in) :: xx , yy               ! The location to interpolate to
       real, intent(in) :: msgval
       real, intent(in), optional :: maskval
-      real, dimension(start_x:end_x, start_y:end_y, start_z:end_z), &
-          intent(in) :: array 
+      real, dimension(start_x:end_x, start_y:end_y, start_z:end_z), intent(in) :: array 
       integer, dimension(:), intent(in) :: interp_list
       integer, intent(in) :: idx
-      real, dimension(start_x:end_x, start_y:end_y), &
-          intent(in), optional :: mask_array 
-  
+      real, dimension(start_x:end_x, start_y:end_y), intent(in), optional :: mask_array 
+      character (len=1), intent(in), optional :: mask_relational
+
       ! Return value
       real :: four_pt
   
@@ -803,26 +899,57 @@ module interp_module
       max_y = ceiling(yy)
   
       if (min_x < start_x .or. max_x > end_x) then
-         four_pt = interp_sequence(xx, yy, izz, array, start_x, end_x, start_y, end_y, &
-                             start_z, end_z, msgval, interp_list, idx, maskval, mask_array)
+         four_pt = interp_sequence(xx, yy, izz, array, start_x, end_x, start_y, end_y, start_z, end_z, &
+                                   msgval, interp_list, idx, mask_relational, maskval, mask_array)
          return
       end if
   
       if (min_y < start_y .or. max_y > end_y) then
-         four_pt = interp_sequence(xx, yy, izz, array, start_x, end_x, start_y, end_y, &
-                             start_z, end_z, msgval, interp_list, idx, maskval, mask_array)
+         four_pt = interp_sequence(xx, yy, izz, array, start_x, end_x, start_y, end_y, start_z, end_z, &
+                                   msgval, interp_list, idx, mask_relational, maskval, mask_array)
          return
       end if
   
       ! If we have a missing value, try the next interpolation method in the sequence
-      if (present(mask_array) .and. present(maskval)) then
+      if (present(mask_array) .and. present(maskval) .and. present(mask_relational)) then
+         ! we determine which maskval is useable by... if the symbol > is found, then only 
+         !    values less than 'maskval' can be used and if the symbol < is found,  
+         !    then only the values greater than 'maskval' can be used.
+         if (mask_relational == '>' ) then                 
+            if (array(min_x,min_y,izz) == msgval .or. mask_array(min_x,min_y) > maskval .or. &
+                array(max_x,min_y,izz) == msgval .or. mask_array(max_x,min_y) > maskval .or. &
+                array(min_x,max_y,izz) == msgval .or. mask_array(min_x,max_y) > maskval .or. &
+                array(max_x,max_y,izz) == msgval .or. mask_array(max_x,max_y) > maskval) then 
+               four_pt = interp_sequence(xx, yy, izz, array, start_x, end_x, start_y, end_y, start_z, end_z, &
+                                     msgval, interp_list, idx, mask_relational, maskval, mask_array)
+               return
+            end if
+         else if (mask_relational == '<' ) then
+            if (array(min_x,min_y,izz) == msgval .or. mask_array(min_x,min_y) < maskval .or. &
+                array(max_x,min_y,izz) == msgval .or. mask_array(max_x,min_y) < maskval .or. &
+                array(min_x,max_y,izz) == msgval .or. mask_array(min_x,max_y) < maskval .or. &
+                array(max_x,max_y,izz) == msgval .or. mask_array(max_x,max_y) < maskval) then 
+               four_pt = interp_sequence(xx, yy, izz, array, start_x, end_x, start_y, end_y, start_z, end_z, &
+                                         msgval, interp_list, idx, mask_relational, maskval, mask_array)
+               return
+             end if           
+         else if (mask_relational == ' ' ) then
+            if (array(min_x,min_y,izz) == msgval .or. mask_array(min_x,min_y) == maskval .or. &
+                array(max_x,min_y,izz) == msgval .or. mask_array(max_x,min_y) == maskval .or. &
+                array(min_x,max_y,izz) == msgval .or. mask_array(min_x,max_y) == maskval .or. &
+                array(max_x,max_y,izz) == msgval .or. mask_array(max_x,max_y) == maskval) then 
+               four_pt = interp_sequence(xx, yy, izz, array, start_x, end_x, start_y, end_y, start_z, end_z, &
+                                         msgval, interp_list, idx, mask_relational, maskval, mask_array)
+               return
+            end if
+         end if
+      else if (present(mask_array) .and. present(maskval)) then
          if (array(min_x,min_y,izz) == msgval .or. mask_array(min_x,min_y) == maskval .or. &
              array(max_x,min_y,izz) == msgval .or. mask_array(max_x,min_y) == maskval .or. &
              array(min_x,max_y,izz) == msgval .or. mask_array(min_x,max_y) == maskval .or. &
              array(max_x,max_y,izz) == msgval .or. mask_array(max_x,max_y) == maskval) then 
-            four_pt = interp_sequence(xx, yy, izz, array, start_x, end_x, start_y, end_y, &
-                                start_z, end_z, msgval, interp_list, idx, maskval, mask_array)
-            return
+            four_pt = interp_sequence(xx, yy, izz, array, start_x, end_x, start_y, end_y, start_z, end_z, &
+                                      msgval, interp_list, idx, mask_relational, maskval, mask_array)
          end if
       else
          if (array(min_x,min_y,izz) == msgval .or. &
@@ -864,8 +991,8 @@ module interp_module
    !
    ! Purpose: Overlapping parabolic interpolation among sixteen grid values
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-   recursive function sixteen_pt(xx, yy, izz, array, start_x, end_x, start_y, end_y, &
-                                 start_z, end_z, msgval, interp_list, idx, maskval, mask_array)
+   recursive function sixteen_pt(xx, yy, izz, array, start_x, end_x, start_y, end_y, start_z, end_z, &
+                                 msgval, interp_list, idx, mask_relational, maskval, mask_array)
     
       implicit none
      
@@ -882,7 +1009,8 @@ module interp_module
       integer, intent(in) :: idx
       real, dimension(start_x:end_x, start_y:end_y), &
           intent(in), optional :: mask_array 
-  
+      character (len=1), intent(in), optional :: mask_relational
+
       ! Return value
       real :: sixteen_pt
   
@@ -897,7 +1025,7 @@ module interp_module
       if (int(xx) < start_x .or. int(xx) > end_x .or. &
           int(yy) < start_y .or. int(yy) > end_y) then
          sixteen_pt = interp_sequence(xx, yy, izz, array, start_x, end_x, start_y, end_y, &
-                                      start_z, end_z, msgval, interp_list, idx, maskval, mask_array)
+                                      start_z, end_z, msgval, interp_list, idx, mask_relational, maskval, mask_array)
          return
       end if
   
@@ -927,7 +1055,15 @@ module interp_module
                end if
                stl(k,l) = array(kk,ll,izz)
                n = n + 1
-               if (present(mask_array) .and. present(maskval)) then
+               if (present(mask_array) .and. present(maskval) .and. present(mask_relational)) then
+                  if (mask_relational == '>' .and. mask_array(kk,ll) > maskval) then
+                     is_masked = .true.
+                  else if (mask_relational == '<' .and. mask_array(kk,ll) < maskval) then
+                     is_masked = .true.
+                  else if (mask_relational == ' ' .and. mask_array(kk,ll) == maskval) then
+                     is_masked = .true.
+                  end if
+               else if (present(mask_array) .and. present(maskval)) then
                   if (mask_array(kk,ll) == maskval) is_masked = .true.
                end if
                if ( stl(k,l) == 0. .and. msgval /= 0.) then
@@ -942,7 +1078,7 @@ module interp_module
                do l=1,4
                   if (stl(k,l) == msgval .or. is_masked) then
                      sixteen_pt = interp_sequence(xx, yy, izz, array, start_x, end_x, start_y, end_y, &
-                                                  start_z, end_z, msgval, interp_list, idx, maskval, mask_array)
+                                                  start_z, end_z, msgval, interp_list, idx, mask_relational, maskval, mask_array)
                      return
                   end if
                end do
@@ -976,20 +1112,34 @@ module interp_module
          if (sixteen_pt == 1.E-20) sixteen_pt = 0. 
    
       else
-         if (present(mask_array) .and. present(maskval)) then
+         if (present(mask_array) .and. present(maskval) .and. present(mask_relational)) then
+            if (i >= start_x .and. i <= end_x .and. j >= start_y .and. j <= end_y .and. &
+               mask_relational == '<' .and. mask_array(i,j) >= maskval .and. array(i,j,izz) /= msgval) then
+               sixteen_pt = array(i,j,izz)
+            else if (i >= start_x .and. i <= end_x .and. j >= start_y .and. j <= end_y .and. &
+               mask_relational == '>' .and. mask_array(i,j) <= maskval .and. array(i,j,izz) /= msgval) then
+               sixteen_pt = array(i,j,izz)
+            else if (i >= start_x .and. i <= end_x .and. j >= start_y .and. j <= end_y .and. &
+               mask_relational == ' ' .and. mask_array(i,j) /= maskval .and. array(i,j,izz) /= msgval) then
+               sixteen_pt = array(i,j,izz)
+            else
+               sixteen_pt = interp_sequence(xx, yy, izz, array, start_x, end_x, start_y, end_y, start_z, end_z, &
+                                            msgval, interp_list, idx, mask_relational, maskval, mask_array)
+            end if
+         else if (present(mask_array) .and. present(maskval)) then
             if (i >= start_x .and. i <= end_x .and. j >= start_y .and. j <= end_y .and. &
                 mask_array(i,j) /= maskval .and. array(i,j,izz) /= msgval) then
                sixteen_pt = array(i,j,izz)
             else
-               sixteen_pt = interp_sequence(xx, yy, izz, array, start_x, end_x, start_y, end_y, &
-                                            start_z, end_z, msgval, interp_list, idx, maskval, mask_array)
+               sixteen_pt = interp_sequence(xx, yy, izz, array, start_x, end_x, start_y, end_y, start_z, end_z, &
+                                            msgval, interp_list, idx, mask_relational, maskval, mask_array)
             end if
          else
             if (i >= start_x .and. i <= end_x .and. j >= start_y .and. j <= end_y .and. array(i,j,izz) /= msgval) then
                sixteen_pt = array(i,j,izz)
             else
-               sixteen_pt = interp_sequence(xx, yy, izz, array, start_x, end_x, start_y, end_y, &
-                                            start_z, end_z, msgval, interp_list, idx, maskval, mask_array)
+               sixteen_pt = interp_sequence(xx, yy, izz, array, start_x, end_x, start_y, end_y, start_z, end_z, &
+                                            msgval, interp_list, idx, mask_relational, maskval, mask_array)
             end if
          end if
       end if
