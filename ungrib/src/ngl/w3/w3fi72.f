@@ -40,6 +40,9 @@ C   98-12-21  Gilbert      Replaced Function ICHAR with mov_a2i.
 C   99-02-01  Gilbert      Changed the method of zeroing out array KBUF.
 C                          the old method, using W3FI01 and XSTORE was
 C                          incorrect with 4-byte integers and 8-byte reals.
+C 2001-06-07  Gilbert      Removed calls to xmovex.
+C                          changed IPFLD from integer to character.
+C   10-02-19  GAYNO        FIX ALLOCATION OF ARRAY BMS 
 C
 C USAGE:  CALL W3FI72(ITYPE,FLD,IFLD,IBITL,
 C        &            IPFLAG,ID,PDS,
@@ -179,8 +182,8 @@ C
       INTEGER         ID(*)
       INTEGER         IFLD(*)
       INTEGER         IGDS(*)
-      INTEGER,ALLOCATABLE:: IPFLD(:)
       INTEGER         IB(4)
+      INTEGER         NLEFT, NUMBMS
 C
       CHARACTER * 1   BDS11(11)
       CHARACTER * 1   KBUF(*)
@@ -188,6 +191,7 @@ C
       CHARACTER * 1   GDS(200)
       CHARACTER(1),ALLOCATABLE:: BMS(:)
       CHARACTER(1),ALLOCATABLE:: PFLD(:)
+      CHARACTER(1),ALLOCATABLE:: IPFLD(:)
       CHARACTER * 1   SEVEN
       CHARACTER * 1   ZERO
 C
@@ -276,7 +280,15 @@ C           PRINT *,' W3FI72 ERROR, IBLEN .NE. NPTS = ',IBLEN,NPTS
             JERR = 7
             GO TO 900
           END IF
-          ALLOCATE(BMS(NPTS/8+6))
+          IF (MOD(IBLEN,16).NE.0) THEN
+             NLEFT  = 16 - MOD(IBLEN,16)
+          ELSE
+             NLEFT  = 0
+          END IF
+          NUMBMS = 6 + (IBLEN+NLEFT) / 8
+          ALLOCATE(BMS(NUMBMS))
+          ZERO = CHAR(00)
+          BMS = ZERO
           CALL W3FI73(IBFLAG,IBMAP,IBLEN,BMS,LENBMS,IER)
           IF (IER .NE. 0) THEN
 C           PRINT *,' W3FI73 ERROR, IBMAP VALUES ARE ALL ZERO'
@@ -312,17 +324,22 @@ C
       ALLOCATE(PFLD(NPTS*4))
 C
       IF(IBDSFL(2).NE.0) THEN
-        ALLOCATE(IPFLD(NPTS*32/BIT_SIZE(1)+1))
-        IPFLD=0
+        ALLOCATE(IPFLD(NPTS*4))
+        IPFLD=char(0)
+      ELSE
+        ALLOCATE(IPFLD(1))
       ENDIF
 C
       CALL W3FI75(IBITL,ITYPE,ITOSS,FLD,IFLD,IBMAP,IBDSFL,
      &         NPTS,BDS11,IPFLD,PFLD,LEN,LENBDS,IBERR,PDS,IGDS)
 C
       IF(IBDSFL(2).NE.0) THEN
-        CALL XMOVEX(PFLD,IPFLD,NPTS*4)
-        DEALLOCATE(IPFLD)
+C        CALL XMOVEX(PFLD,IPFLD,NPTS*4)
+         do ii = 1, NPTS*4
+            PFLD(ii) = IPFLD(ii)
+         enddo
       ENDIF
+        DEALLOCATE(IPFLD)
 C
         IF (IBERR .EQ. 1) THEN
           JERR = 3
@@ -374,7 +391,10 @@ C            5.3   MOVE SECTION 1 - 'PDS' INTO KBUF (28 BYTES).
 C
       ISTART  = ISTART + IGRIBL
       IF (IPDSL.GT.0) THEN
-        CALL XMOVEX(KBUF(ISTART+1),PDS,IPDSL)
+C        CALL XMOVEX(KBUF(ISTART+1),PDS,IPDSL)
+         do ii = 1, IPDSL
+            KBUF(ISTART+ii) = PDS(ii)
+         enddo
       ELSE
 C       PRINT *,'LENGTH OF PDS LESS OR EQUAL 0, IPDSL = ',IPDSL
       END IF
@@ -383,14 +403,20 @@ C            5.4   MOVE SECTION 2 - 'GDS' INTO KBUF.
 C
       ISTART  = ISTART + IPDSL
       IF (LENGDS .GT. 0) THEN
-        CALL XMOVEX(KBUF(ISTART+1),GDS,LENGDS)
+C        CALL XMOVEX(KBUF(ISTART+1),GDS,LENGDS)
+         do ii = 1, LENGDS
+            KBUF(ISTART+ii) = GDS(ii)
+         enddo
       END IF
 C
 C            5.5   MOVE SECTION 3 - 'BMS' INTO KBUF.
 C
       ISTART  = ISTART + LENGDS
       IF (LENBMS .GT. 0) THEN
-        CALL XMOVEX(KBUF(ISTART+1),BMS,LENBMS)
+C        CALL XMOVEX(KBUF(ISTART+1),BMS,LENBMS)
+         do ii = 1, LENBMS
+            KBUF(ISTART+ii) = BMS(ii)
+         enddo
       END IF
 C
 C            5.6   MOVE SECTION 4 - 'BDS' INTO KBUF.
@@ -398,13 +424,19 @@ C
 C                  MOVE THE FIRST 11 OCTETS OF THE BDS INTO KBUF.
 C
       ISTART  = ISTART + LENBMS
-      CALL XMOVEX(KBUF(ISTART+1),BDS11,11)
+C      CALL XMOVEX(KBUF(ISTART+1),BDS11,11)
+      do ii = 1, 11
+         KBUF(ISTART+ii) = BDS11(ii)
+      enddo
 C
 C                  MOVE THE PACKED DATA INTO THE KBUF
 C
       ISTART  = ISTART + 11
       IF (LEN.GT.0) THEN
-        CALL XMOVEX(KBUF(ISTART+1),PFLD,LEN)
+C        CALL XMOVEX(KBUF(ISTART+1),PFLD,LEN)
+         do ii = 1, LEN
+            KBUF(ISTART+ii) = PFLD(ii)
+         enddo
       END IF
 C
 C                  ADD '7777' TO END OFF KBUF

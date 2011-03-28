@@ -31,6 +31,9 @@ C   94-12-04  R.E.JONES   CHANGE TO ADD ID WORDS 26, 27 FOR PDS
 C                         BYTES 29 AND 30.
 C   95-09-07  R.E.JONES   CHANGE FOR NEW LEVEL 117, 119.
 C   95-10-31  IREDELL     REMOVED SAVES AND PRINTS
+C   98-06-30  EBISUZAKI   LINUX PORT
+C 2001-06-05  GILBERT     Changed fortran intrinsic function OR() to
+C                         f90 standard intrinsic IOR().
 C 2003-02-25  IREDELL     RECOGNIZE LEVEL TYPE 126
 C 2005-05-06  D.C.STOKES  RECOGNIZE LEVEL TYPES 235, 237, 238
 C
@@ -52,7 +55,7 @@ C     ID(8)  = INDICATOR OF PARAMETER AND UNITS (TABLE 2)
 C     ID(9)  = INDICATOR OF TYPE OF LEVEL       (TABLE 3)
 C     ID(10) = VALUE 1 OF LEVEL  (0 FOR 1-100,102,103,105,107
 C              109,111,113,115,117,119,125,126,160,200,201,
-C              235,237,238 
+C              235,237,238
 C              LEVEL IS IN ID WORD 11)
 C     ID(11) = VALUE 2 OF LEVEL
 C     ID(12) = YEAR OF CENTURY
@@ -103,8 +106,11 @@ C
         PDS(5)  = CHAR(ID(3))
         PDS(6)  = CHAR(ID(4))
         PDS(7)  = CHAR(ID(5))
-        PDS(8)  = CHAR(IOR(ISHFT(ID(6),7),
-     &                      ISHFT(ID(7),6)))
+	i = 0
+	if (ID(6).ne.0) i = i + 128
+	if (ID(7).ne.0) i = i + 64
+	PDS(8) = char(i)
+
         PDS(9)  = CHAR(ID(8))
         PDS(10) = CHAR(ID(9))
         I9      = ID(9)
@@ -170,7 +176,7 @@ C
         IF (ID(1).GT.30) THEN
           K = ID(1)
           DO I = 31,K
-            PDS(I) = CHAR(00)
+            PDS(I) = CHAR(0)
           END DO
         END IF
 C

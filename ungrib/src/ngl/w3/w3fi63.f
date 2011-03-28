@@ -98,13 +98,17 @@ C   01-03-08  ROGERS      CHANGED ETA GRIDS 90-97, ADDED ETA GRIDS
 C                         194, 198. ADDED AWIPS GRIDS 241,242,243,
 C                         245, 246, 247, 248, AND 250
 C   01-03-19  VUONG       ADDED AWIPS GRIDS 238,239,240, AND 244
+C 2001-06-06  GILBERT     Changed gbyte/sbyte calls to refer to 
+C                         Wesley Ebisuzaki's endian independent
+C                         versions gbytec/sbytec.
+C                         Removed equivalences.
 C   01-05-03  ROGERS      ADDED GRID 249  (12KM FOR ALASKA)
 C   01-10-10  ROGERS      REDEFINED GRID 218 FOR 12 KM ETA
 C                         REDEFINED GRID 192 FOR NEW 32-KM ETA GRID
 C   02-03-27  VUONG       ADDED RSAS GRID 88 AND AWIPS GRIDS 219, 220,
 C                         223, 224, 225, 226, 227, 228, 229, 230, 231,
 C                         232, 233, 234, 235, 251, AND 252
-C   02-08-06  ROGERS      REDEFINED GRIDS 90-93,97,194,245-250 FOR THE 
+C   02-08-06  ROGERS      REDEFINED GRIDS 90-93,97,194,245-250 FOR THE
 C                         8KM HI-RES-WINDOW MODEL AND ADD AWIPS GRID 253
 C 2003-06-30  GILBERT     SET NEW VALUES IN ARRAY KPTR TO PASS BACK ADDITIONAL
 C                         PACKING INFO.
@@ -125,6 +129,23 @@ C                         AND 180 TO 183
 C 2007-11-06  VUONG       CHANGED GRID 198 FROM ARAKAWA STAGGERED E-GRID TO POLAR
 C                         STEREOGRAPGIC GRID ADDED NEW GRID 10, 99, 150, 151, 197
 C 2008-01-17  VUONG       ADDED NEW GRID 195 AND CHANGED GRID 196 (ARAKAWA-E TO MERCATOR)
+C 2009-05-21  VUONG       MODIFIED TO HANDLE GRID 45
+C 2010-05-11  VUONG       DATA REP TYPE KGDS(1) 205
+C 2010-02-18  VUONG       ADDED GRID 128, 139 AND 140
+C 2010-07-20  GAYNO       ADDED ROTATED LAT/LON "A,B,C,D" STAGGERS -> KGDS(1) 205
+C 2010-08-05  VUONG       ADDED NEW GRID 184, 199, 83 AND
+C                         REDEFINED GRID 90 FOR NEW RTMA CONUS 1.27-KM
+C                         REDEFINED GRID 91 FOR NEW RTMA ALASKA 2.976-KM
+C                         REDEFINED GRID 92 FOR NEW RTMA ALASKA 1.488-KM
+C 2010-09-08  ROGERS      CHANGED GRID 94 TO ALASKA 6KM STAGGERED B-GRID
+C                         CHANGED GRID 95 TO PUERTO RICO 3KM STAGGERED B-GRID
+C                         CHANGED GRID 96 TO HAWAII 3KM STAGGERED B-GRID
+C                         CHANGED GRID 96 TO HAWAII 3KM STAGGERED B-GRID
+C                         CHANGED GRID 97 TO CONUS 4KM STAGGERED B-GRID
+C                         CHANGED GRID 99 TO NAM 12KM STAGGERED B-GRID
+C                         ADDED GRID 179 (12 KM POLAR STEREOGRAPHIC OVER NORTH AMERICA)
+C                         CHANGED GRID 194 TO 3KM MERCATOR GRID OVER PUERTO RICO
+C                         CORRECTED LATITUDE OF SW CORNER POINT OF GRID 151
 C
 C USAGE:    CALL W3FI63(MSGA,KPDS,KGDS,KBMS,DATA,KPTR,KRET)
 C   INPUT ARGUMENT LIST:
@@ -251,7 +272,7 @@ C          (10)  - PROJECTION CENTER FLAG
 C          (11)  - SCANNING MODE FLAG (RIGHT ADJ COPY OF OCTET 28)
 C          (12)  - LATIN 1 - FIRST LAT FROM POLE OF SECANT CONE INTER
 C          (13)  - LATIN 2 - SECOND LAT FROM POLE OF SECANT CONE INTER
-C       STAGGERED ARAKAWA ROTATED LAT/LON GRIDS (TYPE 203)
+C       E-STAGGERED ARAKAWA ROTATED LAT/LON GRIDS (TYPE 203)
 C          (2)   - N(I) NR POINTS ON LATITUDE CIRCLE
 C          (3)   - N(J) NR POINTS ON LONGITUDE MERIDIAN
 C          (4)   - LA(1) LATITUDE OF ORIGIN
@@ -273,6 +294,19 @@ C          (8)   - RESERVED SET TO 0
 C          (9)   - RESERVED SET TO 0
 C          (10)  - RESERVED SET TO 0
 C          (11)  - SCANNING MODE FLAG (RIGHT ADJ COPY OF OCTET 28)
+C       ROTATED LAT/LON A,B,C,D-STAGGERED (TYPE 205)
+C          (2)   - N(I) NR POINTS ON LATITUDE CIRCLE
+C          (3)   - N(J) NR POINTS ON LONGITUDE MERIDIAN
+C          (4)   - LA(1) LATITUDE OF FIRST POINT
+C          (5)   - LO(1) LONGITUDE OF FIRST POINT
+C          (6)   - RESOLUTION FLAG (RIGHT ADJ COPY OF OCTET 17)
+C          (7)   - LA(2) LATITUDE OF CENTER
+C          (8)   - LO(2) LONGITUDE OF CENTER
+C          (9)   - DI LONGITUDINAL DIRECTION OF INCREMENT
+C          (10)  - DJ LATITUDINAL DIRECTION INCREMENT
+C          (11)  - SCANNING MODE FLAG (RIGHT ADJ COPY OF OCTET 28)
+C          (12)  - LATITUDE OF LAST POINT
+C          (13)  - LONGITUDE OF LAST POINT
 C     KBMS       - BITMAP DESCRIBING LOCATION OF OUTPUT ELEMENTS.
 C                            (ALWAYS CONSTRUCTED)
 C     KPTR       - ARRAY CONTAINING STORAGE FOR FOLLOWING PARAMETERS
@@ -610,10 +644,8 @@ C                       ARRAY OF POINTERS AND COUNTERS
       INTEGER       KPTR(*)
 C
 C  *****************************************************************
-      INTEGER       KKK,JSGN,JEXP,IFR,NPTS
-      CHARACTER     KK(8)
+      INTEGER       JSGN,JEXP,IFR,NPTS
       REAL          REALKK,FVAL1,FDIFF1
-      EQUIVALENCE   (KK(1),KKK)
 C  *****************************************************************
 C        1.0 LOCATE BEGINNING OF 'GRIB' MESSAGE
 C             FIND 'GRIB' CHARACTERS
@@ -705,24 +737,12 @@ C         NOTE INTEGERS, CHARACTERS AND EQUIVALENCES
 C         DEFINED ABOVE TO MAKE THIS KKK EXTRACTION
 C         WORK AND LINE UP ON WORD BOUNDARIES
 C
-          CALL GBYTE (MSGA,KKK,KPTR(9)+384,32)
-C
 C       THE NEXT CODE WILL CONVERT THE IBM370 FOATING POINT
 C       TO THE FLOATING POINT USED ON YOUR MACHINE.
 C
-C       1ST TEST TO SEE IN ON 32 OR 64 BIT WORD MACHINE
-C       LW = 4 OR 8; IF 8 MAY BE A CRAY
-C
-              CALL W3FI01(LW)
-              IF (LW.EQ.4) THEN
-                  CALL GBYTE (KK,JSGN,0,1)
-                  CALL GBYTE (KK,JEXP,1,7)
-                  CALL GBYTE (KK,IFR,8,24)
-              ELSE
-                  CALL GBYTE (KK,JSGN,32,1)
-                  CALL GBYTE (KK,JEXP,33,7)
-                  CALL GBYTE (KK,IFR,40,24)
-              ENDIF
+        call gbytec(MSGA,JSGN,KPTR(9)+384,1)
+        call gbytec(MSGA,JEXP,KPTR(9)+385,7)
+        call gbytec(MSGA,IFR,KPTR(9)+392,24)
 C
               IF (IFR.EQ.0) THEN
                   REALKK = 0.0
@@ -737,24 +757,12 @@ C
 C             CALL GBYTE  (MSGA,FDIFF1,KPTR(9)+416,32)
 C          (REPLACED BY FOLLOWING EXTRACTION)
 C
-              CALL GBYTE (MSGA,KKK,KPTR(9)+416,32)
-C
 C       THE NEXT CODE WILL CONVERT THE IBM370 FOATING POINT
 C       TO THE FLOATING POINT USED ON YOUR MACHINE.
 C
-C       1ST TEST TO SEE IN ON 32 OR 64 BIT WORD MACHINE
-C       LW = 4 OR 8; IF 8 MAY BE A CRAY
-C
-              CALL W3FI01(LW)
-              IF (LW.EQ.4) THEN
-                  CALL GBYTE (KK,JSGN,0,1)
-                  CALL GBYTE (KK,JEXP,1,7)
-                  CALL GBYTE (KK,IFR,8,24)
-              ELSE
-                  CALL GBYTE (KK,JSGN,32,1)
-                  CALL GBYTE (KK,JEXP,33,7)
-                  CALL GBYTE (KK,IFR,40,24)
-              ENDIF
+             call gbytec(MSGA,JSGN,KPTR(9)+416,1)
+             call gbytec(MSGA,JEXP,KPTR(9)+417,7)
+             call gbytec(MSGA,IFR,KPTR(9)+424,24)
 C
               IF (IFR.EQ.0) THEN
                   REALKK = 0.0
@@ -766,8 +774,8 @@ C
               END IF
               FDIFF1 = REALKK
 C
-              CALL GBYTE  (MSGA,ISIGN,KPTR(9)+448,1)
-              CALL GBYTE  (MSGA,ISCAL2,KPTR(9)+449,15)
+              CALL GBYTEC (MSGA,ISIGN,KPTR(9)+448,1)
+              CALL GBYTEC (MSGA,ISCAL2,KPTR(9)+449,15)
               IF(ISIGN.GT.0) THEN
                   ISCAL2 = - ISCAL2
               ENDIF
@@ -875,7 +883,7 @@ C  ******************************************************************
       KRET = 0
 C  -------------------  FIND 'GRIB' KEY
       DO 50 I = 0, 839, 8
-          CALL GBYTE (MSGA,MGRIB,I,32)
+          CALL GBYTEC (MSGA,MGRIB,I,32)
           IF (MGRIB.EQ.1196575042) THEN
               KPTR(9)   = I
               GO TO 60
@@ -888,10 +896,10 @@ C  -------------FOUND 'GRIB'
 C                        SKIP GRIB CHARACTERS
 C     PRINT *,'FI631 GRIB AT',I
       KPTR(8)   = KPTR(9) + 32
-      CALL GBYTE (MSGA,ITOTAL,KPTR(8),24)
+      CALL GBYTEC (MSGA,ITOTAL,KPTR(8),24)
 C                    HAVE LIFTED WHAT MAY BE A MSG TOTAL BYTE COUNT
       IPOINT    = KPTR(9) + ITOTAL * 8 - 32
-      CALL GBYTE (MSGA,I7777,IPOINT,32)
+      CALL GBYTEC (MSGA,I7777,IPOINT,32)
       IF (I7777.EQ.926365495) THEN
 C                 HAVE FOUND END OF MESSAGE '7777' IN PROPER LOCATION
 C                 MARK AND PROCESS AS GRIB VERSION 1 OR HIGHER
@@ -899,7 +907,7 @@ C         PRINT *,'FI631 7777 AT',IPOINT
           KPTR(8)   = KPTR(8) + 24
           KPTR(1)   = ITOTAL
           KPTR(2)   = 8
-          CALL GBYTE (MSGA,KPDS(18),KPTR(8),8)
+          CALL GBYTEC (MSGA,KPDS(18),KPTR(8),8)
           KPTR(8)   = KPTR(8) + 8
       ELSE
 C                 CANNOT FIND END OF GRIB EDITION 1 MESSAGE
@@ -909,15 +917,15 @@ C                 CANNOT FIND END OF GRIB EDITION 1 MESSAGE
 C  -------------------  PROCESS SECTION 1
 C                   EXTRACT COUNT FROM PDS
 C     PRINT *,'START OF PDS',KPTR(8)
-      CALL GBYTE (MSGA,KPTR(3),KPTR(8),24)
+      CALL GBYTEC (MSGA,KPTR(3),KPTR(8),24)
       LOOK      = KPTR(8) + 56
 C                   EXTRACT GDS/BMS FLAG
-      CALL GBYTE (MSGA,KPDS(4),LOOK,8)
+      CALL GBYTEC (MSGA,KPDS(4),LOOK,8)
       KPTR(8)   = KPTR(8) + KPTR(3) * 8
 C     PRINT *,'START OF GDS',KPTR(8)
       IF (IAND(KPDS(4),128).NE.0) THEN
 C                   EXTRACT COUNT FROM GDS
-          CALL GBYTE (MSGA,KPTR(4),KPTR(8),24)
+          CALL GBYTEC (MSGA,KPTR(4),KPTR(8),24)
           KPTR(8)   = KPTR(8) + KPTR(4) * 8
       ELSE
           KPTR(4)   = 0
@@ -925,20 +933,20 @@ C                   EXTRACT COUNT FROM GDS
 C     PRINT *,'START OF BMS',KPTR(8)
       IF (IAND(KPDS(4),64).NE.0) THEN
 C                   EXTRACT COUNT FROM BMS
-          CALL GBYTE (MSGA,KPTR(5),KPTR(8),24)
+          CALL GBYTEC (MSGA,KPTR(5),KPTR(8),24)
       ELSE
           KPTR(5)   = 0
       END IF
       KPTR(8)   = KPTR(8) + KPTR(5) * 8
 C     PRINT *,'START OF BDS',KPTR(8)
 C                   EXTRACT COUNT FROM BDS
-      CALL GBYTE (MSGA,KPTR(6),KPTR(8),24)
+      CALL GBYTEC (MSGA,KPTR(6),KPTR(8),24)
 C  ---------------  TEST FOR '7777'
 C     PRINT *,(KPTR(KJ),KJ=1,10)
       KPTR(8)   = KPTR(8) + KPTR(6) * 8
 C                   EXTRACT FOUR BYTES FROM THIS LOCATION
 C     PRINT *,'FI631 LOOKING FOR 7777 AT',KPTR(8)
-      CALL GBYTE (MSGA,K7777,KPTR(8),32)
+      CALL GBYTEC (MSGA,K7777,KPTR(8),32)
       MATCH  = KPTR(2) + KPTR(3) + KPTR(4) + KPTR(5) + KPTR(6) + 4
       IF (K7777.NE.926365495.OR.MATCH.NE.KPTR(1)) THEN
           KRET  = 2
@@ -1044,70 +1052,70 @@ C  -------------------  PROCESS SECTION 1
       KPTR(8)  = KPTR(9) + KPTR(2) * 8 + 24
 C  BYTE 4
 C                   PARAMETER TABLE VERSION NR
-          CALL GBYTE (MSGA,KPDS(19),KPTR(8),8)
+          CALL GBYTEC (MSGA,KPDS(19),KPTR(8),8)
           KPTR(8)   = KPTR(8) + 8
 C  BYTE 5           IDENTIFICATION OF CENTER
-      CALL GBYTE (MSGA,KPDS(1),KPTR(8),8)
+      CALL GBYTEC (MSGA,KPDS(1),KPTR(8),8)
       KPTR(8)   = KPTR(8) + 8
 C  BYTE 6
 C                       GET GENERATING PROCESS ID NR
-      CALL GBYTE (MSGA,KPDS(2),KPTR(8),8)
+      CALL GBYTEC (MSGA,KPDS(2),KPTR(8),8)
       KPTR(8)   = KPTR(8) + 8
 C  BYTE 7
 C                      GRID DEFINITION
-      CALL GBYTE (MSGA,KPDS(3),KPTR(8),8)
+      CALL GBYTEC (MSGA,KPDS(3),KPTR(8),8)
       KPTR(8)   = KPTR(8) + 8
 C  BYTE 8
 C                      GDS/BMS FLAGS
-C     CALL GBYTE (MSGA,KPDS(4),KPTR(8),8)
+C     CALL GBYTEC (MSGA,KPDS(4),KPTR(8),8)
       KPTR(8)   = KPTR(8) + 8
 C  BYTE 9
 C                      INDICATOR OF PARAMETER
-      CALL GBYTE (MSGA,KPDS(5),KPTR(8),8)
+      CALL GBYTEC (MSGA,KPDS(5),KPTR(8),8)
       KPTR(8)   = KPTR(8) + 8
 C  BYTE 10
 C                      TYPE OF LEVEL
-      CALL GBYTE (MSGA,KPDS(6),KPTR(8),8)
+      CALL GBYTEC (MSGA,KPDS(6),KPTR(8),8)
       KPTR(8)   = KPTR(8) + 8
 C  BYTE 11,12
 C                      HEIGHT/PRESSURE
-      CALL GBYTE (MSGA,KPDS(7),KPTR(8),16)
+      CALL GBYTEC (MSGA,KPDS(7),KPTR(8),16)
       KPTR(8)   = KPTR(8) + 16
 C  BYTE 13
 C                      YEAR OF CENTURY
-      CALL GBYTE (MSGA,KPDS(8),KPTR(8),8)
+      CALL GBYTEC (MSGA,KPDS(8),KPTR(8),8)
       KPTR(8)   = KPTR(8) + 8
 C  BYTE 14
 C                      MONTH OF YEAR
-      CALL GBYTE (MSGA,KPDS(9),KPTR(8),8)
+      CALL GBYTEC (MSGA,KPDS(9),KPTR(8),8)
       KPTR(8)   = KPTR(8) + 8
 C  BYTE 15
 C                      DAY OF MONTH
-      CALL GBYTE (MSGA,KPDS(10),KPTR(8),8)
+      CALL GBYTEC (MSGA,KPDS(10),KPTR(8),8)
       KPTR(8)   = KPTR(8) + 8
 C  BYTE 16
 C                      HOUR OF DAY
-      CALL GBYTE (MSGA,KPDS(11),KPTR(8),8)
+      CALL GBYTEC (MSGA,KPDS(11),KPTR(8),8)
       KPTR(8)   = KPTR(8) + 8
 C  BYTE 17
 C                      MINUTE
-      CALL GBYTE (MSGA,KPDS(12),KPTR(8),8)
+      CALL GBYTEC (MSGA,KPDS(12),KPTR(8),8)
       KPTR(8)   = KPTR(8) + 8
 C  BYTE 18
 C                      INDICATOR TIME UNIT RANGE
-      CALL GBYTE (MSGA,KPDS(13),KPTR(8),8)
+      CALL GBYTEC (MSGA,KPDS(13),KPTR(8),8)
       KPTR(8)   = KPTR(8) + 8
 C  BYTE 19
 C                      P1 - PERIOD OF TIME
-      CALL GBYTE (MSGA,KPDS(14),KPTR(8),8)
+      CALL GBYTEC (MSGA,KPDS(14),KPTR(8),8)
       KPTR(8)   = KPTR(8) + 8
 C  BYTE 20
 C                      P2 - PERIOD OF TIME
-      CALL GBYTE (MSGA,KPDS(15),KPTR(8),8)
+      CALL GBYTEC (MSGA,KPDS(15),KPTR(8),8)
       KPTR(8)   = KPTR(8) + 8
 C  BYTE 21
 C                      TIME RANGE INDICATOR
-      CALL GBYTE (MSGA,KPDS(16),KPTR(8),8)
+      CALL GBYTEC (MSGA,KPDS(16),KPTR(8),8)
       KPTR(8)   = KPTR(8) + 8
 C
 C     IF TIME RANGE INDICATOR IS 10, P1 IS PACKED IN
@@ -1119,26 +1127,26 @@ C
       END IF
 C  BYTE 22,23
 C                      NUMBER INCLUDED IN AVERAGE
-      CALL GBYTE (MSGA,KPDS(17),KPTR(8),16)
+      CALL GBYTEC (MSGA,KPDS(17),KPTR(8),16)
       KPTR(8)   = KPTR(8) + 16
 C  BYTE 24
 C                      NUMBER MISSING FROM AVERAGES/ACCUMULATIONS
-      CALL GBYTE (MSGA,KPDS(20),KPTR(8),8)
+      CALL GBYTEC (MSGA,KPDS(20),KPTR(8),8)
       KPTR(8)   = KPTR(8) + 8
 C  BYTE 25
 C                      IDENTIFICATION OF CENTURY
-      CALL GBYTE (MSGA,KPDS(21),KPTR(8),8)
+      CALL GBYTEC (MSGA,KPDS(21),KPTR(8),8)
       KPTR(8)   = KPTR(8) + 8
       IF (KPTR(3).GT.25) THEN
 C  BYTE 26              SUB CENTER NUMBER
-          CALL GBYTE (MSGA,KPDS(23),KPTR(8),8)
+          CALL GBYTEC (MSGA,KPDS(23),KPTR(8),8)
           KPTR(8)   = KPTR(8) + 8
           IF (KPTR(3).GE.28) THEN
 C  BYTE 27-28
 C                          UNITS DECIMAL SCALE FACTOR
-              CALL GBYTE (MSGA,ISIGN,KPTR(8),1)
+              CALL GBYTEC (MSGA,ISIGN,KPTR(8),1)
               KPTR(8)  = KPTR(8) + 1
-              CALL GBYTE (MSGA,IDEC,KPTR(8),15)
+              CALL GBYTEC (MSGA,IDEC,KPTR(8),15)
               KPTR(8)  = KPTR(8) + 15
               IF (ISIGN.GT.0) THEN
                   KPDS(22)  = - IDEC
@@ -1148,26 +1156,26 @@ C                          UNITS DECIMAL SCALE FACTOR
               ISIZ  = KPTR(3) - 28
               IF (ISIZ.LE.12) THEN
 C  BYTE  29
-                  CALL GBYTE (MSGA,KPDS(24),KPTR(8)+8,8)
+                  CALL GBYTEC (MSGA,KPDS(24),KPTR(8)+8,8)
 C  BYTE  30
-                  CALL GBYTE (MSGA,KPDS(25),KPTR(8)+16,8)
+                  CALL GBYTEC (MSGA,KPDS(25),KPTR(8)+16,8)
 C  BYTES 31-40                  CURRENTLY RESERVED FOR FUTURE USE
                   KPTR(8)  = KPTR(8) + ISIZ * 8
               ELSE
 C  BYTE  29
-                  CALL GBYTE (MSGA,KPDS(24),KPTR(8)+8,8)
+                  CALL GBYTEC (MSGA,KPDS(24),KPTR(8)+8,8)
 C  BYTE  30
-                  CALL GBYTE (MSGA,KPDS(25),KPTR(8)+16,8)
+                  CALL GBYTEC (MSGA,KPDS(25),KPTR(8)+16,8)
 C  BYTES 31-40                  CURRENTLY RESERVED FOR FUTURE USE
                   KPTR(8)  = KPTR(8) + 12 * 8
 C  BYTES 41 - N                 LOCAL USE DATA
                   CALL W3FI01(LW)
-C                 MWDBIT  = LW * 8
+C                  MWDBIT  = LW * 8
                   MWDBIT  = bit_size(KPDS)
                   ISIZ    = KPTR(3) - 40
                   ITER    = ISIZ / LW
                   IF (MOD(ISIZ,LW).NE.0) ITER = ITER + 1
-                  CALL GBYTES (MSGA,KPDS(36),KPTR(8),MWDBIT,0,ITER)
+                  CALL GBYTESC (MSGA,KPDS(36),KPTR(8),MWDBIT,0,ITER)
                   KPTR(8)  = KPTR(8) + ISIZ * 8
               END IF
           END IF
@@ -1261,6 +1269,7 @@ C                         DATA REP TYPES [KGDS(1)] 201 AND 202 TO WORK.
 C   95-10-31  IREDELL     REMOVED SAVES AND PRINTS
 C   98-09-08  BALDWIN     ADD DATA REP TYPE [KGDS(1)] 203
 C   07-04-24  VUONG       ADD DATA REP TYPE [KGDS(1)] 204
+C   10-07-20  GAYNO       ADD DATA REP TYPE [KGDS(1)] 205
 C                        
 C
 C USAGE:    CALL FI633(MSGA,KPTR,KGDS,KRET)
@@ -1350,7 +1359,7 @@ C          (10)  - PROJECTION CENTER FLAG
 C          (11)  - SCANNING MODE FLAG
 C          (12)  - LATIN 1 - FIRST LAT FROM POLE OF SECANT CONE INTER
 C          (13)  - LATIN 2 - SECOND LAT FROM POLE OF SECANT CONE INTER
-C       STAGGERED ARAKAWA ROTATED LAT/LON GRIDS (203)
+C       STAGGERED ARAKAWA ROTATED LAT/LON GRIDS (203 E STAGGER)
 C          (2)   - N(I) NR POINTS ON ROTATED LATITUDE CIRCLE
 C          (3)   - N(J) NR POINTS ON ROTATED LONGITUDE MERIDIAN
 C          (4)   - LA(1) LATITUDE OF ORIGIN
@@ -1361,6 +1370,19 @@ C          (8)   - LO(2) LONGITUDE OF CENTER
 C          (9)   - DI LONGITUDINAL DIRECTION OF INCREMENT
 C          (10)  - DJ LATITUDINAL DIRECTION INCREMENT
 C          (11)  - SCANNING MODE FLAG
+C       STAGGERED ARAKAWA ROTATED LAT/LON GRIDS (205 A,B,C,D STAGGERS)
+C          (2)   - N(I) NR POINTS ON ROTATED LATITUDE CIRCLE
+C          (3)   - N(J) NR POINTS ON ROTATED LONGITUDE MERIDIAN
+C          (4)   - LA(1) LATITUDE OF ORIGIN
+C          (5)   - LO(1) LONGITUDE OF ORIGIN
+C          (6)   - RESOLUTION FLAG
+C          (7)   - LA(2) LATITUDE OF CENTER
+C          (8)   - LO(2) LONGITUDE OF CENTER
+C          (9)   - DI LONGITUDINAL DIRECTION OF INCREMENT
+C          (10)  - DJ LATITUDINAL DIRECTION INCREMENT
+C          (11)  - SCANNING MODE FLAG
+C          (12)  - LATITUDE OF LAST POINT
+C          (13)  - LONGITUDE OF LAST POINT
 C     KPTR       - ARRAY CONTAINING STORAGE FOR FOLLOWING PARAMETERS
 C                  SEE INPUT LIST
 C     KRET       - ERROR RETURN
@@ -1394,15 +1416,15 @@ C             MAKE SURE BIT POINTER IS PROPERLY SET
       NSAVE    = KPTR(8) - 24
 C  BYTE 4
 C                   NV - NR OF VERT COORD PARAMETERS
-      CALL GBYTE (MSGA,KGDS(19),KPTR(8),8)
+      CALL GBYTEC (MSGA,KGDS(19),KPTR(8),8)
       KPTR(8)  = KPTR(8) + 8
 C  BYTE 5
 C                   PV - LOCATION - SEE FM92 MANUAL
-      CALL GBYTE (MSGA,KGDS(20),KPTR(8),8)
+      CALL GBYTEC (MSGA,KGDS(20),KPTR(8),8)
       KPTR(8)  = KPTR(8) + 8
 C  BYTE 6
 C                      DATA REPRESENTATION TYPE
-      CALL GBYTE (MSGA,KGDS(1),KPTR(8),8)
+      CALL GBYTEC (MSGA,KGDS(1),KPTR(8),8)
       KPTR(8)   = KPTR(8) + 8
 C           BYTES 7-32 ARE GRID DEFINITION DEPENDING ON
 C           DATA REPRESENTATION TYPE
@@ -1428,7 +1450,7 @@ C     ELSE IF (KGDS(1).EQ.60) THEN
 C     ELSE IF (KGDS(1).EQ.70) THEN
 C     ELSE IF (KGDS(1).EQ.80) THEN
       ELSE IF (KGDS(1).EQ.201.OR.KGDS(1).EQ.202.OR.
-     &      KGDS(1).EQ.203.OR.KGDS(1).EQ.204) THEN
+     &      KGDS(1).EQ.203.OR.KGDS(1).EQ.204.OR.KGDS(1).EQ.205) THEN
           GO TO 1000
       ELSE
 C                      MARK AS GDS/ UNKNOWN DATA REPRESENTATION TYPE
@@ -1453,55 +1475,71 @@ C       ROTATED LAT/LON GRIDS OR CURVILINEAR ORTHIGINAL GRIDS
 C
 C  ------------------- BYTE 7-8     NR OF POINTS ALONG LATITUDE CIRCLE
  1000 CONTINUE
-      CALL GBYTE (MSGA,KGDS(2),KPTR(8),16)
+      CALL GBYTEC (MSGA,KGDS(2),KPTR(8),16)
       KPTR(8)  = KPTR(8) + 16
 C  ------------------- BYTE 9-10    NR OF POINTS ALONG LONG MERIDIAN
-      CALL GBYTE (MSGA,KGDS(3),KPTR(8),16)
+      CALL GBYTEC (MSGA,KGDS(3),KPTR(8),16)
       KPTR(8)  = KPTR(8) + 16
 C  ------------------- BYTE 11-13   LATITUDE OF ORIGIN
-      CALL GBYTE (MSGA,KGDS(4),KPTR(8),24)
+      CALL GBYTEC (MSGA,KGDS(4),KPTR(8),24)
       KPTR(8)  = KPTR(8) + 24
       IF (IAND(KGDS(4),8388608).NE.0) THEN
           KGDS(4)  =  IAND(KGDS(4),8388607) * (-1)
       END IF
 C  ------------------- BYTE 14-16   LONGITUDE OF ORIGIN
-      CALL GBYTE (MSGA,KGDS(5),KPTR(8),24)
+      CALL GBYTEC (MSGA,KGDS(5),KPTR(8),24)
       KPTR(8)  = KPTR(8) + 24
       IF (IAND(KGDS(5),8388608).NE.0) THEN
           KGDS(5)  =  - IAND(KGDS(5),8388607)
       END IF
 C  ------------------- BYTE 17      RESOLUTION FLAG
-      CALL GBYTE (MSGA,KGDS(6),KPTR(8),8)
+      CALL GBYTEC (MSGA,KGDS(6),KPTR(8),8)
       KPTR(8)  = KPTR(8) + 8
 C  ------------------- BYTE 18-20   LATITUDE OF LAST GRID POINT
-      CALL GBYTE (MSGA,KGDS(7),KPTR(8),24)
+      CALL GBYTEC (MSGA,KGDS(7),KPTR(8),24)
       KPTR(8)  = KPTR(8) + 24
       IF (IAND(KGDS(7),8388608).NE.0) THEN
           KGDS(7)  =  - IAND(KGDS(7),8388607)
       END IF
 C  ------------------- BYTE 21-23   LONGITUDE OF LAST GRID POINT
-      CALL GBYTE (MSGA,KGDS(8),KPTR(8),24)
+      CALL GBYTEC (MSGA,KGDS(8),KPTR(8),24)
       KPTR(8)  = KPTR(8) + 24
       IF (IAND(KGDS(8),8388608).NE.0) THEN
           KGDS(8)  =  - IAND(KGDS(8),8388607)
       END IF
 C  ------------------- BYTE 24-25   LATITUDINAL DIR INCREMENT
-      CALL GBYTE (MSGA,KGDS(9),KPTR(8),16)
+      CALL GBYTEC (MSGA,KGDS(9),KPTR(8),16)
       KPTR(8)  = KPTR(8) + 16
 C  ------------------- BYTE 26-27   IF REGULAR LAT/LON GRID
 C                                       HAVE LONGIT DIR INCREMENT
 C                                   ELSE IF GAUSSIAN GRID
 C                                       HAVE NR OF LAT CIRCLES
 C                                       BETWEEN POLE AND EQUATOR
-      CALL GBYTE (MSGA,KGDS(10),KPTR(8),16)
+      CALL GBYTEC (MSGA,KGDS(10),KPTR(8),16)
       KPTR(8)  = KPTR(8) + 16
 C  ------------------- BYTE 28      SCANNING MODE FLAGS
-      CALL GBYTE (MSGA,KGDS(11),KPTR(8),8)
+      CALL GBYTEC (MSGA,KGDS(11),KPTR(8),8)
       KPTR(8)  = KPTR(8) + 8
+      IF(KGDS(1).EQ.205)THEN
+C  ------------------- BYTE 29-31   LATITUDE OF LAST GRID POINT
+        CALL GBYTEC (MSGA,KGDS(12),KPTR(8),24)
+        KPTR(8)  = KPTR(8) + 24
+        IF (IAND(KGDS(12),8388608).NE.0) THEN
+            KGDS(12)  =  - IAND(KGDS(12),8388607)
+        END IF
+C  ------------------- BYTE 32-34   LONGITUDE OF LAST GRID POINT
+        CALL GBYTEC (MSGA,KGDS(13),KPTR(8),24)
+        KPTR(8)  = KPTR(8) + 24
+        IF (IAND(KGDS(13),8388608).NE.0) THEN
+            KGDS(13)  =  - IAND(KGDS(13),8388607)
+        END IF
+      ELSE
+
 C  ------------------- BYTE 29-32   RESERVED
 C                             SKIP TO START OF BYTE 33
-      CALL GBYTE (MSGA,KGDS(12),KPTR(8),32)
+      CALL GBYTEC (MSGA,KGDS(12),KPTR(8),32)
       KPTR(8)  = KPTR(8) + 32
+      ENDIF
 C  -------------------
       GO TO 900
 C  ******************************************************************
@@ -1509,53 +1547,53 @@ C            ' POLAR STEREO PROCESSING '
 C
 C  ------------------- BYTE 7-8     NR OF POINTS ALONG X=AXIS
  2000 CONTINUE
-      CALL GBYTE (MSGA,KGDS(2),KPTR(8),16)
+      CALL GBYTEC (MSGA,KGDS(2),KPTR(8),16)
       KPTR(8)  = KPTR(8) + 16
 C  ------------------- BYTE 9-10    NR OF POINTS ALONG Y-AXIS
-      CALL GBYTE (MSGA,KGDS(3),KPTR(8),16)
+      CALL GBYTEC (MSGA,KGDS(3),KPTR(8),16)
       KPTR(8)  = KPTR(8) + 16
 C  ------------------- BYTE 11-13   LATITUDE OF ORIGIN
-      CALL GBYTE (MSGA,KGDS(4),KPTR(8),24)
+      CALL GBYTEC (MSGA,KGDS(4),KPTR(8),24)
       KPTR(8)  = KPTR(8) + 24
       IF (IAND(KGDS(4),8388608).NE.0) THEN
           KGDS(4)  =  - IAND(KGDS(4),8388607)
       END IF
 C  ------------------- BYTE 14-16   LONGITUDE OF ORIGIN
-      CALL GBYTE (MSGA,KGDS(5),KPTR(8),24)
+      CALL GBYTEC (MSGA,KGDS(5),KPTR(8),24)
       KPTR(8)  = KPTR(8) + 24
       IF (IAND(KGDS(5),8388608).NE.0) THEN
           KGDS(5)  =   - IAND(KGDS(5),8388607)
       END IF
 C  ------------------- BYTE 17      RESERVED
-      CALL GBYTE (MSGA,KGDS(6),KPTR(8),8)
+      CALL GBYTEC (MSGA,KGDS(6),KPTR(8),8)
       KPTR(8)  = KPTR(8) + 8
 C  ------------------- BYTE 18-20   LOV ORIENTATION OF THE GRID
-      CALL GBYTE (MSGA,KGDS(7),KPTR(8),24)
+      CALL GBYTEC (MSGA,KGDS(7),KPTR(8),24)
       KPTR(8)  = KPTR(8) + 24
       IF (IAND(KGDS(7),8388608).NE.0) THEN
           KGDS(7)  =  - IAND(KGDS(7),8388607)
       END IF
 C  ------------------- BYTE 21-23   DX - THE X DIRECTION INCREMENT
-      CALL GBYTE (MSGA,KGDS(8),KPTR(8),24)
+      CALL GBYTEC (MSGA,KGDS(8),KPTR(8),24)
       KPTR(8)  = KPTR(8) + 24
       IF (IAND(KGDS(8),8388608).NE.0) THEN
           KGDS(8)  =  - IAND(KGDS(8),8388607)
       END IF
 C  ------------------- BYTE 24-26   DY - THE Y DIRECTION INCREMENT
-      CALL GBYTE (MSGA,KGDS(9),KPTR(8),24)
+      CALL GBYTEC (MSGA,KGDS(9),KPTR(8),24)
       KPTR(8)  = KPTR(8) + 24
       IF (IAND(KGDS(9),8388608).NE.0) THEN
           KGDS(9)  =  - IAND(KGDS(9),8388607)
       END IF
 C  ------------------- BYTE 27      PROJECTION CENTER FLAG
-      CALL GBYTE (MSGA,KGDS(10),KPTR(8),8)
+      CALL GBYTEC (MSGA,KGDS(10),KPTR(8),8)
       KPTR(8)  = KPTR(8) + 8
 C  ------------------- BYTE 28      SCANNING MODE
-      CALL GBYTE (MSGA,KGDS(11),KPTR(8),8)
+      CALL GBYTEC (MSGA,KGDS(11),KPTR(8),8)
       KPTR(8)  = KPTR(8) + 8
 C  ------------------- BYTE 29-32   RESERVED
 C                             SKIP TO START OF BYTE 33
-      CALL GBYTE (MSGA,KGDS(12),KPTR(8),32)
+      CALL GBYTEC (MSGA,KGDS(12),KPTR(8),32)
       KPTR(8)  = KPTR(8) + 32
 C
 C  -------------------
@@ -1566,19 +1604,19 @@ C  ------------------- GRID DESCRIPTION FOR SPHERICAL HARMONIC COEFF.
 C
 C  ------------------- BYTE 7-8     J PENTAGONAL RESOLUTION PARAMETER
  3000 CONTINUE
-      CALL GBYTE (MSGA,KGDS(2),KPTR(8),16)
+      CALL GBYTEC (MSGA,KGDS(2),KPTR(8),16)
       KPTR(8)  = KPTR(8) + 16
 C  ------------------- BYTE 9-10    K PENTAGONAL RESOLUTION PARAMETER
-      CALL GBYTE (MSGA,KGDS(3),KPTR(8),16)
+      CALL GBYTEC (MSGA,KGDS(3),KPTR(8),16)
       KPTR(8)  = KPTR(8) + 16
 C  ------------------- BYTE 11-12   M PENTAGONAL RESOLUTION PARAMETER
-      CALL GBYTE (MSGA,KGDS(4),KPTR(8),16)
+      CALL GBYTEC (MSGA,KGDS(4),KPTR(8),16)
       KPTR(8)  = KPTR(8) + 16
 C  ------------------- BYTE 13 REPRESENTATION TYPE
-      CALL GBYTE (MSGA,KGDS(5),KPTR(8),8)
+      CALL GBYTEC (MSGA,KGDS(5),KPTR(8),8)
       KPTR(8)  = KPTR(8) + 8
 C  ------------------- BYTE 14 COEFFICIENT STORAGE MODE
-      CALL GBYTE (MSGA,KGDS(6),KPTR(8),8)
+      CALL GBYTEC (MSGA,KGDS(6),KPTR(8),8)
       KPTR(8)  = KPTR(8) + 8
 C  -------------------        EMPTY FIELDS - BYTES 15 - 32
 C                 SET TO START OF BYTE 33
@@ -1589,58 +1627,58 @@ C                      PROCESS MERCATOR GRIDS
 C
 C  ------------------- BYTE 7-8     NR OF POINTS ALONG LATITUDE CIRCLE
  4000 CONTINUE
-      CALL GBYTE (MSGA,KGDS(2),KPTR(8),16)
+      CALL GBYTEC (MSGA,KGDS(2),KPTR(8),16)
       KPTR(8)  = KPTR(8) + 16
 C  ------------------- BYTE 9-10    NR OF POINTS ALONG LONG MERIDIAN
-      CALL GBYTE (MSGA,KGDS(3),KPTR(8),16)
+      CALL GBYTEC (MSGA,KGDS(3),KPTR(8),16)
       KPTR(8)  = KPTR(8) + 16
 C  ------------------- BYTE 11-13   LATITUE OF ORIGIN
-      CALL GBYTE (MSGA,KGDS(4),KPTR(8),24)
+      CALL GBYTEC (MSGA,KGDS(4),KPTR(8),24)
       KPTR(8)  = KPTR(8) + 24
       IF (IAND(KGDS(4),8388608).NE.0) THEN
           KGDS(4)  =  - IAND(KGDS(4),8388607)
       END IF
 C  ------------------- BYTE 14-16   LONGITUDE OF ORIGIN
-      CALL GBYTE (MSGA,KGDS(5),KPTR(8),24)
+      CALL GBYTEC (MSGA,KGDS(5),KPTR(8),24)
       KPTR(8)  = KPTR(8) + 24
       IF (IAND(KGDS(5),8388608).NE.0) THEN
           KGDS(5)  =  - IAND(KGDS(5),8388607)
       END IF
 C  ------------------- BYTE 17      RESOLUTION FLAG
-      CALL GBYTE (MSGA,KGDS(6),KPTR(8),8)
+      CALL GBYTEC (MSGA,KGDS(6),KPTR(8),8)
       KPTR(8)  = KPTR(8) + 8
 C  ------------------- BYTE 18-20   LATITUDE OF EXTREME POINT
-      CALL GBYTE (MSGA,KGDS(7),KPTR(8),24)
+      CALL GBYTEC (MSGA,KGDS(7),KPTR(8),24)
       KPTR(8)  = KPTR(8) + 24
       IF (IAND(KGDS(7),8388608).NE.0) THEN
           KGDS(7)  =  - IAND(KGDS(7),8388607)
       END IF
 C  ------------------- BYTE 21-23   LONGITUDE OF EXTREME POINT
-      CALL GBYTE (MSGA,KGDS(8),KPTR(8),24)
+      CALL GBYTEC (MSGA,KGDS(8),KPTR(8),24)
       KPTR(8)  = KPTR(8) + 24
       IF (IAND(KGDS(8),8388608).NE.0) THEN
           KGDS(8)  =  - IAND(KGDS(8),8388607)
       END IF
 C  ------------------- BYTE 24-26   LATITUDE OF PROJECTION INTERSECTION
-      CALL GBYTE (MSGA,KGDS(9),KPTR(8),24)
+      CALL GBYTEC (MSGA,KGDS(9),KPTR(8),24)
       KPTR(8)  = KPTR(8) + 24
       IF (IAND(KGDS(9),8388608).NE.0) THEN
           KGDS(9)  =  - IAND(KGDS(9),8388607)
       END IF
 C  ------------------- BYTE 27   RESERVED
-      CALL GBYTE (MSGA,KGDS(10),KPTR(8),8)
+      CALL GBYTEC (MSGA,KGDS(10),KPTR(8),8)
       KPTR(8)  = KPTR(8) + 8
 C  ------------------- BYTE 28      SCANNING MODE
-      CALL GBYTE (MSGA,KGDS(11),KPTR(8),8)
+      CALL GBYTEC (MSGA,KGDS(11),KPTR(8),8)
       KPTR(8)  = KPTR(8) + 8
 C  ------------------- BYTE 29-31   LONGITUDINAL DIR INCREMENT
-      CALL GBYTE (MSGA,KGDS(12),KPTR(8),24)
+      CALL GBYTEC (MSGA,KGDS(12),KPTR(8),24)
       KPTR(8)  = KPTR(8) + 24
       IF (IAND(KGDS(12),8388608).NE.0) THEN
           KGDS(12)  =  - IAND(KGDS(12),8388607)
       END IF
 C  ------------------- BYTE 32-34   LATITUDINAL DIR INCREMENT
-      CALL GBYTE (MSGA,KGDS(13),KPTR(8),24)
+      CALL GBYTEC (MSGA,KGDS(13),KPTR(8),24)
       KPTR(8)  = KPTR(8) + 24
       IF (IAND(KGDS(13),8388608).NE.0) THEN
           KGDS(13)  =  - IAND(KGDS(13),8388607)
@@ -1655,70 +1693,70 @@ C                      PROCESS LAMBERT CONFORMAL
 C
 C  ------------------- BYTE 7-8     NR OF POINTS ALONG X-AXIS
  5000 CONTINUE
-      CALL GBYTE (MSGA,KGDS(2),KPTR(8),16)
+      CALL GBYTEC (MSGA,KGDS(2),KPTR(8),16)
       KPTR(8)  = KPTR(8) + 16
 C  ------------------- BYTE 9-10    NR OF POINTS ALONG Y-AXIS
-      CALL GBYTE (MSGA,KGDS(3),KPTR(8),16)
+      CALL GBYTEC (MSGA,KGDS(3),KPTR(8),16)
       KPTR(8)  = KPTR(8) + 16
 C  ------------------- BYTE 11-13   LATITUDE OF ORIGIN
-      CALL GBYTE (MSGA,KGDS(4),KPTR(8),24)
+      CALL GBYTEC (MSGA,KGDS(4),KPTR(8),24)
       KPTR(8)  = KPTR(8) + 24
       IF (IAND(KGDS(4),8388608).NE.0) THEN
           KGDS(4)  =  - IAND(KGDS(4),8388607)
       END IF
 C  ------------------- BYTE 14-16   LONGITUDE OF ORIGIN (LOWER LEFT)
-      CALL GBYTE (MSGA,KGDS(5),KPTR(8),24)
+      CALL GBYTEC (MSGA,KGDS(5),KPTR(8),24)
       KPTR(8)  = KPTR(8) + 24
       IF (IAND(KGDS(5),8388608).NE.0) THEN
           KGDS(5)  = - IAND(KGDS(5),8388607)
       END IF
 C  ------------------- BYTE 17      RESOLUTION
-      CALL GBYTE (MSGA,KGDS(6),KPTR(8),8)
+      CALL GBYTEC (MSGA,KGDS(6),KPTR(8),8)
       KPTR(8)  = KPTR(8) + 8
 C  ------------------- BYTE 18-20   LOV -ORIENTATION OF GRID
-      CALL GBYTE (MSGA,KGDS(7),KPTR(8),24)
+      CALL GBYTEC (MSGA,KGDS(7),KPTR(8),24)
       KPTR(8)  = KPTR(8) + 24
       IF (IAND(KGDS(7),8388608).NE.0) THEN
           KGDS(7)  = - IAND(KGDS(7),8388607)
       END IF
 C  ------------------- BYTE 21-23   DX - X-DIR INCREMENT
-      CALL GBYTE (MSGA,KGDS(8),KPTR(8),24)
+      CALL GBYTEC (MSGA,KGDS(8),KPTR(8),24)
       KPTR(8)  = KPTR(8) + 24
 C  ------------------- BYTE 24-26   DY - Y-DIR INCREMENT
-      CALL GBYTE (MSGA,KGDS(9),KPTR(8),24)
+      CALL GBYTEC (MSGA,KGDS(9),KPTR(8),24)
       KPTR(8)  = KPTR(8) + 24
 C  ------------------- BYTE 27       PROJECTION CENTER FLAG
-      CALL GBYTE (MSGA,KGDS(10),KPTR(8),8)
+      CALL GBYTEC (MSGA,KGDS(10),KPTR(8),8)
       KPTR(8)  = KPTR(8) + 8
 C  ------------------- BYTE 28      SCANNING MODE
-      CALL GBYTE (MSGA,KGDS(11),KPTR(8),8)
+      CALL GBYTEC (MSGA,KGDS(11),KPTR(8),8)
       KPTR(8)  = KPTR(8) + 8
 C  ------------------- BYTE 29-31   LATIN1 - 1ST LAT FROM POLE
-      CALL GBYTE (MSGA,KGDS(12),KPTR(8),24)
+      CALL GBYTEC (MSGA,KGDS(12),KPTR(8),24)
       KPTR(8)  = KPTR(8) + 24
       IF (IAND(KGDS(12),8388608).NE.0) THEN
           KGDS(12)  =  - IAND(KGDS(12),8388607)
       END IF
 C  ------------------- BYTE 32-34   LATIN2 - 2ND LAT FROM POLE
-      CALL GBYTE (MSGA,KGDS(13),KPTR(8),24)
+      CALL GBYTEC (MSGA,KGDS(13),KPTR(8),24)
       KPTR(8)  = KPTR(8) + 24
       IF (IAND(KGDS(13),8388608).NE.0) THEN
           KGDS(13)  =  - IAND(KGDS(13),8388607)
       END IF
 C  ------------------- BYTE 35-37   LATITUDE OF SOUTHERN POLE
-      CALL GBYTE (MSGA,KGDS(14),KPTR(8),24)
+      CALL GBYTEC (MSGA,KGDS(14),KPTR(8),24)
       KPTR(8)  = KPTR(8) + 24
       IF (IAND(KGDS(14),8388608).NE.0) THEN
           KGDS(14)  =  - IAND(KGDS(14),8388607)
       END IF
 C  ------------------- BYTE 38-40   LONGITUDE OF SOUTHERN POLE
-      CALL GBYTE (MSGA,KGDS(15),KPTR(8),24)
+      CALL GBYTEC (MSGA,KGDS(15),KPTR(8),24)
       KPTR(8)  = KPTR(8) + 24
       IF (IAND(KGDS(15),8388608).NE.0) THEN
           KGDS(15)  =  - IAND(KGDS(15),8388607)
       END IF
 C  ------------------- BYTE 41-42   RESERVED
-      CALL GBYTE (MSGA,KGDS(16),KPTR(8),16)
+      CALL GBYTEC (MSGA,KGDS(16),KPTR(8),16)
       KPTR(8)  = KPTR(8) + 16
 C  -------------------
   900 CONTINUE
@@ -1729,7 +1767,7 @@ C
         IF (KGDS(20).NE.255) THEN
           ISUM  = 0
           KPTR(8)  = NSAVE + (KGDS(20) - 1) * 8
-          CALL GBYTES (MSGA,KGDS(22),KPTR(8),16,0,KGDS(3))
+          CALL GBYTESC (MSGA,KGDS(22),KPTR(8),16,0,KGDS(3))
           DO 910 J = 1, KGDS(3)
               ISUM  = ISUM + KGDS(21+J)
   910     CONTINUE
@@ -1765,6 +1803,10 @@ C 2006-12-12  VUONG       ADDED AWIPS GRIDS 120
 C 2007-04-20  VUONG       ADDED AWIPS GRIDS 176
 C 2007-06-11  VUONG       ADDED AWIPS GRIDS 11 TO 18 AND 122 TO 125
 C                         AND 180 TO 183
+C 2010-08-05  VUONG       ADDED NEW GRID 184, 199, 83 AND
+C                         REDEFINED GRID 90 FOR NEW RTMA CONUS 1.27-KM
+C                         REDEFINED GRID 91 FOR NEW RTMA ALASKA 2.976-KM
+C                         REDEFINED GRID 92 FOR NEW RTMA ALASKA 1.488-KM
 C
 C USAGE:    CALL FI634(MSGA,KPTR,KPDS,KGDS,KBMS,KRET)
 C   INPUT ARGUMENT LIST:
@@ -1896,12 +1938,12 @@ C                          SECTION 0    SECTION 1     SECTION 2
 C
 C  BYTE 4           NUMBER OF UNUSED BITS AT END OF SECTION 3
 C
-      CALL GBYTE (MSGA,KPTR(11),KPTR(8),8)
+      CALL GBYTEC (MSGA,KPTR(11),KPTR(8),8)
       KPTR(8)  = KPTR(8) + 8
 C
 C  BYTE 5,6         TABLE REFERENCE IF 0, BIT MAP FOLLOWS
 C
-      CALL GBYTE (MSGA,KPTR(12),KPTR(8),16)
+      CALL GBYTEC (MSGA,KPTR(12),KPTR(8),16)
       KPTR(8)  = KPTR(8) + 16
 C                   IF TABLE REFERENCE = 0, EXTRACT BIT MAP
         IF (KPTR(12).EQ.0) THEN
@@ -2187,6 +2229,10 @@ C                       ----- U.S GRID    74 - MAP SIZE 10800
 C                       ----- U.S GRID 75-77 - MAP SIZE 12321
                   J     = 12321
                   GO TO 800
+              ELSE IF (KPDS(3).EQ.83) THEN
+C                       ----- U.S GRID 83 - MAP SIZE 429786
+                  J     = 429786
+                  GO TO 800
               ELSE IF (KPDS(3).EQ.85.OR.KPDS(3).EQ.86) THEN
 C                       ----- U.S GRID 85,86 - MAP SIZE 32400
                   J     = 32400
@@ -2200,36 +2246,36 @@ C                       ----- U.S GRID 88     - MAP SIZE 317840
                   J     = 317840
                   GO TO 800
               ELSE IF (KPDS(3).EQ.90) THEN
-C                       ----- U.S GRID 90     - MAP SIZE 111723
-                  J     = 111723
+C                       ----- U.S GRID 90     - MAP SIZE 11807617
+                  J     = 11807617
                   GO TO 800
               ELSE IF (KPDS(3).EQ.91) THEN
-C                       ----- U.S GRID 91     - MAP SIZE 111723
-                  J     = 111723
+C                       ----- U.S GRID 91     - MAP SIZE 1822145
+                  J     = 1822145
                   GO TO 800
               ELSE IF (KPDS(3).EQ.92) THEN
-C                       ----- U.S GRID 92     - MAP SIZE 111723
-                  J     = 111723
+C                       ----- U.S GRID 92     - MAP SIZE 7283073
+                  J     = 7283073
                   GO TO 800
               ELSE IF (KPDS(3).EQ.93) THEN
 C                       ----- U.S GRID 93     - MAP SIZE 111723
                   J     = 111723
                   GO TO 800
               ELSE IF (KPDS(3).EQ.94) THEN
-C                       ----- U.S GRID 94     - MAP SIZE 196305
-                  J     = 196305
+C                       ----- U.S GRID 94     - MAP SIZE 371875
+                  J     = 371875
                   GO TO 800
               ELSE IF (KPDS(3).EQ.95) THEN
-C                       ----- U.S GRID 95     - MAP SIZE 36062
-                  J     = 36062
+C                       ----- U.S GRID 95     - MAP SIZE 130325
+                  J     = 130325
                   GO TO 800
               ELSE IF (KPDS(3).EQ.96) THEN
-C                       ----- U.S GRID 96     - MAP SIZE 646602
-                  J     = 646602
+C                       ----- U.S GRID 96     - MAP SIZE 209253
+                  J     = 209253
                   GO TO 800
               ELSE IF (KPDS(3).EQ.97) THEN
-C                       ----- U.S GRID 97     - MAP SIZE 12727
-                  J     = 12727
+C                       ----- U.S GRID 97     - MAP SIZE 1508100
+                  J     = 1508100
                   GO TO 800
               ELSE IF (KPDS(3).EQ.98) THEN
 C                       ----- U.S GRID 98     - MAP SIZE 18048
@@ -2301,6 +2347,10 @@ C                 ----- U.S. GRID 126 - MAP SIZE 72960
 C                 ----- U.S. GRID 127 - MAP SIZE 294912
                   J     = 294912
                   GO TO 800
+              ELSE IF (KPDS(3).EQ.128) THEN
+C                 ----- U.S. GRID 128 - MAP SIZE 663552
+                  J     = 663552
+                  GO TO 800
               ELSE IF (KPDS(3).EQ.130) THEN
 C                 ----- U.S. GRID 130 - MAP SIZE 151987
                   J     = 151987
@@ -2309,6 +2359,15 @@ C                 ----- U.S. GRID 130 - MAP SIZE 151987
 C                 ----- U.S. GRID 138 - MAP SIZE 134784
                   J     = 134784
                   GO TO 800
+              ELSE IF (KPDS(3).EQ.139) THEN
+C                 ----- U.S. GRID 139 - MAP SIZE 4160
+                  J     = 4160
+                  GO TO 800
+              ELSE IF (KPDS(3).EQ.140) THEN
+C                 ----- U.S. GRID 140 - MAP SIZE 32437
+                  J     = 32437
+                  GO TO 800
+C
               ELSE IF (KPDS(3).EQ.145) THEN
 C                 ----- U.S. GRID 145 - MAP SIZE 24505
                   J     = 24505
@@ -2334,11 +2393,11 @@ C                 ----- U.S. GRID 151 - MAP SIZE 205062
                   J     = 205062
                   GO TO 800
               ELSE IF (KPDS(3).EQ.160) THEN
-C                 ----- U.S. GRID 160 - MAP SIZE 28080 
+C                 ----- U.S. GRID 160 - MAP SIZE 28080
                   J     = 28080
                   GO TO 800
               ELSE IF (KPDS(3).EQ.161) THEN
-C                 ----- U.S. GRID 161 - MAP SIZE 13974 
+C                 ----- U.S. GRID 161 - MAP SIZE 13974
                   J     = 13974
                   GO TO 800
               ELSE IF (KPDS(3).EQ.163) THEN
@@ -2346,7 +2405,7 @@ C                 ----- U.S. GRID 163 - MAP SIZE 727776
                   J     = 727776
                   GO TO 800
               ELSE IF (KPDS(3).EQ.170) THEN
-C                 ----- U.S. GRID 170 - MAP SIZE 131072 
+C                 ----- U.S. GRID 170 - MAP SIZE 131072
                   J     =  131072
                   GO TO 800
               ELSE IF (KPDS(3).EQ.171) THEN
@@ -2373,6 +2432,10 @@ C                 ----- U.S. GRID 175 - MAP SIZE 185704
 C                 ----- U.S. GRID 176 - MAP SIZE 76845
                   J     = 76845
                   GO TO 800
+              ELSE IF (KPDS(3).EQ.179) THEN
+C                 ----- U.S. GRID 179 - MAP SIZE 977132
+                  J     = 977132
+                  GO TO 800
               ELSE IF (KPDS(3).EQ.180) THEN
 C                 ----- U.S. GRID 180 - MAP SIZE 267168
                   J     = 267168
@@ -2389,17 +2452,21 @@ C                 ----- U.S. GRID 182 - MAP SIZE 64218
 C                 ----- U.S. GRID 183 - MAP SIZE 180144
                   J     = 180144
                   GO TO 800
+              ELSE IF (KPDS(3).EQ.184) THEN
+C                 ----- U.S. GRID 184 - MAP SIZE 2953665
+                  J     = 2953665
+                  GO TO 800
               ELSE IF (KPDS(3).EQ.190) THEN
-C                 ----- U.S GRID 190  - MAP SIZE 12972
-                  J     = 12972
+C                 ----- U.S GRID 190  - MAP SIZE 796590
+                  J     = 796590
                   GO TO 800
               ELSE IF (KPDS(3).EQ.192) THEN
 C                 ----- U.S GRID 192  - MAP SIZE 91719
                   J     = 91719
                   GO TO 800
               ELSE IF (KPDS(3).EQ.194) THEN
-C                 ----- U.S GRID 194  - MAP SIZE 12727
-                  J     = 12727
+C                 ----- U.S GRID 194  - MAP SIZE 168640
+                  J     = 168640
                   GO TO 800
               ELSE IF (KPDS(3).EQ.195) THEN
 C                 ----- U.S. GRID 195 - MAP SIZE 22833
@@ -2416,6 +2483,10 @@ C                 ----- U.S. GRID 197 - MAP SIZE 739297
               ELSE IF (KPDS(3).EQ.198) THEN
 C                 ----- U.S. GRID 198 - MAP SIZE 456225
                   J     = 456225
+                  GO TO 800
+              ELSE IF (KPDS(3).EQ.199) THEN
+C                 ----- U.S. GRID 199 - MAP SIZE 37249
+                  J     = 37249
                   GO TO 800
               ELSE IF (IAND(KPDS(4),128).EQ.128) THEN
 C                     ----- U.S. NON-STANDARD GRID
@@ -2765,7 +2836,7 @@ C$$$
       LOGICAL*1     KBMS(NPTS)
       INTEGER       ICHK(NPTS)
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-      CALL GBYTES(MSGA,ICHK,NSKP,1,0,NPTS)
+      CALL GBYTESC(MSGA,ICHK,NSKP,1,0,NPTS)
       KBMS=ICHK.NE.0
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       END
@@ -2863,8 +2934,6 @@ C
 C$$$
 C
       CHARACTER*1   MSGA(*)
-      CHARACTER*1   KK(8)
-      CHARACTER*1   CKREF(8)
 C
       LOGICAL*1     KBMS(*)
 C
@@ -2873,8 +2942,6 @@ C
       INTEGER       KBDS(20)
       INTEGER       KPTR(*)
       INTEGER       NRBITS
-      INTEGER       KREF
-      INTEGER       KKK
       INTEGER,ALLOCATABLE::  KSAVE(:)
       INTEGER       KSCALE
 C
@@ -2882,9 +2949,6 @@ C
       REAL          REFNCE
       REAL          SCALE
       REAL          REALKK
-C
-      EQUIVALENCE   (CKREF(1),KREF,REFNCE)
-      EQUIVALENCE   (KK(1),KKK,REALKK)
 C
 C
 C     CHANGED HEX VALUES TO DECIMAL TO MAKE CODE MORE PORTABLE
@@ -2896,20 +2960,20 @@ C              SET UP BIT POINTER
      *                + (KPTR(5)*8) + 24
 C  ------------- EXTRACT FLAGS
 C            BYTE 4
-      CALL GBYTE(MSGA,KPTR(14),KPTR(8),4)
+      CALL GBYTEC(MSGA,KPTR(14),KPTR(8),4)
       KPTR(8)  = KPTR(8) + 4
 C  --------- NR OF UNUSED BITS IN SECTION 4
-      CALL GBYTE(MSGA,KPTR(15),KPTR(8),4)
+      CALL GBYTEC(MSGA,KPTR(15),KPTR(8),4)
       KPTR(8)  = KPTR(8) + 4
       KEND    = KPTR(9) + (KPTR(2)*8) + (KPTR(3)*8) + (KPTR(4)*8)
      *                + (KPTR(5)*8) + KPTR(6) * 8 - KPTR(15)
 C  ------------- GET SCALE FACTOR
 C            BYTES 5,6
 C                                  CHECK SIGN
-      CALL GBYTE (MSGA,KSIGN,KPTR(8),1)
+      CALL GBYTEC (MSGA,KSIGN,KPTR(8),1)
       KPTR(8)  = KPTR(8) + 1
 C                                  GET ABSOLUTE SCALE VALUE
-      CALL GBYTE (MSGA,KSCALE,KPTR(8),15)
+      CALL GBYTEC (MSGA,KSCALE,KPTR(8),15)
       KPTR(8)  = KPTR(8) + 15
       IF (KSIGN.GT.0) THEN
           KSCALE  = - KSCALE
@@ -2918,25 +2982,16 @@ C                                  GET ABSOLUTE SCALE VALUE
       KPTR(19)=KSCALE
 C  ------------ GET REFERENCE VALUE
 C            BYTES 7,10
-      CALL GBYTE (MSGA,KREF,KPTR(8),32)
+C      CALL GBYTE (MSGA,KREF,KPTR(8),32)
+      call gbytec(MSGA,JSGN,KPTR(8),1)
+      call gbytec(MSGA,JEXP,KPTR(8)+1,7)
+      call gbytec(MSGA,IFR,KPTR(8)+8,24)
       KPTR(8)  = KPTR(8) + 32
 C
 C     THE NEXT CODE WILL CONVERT THE IBM370 FLOATING POINT
 C     TO THE FLOATING POINT USED ON YOUR COMPUTER.
 C
-C     1ST TEST TO SEE IN ON 32 OR 64 BIT WORD MACHINE
-C     LW = 4 OR 8;  IF 8 MAY BE A CRAY
 C
-      CALL W3FI01(LW)
-      IF (LW.EQ.4) THEN
-        CALL GBYTE (CKREF,JSGN,0,1)
-        CALL GBYTE (CKREF,JEXP,1,7)
-        CALL GBYTE (CKREF,IFR,8,24)
-      ELSE
-        CALL GBYTE (CKREF,JSGN,32,1)
-        CALL GBYTE (CKREF,JEXP,33,7)
-        CALL GBYTE (CKREF,IFR,40,24)
-      ENDIF
 C     PRINT *,109,JSGN,JEXP,IFR
 C 109 FORMAT (' JSGN,JEXP,IFR = ',3(1X,Z8))
       IF (IFR.EQ.0) THEN
@@ -2947,10 +3002,10 @@ C 109 FORMAT (' JSGN,JEXP,IFR = ',3(1X,Z8))
           REFNCE  = FLOAT(IFR) * 16.0 ** (JEXP - 64 - 6)
           IF (JSGN.NE.0) REFNCE = - REFNCE
       END IF
-C     PRINT *,'SCALE ',SCALE,' REF VAL ',KREF,REFNCE
+C     PRINT *,'SCALE ',SCALE,' REF VAL ',REFNCE
 C  ------------- NUMBER OF BITS SPECIFIED FOR EACH ENTRY
 C            BYTE 11
-      CALL GBYTE (MSGA,KBITS,KPTR(8),8)
+      CALL GBYTEC (MSGA,KBITS,KPTR(8),8)
       KPTR(8)  = KPTR(8) + 8
       KBDS(4)  = KBITS
 C     KBDS(13) = KBITS
@@ -2965,11 +3020,11 @@ C     PRINT *,'BASIC FLAGS =',KPTR(14) ,IAND(KPTR(14),1)
 C         PRINT *,'NO EXTENDED FLAGS'
       ELSE
 C            BYTES 12,13
-          CALL GBYTE (MSGA,KOCTET,KPTR(8),16)
+          CALL GBYTEC (MSGA,KOCTET,KPTR(8),16)
           KPTR(8)  = KPTR(8) + 16
 C  --------------------------- EXTENDED FLAGS
 C            BYTE 14
-          CALL GBYTE (MSGA,KXFLAG,KPTR(8),8)
+          CALL GBYTEC (MSGA,KXFLAG,KPTR(8),8)
 C         PRINT *,'HAVE EXTENDED FLAGS',KXFLAG
           KPTR(8)  = KPTR(8) + 8
           IF (IAND(KXFLAG,16).EQ.0) THEN
@@ -2995,35 +3050,35 @@ C                         MATRIX OF VALUES AT GRID POINT
           END IF
 C  ---------------------- NR - FIRST DIMENSION (ROWS) OF EACH MATRIX
 C            BYTES 15,16
-          CALL GBYTE (MSGA,NR,KPTR(8),16)
+          CALL GBYTEC (MSGA,NR,KPTR(8),16)
           KPTR(8)  = KPTR(8) + 16
 C  ---------------------- NC - SECOND DIMENSION (COLS) OF EACH MATRIX
 C            BYTES 17,18
-          CALL GBYTE (MSGA,NC,KPTR(8),16)
+          CALL GBYTEC (MSGA,NC,KPTR(8),16)
           KPTR(8)  = KPTR(8) + 16
 C  ---------------------- NRV - FIRST DIM COORD VALS
 C            BYTE 19
-          CALL GBYTE (MSGA,NRV,KPTR(8),8)
+          CALL GBYTEC (MSGA,NRV,KPTR(8),8)
           KPTR(8)  = KPTR(8) + 8
 C  ---------------------- NC1 - NR COEFF'S OR VALUES
 C            BYTE 20
-          CALL GBYTE (MSGA,NC1,KPTR(8),8)
+          CALL GBYTEC (MSGA,NC1,KPTR(8),8)
           KPTR(8)  = KPTR(8) + 8
 C  ---------------------- NCV - SECOND DIM COORD OR VALUE
 C            BYTE 21
-          CALL GBYTE (MSGA,NCV,KPTR(8),8)
+          CALL GBYTEC (MSGA,NCV,KPTR(8),8)
           KPTR(8)  = KPTR(8) + 8
 C  ---------------------- NC2 - NR COEFF'S OR VALS
 C            BYTE 22
-          CALL GBYTE (MSGA,NC2,KPTR(8),8)
+          CALL GBYTEC (MSGA,NC2,KPTR(8),8)
           KPTR(8)  = KPTR(8) + 8
 C  ---------------------- KPHYS1 - FIRST DIM PHYSICAL SIGNIF
 C            BYTE 23
-          CALL GBYTE (MSGA,KPHYS1,KPTR(8),8)
+          CALL GBYTEC (MSGA,KPHYS1,KPTR(8),8)
           KPTR(8)  = KPTR(8) + 8
 C  ---------------------- KPHYS2 - SECOND DIM PHYSICAL SIGNIF
 C            BYTE 24
-          CALL GBYTE (MSGA,KPHYS2,KPTR(8),8)
+          CALL GBYTEC (MSGA,KPHYS2,KPTR(8),8)
           KPTR(8)  = KPTR(8) + 8
 C            BYTES 25-N
       END IF
@@ -3300,7 +3355,7 @@ C
           ELSE
               KADD    = 37
           END IF
-          CALL GBYTES (MSGA,KSAVE,KPTR(8),KBITS,0,KNR)
+          CALL GBYTESC (MSGA,KSAVE,KPTR(8),KBITS,0,KNR)
           KPTR(8)   = KPTR(8) + KBITS * KNR
           II        = 1
           KENTRY    = KPTR(10)
@@ -3317,7 +3372,7 @@ C
  4002     CONTINUE
       ELSE IF (KPDS(3).EQ.21.OR.KPDS(3).EQ.22.OR.KPDS(3).EQ.25.
      *            OR.KPDS(3).EQ.61.OR.KPDS(3).EQ.62) THEN
-          CALL GBYTES (MSGA,KSAVE,KPTR(8),KBITS,0,KNR)
+          CALL GBYTESC (MSGA,KSAVE,KPTR(8),KBITS,0,KNR)
           II    = 1
           KENTRY = KPTR(10)
           DO 4011 I = 1, KENTRY
@@ -3340,7 +3395,7 @@ C
               DATA(I) = DATA(LASTP)
  4012     CONTINUE
       ELSE
-          CALL GBYTES (MSGA,KSAVE,KPTR(8),KBITS,0,KNR)
+          CALL GBYTESC (MSGA,KSAVE,KPTR(8),KBITS,0,KNR)
           II    = 1
           KENTRY = KPTR(10)
           DO 500 I = 1, KENTRY
@@ -3358,25 +3413,14 @@ C               SIMPLE PACKING, FLOATING POINT, NO ADDN'L FLAGS
  5000 CONTINUE
 C     PRINT *,'CHECK POINT SPECTRAL COEFF'
       KPTR(8)  = IBYT12
-      CALL GBYTE (MSGA,KKK,KPTR(8),32)
+C      CALL GBYTE (MSGA,KKK,KPTR(8),32)
+      call gbytec(MSGA,JSGN,KPTR(8),1)
+      call gbytec(MSGA,JEXP,KPTR(8)+1,7)
+      call gbytec(MSGA,IFR,KPTR(8)+8,24)
       KPTR(8)  = KPTR(8) + 32
 C
 C     THE NEXT CODE WILL CONVERT THE IBM370 FOATING POINT
 C     TO THE FLOATING POINT USED ON YOUR MACHINE.
-C
-C     1ST TEST TO SEE IN ON 32 OR 64 BIT WORD MACHINE
-C     LW = 4 OR 8;  IF 8 MAY BE A CRAY
-C
-      CALL W3FI01(LW)
-      IF (LW.EQ.4) THEN
-        CALL GBYTE (KK,JSGN,0,1)
-        CALL GBYTE (KK,JEXP,1,7)
-        CALL GBYTE (KK,IFR,8,24)
-      ELSE
-        CALL GBYTE (KK,JSGN,32,1)
-        CALL GBYTE (KK,JEXP,33,7)
-        CALL GBYTE (KK,IFR,40,24)
-      ENDIF
 C
       IF (IFR.EQ.0) THEN
           REALKK  = 0.0
@@ -3387,7 +3431,7 @@ C
           IF (JSGN.NE.0) REALKK  = -REALKK
       END IF
       DATA(1)  = REALKK
-      CALL GBYTES (MSGA,KSAVE,KPTR(8),KBITS,0,KNR)
+      CALL GBYTESC (MSGA,KSAVE,KPTR(8),KBITS,0,KNR)
 C  --------------
       DO 6000 I = 1, KENTRY
           DATA(I+1)  = REFNCE + FLOAT(KSAVE(I)) * SCALE
@@ -3462,7 +3506,7 @@ C$$$
 C
       INTEGER      KBDS(20)
       INTEGER      KPTR(*)
-      INTEGER      JREF,BMAP2(12500)
+      character(len=1)      BMAP2(1000000)
       INTEGER      I,IBDS
       INTEGER      KBIT,IFOVAL,ISOVAL
       INTEGER      KPDS(*),KGDS(*)
@@ -3471,7 +3515,6 @@ C
 C
       CHARACTER*1  MSGA(*)
 C
-      EQUIVALENCE  (JREF,REFN)
 C  *******************     SETUP     ******************************
 C     PRINT *,'ENTER FI636'
 C                                START OF BMS (BIT POINTER)
@@ -3487,25 +3530,36 @@ C     PRINT *,'JPTR ',JPTR
       KBDS(9) = JPTR
 C     PRINT *,'START OF BDS         ',KBDS(9)
 C                    BINARY SCALE VALUE  BDS BYTES 5-6
-      CALL GBYTE (MSGA,ISIGN,JPTR+32,1)
-      CALL GBYTE (MSGA,KBDS(11),JPTR+33,15)
+      CALL GBYTEC (MSGA,ISIGN,JPTR+32,1)
+      CALL GBYTEC (MSGA,KBDS(11),JPTR+33,15)
       IF (ISIGN.GT.0) THEN
           KBDS(11)  = - KBDS(11)
       END IF
 C     PRINT *,'BINARY SCALE VALUE =',KBDS(11)
 C                  EXTRACT REFERENCE VALUE
-      CALL GBYTE(MSGA,JREF,JPTR+48,32)
+C      CALL GBYTEC(MSGA,JREF,JPTR+48,32)
+      call gbytec(MSGA,JSGN,KPTR(8),1)
+      call gbytec(MSGA,JEXP,KPTR(8)+1,7)
+      call gbytec(MSGA,IFR,KPTR(8)+8,24)
+      IF (IFR.EQ.0) THEN
+          REFNCE  = 0.0
+      ELSE IF (JEXP.EQ.0.AND.IFR.EQ.0) THEN
+          REFNCE  = 0.0
+      ELSE
+          REFNCE  = FLOAT(IFR) * 16.0 ** (JEXP - 64 - 6)
+          IF (JSGN.NE.0) REFNCE = - REFNCE
+      END IF
 C     PRINT *,'DECODED REFERENCE VALUE =',REFN,REFNCE
 C                F O BIT WIDTH
-      CALL GBYTE(MSGA,KBDS(13),JPTR+80,8)
+      CALL GBYTEC(MSGA,KBDS(13),JPTR+80,8)
       JPTR  = JPTR + 88
 C              AT START OF BDS BYTE 12
 C                EXTRACT N1
-      CALL GBYTE (MSGA,KBDS(1),JPTR,16)
+      CALL GBYTEC (MSGA,KBDS(1),JPTR,16)
 C     PRINT *,'N1  = ',KBDS(1)
       JPTR  = JPTR + 16
 C                 EXTENDED FLAGS
-      CALL GBYTE (MSGA,KFLAG,JPTR,8)
+      CALL GBYTEC (MSGA,KFLAG,JPTR,8)
 C                 ISOLATE BIT MAP FLAG
       IF (IAND(KFLAG,32).NE.0) THEN
         KBDS(14)  = 1
@@ -3524,15 +3578,15 @@ C                 ISOLATE BIT MAP FLAG
       END IF
       JPTR  = JPTR + 8
 C                EXTRACT N2
-      CALL GBYTE (MSGA,KBDS(2),JPTR,16)
+      CALL GBYTEC (MSGA,KBDS(2),JPTR,16)
 C     PRINT *,'N2  = ',KBDS(2)
       JPTR  = JPTR + 16
 C                EXTRACT P1
-      CALL GBYTE (MSGA,KBDS(3),JPTR,16)
+      CALL GBYTEC (MSGA,KBDS(3),JPTR,16)
 C     PRINT *,'P1  = ',KBDS(3)
       JPTR  = JPTR + 16
 C                EXTRACT P2
-      CALL GBYTE (MSGA,KBDS(4),JPTR,16)
+      CALL GBYTEC (MSGA,KBDS(4),JPTR,16)
 C     PRINT *,'P2  = ',KBDS(4)
       JPTR  = JPTR + 16
 C                 SKIP RESERVED BYTE
@@ -3587,15 +3641,15 @@ C                 PRINT *,'LP = ',LP
                   JT  = 0
                   DO 2000 JZ = 1, KGDS(3)
 C                               GET NUMBER IN CURRENT ROW
-                      CALL GBYTE (MSGA,NUMBER,LP,16)
+                      CALL GBYTEC (MSGA,NUMBER,LP,16)
 C                               INCREMENT TO NEXT ROW NUMBER
                       LP  = LP + 16
 C                     PRINT *,'NUMBER IN ROW',JZ,' = ',NUMBER
                       DO 1500 JQ = 1, NUMBER
                           IF (JQ.EQ.1) THEN
-                              CALL SBYTE (BMAP2,1,JT,1)
+                              CALL SBYTEC (BMAP2,1,JT,1)
                           ELSE
-                              CALL SBYTE (BMAP2,0,JT,1)
+                              CALL SBYTEC (BMAP2,0,JT,1)
                           END IF
                           JT  = JT + 1
  1500                 CONTINUE
@@ -3617,9 +3671,9 @@ C             PRINT *,'KIN=',KIN,' KOUT= ',KOUT
               DO 200 I = 1, KOUT
                   DO 150 J = 1, KIN
                       IF (J.EQ.1) THEN
-                          CALL SBYTE (BMAP2,1,IJ,1)
+                          CALL SBYTEC (BMAP2,1,IJ,1)
                       ELSE
-                          CALL SBYTE (BMAP2,0,IJ,1)
+                          CALL SBYTEC (BMAP2,0,IJ,1)
                       END IF
                       IJ  = IJ + 1
   150             CONTINUE
@@ -3642,20 +3696,20 @@ C                    IF NEXT MASTER BIT MAP BIT POSITION IS 'ON' (1)
 C             WRITE(6,900)I,KBMS(I)
 C 900         FORMAT (1X,I4,3X,14HMAIN BIT IS ON,3X,L4)
               IF (KBDS(14).NE.0) THEN
-                  CALL GBYTE (MSGA,KBIT,KBDS(6),1)
+                  CALL GBYTEC (MSGA,KBIT,KBDS(6),1)
               ELSE
-                  CALL GBYTE (BMAP2,KBIT,KBDS(6),1)
+                  CALL GBYTEC (BMAP2,KBIT,KBDS(6),1)
               END IF
 C             PRINT *,'KBDS(6) =',KBDS(6),' KBIT =',KBIT
               KBDS(6)  = KBDS(6) + 1
               IF (KBIT.NE.0) THEN
 C                 PRINT *,'          SOB ON'
 C                                  GET NEXT FIRST ORDER PACKED VALUE
-                  CALL GBYTE (MSGA,IFOVAL,KBDS(7),KBDS(13))
+                  CALL GBYTEC (MSGA,IFOVAL,KBDS(7),KBDS(13))
                   KBDS(7)  = KBDS(7) + KBDS(13)
 C                 PRINT *,'FOVAL =',IFOVAL
 C                                   GET SECOND ORDER BIT WIDTH
-                  CALL GBYTE (MSGA,KBDS(15),KBDS(5),8)
+                  CALL GBYTEC (MSGA,KBDS(15),KBDS(5),8)
                   KBDS(5)  = KBDS(5) + 8
 C                PRINT *,KBDS(7)-KBDS(13),' FOVAL =',IFOVAL,' KBDS(5)=',
 C    *                           ,KBDS(5), 'ISOWID =',KBDS(15)
@@ -3669,7 +3723,7 @@ C                             THEN SECOND ORDER VALUE IS 0
 C                            SO CALCULATE DATA VALUE FOR THIS POINT
 C                 DATA(I) = (REFNCE + (FLOAT(IFOVAL) * SCALE2)) / SCAL10
               ELSE
-                  CALL GBYTE (MSGA,ISOVAL,KBDS(8),KBDS(15))
+                  CALL GBYTEC (MSGA,ISOVAL,KBDS(8),KBDS(15))
                   KBDS(8)  = KBDS(8) + KBDS(15)
               END IF
               DATA(I) = (REFNCE + (FLOAT(IFOVAL + ISOVAL) *
@@ -3701,6 +3755,7 @@ C   95-10-31  IREDELL     REMOVED SAVES AND PRINTS
 C   97-02-12  W BOSTELMAN CORRECTS ECMWF US GRID 2 PROCESSING
 C   98-06-17  IREDELL     REMOVED ALTERNATE RETURN
 C   99-01-20  BALDWIN    MODIFY TO HANDLE GRID 237
+C   09-05-21  VUONG      MODIFY TO HANDLE GRID 45
 C
 C USAGE:    CALL FI637(J,KPDS,KGDS,KRET)
 C   INPUT ARGUMENT LIST:
@@ -3853,7 +3908,7 @@ C  ---------------------------------------
               IF (I.NE.J) THEN
                   RETURN
               END IF
-          ELSE IF (KPDS(3).GE.37.AND.KPDS(3).LE.44) THEN
+          ELSE IF (KPDS(3).GE.37.AND.KPDS(3).LE.45) THEN
               IF (I.NE.J) THEN
                   RETURN
               END IF
@@ -3893,7 +3948,7 @@ C  ---------------------------------------
               IF (I.NE.J) THEN
                   RETURN
               END IF
-          ELSE IF (KPDS(3).GE.122.AND.KPDS(3).LE.127) THEN
+          ELSE IF (KPDS(3).GE.122.AND.KPDS(3).LE.128) THEN
               IF (I.NE.J) THEN
                   RETURN
               END IF
@@ -3902,6 +3957,14 @@ C  ---------------------------------------
                   RETURN
               END IF
           ELSE IF (KPDS(3).EQ.138) THEN
+              IF (I.NE.J) THEN
+                  RETURN
+              END IF
+          ELSE IF (KPDS(3).EQ.139) THEN
+              IF (I.NE.J) THEN
+                  RETURN
+              END IF
+          ELSE IF (KPDS(3).EQ.140) THEN
               IF (I.NE.J) THEN
                   RETURN
               END IF
@@ -3925,7 +3988,7 @@ C  ---------------------------------------
               IF (I.NE.J) THEN
                   RETURN
               END IF
-          ELSE IF (KPDS(3).GE.180.AND.KPDS(3).LE.183) THEN
+          ELSE IF (KPDS(3).GE.179.AND.KPDS(3).LE.184) THEN
               IF (I.NE.J) THEN
                   RETURN
               END IF
@@ -3933,7 +3996,7 @@ C  ---------------------------------------
               IF (I.NE.J) THEN
                   RETURN
               END IF
-          ELSE IF (KPDS(3).GE.194.AND.KPDS(3).LE.198) THEN
+          ELSE IF (KPDS(3).GE.194.AND.KPDS(3).LE.199) THEN
               IF (I.NE.J) THEN
                   RETURN
               END IF

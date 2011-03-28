@@ -163,6 +163,13 @@ subroutine plt2d(tcr2d, iz, jz, llflag, &
 ! ix = 20
 ! jx = 20
 
+  if (ix+ioff .gt. iz .or. jx+joff .gt. jz) then
+!   print *,'map subset is too large. Setting to full domain'
+    ix = iz
+    jx = jz
+    ioff = 0
+    joff = 0
+  endif
 ! compute upper left point for the map   (works for NCEP GFS and godas)
   pl1 = lat1 + (joff*dy)  
   pl2 = lon1 + (ioff*dx)

@@ -268,8 +268,8 @@ end subroutine parse_args
     logical :: first=.true.
     character (len=5), intent(out) :: field
     character(len=5) :: table2(255), table129(255), afwa(255), ecmwf(255), &
-      table131(255), table132(255)
-    common /paramids/ table2, table129, table131, table132, afwa, ecmwf
+      table130(255), table131(255), table132(255)
+    common /paramids/ table2, table129, table130, table131, table132, afwa, ecmwf
 
      field = '     '
      if (first) call init_tables
@@ -278,6 +278,8 @@ end subroutine parse_args
        field = table2(param)
      else if ( centerid .eq. 7 .and. ptv .eq. 129 ) then
        field = table129(param)
+     else if ( centerid .eq. 7 .and. ptv .eq. 130 ) then
+       field = table130(param)
      else if ( centerid .eq. 7 .and. ptv .eq. 131 ) then
        field = table131(param)
      else if ( centerid .eq. 7 .and. ptv .eq. 132 ) then
@@ -302,8 +304,8 @@ end subroutine fieldname
 !
      subroutine init_tables
     character(len=5) :: table2(255), table129(255), afwa(255), ecmwf(255), &
-      table131(255)
-    common /paramids/ table2, table129, table131, afwa, ecmwf
+      table130(255), table131(255),  table132(255)
+    common /paramids/ table2, table129, table130, table131, table132, afwa, ecmwf
 
        ! afwa
        do i = 1, 127
@@ -494,8 +496,8 @@ end subroutine init_tables
 
     block data  ptables
     character(len=5) :: table2(255), table129(255), afwa(255), ecmwf(255), &
-      table131(255), table132(255)
-    common /paramids/ table2, table129, table131, table132, afwa, ecmwf
+      table130(255), table131(255), table132(255)
+    common /paramids/ table2, table129, table130, table131, table132, afwa, ecmwf
 
   data table2 /'PRES','PRMSL','PTEND','PVORT','ICAHT','GP','HGT','DIST',&
        'HSTDV','TOZNE','TMP','VTMP','POT','EPOT','T MAX','T MIN','DPT',&
@@ -555,9 +557,40 @@ end subroutine init_tables
        'CDUVB','THFLX','UVAR','VVAR','UVVCC','MCLS','LAPP','LOPP','     ','REFO',&
        'REFD','REFC','SBT22','SBT23','SBT24','SBT25','MINRH','MAXRH','CEIL',&
        'PBLRE','SBC23','SBC24','RPRAT','SPRAT','FPRAT','IPRAT','UPHL','SURGE',&
-       'ETSRG','RHPW','231 ','232','233','234 ','235 ','236 ','237  ',&
-       '238','239','240','241','242','243','244','245','246',&
-       '247','248','249','250','251','252','253','254','255'/
+       'ETSRG','RHPW','OZMAX1','OZMAX8','PDMAX1','PDMAX24','MAXREF','MXUPHL','MAXUVV',&
+       'MAXDVV','MAXVIG','RETOP','VRATE','TCSRG20','TCSRG30','TCSRG40','TCSRG50','TCSRG60',&
+       'TCSRG70','TCSRG80','TCSRG90','HINDX','DIFTEN','PSPCP','MAXUW','MAXVW','255'/
+  data table130 /'PRES','PRMSL','PTEND','PVORT','ICAHT','GP','HGT','DIST',&
+       'HSTDV','TOZNE','TMP','VTMP','POT','EPOT','T MAX','T MIN','DPT',&
+       'DEPR','LAPR','VIS','RDSP1','RDSP2','RDSP3','PLI','TMP A','PRESA',&
+       'GP A','WVSP1','WVSP2','WVSP3','WDIR','WIND','U GRD','V GRD','STRM',&
+       'V POT','MNTSF','SGCVV','V VEL','DZDT','ABS V','ABD D','REL V','REL D',&
+       'VUCSH','VVCSG','DIR C','SP C','UOGRD','VOGRD','SPF H','R H','MIXR',&
+       'P WAT','VAPP','SAT D','EVP','C ICE','PRATE','TSTM','A PCP','NCPCP',&
+       'ACPCP','SRWEQ','WEASD','SNO D','MIXHT','TTHDP','MTHD','MTH A','T CDC',&
+       'CDCON','L CDC','M CDC','H CDC','C WAT','BLI','SNO C','SNO L','WTMP',&
+       'LAND','DSL M','SFC R','ALBDO','TSOIL','SOILM','VEG','SALTY','DEN',&
+       'WATR','ICE C','ICETK','DICED','SICED','U ICE','V ICE','ICE G','ICE D',&
+       'SNO M','HTSGW','WVDIR','WVHGT','WVPER','SWDIR','SWELL','SWPER','DIRPW',&
+       'PERPW','DIRSW','PERSW','NSWRS','NLWRS','NSWRT','NLWRT','LWAVR','SWAVR',&
+       'GRAD','BRTMP','LWRAD','SWRAD','LHTFL','SHTFL','BLYDP','U FLX','V FLX',&
+       'WMIXE','IMG D',&
+! Table 130    LSM 
+! 128-143 not yet assigned
+       '     ','     ','     ','     ','     ','   ','   ','     ','     ',&
+       '     ','     ','     ','     ','     ','     ','     ','SOILW',&
+       'PEVPR','VEGT ','BARET','AVSFT','RADT','SSTOR','LSOIL','EWATR','     ',&
+       'LSPA ','GFLUX','CIN','CAPE','TKE','MXSAL','SOILL','ASNOW','ARAIN',&
+       'GWREC','QREC ','SNOWT','VBDSF','VDDSF','NBDSF','NDDSF','SNFALB',&
+       'RLYRS','M FLX','   ','   ','     ','NLAT','ELON','FLDCAP','ACOND','SNOAG',&
+       'CCOND','LAI','SFCRH','SALBD','    ','    ','NDVI','DRIP','VBSALB','VWSALB',&
+       'NBSALB','NWSALB','FRZR','FROZR','TSNOW','MTERH','   ','SBSNO','EVBS','EVCW',&
+       'VTCIN','VTCAPE','RSMIN','DSWRF','DLWRF','   ','MSTAV','SFEXC','     ','TRANS',&
+       'USWRF','ULWRF','     ','     ','     ','     ','     ','     ','WILT',&
+       'FLDCP','HPBL','SLTYP','CNWAT','SOTYP','VGTYP','BMIXL','AMIXL','PEVAP',&
+       'SNOHF','SMREF','SMDRY','    ','    ','BGRUN','SSRUN','    ','     ',&
+       'SNOWC','SNOT','POROS','SBT112','SBT113','SBT114','SBT115','     ','RCS',&
+       'RCT','RCQ','RCSOL','    ','    ','CD','FRICV','RI','  '/
   data table131 /'PRES','PRMSL','PTEND','PVORT','ICAHT','GP','HGT','DIST',&
        'HSTDV','TOZNE','TMP','VTMP','POT','EPOT','T MAX','T MIN','DPT',&
        'DEPR','LAPR','VIS','RDSP1','RDSP2','RDSP3','PLI','TMP A','PRESA',&
