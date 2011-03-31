@@ -51,6 +51,8 @@
 /
  geog_data_path = '/data3/mp/wrfhelp/WPS_GEOG'
  geog_data_path = '/standalone/users/gill/DATA/GEOG'
+ geog_data_res     = 'modis_lakes+10m','modis_lakes+2m',
+ geog_data_res     = 'usgs_lakes+10m','usgs_lakes+2m',
 
 &ungrib
  out_format = 'WPS',
@@ -63,6 +65,7 @@
  io_form_metgrid = 2, 
  opt_output_from_metgrid_path = './',
  opt_metgrid_tbl_path         = 'metgrid/',
+ process_only_bdy = 5,
 /
 
 &mod_levs
