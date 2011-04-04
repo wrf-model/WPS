@@ -107,7 +107,7 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_level, out_f
        end if
        if (filedates(n)(1:datelen).ne.hdate(1:datelen)) cycle FILELOOP
        if (debug_level .gt. 50 ) then
-	 call mprintf(.true.,INFORM, &
+         call mprintf(.true.,INFORM, &
             "RRPR Processing : %s",s1=filedates(n)(1:datelen))
        endif
        open(iunit, file=trim(get_path(prefix))//'PFILE:'//filedates(n)(1:datelen), &
@@ -154,7 +154,7 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_level, out_f
              read (iunit) map%startloc, map%lat1, map%lon1, map%dx, map%dy, &
                 map%lov, map%truelat1
           case default
-	     call mprintf(.true.,ERROR, &  
+             call mprintf(.true.,ERROR, &  
                 "Unrecognized map%%igrid: %i in RRPR 2",i1=map%igrid)
           end select
 
@@ -174,7 +174,7 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_level, out_f
            case (1)      ! Mercator
               read (iunit) map%lat1, map%lon1, map%dy, map%dx, map%truelat1
            case default
-	     call mprintf(.true.,ERROR, &  
+             call mprintf(.true.,ERROR, &  
                 "Unrecognized map%%igrid: %i in RRPR 3",i1=map%igrid)
            end select
         else
@@ -433,7 +433,7 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_level, out_f
                 is_there(200100, 'SPECHUMD')) then
               call get_dims(200100, 'TT')
               call compute_rh_spechumd(map%nx, map%ny)
-	      call mprintf(.true.,DEBUG, &
+              call mprintf(.true.,DEBUG, &
                 "RRPR:   SURFACE RH is computed")
            elseif (is_there(200100, 'TT'       ).and. &
                 is_there(200100, 'DEWPT')) then
@@ -502,47 +502,58 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_level, out_f
            call get_dims(200100, 'SNOW_EC')
            allocate(scr2d(map%nx,map%ny))
            call get_storage(200100, 'SNOW_EC', scr2d, map%nx, map%ny)
-	   scr2d = scr2d * 1000.
+           scr2d = scr2d * 1000.
            call put_storage(200100, 'SNOW', scr2d, map%nx, map%ny)
            deallocate(scr2d)
         endif
 
 ! Convert the ECMWF LANDSEA mask from a fraction to a flag
 
-	if ( index(map%source,'ECMWF') .ne. 0) then
+        if ( index(map%source,'ECMWF') .ne. 0) then
         if (is_there(200100, 'LANDSEA')) then
            call get_dims(200100, 'LANDSEA')
            call make_zero_or_one(map%nx, map%ny, 'LANDSEA')
         endif
         endif
 
+! NCEP GFS weasd is one-half of the NAM value. Increase it for use in WRF.
+! The GFS-based reanalyses values should be OK as is.
+        if ((index(map%source,'NCEP GFS') .ne. 0 .or. &
+            index(map%source,'NCEP GEFS') .ne. 0) .and. &
+            is_there(200100, 'SNOW')) then
+           call mprintf(.true.,DEBUG, &
+              "RRPR:   Recomputing SNOW for NCEP GFS")
+           call get_dims(200100, 'SNOW')
+           allocate(scr2d(map%nx,map%ny))
+           call get_storage(200100, 'SNOW', scr2d, map%nx, map%ny)
+           scr2d = scr2d * 2.
+           call put_storage(200100, 'SNOW', scr2d, map%nx, map%ny)
+           deallocate(scr2d)
+        endif
+
 ! compute physical snow depth (SNOWH) for various models
-! As of March 2011, this is done here instead of real.
+! As of March 2011, this is done here instead of real because we have model
+! source information.
         if (is_there(200100, 'SNOW') .and. .not. is_there(200100, 'SNOWH')) then
           call get_dims(200100, 'SNOW')
           allocate(scr2d(map%nx,map%ny))
           call get_storage(200100, 'SNOW', scr2d, map%nx, map%ny)
+          call mprintf(.true.,DEBUG, &
+             "RRPR:   Computing SNOWH from SNOW")
           if ( index(map%source,'NCEP ') .ne. 0) then
-	    if ( index(map%source,'NMM ') .ne. 0 .and.  &
-	         index(map%source,'NAM ') .ne. 0 .and.  &
-	         index(map%source,'RTMA') .ne. 0 .and.  &
-	         index(map%source,'RUC ') .ne. 0 ) then     ! it's a GFS variant
-	      scr2d = scr2d * 0.01           ! NCEP uses 100:1 ratio for GFS
-	    else
-	      scr2d = scr2d * 0.005          ! NCEP uses 200:1 ratio for NAM
-	    endif
+            scr2d = scr2d * 0.005          ! Assume 200:1 ratio as used at NCEP and in NOAH
           else if (index(map%source,'ECMWF') .ne. 0) then
             if (is_there(200100, 'SNOW_DEN')) then        ! If we have snow density, use it to compute snowh
-	      call get_dims(200100, 'SNOW_DEN')
-	      allocate(tmp2d(map%nx,map%ny))
-	      call get_storage(200100, 'SNOW_DEN', tmp2d, map%nx, map%ny)
-	      scr2d = scr2d / tmp2d 
+              call get_dims(200100, 'SNOW_DEN')
+              allocate(tmp2d(map%nx,map%ny))
+              call get_storage(200100, 'SNOW_DEN', tmp2d, map%nx, map%ny)
+              scr2d = scr2d / tmp2d 
               deallocate(tmp2d)
-	    else
-	      scr2d = scr2d * 0.004     ! otherwise, assume a density of 250 mm/m (i.e. 250:1 ratio).
+            else
+              scr2d = scr2d * 0.004     ! otherwise, assume a density of 250 mm/m (i.e. 250:1 ratio).
             endif
-	  else                       ! Other models
-	    scr2d = scr2d * 0.005    ! Use real's default method (200:1)
+          else                       ! Other models
+            scr2d = scr2d * 0.005    ! Use real's default method (200:1)
           endif
           call put_storage(200100, 'SNOWH', scr2d, map%nx, map%ny)
           deallocate(scr2d)
@@ -575,13 +586,13 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_level, out_f
            call get_dims(200100, 'ICEFRAC')
            allocate(scr2d(map%nx,map%ny))
            call get_storage(200100, 'ICEFRAC', scr2d, map%nx, map%ny)
-	   scr2d = scr2d / 100.
+           scr2d = scr2d / 100.
            call put_storage(200100, 'ICEFRAC', scr2d, map%nx, map%ny)
            deallocate(scr2d)
         endif
 
 
-	call mprintf(.true.,INFORM, &
+        call mprintf(.true.,INFORM, &
            "RRPR: hdate = %s ",s1=hdate)
         call output(hdate, nlvl, maxlvl, plvl, interval, 2, out_format, prefix, debug_level)
         call clear_storage
@@ -860,7 +871,7 @@ subroutine fix_gfs_rh (ix, jx, plvl)
 
       ews = 6.112 * exp(17.67 * (tt(i,j)-273.15) / ((tt(i,j)-273.15)+243.5))
       if ( tt(i,j) .gt. 253.15 ) then
-	! A linear approximation to the GFS blending region ( -20 > T < 0 )
+        ! A linear approximation to the GFS blending region ( -20 > T < 0 )
         r = ((273.15 - tt(i,j)) / 20.)
         r = (r * eis) + ((1-r)*ews)
       else
