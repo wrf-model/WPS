@@ -14,7 +14,7 @@ include $(DEV_TOP)/configure.wps
 #                     ( and all the jasper/*.h include files).
 #
 
-CFLAGS2	=	$(CPPFLAGS) $(COMPRESSION_INC) $(FDEFS)
+CFLAGS2	=	$(CPPFLAGS) $(COMPRESSION_INC) $(FDEFS) -D__64BIT__
 LIB	=	libg2_4.a
 
 #--------------------------------------
