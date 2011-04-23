@@ -310,6 +310,8 @@ SUBROUTINE rd_grib1(IUNIT, gribflnm, level, field, hdate,  &
                     level = 201500.
                  elseif (ktype .eq. 237 .or. ktype .eq. 238 ) then  ! depth of ocean layer
                     level = 201600.
+                 elseif (ktype .eq. 200 ) then  !column variable (TCDC,PWAT,etc.)
+                    level = lvl1                !
                  endif
                  if (level .lt. -998. ) then
                    write(6,*) 'Could not find a level for this Vtable entry'
@@ -419,6 +421,20 @@ SUBROUTINE rd_grib1(IUNIT, gribflnm, level, field, hdate,  &
 
 !    print *, "CE map stuff", map%igrid, map%nx, map%ny, map%dx, &
 !    map%dy, map%lat1, map%lon1
+
+  elseif (ksec2(4).eq.1) then ! Mercator Grid
+     map%igrid = 1
+     map%nx = infogrid(1)
+     map%ny = infogrid(2)
+     map%dx = ginfo(8)  ! km
+     map%dy = ginfo(9)
+     map%truelat1 = ginfo(5)
+     map%truelat2 = 0.
+     map%lov = 0.
+     map%lat1 = ginfo(3)
+     map%lon1 = ginfo(4)
+     write(tmp8,'(b8.8)') infogrid(5)
+     if (tmp8(5:5) .eq. '0') map%grid_wind = .false.
 
   elseif (ksec2(4).eq.3) then ! Lambert Conformal Grid
      map%igrid = 3
