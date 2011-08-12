@@ -15,10 +15,9 @@
 
 SHELL           	=       /bin/sh
 
-COMPRESSION_LIBS	=	-L/data3a/mp/gill/WPS_LIBS/local/lib \
-				-ljasper -lpng12 -lpng -lz
+COMPRESSION_LIBS	=
 
-COMPRESSION_INC		=	-I/data3a/mp/gill/WPS_LIBS/local/include
+COMPRESSION_INC		=
 
 NCARG_LIBS		=	-L$(NCARG_ROOT)/lib -lncarg -lncarg_gks -lncarg_c \
 				-L/usr/X11R6/lib -lX11
