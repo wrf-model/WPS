@@ -184,6 +184,7 @@ end program g2print
       character(len=40) :: string
       character(len=13) :: pstring = ',t50,":",i14)'
       character(len=15) :: rstring = ',t50,":",f14.5)'
+      character(len=13) :: astring = ',t50,":",a14)'
 
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 !  SET ARGUMENTS
@@ -619,7 +620,7 @@ end program g2print
            write(*,'(5x,"Length of Section 2"'//pstring) gfld%locallen
            if ( associated(gfld%local).AND.gfld%locallen.gt.0 ) then
            do j = 1, gfld%locallen
-             write(*,'(5x,"Local value "'//pstring) gfld%local(j)
+             write(*,'(5x,"Local value "'//astring) gfld%local(j)
            enddo
 !             print *,'G2 SECTION 2: ',(gfld%local(j),j=1,gfld%locallen)
            endif
