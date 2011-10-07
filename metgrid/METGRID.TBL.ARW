@@ -148,6 +148,7 @@ name=SW000010
         interp_option=sixteen_pt+four_pt+average_4pt+search
         masked=water
         interp_mask=LANDSEA(0)
+        missing_value=-1.E30
         fill_missing=1.
         flag_in_output=FLAG_SW000010
 ========================================
@@ -155,6 +156,7 @@ name=SW010040
         interp_option=sixteen_pt+four_pt+average_4pt+search
         masked=water
         interp_mask=LANDSEA(0)
+        missing_value=-1.E30
         fill_missing=1.
         flag_in_output=FLAG_SW010040
 ========================================
@@ -162,6 +164,7 @@ name=SW040100
         interp_option=sixteen_pt+four_pt+average_4pt+search
         masked=water
         interp_mask=LANDSEA(0)
+        missing_value=-1.E30
         fill_missing=1.
         flag_in_output=FLAG_SW040100
 ========================================
@@ -169,6 +172,7 @@ name=SW100200
         interp_option=sixteen_pt+four_pt+average_4pt+search
         masked=water
         interp_mask=LANDSEA(0)
+        missing_value=-1.E30
         fill_missing=1.
         flag_in_output=FLAG_SW100200
 ========================================
@@ -176,6 +180,7 @@ name=SW010200
         interp_option=sixteen_pt+four_pt+average_4pt+search
         masked=water
         interp_mask=LANDSEA(0)
+        missing_value=-1.E30
         fill_missing=1.
         flag_in_output=FLAG_SW010200
 ========================================
@@ -199,6 +204,7 @@ name=SM010040
         interp_option=sixteen_pt+four_pt+average_4pt+search
         masked=water
         interp_mask=LANDSEA(0)
+        missing_value=-1.E30
         fill_missing=1.
         flag_in_output=FLAG_SM010040
 ========================================
@@ -214,6 +220,7 @@ name=SM040100
         interp_option=sixteen_pt+four_pt+average_4pt+search
         masked=water
         interp_mask=LANDSEA(0)
+        missing_value=-1.E30
         fill_missing=1.
         flag_in_output=FLAG_SM040100
 ========================================
@@ -221,6 +228,7 @@ name=SM100200
         interp_option=sixteen_pt+four_pt+average_4pt+search
         masked=water
         interp_mask=LANDSEA(0)
+        missing_value=-1.E30
         fill_missing=1.
         flag_in_output=FLAG_SM100200
 ========================================
@@ -228,6 +236,7 @@ name=SM010200
         interp_option=sixteen_pt+four_pt+average_4pt+search
         masked=water
         interp_mask=LANDSEA(0)
+        missing_value=-1.E30
         fill_missing=1.
         flag_in_output=FLAG_SM010200
 ========================================
@@ -251,6 +260,7 @@ name=ST010040
         interp_option=sixteen_pt+four_pt+average_4pt+search
         masked=water
         interp_mask=LANDSEA(0)
+        missing_value=-1.E30
         fill_missing=285.
         flag_in_output=FLAG_ST010040
 ========================================
@@ -266,6 +276,7 @@ name=ST040100
         interp_option=sixteen_pt+four_pt+average_4pt+search
         masked=water
         interp_mask=LANDSEA(0)
+        missing_value=-1.E30
         fill_missing=285.
         flag_in_output=FLAG_ST040100
 ========================================
@@ -273,6 +284,7 @@ name=ST100200
         interp_option=sixteen_pt+four_pt+average_4pt+search
         masked=water
         interp_mask=LANDSEA(0)
+        missing_value=-1.E30
         fill_missing=285.
         flag_in_output=FLAG_ST100200
 ========================================
@@ -280,6 +292,7 @@ name=ST010200
         interp_option=sixteen_pt+four_pt+average_4pt+search
         masked=water
         interp_mask=LANDSEA(0)
+        missing_value=-1.E30
         fill_missing=285.
         flag_in_output=FLAG_ST010200
 ========================================
