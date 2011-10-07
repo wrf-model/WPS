@@ -4,7 +4,6 @@
   use table
   use gridinfo
   use filelist
-  use datarray
   implicit none
   interface
      subroutine parse_args(err, a1, h1, i1, l1, a2, h2, i2, l2,&
