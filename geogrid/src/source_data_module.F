@@ -57,6 +57,35 @@ module source_data_module
 
  
    contains
+     ! nullify(source_proj)
+     ! nullify(source_wordsize)
+     ! nullify(source_endian)
+     ! nullify(source_fieldtype)
+     ! nullify(source_dest_fieldtype)
+     ! nullify(source_priority)
+     ! nullify(source_tile_x)
+     ! nullify(source_tile_y)
+     ! nullify(source_tile_z)
+     ! nullify(source_tile_z_start)
+     ! nullify(source_tile_z_end)
+     ! nullify(source_tile_bdr)
+     ! nullify(source_category_min)
+     ! nullify(source_category_max)
+     ! nullify(source_smooth_option)
+     ! nullify(source_smooth_passes)
+     ! nullify(source_output_stagger)
+     ! nullify(source_row_order)
+     ! nullify(source_dx)
+     ! nullify(source_dy)
+     ! nullify(source_known_x)
+     ! nullify(source_known_y)
+     ! nullify(source_known_lat)
+     ! nullify(source_known_lon)
+     ! nullify(source_masked)
+     ! nullify(source_truelat1)
+     ! nullify(source_truelat2)
+     ! nullify(source_stdlon)
+     ! nullify(source_scale_factor)
  
  
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
