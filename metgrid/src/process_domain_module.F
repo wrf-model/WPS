@@ -44,6 +44,15 @@ module process_domain_module
       character (len=128) :: title, mminlu
       character (len=128), allocatable, dimension(:) :: output_flags, td_output_flags
 
+      ! CWH Initialize local pointer variables
+      nullify(landmask)
+      nullify(xlat)
+      nullify(xlon)
+      nullify(xlat_u)
+      nullify(xlon_u)
+      nullify(xlat_v)
+      nullify(xlon_v)
+
       ! Compute number of times that we will process
       call geth_idts(end_date(n), start_date(n), idiff)
       call mprintf((idiff < 0),ERROR,'Ending date is earlier than starting date in namelist for domain %i.', i1=n)
@@ -233,6 +242,9 @@ module process_domain_module
       character (len=128) :: grid_type, datestr, cname, stagger, cunits, cdesc
       character (len=128), dimension(3) :: dimnames
       type (fg_input) :: field
+
+      ! CWH Initialize local pointer variables
+      nullify(real_array)
 
       ! Initialize the input module to read static input data for this domain
       call mprintf(.true.,LOGFILE,'Opening static input file.')
@@ -651,6 +663,13 @@ integer, parameter :: BDR_WIDTH = 3
       character (len=128), allocatable, dimension(:) :: met_flags
       type (fg_input) :: field, u_field, v_field
       type (met_data) :: fg_data
+
+      ! CWH Initialize local pointer variables
+      nullify(soil_levels)
+      nullify(u_levels)
+      nullify(v_levels)
+      nullify(halo_slab)
+      nullify(real_array)
 
 
       ! For this time, we need to process all first-guess filename roots. When we 
@@ -1424,6 +1443,10 @@ integer, parameter :: BDR_WIDTH = 3
       real, pointer, dimension(:,:) :: data_count
       type (fg_input) :: mask_field, mask_water_field, mask_land_field
 
+      ! CWH Initialize local pointer variables
+      nullify(interp_array)
+      nullify(data_count)
+
       ! Find index into fieldname, interp_method, masked, and fill_missing
       !   of the current field
       idxt = num_entries + 1
@@ -1828,6 +1851,10 @@ integer, parameter :: BDR_WIDTH = 3
       type (fg_input), pointer, dimension(:) :: headers
       type (list) :: temp_levels
    
+      !CWH Initialize local pointer variables
+      nullify(field_levels)
+      nullify(headers)
+
       ! Initialize a list to store levels that are found for 3-d fields 
       call list_init(temp_levels)
    
@@ -1900,6 +1927,14 @@ integer, parameter :: BDR_WIDTH = 3
       type (list) :: temp_levels
       type (list_item), pointer, dimension(:) :: keys
    
+      ! CWH Initialize local pointer variables
+      nullify(union_levels)
+      nullify(field_levels)
+      nullify(r_union_levels)
+      nullify(headers)
+      nullify(all_headers)
+      nullify(keys)
+
       ! Initialize a list to store levels that are found for 3-d fields 
       call list_init(temp_levels)
    
@@ -2180,6 +2215,10 @@ integer, parameter :: BDR_WIDTH = 3
       type (list_item), pointer, dimension(:) :: keys
       character (len=128) :: asrcname
       logical :: filled_all_lev
+
+      !CWH Initialize local pointer variables
+      nullify(all_list)
+      nullify(keys)
 
       filled_all_lev = .false.
 
