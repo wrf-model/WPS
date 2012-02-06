@@ -188,6 +188,7 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_level, out_f
         nullify (ptr2d)
      enddo rdloop
 
+   write (0,*) 'Name of source model =>',map%source
 !
 ! We have reached the end of file, so time to close it.
 !
@@ -461,16 +462,38 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_level, out_f
            deallocate(scr2d)
         endif
 
-! Add residual soil moisture to SOILM* if initialized from RUC model
-      if (index(map%source,'NOAA GSD') .ne. 0) then
+! compute snow water equivalent (SNOW) for NCEP RUC  models
+! As of Sept. 14  2011
+        if ( index(map%source,'NCEP RUC Model') .ne. 0) then
+          if (is_there(200100, 'SNOWH') .and. .not. is_there(200100, 'SNOW')) then
+          call get_dims(200100, 'SNOWH')
+          allocate(scr2d(map%nx,map%ny))
+          call get_storage(200100, 'SNOWH', scr2d, map%nx, map%ny)
+          call mprintf(.true.,DEBUG, &
+             "RRPR:   Computing SNOWH from SNOW")
+            if (is_there(200100, 'RHOSN')) then        ! If we have snow density, use it to compute snowh
+              call get_dims(200100, 'RHOSN')
+              allocate(tmp2d(map%nx,map%ny))
+              call get_storage(200100, 'RHOSN', tmp2d, map%nx, map%ny)
+              scr2d = scr2d * tmp2d
+              deallocate(tmp2d)
+            else
+              scr2d = scr2d * 200.0          ! Assume 200:1 ratio
+            endif
+          call put_storage(200100, 'SNOW', scr2d, map%nx, map%ny)
+          deallocate(scr2d)
+          endif
+        endif
+
+! Add residual soil moisture to SOILM* if initialized from the GSD RUC model or from NCEP RUC
+      if (index(map%source,'NOAA GSD') .ne. 0 .or.    &
+          index(map%source,'NCEP RUC Model') .ne. 0) then
+            if ( .not. is_there(200100, 'SOILM000') .and.& 
+                       is_there(200100, 'SM000ruc') ) then
+           call get_dims(200100, 'SM000ruc')
+             print *,'Adjust RUC soil moisture'
           call mprintf(.true.,DEBUG, &
              "RRPR:   Adjusting RUC soil moisture ")
-            if ( is_there(200100,'SOILM000') .and. &
-                 is_there(200100,'SOILM005') .and. &
-                 is_there(200100,'SOILM020') .and. &
-                 is_there(200100,'SOILM040') .and. &
-                 is_there(200100,'SOILM160') .and. &
-                 is_there(200100,'SOILM300') ) then
               call fix_ruc_soilm (map%nx, map%ny)
             endif
        endif
@@ -498,6 +521,21 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_level, out_f
            scr2d = scr2d / 9.81
            call put_storage(200100, 'SOILHGT', scr2d, map%nx, map%ny)
            deallocate(scr2d)
+        endif
+
+! For NCEP RR (using the same ID as for RUC) native-level input, 
+! may need to move PSFC from level 1 to 2001.
+! From TGS 8 Sept. 2011
+        if ( index(map%source,'NCEP RUC Model') .ne. 0) then
+        if (.not. is_there(200100, 'PSFC') .and. &
+             is_there(1, 'PRESSURE')) then
+    print *,'Process PSFC for NCEP RR'
+           call get_dims(1, 'PRESSURE')
+           allocate(scr2d(map%nx,map%ny))
+           call get_storage(1, 'PRESSURE', scr2d, map%nx, map%ny)
+           call put_storage(200100, 'PSFC', scr2d, map%nx, map%ny)
+           deallocate(scr2d)
+        endif
         endif
 
 ! For ECMWF hybrid-level input, may need to move psfc from level 1 to 2001.
@@ -918,12 +956,12 @@ subroutine fix_ruc_soilm (ix, jx)
   allocate(soilm160(ix,jx))
   allocate(soilm300(ix,jx))
   allocate(soilcat(ix,jx))
-  call get_storage(200100, 'SOILM000', soilm000, ix, jx)
-  call get_storage(200100, 'SOILM005', soilm005, ix, jx)
-  call get_storage(200100, 'SOILM020', soilm020, ix, jx)
-  call get_storage(200100, 'SOILM040', soilm040, ix, jx)
-  call get_storage(200100, 'SOILM160', soilm160, ix, jx)
-  call get_storage(200100, 'SOILM300', soilm300, ix, jx)
+  call get_storage(200100, 'SM000ruc', soilm000, ix, jx)
+  call get_storage(200100, 'SM005ruc', soilm005, ix, jx)
+  call get_storage(200100, 'SM020ruc', soilm020, ix, jx)
+  call get_storage(200100, 'SM040ruc', soilm040, ix, jx)
+  call get_storage(200100, 'SM160ruc', soilm160, ix, jx)
+  call get_storage(200100, 'SM300ruc', soilm300, ix, jx)
 
   call get_storage(200100, 'SOILCAT', soilcat, ix, jx)
 
@@ -962,3 +1000,4 @@ subroutine fix_ruc_soilm (ix, jx)
 
 end subroutine fix_ruc_soilm
  
+

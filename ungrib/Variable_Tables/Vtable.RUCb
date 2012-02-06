@@ -26,12 +26,18 @@ Param| Type |Level1|Level2| Name     |  Units   | Description                   
   53 | 105  |   2  |      | QV       | kg kg-1  | Water vapor mixing ratio at 2 m         |  0  |  1  |  2  | 103 |
   33 | 105  |  10  |      | UU       | m s-1    | U                                       |  0  |  2  |  2  | 103 |
   34 | 105  |  10  |      | VV       | m s-1    | V                                       |  0  |  2  |  3  | 103 |
- 144 |   1  |   0  |      | SOILM000 | kg m-3   | Soil Moist   0 cm below ground          |  2  |  0  | 192 |   1 |
- 144 | 111  |   5  |      | SOILM005 | kg m-3   | Soil Moist   5 cm below ground          |  2  |  0  | 192 | 106 |
- 144 | 111  |  20  |      | SOILM020 | kg m-3   | Soil Moist  20 cm below ground          |  2  |  0  | 192 | 106 |
- 144 | 111  |  40  |      | SOILM040 | kg m-3   | Soil Moist  40 cm below ground          |  2  |  0  | 192 | 106 |
- 144 | 111  | 160  |      | SOILM160 | kg m-3   | Soil Moist 160 cm below ground          |  2  |  0  | 192 | 106 |
- 144 | 111  | 300  |      | SOILM300 | kg m-3   | Soil Moist 300 cm below ground          |  2  |  0  | 192 | 106 |
+ 144 |   1  |   0  |      | SM000ruc | fraction |                                         |  2  |  0  | 192 |   1 |
+ 144 | 111  |   5  |      | SM005ruc | fraction |                                         |  2  |  0  | 192 | 106 |
+ 144 | 111  |  20  |      | SM020ruc | fraction |                                         |  2  |  0  | 192 | 106 |
+ 144 | 111  |  40  |      | SM040ruc | fraction |                                         |  2  |  0  | 192 | 106 |
+ 144 | 111  | 160  |      | SM160ruc | fraction |                                         |  2  |  0  | 192 | 106 |
+ 144 | 111  | 300  |      | SM300ruc | fraction |                                         |  2  |  0  | 192 | 106 |
+     |   1  |   0  |      | SOILM000 | fraction | Soil Moist   0 cm below ground          |  2  |  0  | 192 |   1 |
+     | 111  |   5  |      | SOILM005 | fraction | Soil Moist   5 cm below ground          |  2  |  0  | 192 | 106 |
+     | 111  |  20  |      | SOILM020 | fraction | Soil Moist  20 cm below ground          |  2  |  0  | 192 | 106 |
+     | 111  |  40  |      | SOILM040 | fraction | Soil Moist  40 cm below ground          |  2  |  0  | 192 | 106 |
+     | 111  | 160  |      | SOILM160 | fraction | Soil Moist 160 cm below ground          |  2  |  0  | 192 | 106 |
+     | 111  | 300  |      | SOILM300 | fraction | Soil Moist 300 cm below ground          |  2  |  0  | 192 | 106 |
   85 |   1  |   0  |      | SOILT000 | K        | Soil Temp    0 cm below ground          |  2  |  0  |  2  |   1 |
   85 | 111  |   5  |      | SOILT005 | K        | Soil Temp    5 cm below ground          |  2  |  0  |  2  | 106 |
   85 | 111  |  20  |      | SOILT020 | K        | Soil Temp   20 cm below ground          |  2  |  0  |  2  | 106 |

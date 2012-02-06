@@ -200,10 +200,13 @@ SUBROUTINE rd_grib1(IUNIT, gribflnm, level, field, hdate,  &
   else if (icenter .eq. 58) then
     map%source = 'US Navy FNOC'
   else if (icenter .eq. 59) then
-      if (iprocess .eq. 120) then
+      if (iprocess .eq. 125) then
         map%source = 'NOAA GSD Rapid Refresh'
-      else
+      else if (iprocess .eq. 105) then
         map%source = 'NOAA GSD'
+      else 
+        print *,'Unknown GSD source'
+        stop
       endif
   else if (icenter .eq. 60) then
         map%source = 'NCAR'
