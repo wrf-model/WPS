@@ -74,6 +74,38 @@ module process_tile_module
       type (hashtable) :: processed_fieldnames
       character (len=128), dimension(2) :: dimnames
       integer :: sub_x, sub_y
+
+      ! Probably not all of these nullify statements are needed...
+      nullify(xlat_array)
+      nullify(xlon_array)
+      nullify(xlat_array_u)
+      nullify(xlon_array_u)
+      nullify(xlat_array_v)
+      nullify(xlon_array_v)
+      nullify(clat_array)
+      nullify(clon_array)
+      nullify(xlat_array_subgrid)
+      nullify(xlon_array_subgrid)
+      nullify(f_array)
+      nullify(e_array)
+      nullify(mapfac_array_m_x)
+      nullify(mapfac_array_u_x)
+      nullify(mapfac_array_v_x)
+      nullify(mapfac_array_m_y)
+      nullify(mapfac_array_u_y)
+      nullify(mapfac_array_v_y)
+      nullify(mapfac_array_x_subgrid)
+      nullify(mapfac_array_y_subgrid)
+      nullify(sina_array)
+      nullify(cosa_array)
+      nullify(xlat_ptr)
+      nullify(xlon_ptr)
+      nullify(mapfac_ptr_x)
+      nullify(mapfac_ptr_y)
+      nullify(landmask)
+      nullify(dominant_field)
+      nullify(field)
+      nullify(slp_field)
    
       datestr = '0000-00-00_00:00:00'
       field_count = 0
@@ -1164,6 +1196,9 @@ module process_tile_module
       type (bitarray) :: bit_domain, level_domain
       type (queue)    :: point_queue, tile_queue
       type (q_data)   :: current_pt
+
+      nullify(data_count)
+      nullify(interp_type)
 
       ! If this is the first trip through this routine, we need to allocate the bit array that
       !  will persist through all recursive calls, tracking which grid points have been assigned
