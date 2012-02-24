@@ -79,6 +79,10 @@ module storage_module
       type (data_node), pointer :: newnode
       type (data_node), pointer :: evictnode
 
+      !CWH Initialize local pointer variables
+      ! 3 of 4 seem ok because I can see how they are set before being used
+      nullify(evictnode)  ! Can't find how this one gets set, nullify for safety
+
       ! We'll first see if there is already a list for this fieldname
       name_cursor => head
       do while (associated(name_cursor))
@@ -210,6 +214,10 @@ call mprintf(.true.,WARN,'PLEASE REPORT THIS BUG TO THE DEVELOPER!')
       type (head_node), pointer :: name_cursor
       type (data_node), pointer :: data_cursor
       type (data_node), pointer :: evictnode
+
+      !CWH Initialize local pointer variables
+      ! 2 of 3 seem ok because I can see how they are set before being used
+      nullify(evictnode)  ! Can't find how this one gets set, nullify for safety
 
       global_time = global_time + 1
 
@@ -942,6 +950,10 @@ call mprintf(.true.,WARN,'PLEASE REPORT THIS BUG TO THE DEVELOPER!')
       type (fg_input), pointer, dimension(:) :: header_list
 
       type (list) :: all_levs
+
+       !CWH Initialize local pointer variables
+       nullify(ilevels)
+       nullify(header_list)
 
       call list_init(all_levs)
       call storage_get_td_headers(header_list)
