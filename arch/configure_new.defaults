@@ -155,6 +155,33 @@ RANLIB              =
 CC_TOOLS            = 
 
 ########################################################################################################################
+#ARCH    Linux x86_64, PGI compiler, SGI MPT  # serial serial_NO_GRIB2 dmpar dmpar_NO_GRIB2
+#
+COMPRESSION_LIBS    = CONFIGURE_COMP_L
+COMPRESSION_INC     = CONFIGURE_COMP_I
+FDEFS               = CONFIGURE_FDEFS
+NCARG_LIBS2         = -L${PGI}/linux86-64/5.2/lib -lpgftnrtl -lpgc \
+                      -L/usr/lib64 -lg2c
+SFC                 = pgf90
+SCC                 = pgcc
+DM_FC               = $(SFC) -I$(MPI_ROOT)/include
+DM_CC               = $(SCC) -I$(MPI_ROOT)/include
+FC                  = CONFIGURE_FC
+CC                  = CONFIGURE_CC
+LD                  = $(FC) 
+FFLAGS              = -Mfree -byteswapio -O
+F77FLAGS            = -Mfixed -byteswapio -O
+FCSUFFIX            = 
+FNGFLAGS            = $(FFLAGS)
+LDFLAGS             = -L($MPI_ROOT)/lib -lmpi
+CFLAGS              = -w -O3
+CPP                 = /lib/cpp -C -P -traditional
+CPPFLAGS            = -D_UNDERSCORE -DBYTESWAP -DLINUX -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -DBIT32 CONFIGURE_MPI
+ARFLAGS             =
+RANLIB              = 
+CC_TOOLS            = 
+
+########################################################################################################################
 #ARCH   Linux x86_64, IA64 and Opteron   # serial serial_NO_GRIB2 dmpar dmpar_NO_GRIB2
 #
 COMPRESSION_LIBS    = CONFIGURE_COMP_L
