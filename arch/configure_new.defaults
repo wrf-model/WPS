@@ -51,7 +51,6 @@ CFLAGS              = -O
 CPP                 = /lib/cpp -C -P -traditional
 CPPFLAGS            = -D_UNDERSCORE -DBYTESWAP -DLINUX -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -DBIT32 CONFIGURE_MPI
 ARFLAGS             =
-RANLIB              = 
 CC_TOOLS            = 
 
 ########################################################################################################################
@@ -76,7 +75,6 @@ CFLAGS              = -w
 CPP                 = /lib/cpp -C -P -traditional
 CPPFLAGS            = -D_UNDERSCORE -DBYTESWAP -DLINUX -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -DBIT32 CONFIGURE_MPI
 ARFLAGS             =
-RANLIB              =
 CC_TOOLS            =
 
 ########################################################################################################################
@@ -101,7 +99,6 @@ CFLAGS              =
 CPP                 = /usr/bin/cpp -C -P -traditional
 CPPFLAGS            = -D_DOUBLEUNDERSCORE -DBYTESWAP -DLINUXG95 -DIO_NETCDF -DBIT32 CONFIGURE_MPI
 ARFLAGS             =
-RANLIB              = 
 CC_TOOLS            = 
 
 ########################################################################################################################
@@ -151,7 +148,6 @@ CFLAGS              = -O
 CPP                 = /lib/cpp -C -P -traditional
 CPPFLAGS            = -D_UNDERSCORE -DBYTESWAP -DLINUX -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -DBIT32 CONFIGURE_MPI
 ARFLAGS             =
-RANLIB              = 
 CC_TOOLS            = 
 
 ########################################################################################################################
@@ -178,7 +174,6 @@ CFLAGS              = -w -O3
 CPP                 = /lib/cpp -C -P -traditional
 CPPFLAGS            = -D_UNDERSCORE -DBYTESWAP -DLINUX -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -DBIT32 CONFIGURE_MPI
 ARFLAGS             =
-RANLIB              = 
 CC_TOOLS            = 
 
 ########################################################################################################################
@@ -203,7 +198,6 @@ CFLAGS              = -O
 CPP                 = /lib/cpp -C -P -traditional
 CPPFLAGS            = -D_UNDERSCORE -DBYTESWAP -DLINUX -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -DBIT32 CONFIGURE_MPI
 ARFLAGS             =
-RANLIB              = 
 CC_TOOLS            = 
 
 ########################################################################################################################
@@ -228,7 +222,6 @@ CFLAGS              = -w
 CPP                 = /lib/cpp -C -P -traditional
 CPPFLAGS            = -D_UNDERSCORE -DBYTESWAP -DLINUX -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -DBIT32 CONFIGURE_MPI
 ARFLAGS             =
-RANLIB              = 
 CC_TOOLS            = 
 
 ########################################################################################################################
@@ -278,7 +271,6 @@ CFLAGS              = -w
 CPP                 = /usr/bin/cpp -C -P -traditional
 CPPFLAGS            = -D_UNDERSCORE -DBYTESWAP -DLINUX -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -DBIT32 -DMACOS CONFIGURE_MPI
 ARFLAGS             =
-RANLIB              = 
 CC_TOOLS            = 
 
 ########################################################################################################################
@@ -434,7 +426,6 @@ CFLAGS              =
 CPP                 = /usr/lib/cpp -C -P
 CPPFLAGS            = -DAIX -DIBM4 -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -DBIT32 CONFIGURE_MPI
 ARFLAGS             =
-RANLIB              = 
 
 ########################################################################################################################
 #ARCH    Compaq OSF1 alpha    # serial serial_NO_GRIB2 dmpar dmpar_NO_GRIB2
@@ -457,7 +448,6 @@ CFLAGS              =
 CPP                 = /usr/bin/cpp -C -P -traditional
 CPPFLAGS            = -D_UNDERSCORE -DBYTESWAP -DALPHA -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -DBIT32  CONFIGURE_MPI
 ARFLAGS             =
-RANLIB              = 
 
 ########################################################################################################################
 #ARCH    Linux x86_64 g95 compiler    # serial serial_NO_GRIB2 dmpar dmpar_NO_GRIB2
@@ -481,7 +471,6 @@ CFLAGS              = -g
 CPP                 = /usr/bin/cpp -C -P -traditional
 CPPFLAGS            = -D_UNDERSCORE -DBYTESWAP -DLINUXG95 -DIO_NETCDF -DBIT32 CONFIGURE_MPI
 ARFLAGS             =
-RANLIB              = 
 
 ########################################################################################################################
 #ARCH    CYGWIN_NT i686 x86_64 PGI compiler on Windows   # serial_NO_GRIB2 dmpar_NO_GRIB2
@@ -512,7 +501,6 @@ CFLAGS              = -g
 CPP                 = cpp -C -P -traditional
 CPPFLAGS            = -D_UNDERSCORE -DBYTESWAP -DWIN32 -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -DBIT32 CONFIGURE_MPI
 ARFLAGS             =
-RANLIB              = 
 
 ########################################################################################################################
 #ARCH    SGI IRIX64     # serial serial_NO_GRIB2
@@ -536,7 +524,6 @@ CFLAGS              = -64
 CPP                 = /lib/cpp -C -P
 CPPFLAGS            = -D_UNDERSCORE -DSGI -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -DBIT32 CONFIGURE_MPI
 ARFLAGS             =
-RANLIB              = 
 CC_TOOLS            = 
 
 ########################################################################################################################
@@ -567,7 +554,6 @@ CFLAGS              = -w
 CPP                 = /lib/cpp -C -P -traditional
 CPPFLAGS            = -D_UNDERSCORE -DBYTESWAP -DLINUX -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -DBIT32 CONFIGURE_MPI
 ARFLAGS             =
-RANLIB              = 
 CC_TOOLS            = 
 
 ########################################################################################################################
@@ -592,7 +578,6 @@ CFLAGS              = -O
 CPP                 = /usr/ccs/lib/cpp -C -P
 CPPFLAGS            = -D_UNDERSCORE -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -DBIT32 CONFIGURE_MPI
 ARFLAGS             =
-RANLIB              = 
 
 ########################################################################################################################
 #ARCH    Cray XT/XE Linux x86_64 (Opteron), PGI compiler 5.2 or higher # serial serial_NO_GRIB2 dmpar dmpar_NO_GRIB2
@@ -621,7 +606,6 @@ CFLAGS              = -O
 CPP                 = /lib/cpp -C -P -traditional
 CPPFLAGS            = -D_UNDERSCORE -DBYTESWAP -DLINUX -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -DBIT32 CONFIGURE_MPI
 ARFLAGS             =
-RANLIB              = 
 CC_TOOLS            = 
 
 ########################################################################################################################
@@ -651,7 +635,6 @@ CFLAGS              = -O
 CPP                 = /lib/cpp -C -P -traditional
 CPPFLAGS            = -D_UNDERSCORE -DBYTESWAP -DLINUX -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -DBIT32 CONFIGURE_MPI
 ARFLAGS             =
-RANLIB              = 
 CC_TOOLS            = 
 
 ########################################################################################################################
@@ -675,7 +658,6 @@ CFLAGS              = -w
 CPP                 = cpp -C -P -traditional
 CPPFLAGS            = -D_UNDERSCORE -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -DBIT32 -UCRAY CONFIGURE_MPI
 ARFLAGS             =
-RANLIB              = 
 CC_TOOLS            =
 
 ########################################################################################################################

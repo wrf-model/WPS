@@ -72,7 +72,26 @@ if($ENV{JASPERLIB} && $ENV{JASPERINC})
 }
 else
 {
-    printf "\$JASPERLIB or \$JASPERINC not found in environment. Using default values for library paths...\n";
+
+    $tmp1 = '/usr/local/jasper';
+    if (-e $tmp1) {
+      $sw_jasperlib_path = '-L/usr/local/jasper/lib -ljasper -L/usr/local/libpng -lpng12 -lpng -L/usr/local/zlib/lib -lz' ;
+      $sw_jasperinc_path = '-I/usr/local/zlib/include -I/usr/local/jasper/include -I/usr/local/libpng/' ; 
+        printf "\$JASPERLIB or \$JASPERINC not found in environment. Using /usr/local for library paths...\n";
+    }
+    else {
+      $tmp1 = '/opt/local/lib';
+      if (-e $tmp1) {
+        $sw_jasperlib_path = '-L/opt/local/lib -ljasper -lpng14 -lpng -lz';
+	$sw_jasperinc_path = '-I/opt/local/include'; 
+        printf "\$JASPERLIB or \$JASPERINC not found in environment. Using /opt/local for library paths...\n";
+      }
+      else {
+      $sw_jasperlib_path = '-L/contrib/jasper/lib -L/opt/freeware/lib -ljasper -lpng -lz';
+      $sw_jasperinc_path = '-I/contrib/libpng/include -I/contrib/zlib/include -I/contrib/jasper/include';
+        printf "\$JASPERLIB or \$JASPERINC not found in environment. Using default values for library paths...\n";
+      }
+    }
 }
 
 $validresponse = 0 ;
@@ -191,8 +210,10 @@ while(<CONFIGURE_DEFAULTS>)
                     }
                     else
                     {
-                       $sw_compL = "-L/contrib/jasper/lib -L/opt/freeware/lib -ljasper -lpng -lz"; 
-                       $sw_compI = "-I/contrib/libpng/include -I/contrib/zlib/include -I/contrib/jasper/include";
+                       $sw_compL = $sw_jasperlib_path;
+                       $sw_compI = $sw_jasperinc_path;
+#                      $sw_compL = "-L/contrib/jasper/lib -L/opt/freeware/lib -ljasper -lpng -lz"; 
+#                      $sw_compI = "-I/contrib/libpng/include -I/contrib/zlib/include -I/contrib/jasper/include";
                     }
                     $sw_fdefs = "-DUSE_JPEG2000 -DUSE_PNG";                    
                     $sw_fc    = "\$(SFC)";                                        
@@ -217,8 +238,10 @@ while(<CONFIGURE_DEFAULTS>)
                     }
                     else
                     {
-                       $sw_compL = "-L/contrib/jasper/lib -L/opt/freeware/lib -ljasper -lpng -lz"; 
-                       $sw_compI = "-I/contrib/libpng/include -I/contrib/zlib/include -I/contrib/jasper/include";
+                       $sw_compL = $sw_jasperlib_path;
+		       $sw_compI = $sw_jasperinc_path;
+#                      $sw_compL = "-L/contrib/jasper/lib -L/opt/freeware/lib -ljasper -lpng -lz"; 
+#                      $sw_compI = "-I/contrib/libpng/include -I/contrib/zlib/include -I/contrib/jasper/include";
                     }
                     $sw_fdefs = "-DUSE_JPEG2000 -DUSE_PNG";
                     $sw_fc    = "\$(DM_FC)";

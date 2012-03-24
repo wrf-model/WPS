@@ -380,7 +380,7 @@ EOF
     if [ -f "cf_test" ] ; then
       cf_test > /dev/null 2>&1
       if [ $? = 0 ]; then
-        /bin/rm cf_test c_test.c c_test.o f_test.f90
+        /bin/rm -f cf_test c_test.c c_test.o f_test.f90 f_test.o
       else
         echo
         echo "Your Fortran + C did not run successfully."
