@@ -3,7 +3,7 @@
 # Configuration script for WPS code
 # 
 # Be sure to run as ./configure (to avoid getting a system configure command by mistake)
-# There are two (2) reads of the configure_new.defaults one to present the user with
+# There are two (2) reads of the configure.defaults one to present the user with
 # the appropriate options for the type of machine, and the OS, and the compiler!
 
 $sw_perl_path   = perl;
@@ -104,9 +104,9 @@ until ($validresponse)
     printf "Please select from among the following supported platforms.\n\n";
 
     $opt = 1;
-    # Read configure_new.defaults
-    open CONFIGURE_DEFAULTS, "< ./arch/configure_new.defaults" 
-         || die "Cannot open ./arch/configure_new.defaults for reading";
+    # Read configure.defaults
+    open CONFIGURE_DEFAULTS, "< ./arch/configure.defaults" 
+         || die "Cannot open ./arch/configure.defaults for reading";
     # first read through the .defaults, user select and a read of all appropriate parms is not done here
     while(<CONFIGURE_DEFAULTS>)
     {
@@ -150,7 +150,7 @@ printf "------------------------------------------------------------------------
 $optchoice = $response;
 
 # this HAS to be opened in 'cat' mode... why?
-open CONFIGURE_DEFAULTS, "< ./arch/configure_new.defaults" || die "cannot Open for writing... configure_new.defaults: \n";
+open CONFIGURE_DEFAULTS, "< ./arch/configure.defaults" || die "cannot Open for writing... configure.defaults: \n";
 $latchon = 0;
 while(<CONFIGURE_DEFAULTS>)
 {  
@@ -171,7 +171,7 @@ while(<CONFIGURE_DEFAULTS>)
         $_ =~ s/CONFIGURE_CC/$sw_cc/g;
         $_ =~ s/CONFIGURE_MPI/$sw_mpi/g;
 
-        # Load the read in parameters from the configure_new.defaults file
+        # Load the read in parameters from the configure.defaults file
         if(!(substr($_, 0, 5) eq "#ARCH")) 
         {
             @machopts = (@machopts, $_); 
@@ -188,7 +188,7 @@ while(<CONFIGURE_DEFAULTS>)
     {      
         if(substr($_, 0, 5) eq "#ARCH" && $latchon == 0 && (index( $_, $sw_os) >= 0) && (index( $_, $sw_mach) >= 0) && (index($_, $paropt) >= 0))  
         {
-            # after #ARCH the following reads the rest of the line in the configure_new.defaults
+            # after #ARCH the following reads the rest of the line in the configure.defaults
             $x=substr($_,6);
             $x=~s/^[     ]*//;
             $x =~ s/#.*$//g;

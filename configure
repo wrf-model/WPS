@@ -151,7 +151,7 @@ if [ $? -eq 0 ] ; then
 fi
 
 # Found perl, so proceed with configuration
-perl arch/Config_new.pl -perl=$PERL -netcdf=$NETCDF -netcdff=$NETCDFF -os=$os -mach=$mach 
+perl arch/Config.pl -perl=$PERL -netcdf=$NETCDF -netcdff=$NETCDFF -os=$os -mach=$mach 
 
 
 #Checking cross-compiling capability for some particular environment 
