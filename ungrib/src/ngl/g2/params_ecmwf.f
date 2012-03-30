@@ -11,6 +11,7 @@
 ! 2006-09-07  Gordon   -  Modified from Steve Gilbert's params.f for NCEP GRIB data
 ! 2007-04-20  Vuong    -  Add more parameters
 ! 2007-10-11  Vuong    -  Add more parameters
+! 2011-11-16  Vuong    -  Add parameters MAX and MIN temperature
 !
 ! USAGE:    use params
 !
@@ -20,7 +21,7 @@
 !
 !$$$
 
-      integer,parameter :: MAXPARAM=177
+      integer,parameter :: MAXPARAM=179
 
       type gribparam
           integer :: g1tblver
@@ -212,6 +213,9 @@
       data paramlist(175) /gribparam(1,11,0,0,0,'TMP     ')/
       data paramlist(176) /gribparam(1,52,0,1,1,'R H     ')/
       data paramlist(177) /gribparam(1,41,0,2,10,'ABS V   ')/
+! Added 11/16/2011- Add more parameters
+      data paramlist(178) /gribparam(128,121,0,0,4,'TMXK ')/
+      data paramlist(179) /gribparam(128,122,0,0,5,'TMNK ')/
 
       contains
 
