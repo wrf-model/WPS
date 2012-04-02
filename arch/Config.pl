@@ -67,8 +67,8 @@ if($ENV{JASPERLIB} && $ENV{JASPERINC})
    printf "Found Jasper environment variables for GRIB2 support...\n";
    printf("  \$JASPERLIB = %s\n",$ENV{JASPERLIB});
    printf("  \$JASPERINC = %s\n",$ENV{JASPERINC});
-   $sw_jasperlib_path = $ENV{JASPERLIB}; 
-   $sw_jasperinc_path = $ENV{JASPERINC}; 
+   $sw_jasperlib_path = "-L$ENV{JASPERLIB} -ljasper -lpng14 -lpng -lz"; 
+   $sw_jasperinc_path = "-I$ENV{JASPERINC}"; 
 }
 else
 {
