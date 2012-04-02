@@ -67,7 +67,7 @@ if($ENV{JASPERLIB} && $ENV{JASPERINC})
    printf "Found Jasper environment variables for GRIB2 support...\n";
    printf("  \$JASPERLIB = %s\n",$ENV{JASPERLIB});
    printf("  \$JASPERINC = %s\n",$ENV{JASPERINC});
-   $sw_jasperlib_path = "-L$ENV{JASPERLIB} -ljasper -lpng14 -lpng -lz"; 
+   $sw_jasperlib_path = "-L$ENV{JASPERLIB} -ljasper -lpng -lz"; 
    $sw_jasperinc_path = "-I$ENV{JASPERINC}"; 
 }
 else
@@ -82,7 +82,7 @@ else
     else {
       $tmp1 = '/opt/local/lib';
       if (-e $tmp1) {
-        $sw_jasperlib_path = '-L/opt/local/lib -ljasper -lpng14 -lpng -lz';
+        $sw_jasperlib_path = '-L/opt/local/lib -ljasper -lpng -lz';
 	$sw_jasperinc_path = '-I/opt/local/include'; 
         printf "\$JASPERLIB or \$JASPERINC not found in environment. Using /opt/local for library paths...\n";
       }
