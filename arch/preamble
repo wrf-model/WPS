@@ -15,14 +15,10 @@
 
 SHELL           	=       /bin/sh
 
-COMPRESSION_LIBS	=
-
-COMPRESSION_INC		=
-
 NCARG_LIBS		=	-L$(NCARG_ROOT)/lib -lncarg -lncarg_gks -lncarg_c \
 				-L/usr/X11R6/lib -lX11
 
-NCARG_LIBS2		=
+NCARG_LIBS2		=	# May be overridden by architecture specific value below
 
 FDEFS			=	-DUSE_JPEG2000 -DUSE_PNG
 
@@ -50,4 +46,8 @@ WRF_LIB         =       -L$(WRF_DIR)/external/io_grib1 -lio_grib1 \
                         -L$(NETCDF)/lib CONFIGURE_NETCDFF_LIB -lnetcdf
 
 #### Architecture specific settings ####
+
+COMPRESSION_LIBS	=  # intentionally left blank, fill in COMPRESSION_LIBS below
+
+COMPRESSION_INC		=  # intentionally left blank, fill in COMPRESSION_INC below
 
