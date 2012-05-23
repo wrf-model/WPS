@@ -633,6 +633,13 @@ C  SET ARGUMENTS
               elseif(gfld%ipdtmpl(10).eq.101) then
                  ! MSL
                  level=201300.
+              elseif(gfld%ipdtmpl(10).eq.103) then
+	         ! Height above ground (m)
+		 if (gfld%ipdtmpl(12) .eq. 2. .or. gfld%ipdtmpl(12) .eq. 10. ) then
+                   level=200100.
+		 else
+                   cycle MATCH_LOOP
+		 endif
               elseif(gfld%ipdtmpl(10).eq.106.or.
      &               gfld%ipdtmpl(10).eq.1) then
                  ! Misc near ground/surface levels
