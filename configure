@@ -323,7 +323,7 @@ EOF
     FC=`grep ^SFC configure.wps | cut -d"=" -f2-`
     $FC ${FFLAGS} fort_netcdf.f -o fort_netcdf -L${NETCDF}/lib -lnetcdf $NETCDFF > /dev/null 2>&1 
     if [ -f "fort_netcdf" ] ; then
-      fort_netcdf > /dev/null 2>&1
+      ./fort_netcdf > /dev/null 2>&1
       if [ $? = 0 ]; then
         /bin/rm fort_netcdf.f fort_netcdf netcdf.inc
       else
@@ -378,7 +378,7 @@ END PROGRAM f_test
 EOF
     $FC ${FFLAGS} f_test.f90 -o cf_test c_test.o > /dev/null 2>&1 
     if [ -f "cf_test" ] ; then
-      cf_test > /dev/null 2>&1
+      ./cf_test > /dev/null 2>&1
       if [ $? = 0 ]; then
         /bin/rm -f cf_test c_test.c c_test.o f_test.f90 f_test.o
       else
