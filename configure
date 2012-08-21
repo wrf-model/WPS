@@ -304,12 +304,7 @@ EOF
 
     #  Does our Fortran work with the given NETCDF library.
 
-    if [ -f "fort_netcdf.f" ] ; then
-      /bin/rm fort_netcdf.f
-    fi
-    if [ -f "fort_netcdf" ] ; then
-      /bin/rm fort_netcdf
-    fi
+      /bin/rm -f fort_netcdf.f fort_netcdf
 cat > fort_netcdf.f <<EOF 
         program foo
         include 'netcdf.inc'
@@ -325,7 +320,7 @@ EOF
     if [ -f "fort_netcdf" ] ; then
       ./fort_netcdf > /dev/null 2>&1
       if [ $? = 0 ]; then
-        /bin/rm fort_netcdf.f fort_netcdf netcdf.inc
+        /bin/rm -f fort_netcdf.f fort_netcdf.o fort_netcdf netcdf.inc
       else
         echo
         echo "Your Fortran + NETCDF did not run successfully."
