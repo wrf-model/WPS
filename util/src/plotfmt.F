@@ -132,7 +132,7 @@ subroutine plt2d(tcr2d, iz, jz, llflag, &
 ! declarations for windowing
   integer :: ioff, joff, i1, j1, ix, jx, funit
   real, allocatable,dimension(:,:)  :: scr2d
-  logical :: is_used
+  logical :: is_used, lexist
   namelist /plotfmt/ ix, jx, ioff, joff
   
 ! This version allows the plotting of subsets of a lat/lon grid (i.e. NCEP GFS).
@@ -148,13 +148,16 @@ subroutine plt2d(tcr2d, iz, jz, llflag, &
     inquire(unit=funit, opened=is_used)
     if (.not. is_used) exit
   end do
-  open(funit,file='namelist.wps',status='old',form='formatted',err=1000)
-  read(funit,plotfmt,iostat=found_it)
-  close(funit)
-  if(found_it .gt. 0 ) then
-     print *,'error reading the plotfmt namelist record in namelist.wps'
-     print *,'you may have: ix, jx, ioff, joff ONLY'
-     stop 1234
+  inquire(file='namelist.wps', exist = lexist)
+  if (lexist) then
+    open(funit,file='namelist.wps',status='old',form='formatted',err=1000)
+    read(funit,plotfmt,iostat=found_it)
+    close(funit)
+    if(found_it .gt. 0 ) then
+       print *,'error reading the plotfmt namelist record in namelist.wps'
+       print *,'only ix, jx, ioff, joff are recognized.'
+       stop 'namelist problem'
+    end if
   end if
 
 
@@ -224,9 +227,12 @@ subroutine plt2d(tcr2d, iz, jz, llflag, &
      pl1 = lat1
      pl2 = lon1
      plon = lov
-     plat = 90.
+     if (truelat1 .lt. 0. ) then
+       plat = -90.
+     else
+       plat = 90.
+     endif
      print*, 'plon, plat = ', plon, plat
-     phic = 90.
      rota = 0.
      call fmtxyll(float(ix), float(jx), pl3, pl4, 'ST', pl1, pl2,&
           plon, truelat1, truelat2, dx, dy)
@@ -238,6 +244,7 @@ subroutine plt2d(tcr2d, iz, jz, llflag, &
   end select
 
   call gsplci(2)   ! Use a different color for the map
+! jlts = 2 means corner points are provided in p1,p2,pl3,pl4
   call supmap(iproj,plat,plon,rota,pl1,pl2,pl3,pl4,2,30,4,0,ierr)
   call gsplci(1)
 ! call supmap(iproj,plat+0.001,plon,rota-0.001,pl1,pl2,pl3,pl4,2,30,4,0,ierr)
@@ -332,7 +339,7 @@ subroutine fmtxyll(x, y, xlat, xlon, project, glat1, glon1, gclon,&
   real , intent(out) :: xlat, xlon
 
   real :: gx1, gy1, gkappa
-  real :: grrth = 6370.
+  real :: grrth = 6370., phist, phemi
 
   real :: r, y1
   integer :: iscan, jscan
@@ -355,12 +362,17 @@ subroutine fmtxyll(x, y, xlat, xlon, project, glat1, glon1, gclon,&
 
   elseif (project.eq.'ST') then  ! Polar Stereographic grid
 
-     r = grrth/gdx * tand((90.-glat1)/2.) * (1.+sind(gtrue1))
+     if (gtrue1 .lt. 0.)then
+       phemi = -1.
+     else
+       phemi = 1.
+     endif
+     r = grrth/gdx * tand((phemi*90. - glat1)/2.) * (1.+ phemi * sind(gtrue1))
      gx1 = r * sind(glon1-gclon)
      gy1 = - r * cosd(glon1-gclon)
 
      r = sqrt((x-1.+gx1)**2 + (y-1+gy1)**2)
-     xlat = 90. - 2.*atan2d((r*gdx),(grrth*(1.+sind(gtrue1))))
+     xlat = phemi*90. - 2.*atan2d((r*gdx),(grrth*(1.+ phemi*sind(gtrue1))))
      xlon = atan2d((x-1.+gx1),-(y-1.+gy1)) + gclon
 
   elseif (project.eq.'LC') then  ! Lambert-conformal grid

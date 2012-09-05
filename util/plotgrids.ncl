@@ -2,11 +2,10 @@
 ;   Script display location of model domains
 ;   Only works for ARW domains
 ;   Reads namelist file directly
-;   Beta code used
-;   October 2009
 
 load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/gsn_code.ncl"
 load "$NCARG_ROOT/lib/ncarg/nclscripts/wrf/WRFUserARW.ncl"
+;load "./WRFUserARW.ncl"
 
 begin
 ;
@@ -19,11 +18,11 @@ begin
   wks = gsn_open_wks(type,"wps_show_dom")
 
 ; read the following namelist file
-  filename = "namelist.wps"
+  filename = "./namelist.wps"
 
 
 ; Set the colors to be used
-  colors = (/"white","black","White","ForestGreen","DeepSkyBlue"/)
+  colors = (/"white","black","White","ForestGreen","DeepSkyBlue","Red","Blue"/)
   gsn_define_colormap(wks, colors)  
 
 
@@ -37,13 +36,17 @@ begin
   mpres@mpNationalLineColor         = "Black"
   mpres@mpPerimLineColor            = "Black"
   mpres@mpUSStateLineColor          = "Black"
+  ;mpres@mpGridSpacingF              = 45
+  mpres@tiMainString                = " WPS Domain Configuration  "
 
   lnres = True 
   lnres@gsLineThicknessF = 2.5
+  lnres@domLineColors    = (/ "white", "Red" , "Red" , "Blue" /)
 
   txres = True
   txres@txFont = "helvetica-bold"
-  txres@txJust = "BottomLeft"
+  ;txres@txJust = "BottomLeft"
+  txres@txJust = "TopLeft"
   txres@txPerimOn = False
   txres@txFontHeightF = 0.015
 

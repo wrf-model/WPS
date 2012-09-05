@@ -22,6 +22,8 @@
 ! 2009-12-14  Vuong    -  Correction VEGT(4.2-0-210)
 ! 2010-07-27  Vuong    -  Added more parameters
 ! 2010-12-06  Vuong    -  Added more parameters
+! 2011-05-24  Vuong    -  Added more parameters
+! 2011-09-12  Vuong    -  Added more parameters
 !
 ! USAGE:    use params
 !
@@ -31,7 +33,7 @@
 !
 !$$$
 
-      integer,parameter :: MAXPARAM=750
+      integer,parameter :: MAXPARAM=755
 
       type gribparam
           integer :: g1tblver
@@ -802,7 +804,12 @@
        data paramlist(747) /gribparam(129,253,0,2,222,'MAXUW')/
        data paramlist(748) /gribparam(129,254,0,2,223,'MAXVW')/
        data paramlist(749) /gribparam(129,241,0,2,224,'VRATE')/
-       data paramlist(750) /gribparam(129,250,0,4,4,'HINDEX')/
+       data paramlist(750) /gribparam(129,250,2,4,3,'HINDEX')/
+       data paramlist(751) /gribparam(129,175,0,19,234,'ICSEV')/
+       data paramlist(752) /gribparam(129,176,0,19,233,'ICPRB')/
+       data paramlist(753) /gribparam(2,236,0,19,217,'SIPD')/
+       data paramlist(754) /gribparam(129,230,0,19,242,'RHPW')/
+       data paramlist(755) /gribparam(130,206,0,15,3,'VIL')/
 
       contains
 

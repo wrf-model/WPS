@@ -566,9 +566,11 @@ C  SET ARGUMENTS
 !MGD     &       gfld%ipdtmpl(2),gfld%ipdtmpl(10)
 !MGD          endif
            call mprintf(.true.,DEBUG,"G2 Searching the g2code array (Vta
-     &ble) for this grib field %i %i %i %i ", newline=.true., 
-     & i1 = gfld%discipline, i2 = gfld%ipdtmpl(1), 
-     & i3 = gfld%ipdtmpl(2), i4 = gfld%ipdtmpl(10) )
+     &ble) for this grib field %i %i %i %i %i %i ", newline=.true.,
+     & i1 = gfld%discipline, i2 = gfld%ipdtmpl(1),
+     & i3 = gfld%ipdtmpl(2), i4 = gfld%ipdtmpl(10),
+     & i5 = gfld%ipdtmpl(12), i6 = gfld%ipdtnum )
+
 
          ! Test this data record against list of desired variables 
          ! found in Vtable.
@@ -633,6 +635,14 @@ C  SET ARGUMENTS
               elseif(gfld%ipdtmpl(10).eq.101) then
                  ! MSL
                  level=201300.
+              elseif(gfld%ipdtmpl(10).eq.103) then
+	         ! Height above ground (m)
+		 if (gfld%ipdtmpl(12) .eq. 2. .or. 
+     &               gfld%ipdtmpl(12) .eq. 10. ) then
+                   level=200100.
+		 else
+                   cycle MATCH_LOOP
+		 endif
               elseif(gfld%ipdtmpl(10).eq.106.or.
      &               gfld%ipdtmpl(10).eq.1) then
                  ! Misc near ground/surface levels
@@ -644,8 +654,13 @@ C  SET ARGUMENTS
                  ! Tropopause
                  level=7.    ! .07 mb should never be used by anyone
               else
-                 ! Misc near ground/surface levels
-                 level=200100.
+                 ! If we are here then the Vtable contains a level code
+                 ! which we cannot handle. Write an info message and skip it.
+                 call mprintf(.true.,INFORM,"Rd_grib2 does not know abou
+     &t level code %i (field = %s). Skipping this field. If you want thi
+     &s level, rd_grib2.F must be modified", i1 = gfld%ipdtmpl(10),
+     & s1 =  my_field )
+                 cycle MATCH_LOOP
               endif
               iplvl = int(level)
 
@@ -667,6 +682,10 @@ C  SET ARGUMENTS
 
               !print *,'call put_storage',iplvl,my_field,hold_array(55),ith
               !e.g. call put_storage(200100, 'RH', my_field, 1, ith)
+!             call mprintf(.true.,DEBUG,"Calling put_storage for
+!    &level = %i , field = %s , g2level = %i ", newline=.true.,
+!    & i1 = iplvl, s1 = my_field, i2 = gfld%ipdtmpl(12) )
+
               call put_storage(iplvl,my_field,
      &           reshape(hold_array(1:map%nx*map%ny),
      &           (/map%nx, map%ny/)), map%nx,map%ny)
@@ -885,7 +904,9 @@ C  SET ARGUMENTS
 
       subroutine ncep_grid_num (pnum)
 !
+!  Find the grib number for descriptive  labelling.
 !  Grib2 doesn't have a grid-number entry, so we have to figure it out
+!  from the parameters. 
 !
       use gridinfo       ! Included to define map%
       integer :: pnum
@@ -895,7 +916,7 @@ C  SET ARGUMENTS
 !     write(6,*) 'begin ncep_grid_num'
 !     write(6,*) 'dx = ',map%dx,' pnum = ',pnum,' nx = ',map%nx
       tmp8 = '        '
-      if (pnum .eq. 30) then
+      if (pnum .eq. 30) then            ! lambert conformal
         if ( abs(map%dx - 12.19058) .lt. eps .and. map%nx .eq. 614) then
           write(tmp8,'("GRID 218")') 
         else if (abs(map%dx - 40.63525) .lt. eps 
@@ -913,12 +934,15 @@ C  SET ARGUMENTS
         else if (abs(map%dx - 20.317625) .lt. eps 
      &     .and. map%nx .eq. 301) then
           write(tmp8,'("GRID 252")') 
+        else if (abs(map%dx - 13.545087) .lt. eps 
+     &     .and. map%nx .eq. 451) then
+          write(tmp8,'("GRID 130")') 
         endif
-      else if (pnum .eq. 20) then
+      else if (pnum .eq. 20) then     ! polar stereographic
         if (abs(map%dx - 15.0) .lt. eps) then
           write(tmp8,'("GRID  88")') 
         endif
-      else if (pnum .eq. 0) then
+      else if (pnum .eq. 0) then      ! lat/lon
         if (abs(map%dx - 1.) .lt. eps .and. map%nx .eq. 360) then
           write(tmp8,'("GRID   3")') 
         else if (abs(map%dx - 0.5) .lt. eps .and. map%nx .eq. 720) then

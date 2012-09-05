@@ -411,6 +411,7 @@ name=SST
         interp_option=sixteen_pt+four_pt
         masked=land
         fill_missing=0. 
+        missing_value=-1.E30
         flag_in_output=FLAG_SST
 ========================================
 name=QV

@@ -1,0 +1,154 @@
+#!/bin/sh
+
+arg1=$1
+
+# Look for netcdf
+if test -z "$NETCDF" ; then
+  for p in /usr/local/netcdf
+  do
+    if test -d $p ; then
+      NETCDF=$p
+      break
+    fi
+  done
+fi
+
+if  test -z "$NETCDF"  ; then
+ 
+  if [ `hostname | cut -c 1-2` = "bs" -o \
+       `hostname | cut -c 1-2` = "bv" -o \
+       `hostname` = "tempest" -o `hostname` = "lightning" ] ; then
+    echo 'Compiling on an NCAR system with weird paths to NetCDF'
+    echo 'Setting up a local NetCDF directory with symlinks'
+    if ( test -d ./netcdf_links ) ; then
+      echo 'A directory ./netcdf_links already exists. Continuing.'
+    else
+      mkdir ./netcdf_links
+      if [ -z "$OBJECT_MODE" ] ; then
+         OBJECT_MODE=32 
+         export OBJECT_MODE
+      fi
+      if [ $OBJECT_MODE -ne 64 -a \( `hostname | cut -c 1-2` = "bs" \) ] ; then
+        ( cd ./netcdf_links ; ln -s /usr/local/lib32/r4i4 ./lib ; \
+                              ln -s /usr/local/include ./include )
+      else
+        ( cd ./netcdf_links ; ln -s /usr/local/lib64/r4i4 ./lib ; \
+                              ln -s /usr/local/include ./include )
+      fi
+    fi
+    NETCDF=`pwd`/netcdf_links
+    export NETCDF
+
+
+  else
+    bedone=""
+    if [ -d ./netcdf_links ] ; then
+      echo '** There is an existing ./netcdf_links file. Should I use? [y]'
+      read resp
+      if [ "$resp" = "y" ] ; then
+        NETCDF=`pwd`/netcdf_links
+        bedone="yes"
+      else
+        echo 'Removing existing ./netcdf_links directory'
+        /bin/rm -fr ./netcdf_links
+      fi
+    else
+      echo '** WARNING: No path to NETCDF and environment variable NETCDF not set.'
+      echo '** would you like me to try to fix? [y]'
+    fi
+    netcdfipath=""
+    netcdflpath=""
+    while [ -z "$bedone" ] ; do 
+      read resp
+      if [ "$resp" = "y" -o -z "$resp" ]  ; then
+        if [ -d ./netcdf_links ] ; then
+          echo 'There is already a ./netcdf_links directory. Okay to use links'
+          echo 'in this directory for NetCDF include and lib dirs? [y]'
+          read resp
+          if [ "$resp" = "y" ] ; then
+            NETCDF=`pwd`/netcdf_links
+            export NETCDF
+            bedone="yes"
+            continue
+          fi
+        fi
+        if [ -z "$netcdfipath" ] ; then
+          echo 'Enter full path to NetCDF include directory on your system'
+          read resp
+          if [ ! -d "$resp" ] ; then
+            echo "invalid path: $resp. Try again? [y]" ; continue
+          fi
+          netcdfipath=$resp
+        fi
+        if  [ -z "$netcdflpath" ] ; then
+          echo 'Enter full path to NetCDF library directory on your system'
+          read resp
+          if [ ! -d "$resp" ] ; then
+            echo "invalid path: $resp. Try again? [y]" ; continue
+          fi
+          netcdflpath=$resp
+        fi
+
+        if [ -n "$netcdflpath" -a -n "$netcdfipath" ] ; then
+          if [ -d ./netcdf_links ] ; then
+            echo 'Existing ./netcdf_links directory. Okay to remove. [y]'
+            read resp
+            if [ "$resp" = "y" ]  ; then
+              /bin/rm -fr ./netcdf_links
+            fi
+          fi
+          mkdir ./netcdf_links
+          cd ./netcdf_links 
+            ln -s "$netcdfipath" include
+            ln -s "$netcdflpath" lib
+          cd ..
+          echo created new ./netcdf_links directory
+          /bin/ls -lF ./netcdf_links
+          NETCDF=`pwd`/netcdf_links
+          export NETCDF
+          bedone="yes"
+        fi
+      else
+        bedone="yes"
+      fi
+    done
+  fi
+fi
+
+if [ -n "$NETCDF" ] ; then
+  echo "Will use NETCDF in dir: $NETCDF"
+  # for 3.6.2 and greater there might be a second library, libnetcdff.a .  Check for this and use
+  # if available
+  if [ -f "$NETCDF/lib/libnetcdff.a" ] ; then
+    NETCDFF="-lnetcdff"
+  fi
+else
+  echo "Will configure for use without NetCDF"
+fi
+
+  # if the uname command exists, give it a shot and see if
+  # we can narrow the choices; otherwise, spam 'em
+  os="ARCH"
+  mach="ARCH"
+  type uname > /dev/null
+if [ $? -eq 0 ] ; then
+    os=`uname`
+    if [ "$os" = "AIX" -o "$os" = "IRIX" -o "$os" = "IRIX64" -o "$os" = "SunOS" -o "$os" = "HP-UX"  -o "$os" = "Darwin" ] ; then
+      mach="ARCH"
+    else
+      xxx=`expr "$os" : '\(.........\).*'`
+      if [ "$xxx"  = "CYGWIN_NT" ] ; then
+        os=$xxx
+      fi
+      if [ "$os" = "OSF1" -o "$os" = "Linux" -o "$os" = "UNICOS/mp" -o "$os" = "UNIX_System_V" -o "$os" = "CYGWIN_NT" ] ; then
+        mach=`uname -m`
+      else
+        os="ARCH"
+        mach="ARCH"
+      fi
+    fi
+fi
+
+# Found perl, so proceed with configuration
+perl arch/Config_old.pl -perl=$PERL -netcdf=$NETCDF -netcdff=$NETCDFF -os=$os -mach=$mach 
+

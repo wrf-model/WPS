@@ -45,6 +45,7 @@ C
 C PROGRAM HISTORY LOG:
 C   95-10-31  IREDELL
 C 2002-01-02  GILBERT   MODIFIED FROM GETG1S TO WORK WITH GRIB2
+C 2011-06-24  VUONG BOI Initialize variable gfld%idsect and gfld%local
 C
 C USAGE:    CALL GETGB2S(CBUF,NLEN,NNUM,J,JDISC,JIDS,JPDTN,JPDT,JGDTN,
 C    &                   JGDT,K,GFLD,LPOS,IRET)
@@ -333,6 +334,7 @@ C  INITIALIZE
       LPOS=0
       IRET=1
       IPOS=0
+      nullify(gfld%idsect,gfld%local)
       nullify(gfld%list_opt,gfld%igdtmpl,gfld%ipdtmpl)
       nullify(gfld%coord_list,gfld%idrtmpl,gfld%bmap,gfld%fld)
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

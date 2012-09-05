@@ -53,8 +53,20 @@
       integer mday(12), nday, nhour, nmin, nsec, i
       real    dth
       logical opass
+      logical noLeapCalendar
+
 
 !*************************  Subroutine Begin  *************************
+
+!
+!  Determine whether the routine should use a no-leap year calendar
+!
+      noLeapCalendar = .false.
+     
+#ifdef NO_LEAP_CALENDAR
+      noLeapCalendar = .true.
+#endif
+
 
 !
 !  Assign the number of days in a months
@@ -97,12 +109,14 @@
 !  Set the number of days in February for that year.
 !
       mday(2) = 28
-      if (mod(yrold,4).eq.0) then
-         mday(2) = 29
-         if (mod(yrold,100).eq.0) then
-            mday(2) = 28
-            if (mod(yrold,400).eq.0) then
-               mday(2) = 29
+      if (.not. noLeapCalendar) then
+         if (mod(yrold,4).eq.0) then
+            mday(2) = 29
+            if (mod(yrold,100).eq.0) then
+               mday(2) = 28
+               if (mod(yrold,400).eq.0) then
+                  mday(2) = 29
+               endif
             endif
          endif
       endif
@@ -121,8 +135,17 @@
 !  Check that the day of ODATE makes sense.
 
       if ((dyold.gt.mday(moold)).or.(dyold.lt.1)) then
-         print*, 'GET_NEWDATE:  Day of ODATE = ', dyold
-         opass = .FALSE.
+
+         !
+         ! Send a custom message if any leap-day files if it is a No-Leap Calendar
+         !
+         if (noLeapCalendar .and. (moold .eq. 2) .and. (dyold .eq. 29)) then
+            print*,'GET_NEWDATE:  Using a no-Leap Calendar, but data for 2/29 was found.'
+         else
+            print*, 'GET_NEWDATE:  Day of ODATE = ', dyold
+         endif
+
+            opass = .FALSE.
       endif
 
 !  Check that the hour of ODATE makes sense.
@@ -192,12 +215,14 @@
                yrnew = yrnew + 1
 
                mday(2) = 28
-               if (mod(yrnew,4).eq.0) then
-                  mday(2) = 29
-                  if (mod(yrnew,100).eq.0) then
-                     mday(2) = 28
-                     if (mod(yrnew,400).eq.0) then
-                        mday(2) = 29
+               if (.not. noLeapCalendar) then
+                  if (mod(yrnew,4).eq.0) then
+                     mday(2) = 29
+                     if (mod(yrnew,100).eq.0) then
+                        mday(2) = 28
+                        if (mod(yrnew,400).eq.0) then
+                           mday(2) = 29
+                        endif
                      endif
                   endif
                endif
@@ -205,6 +230,7 @@
             end if
          endif
       enddo
+
 !
 !  Now construct the new mdate
 !

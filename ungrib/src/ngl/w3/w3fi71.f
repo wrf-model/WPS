@@ -98,15 +98,16 @@ C 2010-08-05  VUONG        ADDED NEW GRID 184, 199, 83 AND
 C                          REDEFINED GRID 90 FOR NEW RTMA CONUS 1.27-KM
 C                          REDEFINED GRID 91 FOR NEW RTMA ALASKA 2.976-KM
 C                          REDEFINED GRID 92 FOR NEW RTMA ALASKA 1.488-KM
-C 2010-09-08  ROGERS      CHANGED GRID 94 TO ALASKA 6KM STAGGERED B-GRID
-C                         CHANGED GRID 95 TO PUERTO RICO 3KM STAGGERED B-GRID
-C                         CHANGED GRID 96 TO HAWAII 3KM STAGGERED B-GRID
-C                         CHANGED GRID 96 TO HAWAII 3KM STAGGERED B-GRID
-C                         CHANGED GRID 97 TO CONUS 4KM STAGGERED B-GRID
-C                         CHANGED GRID 99 TO NAM 12KM STAGGERED B-GRID
-C                         ADDED GRID 179 (12 KM POLAR STEREOGRAPHIC OVER NORTH AMERICA)
-C                         CHANGED GRID 194 TO 3KM MERCATOR GRID OVER PUERTO RICO
-C                         CORRECTED LATITUDE OF SW CORNER POINT OF GRID 151
+C 2010-09-08  ROGERS       CHANGED GRID 94 TO ALASKA 6KM STAGGERED B-GRID
+C                          CHANGED GRID 95 TO PUERTO RICO 3KM STAGGERED B-GRID
+C                          CHANGED GRID 96 TO HAWAII 3KM STAGGERED B-GRID
+C                          CHANGED GRID 96 TO HAWAII 3KM STAGGERED B-GRID
+C                          CHANGED GRID 97 TO CONUS 4KM STAGGERED B-GRID
+C                          CHANGED GRID 99 TO NAM 12KM STAGGERED B-GRID
+C                          ADDED GRID 179 (12 KM POLAR STEREOGRAPHIC OVER NORTH AMERICA)
+C                          CHANGED GRID 194 TO 3KM MERCATOR GRID OVER PUERTO RICO
+C                          CORRECTED LATITUDE OF SW CORNER POINT OF GRID 151
+C 2011-10-12  VUONG        ADDED GRID 129, 187, 188, 189 and 193
 C
 C USAGE:    CALL W3FI71 (IGRID, IGDS, IERR)
 C   INPUT ARGUMENT LIST:
@@ -372,6 +373,7 @@ C
       INTEGER       GRD126(18)
       INTEGER       GRD127(18)
       INTEGER       GRD128(18)
+      INTEGER       GRD129(18)
       INTEGER       GRD130(18)
       INTEGER       GRD138(18)
       INTEGER       GRD139(18)
@@ -398,8 +400,12 @@ C
       INTEGER       GRD182(18)
       INTEGER       GRD183(18)
       INTEGER       GRD184(18)
+      INTEGER       GRD187(18)
+      INTEGER       GRD188(18)
+      INTEGER       GRD189(18)
       INTEGER       GRD190(18)
       INTEGER       GRD192(18)
+      INTEGER       GRD193(18)
       INTEGER       GRD194(18)
       INTEGER       GRD195(18)
       INTEGER       GRD196(18)
@@ -683,6 +689,8 @@ C
      &    -469,   192, 469, 0, 0, 0, 0, 0, 0/
       DATA  GRD128/ 0, 255, 4,1152,576,  89761,       0, 128,  -89761,
      &    -313,   288, 313, 0, 0, 0, 0, 0, 0/
+      DATA  GRD129/ 0, 255, 4,1760,880,  89844,       0, 128,  -89844,
+     &    -205,   440, 205, 0, 0, 0, 0, 0, 0/
       DATA  GRD130/ 0, 255, 3, 451,337,  16281, -126138,  8,   -95000,
      &   13545,  13545, 0, 64, 0, 25000, 25000, 0, 0/
       DATA  GRD138/ 0, 255, 3, 468,288,  21017, -123282,   8,  -97000,
@@ -735,10 +743,18 @@ C
      & -130124,   108, 108, 0, 0, 0, 0, 0, 0/
       DATA  GRD184/ 0, 255, 3,2145,1377,  20192, -121554,   8,  -95000,
      &    2540,   2540, 0, 64, 0, 25000, 25000, 0, 0/
+      DATA  GRD187/ 0, 255, 3,2145,1597,  20192, -121554,   8,  -95000,
+     &    2540,   2540, 0, 64, 0, 25000, 25000, 0, 0/
+      DATA  GRD188/ 0, 255, 3, 709, 795,  37979, -125958,   8,  -95000,
+     &    2540,   2540, 0, 64, 0, 25000, 25000, 0, 0/
+      DATA  GRD189/ 0, 255, 5, 655, 855, 51500,  -142500,   8, -135000,
+     &  1448, 1448,   0, 64, 0, 0, 0, 0, 0/
       DATA  GRD190/ 0, 255,205,954,835,  -7491, -144134, 136,   54000,
      & -106000,    126, 108, 64, 44540, 14802, 0, 0, 0/
       DATA  GRD192/ 0, 255,203,237,387, -3441, -148799, 136,   50000,
      & -111000,    225,207,64, 0, 0, 0, 0, 0/
+      DATA  GRD193  / 0, 255, 0, 1440, 721,  90000,  0, 128,  -90000,
+     &   -250,   250, 250,  0, 0, 0, 0, 0, 0/
       DATA  GRD194/ 0, 255, 1, 544,310,  15000,  -75500, 128,   22005,
      &  -62509, 2500, 2500, 20000, 64, 0, 0, 0, 0/
       DATA  GRD195/ 0, 255, 1, 177,129,  16829,  -68196, 128,   19747,
@@ -1265,6 +1281,11 @@ C
           IGDS(I) = GRD128(I)
         ENDDO
 C
+      ELSE IF (IGRID.EQ.129) THEN
+        DO I = 1,18
+          IGDS(I) = GRD129(I)
+        ENDDO
+C
       ELSE IF (IGRID.EQ.130) THEN
         DO I = 1,18
           IGDS(I) = GRD130(I)
@@ -1394,6 +1415,21 @@ C
           IGDS(I) = GRD184(I)
         ENDDO
 C
+      ELSE IF (IGRID.EQ.187) THEN
+        DO I = 1,18
+          IGDS(I) = GRD187(I)
+        ENDDO
+C
+      ELSE IF (IGRID.EQ.188) THEN
+        DO I = 1,18
+          IGDS(I) = GRD188(I)
+        ENDDO
+C
+      ELSE IF (IGRID.EQ.189) THEN
+        DO I = 1,18
+          IGDS(I) = GRD189(I)
+        ENDDO
+C
       ELSE IF (IGRID.EQ.190) THEN
         DO 2190 I = 1,18
           IGDS(I) = GRD190(I)
@@ -1403,6 +1439,11 @@ C
         DO 2191 I = 1,18
           IGDS(I) = GRD192(I)
  2191   CONTINUE
+C
+      ELSE IF (IGRID.EQ.193) THEN
+        DO I = 1,18
+          IGDS(I) = GRD193(I)
+        END DO
 C
       ELSE IF (IGRID.EQ.194) THEN
         DO 2192 I = 1,18

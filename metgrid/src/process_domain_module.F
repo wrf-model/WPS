@@ -52,7 +52,7 @@ module process_domain_module
       nullify(xlon_u)
       nullify(xlat_v)
       nullify(xlon_v)
-      
+
       ! Compute number of times that we will process
       call geth_idts(end_date(n), start_date(n), idiff)
       call mprintf((idiff < 0),ERROR,'Ending date is earlier than starting date in namelist for domain %i.', i1=n)
@@ -245,7 +245,7 @@ module process_domain_module
 
       ! CWH Initialize local pointer variables
       nullify(real_array)
-      
+
       ! Initialize the input module to read static input data for this domain
       call mprintf(.true.,LOGFILE,'Opening static input file.')
       call input_init(n, istatus)
@@ -670,6 +670,7 @@ integer, parameter :: BDR_WIDTH = 3
       nullify(v_levels)
       nullify(halo_slab)
       nullify(real_array)
+
 
       ! For this time, we need to process all first-guess filename roots. When we 
       !   hit a root containing a '*', we assume we have hit the end of the list
@@ -1148,7 +1149,7 @@ integer, parameter :: BDR_WIDTH = 3
       !   now we simply output every field from the storage module.
       !
     
-      title = 'OUTPUT FROM METGRID V3.3.1' 
+      title = 'OUTPUT FROM METGRID V3.4' 
    
       ! Initialize the output module for this domain and time
       call mprintf(.true.,LOGFILE,'Initializing output module.')
@@ -1441,11 +1442,11 @@ integer, parameter :: BDR_WIDTH = 3
       real :: rx, ry, temp
       real, pointer, dimension(:,:) :: data_count
       type (fg_input) :: mask_field, mask_water_field, mask_land_field
-      
+
       ! CWH Initialize local pointer variables
       nullify(interp_array)
       nullify(data_count)
-      
+
       ! Find index into fieldname, interp_method, masked, and fill_missing
       !   of the current field
       idxt = num_entries + 1
@@ -1933,7 +1934,7 @@ integer, parameter :: BDR_WIDTH = 3
       nullify(headers)
       nullify(all_headers)
       nullify(keys)
-      
+
       ! Initialize a list to store levels that are found for 3-d fields 
       call list_init(temp_levels)
    
@@ -2218,7 +2219,7 @@ integer, parameter :: BDR_WIDTH = 3
       !CWH Initialize local pointer variables
       nullify(all_list)
       nullify(keys)
-      
+
       filled_all_lev = .false.
 
       !

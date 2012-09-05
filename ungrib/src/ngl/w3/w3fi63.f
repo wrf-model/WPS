@@ -146,6 +146,7 @@ C                         CHANGED GRID 99 TO NAM 12KM STAGGERED B-GRID
 C                         ADDED GRID 179 (12 KM POLAR STEREOGRAPHIC OVER NORTH AMERICA)
 C                         CHANGED GRID 194 TO 3KM MERCATOR GRID OVER PUERTO RICO
 C                         CORRECTED LATITUDE OF SW CORNER POINT OF GRID 151
+C 2011-10-12  VUONG       ADDED GRID 129, 187, 188, 189 AND 193
 C
 C USAGE:    CALL W3FI63(MSGA,KPDS,KGDS,KBMS,DATA,KPTR,KRET)
 C   INPUT ARGUMENT LIST:
@@ -2351,6 +2352,10 @@ C                 ----- U.S. GRID 127 - MAP SIZE 294912
 C                 ----- U.S. GRID 128 - MAP SIZE 663552
                   J     = 663552
                   GO TO 800
+              ELSE IF (KPDS(3).EQ.129) THEN
+C                 ----- U.S. GRID 129 - MAP SIZE 1548800
+                  J     = 1548800
+                  GO TO 800
               ELSE IF (KPDS(3).EQ.130) THEN
 C                 ----- U.S. GRID 130 - MAP SIZE 151987
                   J     = 151987
@@ -2456,9 +2461,25 @@ C                 ----- U.S. GRID 183 - MAP SIZE 180144
 C                 ----- U.S. GRID 184 - MAP SIZE 2953665
                   J     = 2953665
                   GO TO 800
+              ELSE IF (KPDS(3).EQ.187) THEN
+C                 ----- U.S. GRID 187 - MAP SIZE 3425565
+                  J     = 3425565
+                  GO TO 800
+              ELSE IF (KPDS(3).EQ.188) THEN
+C                 ----- U.S. GRID 188 - MAP SIZE 563655
+                  J     = 563655
+                  GO TO 800
+              ELSE IF (KPDS(3).EQ.189) THEN
+C                 ----- U.S. GRID 189 - MAP SIZE 560025
+                  J     = 560025
+                  GO TO 800
               ELSE IF (KPDS(3).EQ.190) THEN
 C                 ----- U.S GRID 190  - MAP SIZE 796590
                   J     = 796590
+                  GO TO 800
+              ELSE IF (KPDS(3).EQ.193) THEN
+C                 ----- U.S GRID 193  - MAP SIZE 1038240
+                  J     = 1038240
                   GO TO 800
               ELSE IF (KPDS(3).EQ.192) THEN
 C                 ----- U.S GRID 192  - MAP SIZE 91719
@@ -3948,11 +3969,7 @@ C  ---------------------------------------
               IF (I.NE.J) THEN
                   RETURN
               END IF
-          ELSE IF (KPDS(3).GE.122.AND.KPDS(3).LE.128) THEN
-              IF (I.NE.J) THEN
-                  RETURN
-              END IF
-          ELSE IF (KPDS(3).EQ.130) THEN
+          ELSE IF (KPDS(3).GE.122.AND.KPDS(3).LE.130) THEN
               IF (I.NE.J) THEN
                   RETURN
               END IF
@@ -3992,11 +4009,23 @@ C  ---------------------------------------
               IF (I.NE.J) THEN
                   RETURN
               END IF
+          ELSE IF (KPDS(3).EQ.187) THEN
+              IF (I.NE.J) THEN
+                  RETURN
+              END IF
+          ELSE IF (KPDS(3).EQ.188) THEN
+              IF (I.NE.J) THEN
+                  RETURN
+              END IF
+          ELSE IF (KPDS(3).EQ.189) THEN
+              IF (I.NE.J) THEN
+                  RETURN
+              END IF
           ELSE IF (KPDS(3).EQ.190.OR.KPDS(3).EQ.192) THEN
               IF (I.NE.J) THEN
                   RETURN
               END IF
-          ELSE IF (KPDS(3).GE.194.AND.KPDS(3).LE.199) THEN
+          ELSE IF (KPDS(3).GE.193.AND.KPDS(3).LE.199) THEN
               IF (I.NE.J) THEN
                   RETURN
               END IF

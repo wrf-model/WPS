@@ -22,6 +22,7 @@ C 2002-04-22  GILBERT
 C 2005-02-28  GILBERT   - Changed dimension of array cgrib to be a multiple
 C                         of gfld%ngrdpts instead of gfld%ndpts.
 C 2009-03-10  VUONG     - Initialize variable coordlist
+C 2011-06-09  VUONG     - Initialize variable gfld%list_opt
 C
 C USAGE:    CALL PUTGB2(LUGB,GFLD,IRET)
 C   INPUT ARGUMENTS:
@@ -196,7 +197,6 @@ C$$$
       integer :: listsec0(2)=(/0,2/)
       integer :: igds(5)=(/0,0,0,0,0/)
       real    :: coordlist=0.0
-      integer :: ilistopt=0
 
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 C  ALLOCATE ARRAY FOR GRIB2 FIELD
@@ -238,7 +238,7 @@ C  ADD GRID TO GRIB2 MESSAGE
       igds(5)=gfld%igdtnum
       if ( associated(gfld%igdtmpl) ) then
          call addgrid(cgrib,lcgrib,igds,gfld%igdtmpl,gfld%igdtlen,
-     &                ilistopt,gfld%num_opt,ierr)
+     &          gfld%list_opt,gfld%num_opt,ierr)
          if (ierr.ne.0) then
             write(6,*) 'putgb2: ERROR adding grid info = ',ierr
          endif

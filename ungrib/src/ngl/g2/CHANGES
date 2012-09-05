@@ -108,3 +108,11 @@ g2lib-1.2.1 - Aug 2010      - Added new local parameters conversion entries
 
 g2lib-1.2.2 - Dec 2010      - Added new local parameters conversion entries
                             - Corrected Templates 4.42,4.43
+
+g2lib-1.2.3 - Nov 2011      - Added new local parameters conversion entries
+                            - Fixed bug in PUTGB2 that caused data fields to be
+                              encoded incorrectly.
+                            - Changed variable kprob(1) to kpds(5) in calling
+                              routine param_g1_to_g2
+
+g2lib-1.2.4 - Nov 2011      - Added 2 ECMWF parameters (TMAX/TMIN at 2m) conversion entries

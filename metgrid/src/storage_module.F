@@ -80,8 +80,7 @@ module storage_module
       type (data_node), pointer :: evictnode
 
       !CWH Initialize local pointer variables
-      ! 3 of 4 seem ok because I can see how they are set before being used
-      nullify(evictnode)  ! Can't find how this one gets set, nullify for safety
+      nullify(evictnode)       !MGD initialization for evictnode should not be necessary
 
       ! We'll first see if there is already a list for this fieldname
       name_cursor => head
@@ -216,8 +215,7 @@ call mprintf(.true.,WARN,'PLEASE REPORT THIS BUG TO THE DEVELOPER!')
       type (data_node), pointer :: evictnode
 
       !CWH Initialize local pointer variables
-      ! 2 of 3 seem ok because I can see how they are set before being used
-      nullify(evictnode)  ! Can't find how this one gets set, nullify for safety
+      nullify(evictnode)     !MGD initialization for evictnodeshould not be necessary
 
       global_time = global_time + 1
 
@@ -951,9 +949,9 @@ call mprintf(.true.,WARN,'PLEASE REPORT THIS BUG TO THE DEVELOPER!')
 
       type (list) :: all_levs
 
-       !CWH Initialize local pointer variables
-       nullify(ilevels)
-       nullify(header_list)
+      !CWH Initialize local pointer variables
+      nullify(ilevels)
+      nullify(header_list)     !MGD initialization for header_list should not be necessary
 
       call list_init(all_levs)
       call storage_get_td_headers(header_list)
