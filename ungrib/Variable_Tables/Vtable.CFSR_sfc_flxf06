@@ -2,7 +2,8 @@ GRIB1| Level| From |  To  | metgrid  | metgrid | metgrid                        
 Param| Type |Level1|Level2| Name     | Units   | Description                             |Discp|Catgy|Param|Level|
 -----+------+------+------+----------+---------+-----------------------------------------+-----------------------+
   11 | 105  |   2  |      | TT       | K       | Temperature       at 2 m                |  0  |  0  |  0  | 103 |
-  52 | 105  |   2  |      | RH       | %       | Relative Humidity at 2 m                |  0  |  1  |  1  | 103 |
+     | 105  |   2  |      | RH       | %       | Relative Humidity at 2 m                |  0  |  1  |  1  | 103 |
+  51 | 105  |   2  |      | SPECHUMD | kg kg-1 |                                         |  0  |  1  |  0  | 103 |
   33 | 105  |  10  |      | UU       | m s-1   | U                 at 10 m               |  0  |  2  |  2  | 103 |
   34 | 105  |  10  |      | VV       | m s-1   | V                 at 10 m               |  0  |  2  |  3  | 103 |
    1 |   1  |   0  |      | PSFC     | Pa      | Surface Pressure                        |  0  |  3  |  0  |   1 |
