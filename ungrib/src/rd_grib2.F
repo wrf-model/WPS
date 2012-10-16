@@ -68,11 +68,12 @@
       integer :: iplvl
       character (len=9) :: my_field
       character (len=8) :: tmp8
-      ! For subroutine outout
+      ! For subroutine output
       integer , parameter :: maxlvl = 100
       real , dimension(maxlvl) :: plvl
       integer :: nlvl
       integer , dimension(maxlvl) :: level_array
+      real :: glevel1, glevel2
       logical :: first = .true.
 
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -601,12 +602,18 @@ C  SET ARGUMENTS
 ! need to match up soil levels with those requested.
 ! For the Vtable levels, -88 = all levels, -99 = missing. The units
 ! vary depending on the level code (e.g. 106 = cm, 103 = m).
+! The grib2 standard allows scaling of the units, so make sure the soil level
+! units are in cm (as used in the Vtable).
               if ( gfld%ipdtmpl(10) .eq. 106 ) then
+		glevel1 = 100. * gfld%ipdtmpl(12)*
+     &                      (10.**(-1.*gfld%ipdtmpl(11)))
+		glevel2 = 100. * gfld%ipdtmpl(15)*
+     &                      (10.**(-1.*gfld%ipdtmpl(14)))
                 TMP8LOOP: do j = 1, maxvar
                   if ((g2code(4,j) .eq. 106) .and.
      &               (gfld%ipdtmpl(2) .eq. g2code(3,j)) .and.
-     &               (gfld%ipdtmpl(12) .eq. level1(j)) .and.
-     &               ((gfld%ipdtmpl(15) .eq. level2(j)) .or. 
+     &               (glevel1 .eq. level1(j)) .and.
+     &               ((glevel2 .eq. level2(j)) .or. 
      &                                   (level2(j) .le. -88))) then
                     my_field = namvar(j)
                     exit TMP8LOOP
