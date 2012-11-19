@@ -295,7 +295,11 @@ open CONFIGURE_WRF, "> configure.wps" || die "cannot Open for writing... configu
             $_ =~ s/^WRF_DIR.*$/COMPILING_ON_CYGWIN_NT = yes/;  # will get from environment
         }
 
-        $_ =~ s:CONFIGURE_NETCDFF_LIB:$sw_netcdff_lib:g; 
+        if($ENV{NETCDF_LDFLAGS}) {
+            $_ =~ s:CONFIGURE_NETCDF_LDFLAGS:$ENV{NETCDF_LDFLAGS}:g; 
+        } else {
+            $_ =~ s:CONFIGURE_NETCDF_LDFLAGS:-L\$(NETCDF)/lib $sw_netcdff_lib -lnetcdf:g; 
+        }
         @preamble = ( @preamble, $_ ) ;
     }
     close ARCH_PREAMBLE;
@@ -311,7 +315,11 @@ open CONFIGURE_WRF, "> configure.wps" || die "cannot Open for writing... configu
     open ARCH_POSTAMBLE, "< arch/postamble" || die "cannot open arch/postamble: \n";
     while(<ARCH_POSTAMBLE>) 
     { 
-        $_ =~ s:CONFIGURE_NETCDFF_LIB:$sw_netcdff_lib:g;   
+        if($ENV{NETCDF_LDFLAGS}) {
+            $_ =~ s:CONFIGURE_NETCDF_LDFLAGS:$ENV{NETCDF_LDFLAGS}:g; 
+        } else {
+            $_ =~ s:CONFIGURE_NETCDF_LDFLAGS:-L\$(NETCDF)/lib $sw_netcdff_lib -lnetcdf:g; 
+        }
         print CONFIGURE_WRF;
     } 
 

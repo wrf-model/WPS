@@ -43,7 +43,9 @@ WRF_LIB         =       -L$(WRF_DIR)/external/io_grib1 -lio_grib1 \
                         -L$(WRF_DIR)/external/io_grib_share -lio_grib_share \
                         -L$(WRF_DIR)/external/io_int -lwrfio_int \
                         -L$(WRF_DIR)/external/io_netcdf -lwrfio_nf \
-                        -L$(NETCDF)/lib CONFIGURE_NETCDFF_LIB -lnetcdf
+                        CONFIGURE_NETCDF_LDFLAGS
+
+#                        -L$(NETCDF)/lib CONFIGURE_NETCDFF_LIB -lnetcdf
 
 #### Architecture specific settings ####
 
