@@ -60,7 +60,7 @@ COMPRESSION_LIBS    = CONFIGURE_COMP_L
 COMPRESSION_INC     = CONFIGURE_COMP_I
 FDEFS               = CONFIGURE_FDEFS
 SFC                 = ifort
-SCC                 = gcc
+SCC                 = icc
 DM_FC               = mpif90 -f90=ifort
 DM_CC               = mpicc -cc=icc
 FC                  = CONFIGURE_FC
@@ -610,7 +610,7 @@ COMPRESSION_LIBS    = CONFIGURE_COMP_L
 COMPRESSION_INC     = CONFIGURE_COMP_I
 FDEFS               = CONFIGURE_FDEFS
 SFC                 = ifort
-SCC                 = ccc
+SCC                 = icc
 DM_FC               = ifort -lmpi
 DM_CC               = icc -lmpi
 FC                  = CONFIGURE_FC

@@ -871,13 +871,17 @@ end program g2print
            else if(gfld%ipdtmpl(10).eq.101 .or.&    ! sea level, sfc, or trop
                 gfld%ipdtmpl(10).eq.1 .or. gfld%ipdtmpl(10).eq.7) then 
              level = 0
+           else if(gfld%ipdtmpl(10).eq.106) then  ! below ground sfc is in cm in Vtable
+             level= 100. * gfld%ipdtmpl(12)*(10.**(-1.*gfld%ipdtmpl(11)))
            else
-             level=gfld%ipdtmpl(12)
+             level=gfld%ipdtmpl(12) * 10.** (-1.*gfld%ipdtmpl(11))
            endif
            if (gfld%ipdtmpl(13) .eq. 255) then
              lvl2 = 0
+           else if(gfld%ipdtmpl(10).eq.106) then   ! below ground sfc is in cm in Vtable
+             lvl2 = 100. * gfld%ipdtmpl(15) * 10.** (-1.*gfld%ipdtmpl(14))
            else
-             lvl2 = gfld%ipdtmpl(15)
+             lvl2 = gfld%ipdtmpl(15) * 10.** (-1.*gfld%ipdtmpl(14))
            endif
 !           Account for multiple forecast hours in one file
            if (gfld%ipdtnum.eq.0 .or. gfld%ipdtnum.eq.1 .or. gfld%ipdtnum.eq. 8) then
