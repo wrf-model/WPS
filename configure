@@ -191,8 +191,8 @@ cat > ${foo}.f <<EOF
           end program test_exit
 EOF
 
-    nct=`nm $NETCDF/lib/libnetcdf.a | grep '^0' | cut -d' ' -f 1 | head -1 | wc -c`
-    if [ "$nct" = "9" ]; then
+    nct=`nm $NETCDF/lib/libnetcdf.a | grep '^0' | cut -d' ' -f 1 | head -1 | wc -c | awk '{print $1+0}'`
+    if [ "$nct" -eq "9" ]; then
       netcdf_arch="32-bit"
     else
       netcdf_arch="64-bit"
