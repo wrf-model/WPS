@@ -448,11 +448,21 @@ subroutine parse_table(debug_level,vtable_columns)
 
   if (debug_level .gt. 0) then
      write(*,'(//"Read from file ''Vtable'' by subroutine PARSE_TABLE:")')
+     call mprintf(.true.,DEBUG,   &
+       "Read from file Vtable by subroutine PARSE_TABLE:")
      do i = 1, maxvar
         if (vtable_columns.ge.11) then
            write(*,'(4I6, 3x,A10, 5I6)')&
              gcode(i), lcode(i), level1(i), level2(i), namvar(i), &
              g2code(1,i), g2code(2,i), g2code(3,i), g2code(4,i), g2code(5,i)
+           call mprintf(.true.,DEBUG,   &
+              "%i  %i  %i  %i   %s   ", &
+              i1=gcode(i), i2=lcode(i), i3=level1(i), i4=level2(i), s1=namvar(i), &
+	      newline=.false.)
+           call mprintf(.true.,DEBUG,   &
+              "%i  %i  %i  %i   %i   ", &
+              i1=g2code(1,i), i2=g2code(2,i), i3=g2code(3,i), i4=g2code(4,i), &
+              i5=g2code(5,i))
         else 
            write(*,'(4I6, 3x,A10)')&
              gcode(i), lcode(i), level1(i), level2(i), namvar(i)
