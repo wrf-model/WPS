@@ -48,6 +48,7 @@
 subroutine parse_table(debug_level,vtable_columns)
   use Table
   use module_debug
+  use stringutil
   implicit none
   integer :: debug_level
 
@@ -58,6 +59,7 @@ subroutine parse_table(debug_level,vtable_columns)
   integer :: vtable_columns
   integer :: nstart, maxtmp
   logical :: lexist
+  character(len=9) :: tmp9
 
 ! added for IBM
   blankcode = -99
@@ -455,14 +457,22 @@ subroutine parse_table(debug_level,vtable_columns)
            write(*,'(4I6, 3x,A10, 5I6)')&
              gcode(i), lcode(i), level1(i), level2(i), namvar(i), &
              g2code(1,i), g2code(2,i), g2code(3,i), g2code(4,i), g2code(5,i)
-           call mprintf(.true.,DEBUG,   &
-              "%i  %i  %i  %i   %s   ", &
-              i1=gcode(i), i2=lcode(i), i3=level1(i), i4=level2(i), s1=namvar(i), &
-	      newline=.false.)
-           call mprintf(.true.,DEBUG,   &
-              "%i  %i  %i  %i   %i   ", &
-              i1=g2code(1,i), i2=g2code(2,i), i3=g2code(3,i), i4=g2code(4,i), &
-              i5=g2code(5,i))
+	   write(tmp9,'(i9)') gcode(i)
+           call mprintf(.true.,DEBUG,'%s ',s1=tmp9(4:9),newline=.false.)
+	   write(tmp9,'(i9)') lcode(i)
+           call mprintf(.true.,DEBUG,'%s ',s1=tmp9(4:9),newline=.false.)
+	   write(tmp9,'(i9)') level1(i)
+           call mprintf(.true.,DEBUG,'%s ',s1=tmp9(4:9),newline=.false.)
+	   write(tmp9,'(i9)') level2(i)
+           call mprintf(.true.,DEBUG,'%s ',s1=tmp9(4:9),newline=.false.)
+	   write(tmp9,'(a9)') namvar(i)(1:9)
+	   call right_justify(tmp9,9)
+	   call mprintf(.true.,DEBUG,tmp9,newline=.false.)
+           do j = 1, 5
+	     write(tmp9,'(i9)') g2code(j,i)
+             call mprintf(.true.,DEBUG,'%s ',s1=tmp9(4:9),newline=.false.)
+	   enddo
+	   call mprintf(.true.,DEBUG,' ',newline=.true.)
         else 
            write(*,'(4I6, 3x,A10)')&
              gcode(i), lcode(i), level1(i), level2(i), namvar(i)

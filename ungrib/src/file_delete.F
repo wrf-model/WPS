@@ -14,6 +14,7 @@ subroutine file_delete(hdates, ndates, root, interval)
 !                 output.F, rrpr.F, datint.F                                  !
 
   use misc_definitions_module
+  use module_debug
 
   implicit none
   integer :: ndates
@@ -41,10 +42,12 @@ subroutine file_delete(hdates, ndates, root, interval)
   write(*, '(/,10("*"), /, &
        &    "Deleting temporary files created by ungrib...",/, &
        &    10("*")/)')
+  call mprintf(.true.,LOGFILE,"****  Deleting temporary files created by ungrib... ")
 
   do idate = 1, ndates
      flnm=trim(root)//hdates(idate)(1:datelen)
      write(*, '(A)') 'Deleting file:  '//trim(flnm)
+     call mprintf(.true.,LOGFILE," Deleting file: %s ",s1=trim(flnm))
 
      inquire(file=flnm, exist = lexist)
      if (lexist) then
@@ -52,11 +55,13 @@ subroutine file_delete(hdates, ndates, root, interval)
         close(10, status="DELETE")
      else
         write(*,'(10x, "File ",A," does not exist.",/)') flnm
+        call mprintf(.true.,LOGFILE," File  %s does not exist ",s1=flnm)
      endif
   enddo
 
   write(*, '(/,10("*"), /, &
        &    "Done deleting temporary files.",/, &
        &    10("*")/)')
+  call mprintf(.true.,LOGFILE,"****  Done deleting temporary files. ")
 
 end subroutine file_delete
