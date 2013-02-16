@@ -305,7 +305,10 @@ program ungrib
 ! because that 0000 date is the flag for the very opening of a file.
 
         if ((hsave(1:4).ne.'0000').and.(hsave.le.hend)) then
-           if (debug_level .gt. 100) print*, 'Calling output: '//hsave(1:13)
+           if (debug_level .gt. 100) then
+	     print*, 'Calling output: '//hsave(1:13)
+	     call mprintf(.true.,DEBUG,"Calling output: %s ",s1=hsave(1:13))
+	   endif
            call output(hsave, nlvl, maxlvl, plvl, interval, 1, out_format, prefix, debug_level)
            hsave=hdate
 

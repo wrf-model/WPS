@@ -1,5 +1,6 @@
 module storage_module
   use gridinfo
+  use module_debug
   implicit none
   private
   public :: get_storage
@@ -357,73 +358,90 @@ contains
        if (iferr /= 0) then
           STOP 'print_storage'
        end if
-       print '("PRINT_NODE1: id = ", I8)' , nnode%id
+!      print '("PRINT_NODE1: id = ", I8)' , nnode%id
+       call mprintf(.true.,DEBUG,"PRINT_NODE1: id = %i ",i1=nnode%id)
        current => nnode%first
 
-       print*
+!      print*
+       call mprintf(.true.,DEBUG,' ',newline=.true.)
        if (.not. associated(current)) then
-          print '("Nothing there.")'
+!         print '("Nothing there.")'
+          call mprintf(.true.,DEBUG,"Nothing there. ")
           return
        endif
        do while ( associated(current%next))
           if (current%id == 'Root') then
-             print*, 'id = ', current%id
+!            print*, 'id = ', current%id
+             call mprintf(.true.,DEBUG," id = %s ",s1=current%id)
           elseif (current%id /= 'Root') then
 
              if (associated(current%data2d)) then
                 isz = size(current%data2d)
-                print*, current%id, ' = ', current%data2d(1,1)
+!               print*, current%id, ' = ', current%data2d(1,1)
+                call mprintf(.true.,DEBUG," %s = %f ",s1=current%id,f1=current%data2d(1,1))
              endif
                 
           endif
           current => current%next
        enddo
        if (current%id == 'Root') then
-          print*, 'id = ', current%id
+!         print*, 'id = ', current%id
+          call mprintf(.true.,DEBUG," id = %s ",s1=current%id)
        elseif (current%id /= 'Root') then
           if (associated(current%data2d)) then
              isz = size(current%data2d)
-             print*, current%id, ' = ', current%data2d(1,1)
+!            print*, current%id, ' = ', current%data2d(1,1)
+	     call mprintf(.true.,DEBUG," %s = %f ",s1=current%id,f1=current%data2d(1,1))
           endif
        endif
        current => current%next
-       print*
+!      print*
+       call mprintf(.true.,DEBUG,' ',newline=.true.)
 
     else
        nnode => root
        do while (associated(nnode%next))
           nnode => nnode%next
-          print '("PRINT_NODE1: id = ", I8)' , nnode%id
-
+!         print '("PRINT_NODE1: id = ", I8)' , nnode%id
+          call mprintf(.true.,DEBUG,"PRINT_NODE1: id = %i ",i1=nnode%id)
 
           current => nnode%first
 
-          print*
+!         print*
+          call mprintf(.true.,DEBUG,' ',newline=.true.)
           if (.not. associated(current)) then
-             print '("Nothing there.")'
+!            print '("Nothing there.")'
+             call mprintf(.true.,DEBUG,"Nothing there. ")
              return
           endif
           do while ( associated(current%next))
              if (current%id == 'Root') then
-                print*, 'id = ', current%id
+!               print*, 'id = ', current%id
+                call mprintf(.true.,DEBUG," id = %s ",s1=current%id)
              elseif (current%id /= 'Root') then
                 if (associated(current%data2d)) then
                    isz = size(current%data2d)
-                   print*, current%id, ' = ', current%data2d(1,1), isz
+!                  print*, current%id, ' = ', current%data2d(1,1), isz
+                   call mprintf(.true.,DEBUG," %s = %f  isz = %i", &
+	             s1=current%id,f1=current%data2d(1,1),i1=isz)
                 endif
              endif
              current => current%next
           enddo
           if (current%id == 'Root') then
-             print*, 'id = ', current%id
+!            print*, 'id = ', current%id
+	     call mprintf(.true.,DEBUG," id = %s ",s1=current%id)
           elseif (current%id /= 'Root') then
              if (associated(current%data2d)) then
                 isz = size(current%data2d)
-                print*, current%id, ' = ', current%data2d(1,1), isz
+!               print*, current%id, ' = ', current%data2d(1,1), isz
+                call mprintf(.true.,DEBUG," %s = %f  isz = %i", &
+	          s1=current%id,f1=current%data2d(1,1),i1=isz)
              endif
           endif
           current => current%next
-          print*
+!         print*
+          call mprintf(.true.,DEBUG,' ',newline=.true.)
 
        enddo
     endif

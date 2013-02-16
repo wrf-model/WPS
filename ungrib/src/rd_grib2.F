@@ -178,6 +178,8 @@ C  SET ARGUMENTS
 
            n=1
            call gf_getfld(cgrib,lengrib,n,.FALSE.,expand,gfld,ierr)
+
+
            year  =gfld%idsect(6)     !(FOUR-DIGIT) YEAR OF THE DATA
            month =gfld%idsect(7)     ! MONTH OF THE DATA
            day   =gfld%idsect(8)     ! DAY OF THE DATA
@@ -187,19 +189,35 @@ C  SET ARGUMENTS
 
            fcst = 0
 
-           ! Extract forecast time.
-           if ( gfld%ipdtmpl(8) .eq. 1 ) then       ! time units are hours
-             fcst = gfld%ipdtmpl(9)
-           else if ( gfld%ipdtmpl(8) .eq. 0 ) then  ! minutes
-             fcst = gfld%ipdtmpl(9) / 60.
-           else if ( gfld%ipdtmpl(8) .eq. 2 ) then  ! days
-             fcst = gfld%ipdtmpl(9) * 24.
-           else
-             call mprintf(.true.,ERROR,
+! Extract forecast time. Assume the first field's valid time is true for all fields.
+! This doesn't have to be true, but ungrib is designed to decode one time-level at
+! a time.
+
+           if ( gfld%ipdtnum .ne. 8 ) then
+	     if ( gfld%ipdtmpl(8) .eq. 1 ) then       ! time units are hours
+	       fcst = gfld%ipdtmpl(9)
+	     else if ( gfld%ipdtmpl(8) .eq. 0 ) then  ! minutes
+	       fcst = gfld%ipdtmpl(9) / 60.
+	     else if ( gfld%ipdtmpl(8) .eq. 2 ) then  ! days
+	       fcst = gfld%ipdtmpl(9) * 24.
+	     else
+               call mprintf(.true.,ERROR,
      &           "Time unit in ipdtmpl(8), %i is not suported",
      &            newline=.true.,i1=gfld%ipdtmpl(8))
-           endif
+	     endif
+	   else
+!  pdt 4.8 data are time-averaged, accumulated, or min/max fields with the 
+!  ending (valid) time provided. 
+	     year  =gfld%ipdtmpl(16) 
+	     month =gfld%ipdtmpl(17)
+	     day   =gfld%ipdtmpl(18)
+	     hour  =gfld%ipdtmpl(19)
+	     minute=gfld%ipdtmpl(20) 
+	     second=gfld%ipdtmpl(21) 
+	     fcst = 0.
+	   endif
 
+           if ( gfld%idsect(6) .eq. 2 ) fcst = 0.
            ! Compute valid time.
 
            !print *, 'ymd',gfld%idsect(6),gfld%idsect(7),gfld%idsect(8)
@@ -455,12 +473,14 @@ C  SET ARGUMENTS
 
            ! Deallocate arrays decoding GRIB2 record.
            call gf_free(gfld)
-         endif
+
+         endif   ! "first" if-block
 
          ! ----
 
          ! Continue to unpack GRIB2 field.
-         do n=1,numfields ! e.g. U and V would =2, otherwise its usually =1
+         NUM_FIELDS: do n = 1, numfields 
+	   ! e.g. U and V would =2, otherwise its usually =1
            call gf_getfld(cgrib,lengrib,n,.FALSE.,expand,gfld,ierr)
            if (ierr.ne.0) then
              write(*,*) ' ERROR extracting field gf_getfld = ',ierr
@@ -605,15 +625,15 @@ C  SET ARGUMENTS
 ! The grib2 standard allows scaling of the units, so make sure the soil level
 ! units are in cm (as used in the Vtable).
               if ( gfld%ipdtmpl(10) .eq. 106 ) then
-		glevel1 = 100. * gfld%ipdtmpl(12)*
+                glevel1 = 100. * gfld%ipdtmpl(12)*
      &                      (10.**(-1.*gfld%ipdtmpl(11)))
-		glevel2 = 100. * gfld%ipdtmpl(15)*
+                glevel2 = 100. * gfld%ipdtmpl(15)*
      &                      (10.**(-1.*gfld%ipdtmpl(14)))
                 TMP8LOOP: do j = 1, maxvar
                   if ((g2code(4,j) .eq. 106) .and.
      &               (gfld%ipdtmpl(2) .eq. g2code(3,j)) .and.
      &               (glevel1 .eq. level1(j)) .and.
-     &               ((glevel2 .eq. level2(j)) .or. 
+     &               ((glevel2 .eq. level2(j)) .or.
      &                                   (level2(j) .le. -88))) then
                     my_field = namvar(j)
                     exit TMP8LOOP
@@ -650,6 +670,12 @@ C  SET ARGUMENTS
 		 else
                    cycle MATCH_LOOP
 		 endif
+              elseif((gfld%ipdtmpl(10).ge.222 .and.
+     &               gfld%ipdtmpl(10).le.234) .or.
+     &              (gfld%ipdtmpl(10).ge.206 .and.     
+     &               gfld%ipdtmpl(10).le.215)) then
+                 ! NCEP cloud layers used for plotting
+                   level=200100.
               elseif(gfld%ipdtmpl(10).eq.106.or.
      &               gfld%ipdtmpl(10).eq.1) then
                  ! Misc near ground/surface levels
@@ -720,7 +746,7 @@ C  SET ARGUMENTS
          ! Deallocate arrays decoding GRIB2 record.
          call gf_free(gfld)
 
-         enddo ! 1,numfields
+         enddo NUM_FIELDS
 
 
       enddo VERSION ! skgb
@@ -865,7 +891,7 @@ C  SET ARGUMENTS
          iofst=iofst+8
          call gbyte(cgrib,grib_edition,iofst,8)   ! GRIB edition number
 
-         print *, 'ungrib - grib edition num',  grib_edition
+!        print *, 'ungrib - grib edition num',  grib_edition
          CALL BACLOSE(junit,IOS)
          ireaderr=1
       else if (ios .eq. -4) then

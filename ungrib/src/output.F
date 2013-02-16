@@ -49,6 +49,7 @@ subroutine output(hdate, nlvl, maxlvl, plvl, interval, iflag, out_format, prefix
   real :: xfcst = 0.
   character (LEN=25) :: units
   character (LEN=46) :: Desc
+  character (LEN=9) :: tmp9
   logical lopen
 
 ! DATELEN:  length of date strings to use for our output file names.
@@ -69,17 +70,26 @@ subroutine output(hdate, nlvl, maxlvl, plvl, interval, iflag, out_format, prefix
   if ( debug_level .ge. 0 ) then
   write(*,119) hdate(1:10), hdate(12:19)
 119 format(/,79('#'),//,'Inventory for date = ', A10,1x,A8,/)
+  call mprintf(.true.,LOGFILE,"Inventory for date = %s %s",s1=hdate(1:10),s2=hdate(12:19))
 
   write(*,advance='NO', fmt='("PRES", 2x)')
+  write(tmp9,'(a9)') 'PRES'
+  call right_justify(tmp9,9)
+  call mprintf(.true.,LOGFILE,tmp9,newline=.false.)
   WRTLOOP : do n = 1, maxvar
      do k = 1, n-1
         if (namvar(k).eq.namvar(n)) cycle WRTLOOP
      enddo
      write(*,advance='NO', fmt='(1x,A8)') namvar(n)
+     write(tmp9,'(A9)') namvar(n)(1:9)
+     call right_justify(tmp9,9)
+     call mprintf(.true.,LOGFILE,tmp9,newline=.false.)
   enddo WRTLOOP
   write(*,advance='YES', fmt='(1x)')
+  call mprintf(.true.,LOGFILE,' ',newline=.true.)
 
   write(*,FMT='(79("-"))')
+  call mprintf(.true.,LOGFILE,"-------------------------------------------------")
   end if
   KLOOP : do k = 1, nlvl
      if ((iflag.eq.2).and.(plvl(k).gt.200100) .and. (plvl(k).lt.200200)) then
@@ -87,7 +97,9 @@ subroutine output(hdate, nlvl, maxlvl, plvl, interval, iflag, out_format, prefix
      endif
      ilev = nint(plvl(k))
      if ( debug_level .ge. 0 ) then
-     write(*, advance='NO', FMT='(F6.1)') plvl(k)/100.
+       write(*, advance='NO', FMT='(F6.1)') plvl(k)/100.
+       write(tmp9,'(I9)') nint(plvl(k))
+       call mprintf(.true.,LOGFILE,'%s ',s1=tmp9,newline=.false.)
      end if
      MLOOP : do mm = 1, maxvar
         do n = 1, mm-1
@@ -96,21 +108,26 @@ subroutine output(hdate, nlvl, maxlvl, plvl, interval, iflag, out_format, prefix
         if ( debug_level .ge. 0 ) then
         if (is_there(ilev,namvar(mm))) then
            write(*, advance='NO', FMT='("  X      ")')
+	   call mprintf(.true.,LOGFILE,'        X',newline=.false.)
         else
 	   if ( plvl(k).gt.200000 ) then
              write(*, advance='NO', FMT='("  O      ")')
+	     call mprintf(.true.,LOGFILE,'        O',newline=.false.)
 	   else
              write(*, advance='NO', FMT='("         ")')
+	     call mprintf(.true.,LOGFILE,'        -',newline=.false.)
 	   endif
         endif
         endif
      enddo MLOOP
      if ( debug_level .ge. 0 ) then
      write(*,advance='YES', fmt='(1x)')
+     call mprintf(.true.,LOGFILE,' ',newline=.true.)
      endif
   enddo KLOOP
   if ( debug_level .ge. 0 ) then
   write(*,FMT='(79("-"))')
+  call mprintf(.true.,LOGFILE,"-------------------------------------------------")
   endif
   
   if (iflag.eq.1) then
