@@ -42,6 +42,7 @@ program plotgrids
    logical :: do_tiled_output
    integer :: debug_level
    logical :: is_used
+   logical :: nocolons
 
    type (proj_info) :: map_projection
 
@@ -49,7 +50,7 @@ program plotgrids
                      start_year, end_year, start_month, end_month, &
                      start_day, end_day, start_hour, end_hour, &
                      interval_seconds, io_form_geogrid, opt_output_from_geogrid_path, &
-                     debug_level, active_grid
+                     debug_level, active_grid, nocolons
    namelist /geogrid/ parent_id, parent_grid_ratio, &
                       i_parent_start, j_parent_start, s_we, e_we, s_sn, e_sn, &
                       map_proj, ref_x, ref_y, ref_lat, ref_lon, &

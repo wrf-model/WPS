@@ -54,14 +54,17 @@ module gridinfo_module
       character (len=3) :: wrf_core
       logical :: is_used, nest_outside
       logical, dimension(MAX_DOMAINS) :: active_grid
+      logical :: nocolons
 
       namelist /share/ wrf_core, max_dom, start_date, end_date, &
                         start_year, end_year, start_month, end_month, &
                         start_day, end_day, start_hour, end_hour, &
                         start_minute, end_minute, start_second, end_second, &
                         interval_seconds, &
-                        io_form_geogrid, opt_output_from_geogrid_path, debug_level, active_grid, &
-                        subgrid_ratio_x, subgrid_ratio_y
+                        io_form_geogrid, opt_output_from_geogrid_path, &
+                        debug_level, active_grid, &
+                        subgrid_ratio_x, subgrid_ratio_y, &
+                        nocolons
       namelist /geogrid/ parent_id, parent_grid_ratio, &
                          i_parent_start, j_parent_start, s_we, e_we, s_sn, e_sn, &
                          map_proj, ref_x, ref_y, ref_lat, ref_lon, &
@@ -115,6 +118,7 @@ module gridinfo_module
       opt_output_from_geogrid_path = './'
       opt_geogrid_tbl_path = 'geogrid/'
       interval_seconds = INVALID
+      nocolons = .false.
       
       ! Read parameters from Fortran namelist
       do funit=10,100
@@ -210,6 +214,7 @@ module gridinfo_module
       do i=2,max_dom
          call mprintf(.true.,LOGFILE,'                   = %l',l1=active_grid(i))
       end do
+      call mprintf(.true.,LOGFILE,'  NOCOLONS         = %l',l1=nocolons)
       call mprintf(.true.,LOGFILE,'/')
 
       call mprintf(.true.,LOGFILE,'&GEOGRID')

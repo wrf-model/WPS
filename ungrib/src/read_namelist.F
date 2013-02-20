@@ -44,6 +44,7 @@ subroutine read_namelist(hstart, hend, delta_time, ntimes,&
 
   character(len=3) :: out_format
   character(len=MAX_FILENAME_LEN) :: prefix
+  logical :: nocolons
 
   namelist /share/ wrf_core, max_dom, &
        start_year, start_month, start_day, start_hour, &
@@ -52,8 +53,10 @@ subroutine read_namelist(hstart, hend, delta_time, ntimes,&
        end_minute, end_second,&
        interval_seconds, &
        start_date, end_date, &
-       io_form_geogrid, opt_output_from_geogrid_path, debug_level, active_grid, &
-       subgrid_ratio_x, subgrid_ratio_y
+       io_form_geogrid, opt_output_from_geogrid_path, &
+       debug_level, active_grid, &
+       subgrid_ratio_x, subgrid_ratio_y, &
+       nocolons
 
   namelist /ungrib/ out_format, &
        ordered_by_date, prefix
@@ -77,6 +80,7 @@ subroutine read_namelist(hstart, hend, delta_time, ntimes,&
   max_dom = 1
   wrf_core = 'ARW'
   debug_level = 0
+  nocolons = .false.
 
 ! Start routine:
 
