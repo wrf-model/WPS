@@ -454,14 +454,16 @@ C  SET ARGUMENTS
               call mprintf(.true.,STDOUT,"GRIB2 Unknown Projection: %i",
      &          newline=.true.,i1=gfld%igdtnum)
               call mprintf(.true.,STDOUT,
-     &          "see Code Table 3.1: Grid Definition Template Number", 
+     &          "ungrib understands projections 0, 20, 30, and 40", 
      &          newline=.true.)
               call mprintf(.true.,LOGFILE,
      &          "GRIB2 Unknown Projection: %i",
      &          newline=.true.,i1=gfld%igdtnum)
               call mprintf(.true.,LOGFILE,
-     &          "see Code Table 3.1: Grid Definition Template Number",
+     &          "ungrib understands projections 0, 20, 30, and 40", 
      &          newline=.true.)
+       ! If the projection is not known, then it can't be processed by metgrid/plotfmt
+                stop 'Stop in rd_grib2'
            endif
 
            call mprintf(.true.,DEBUG,"G2 igrid = %i ,  dx = %f ,  dy = %
