@@ -41,3 +41,11 @@ Param| Type |Level1|Level2| Name     |  Units   | Description                   
   91 |   1  |   0  |      | SEAICE   |          | Ice flag                                | 10  |  2  |  0  |   1 |
   81 |   1  |   0  |      | LANDSEA  | proprtn  | Land/Sea flag (1=land, 0 or 2=sea)      |  2  |  0  |  0  |   1 |
 -----+------+------+------+----------+----------+-----------------------------------------+-----------------------+
+#
+#  Vtable for the Rapid refresh (RAP) hybrid-vertical coordinate grib2 files on the ncep server.
+#  ftp://ftpprd.ncep.noaa.gov/pub/data/nccf/com/rap/prod/rap.ccyymmdd/
+#
+#  rap.txxz.awp252bgrbfhh.grib2   20km conus     17901 Kb  (approx. size)
+#  rap.txxz.awp130bgrbfhh.grib2   13km conus     34462 Kb
+#
+#  hourly to 18-hours
