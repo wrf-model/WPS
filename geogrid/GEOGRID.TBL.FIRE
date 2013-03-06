@@ -199,40 +199,6 @@ name = HGT_M
         rel_path=     10m:topo_10m/
         rel_path= default:topo_2m/
 ===============================
-name = HGT_U
-        output_stagger = U
-        priority = 1
-        dest_type = continuous
-        interp_option =     30s:average_gcell(4.0)+four_pt+average_4pt
-        interp_option =      2m:four_pt
-        interp_option =      5m:four_pt
-        interp_option =     10m:four_pt
-        interp_option = default:four_pt
-        smooth_option = smth-desmth_special; smooth_passes=1
-        fill_missing=0.
-        rel_path=     30s:topo_30s/
-        rel_path=      2m:topo_2m/
-        rel_path=      5m:topo_5m/
-        rel_path=     10m:topo_10m/
-        rel_path= default:topo_2m/
-===============================
-name = HGT_V
-        output_stagger = V
-        priority = 1
-        dest_type = continuous
-        interp_option =     30s:average_gcell(4.0)+four_pt+average_4pt
-        interp_option =      2m:four_pt
-        interp_option =      5m:four_pt
-        interp_option =     10m:four_pt
-        interp_option = default:four_pt
-        smooth_option = smth-desmth_special; smooth_passes=1
-        fill_missing=0.
-        rel_path=     30s:topo_30s/
-        rel_path=      2m:topo_2m/
-        rel_path=      5m:topo_5m/
-        rel_path=     10m:topo_10m/
-        rel_path= default:topo_2m/
-===============================
 name=LANDUSEF
         priority=1
         dest_type=categorical
