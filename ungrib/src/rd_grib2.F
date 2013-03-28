@@ -383,6 +383,22 @@ C  SET ARGUMENTS
 !               write(6,*) 'Resetting map%dy for iprocess = ',iprocess
 !             endif
 
+           elseif (gfld%igdtnum.eq.10) then ! Mercator Grid.
+              map%igrid = 1
+              map%nx = gfld%igdtmpl(8)
+              map%ny = gfld%igdtmpl(9)
+              map%lov = 0.
+              map%truelat1 = gfld%igdtmpl(13) / scale_factor
+              map%truelat2 = 0.
+              map%dx = gfld%igdtmpl(18) / scale_factor
+              map%dy = gfld%igdtmpl(19) / scale_factor
+              map%lat1 = gfld%igdtmpl(10) / scale_factor
+              map%lon1 = gfld%igdtmpl(11) / scale_factor
+              write(tmp8,'(b8.8)') gfld%igdtmpl(12)
+              if (tmp8(5:5) .eq. '0') map%grid_wind = .false.
+              map%r_earth = earth_radius (gfld%igdtmpl(1),
+     &                       gfld%igdtmpl(2),gfld%igdtmpl(3))
+
            elseif (gfld%igdtnum.eq.20) then ! Polar-Stereographic Grid.
               map%igrid = 5
               map%nx = gfld%igdtmpl(8)
@@ -454,14 +470,16 @@ C  SET ARGUMENTS
               call mprintf(.true.,STDOUT,"GRIB2 Unknown Projection: %i",
      &          newline=.true.,i1=gfld%igdtnum)
               call mprintf(.true.,STDOUT,
-     &          "see Code Table 3.1: Grid Definition Template Number", 
+     &          "ungrib understands projections 0, 20, 30, and 40", 
      &          newline=.true.)
               call mprintf(.true.,LOGFILE,
      &          "GRIB2 Unknown Projection: %i",
      &          newline=.true.,i1=gfld%igdtnum)
               call mprintf(.true.,LOGFILE,
-     &          "see Code Table 3.1: Grid Definition Template Number",
+     &          "ungrib understands projections 0, 10, 20, 30, and 40", 
      &          newline=.true.)
+       ! If the projection is not known, then it can't be processed by metgrid/plotfmt
+                stop 'Stop in rd_grib2'
            endif
 
            call mprintf(.true.,DEBUG,"G2 igrid = %i ,  dx = %f ,  dy = %

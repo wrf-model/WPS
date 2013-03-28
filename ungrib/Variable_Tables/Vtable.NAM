@@ -28,3 +28,23 @@ Param| Type |Level1|Level2| Name     | Units   | Description                    
   66 |   1  |   0  |      | SNOWH    | m       | Snow Depth                              |  0  |  1  | 11  |   1 |
  223 |   1  |   0  |      | CANWAT   | kg m-2  | Plant Canopy Surface Water              |  2  |  0  | 196 |   1 |
 -----+------+------+------+----------+---------+-----------------------------------------+-----------------------+
+#
+#  Vtable for NAM pressure-level data from the ncep server.
+#
+#  ftp://ftpprd.ncep.noaa.gov/pub/data/nccf/com/nam/prod/nam.ccyymmdd/
+#
+#                                  approx.    grid    hours      domain  dx      notes
+#                                 file size   no.
+#   
+#  nam.txxz.awip12hh.tm00.grib2    15018 Kb   218  3-h to 84-h   conus   12     sfc fields only
+#  nam.t12z.awphyshh.grb2.tm00     24000 Kb   218  1-h to 36-h   conus   12     25-mb (39 levels plus sfc, 1000 to 50 mb)
+#                                                  3-h to 84-h
+#  nam.t12z.awip32hh.tm00.grib2    25000 Kb   221  3-h to 84-h   conus   32     25-mb (39 levels plus sfc, 1000 to 50 mb)
+#  nam.t12z.awip3dhh.tm00.grib2     5500 Kb   212  3-h to 84-h   conus   40     25-mb (39 levels plus sfc, 1000 to 50 mb)
+#  nam.t12z.awp211hh.tm00.grib2      470 Kb   211  6-h to 84-h   conus   80     50-mb (19 levels plus sfc, 1000 to 100 mb)
+#  nam.t12z.grbgrdhh.tm00.grib2     5400 KB   104  3-h to 84-h   n amer  90     25-mb (39 levels plus sfc, 1000 to 50 mb)
+#  nam.t12z.bgrdsfhh.tm00.grib2    40000 Kb   nat  1-h to 36-h   n amer  12     native b-grid
+#  nam.t12z.awipakhh.tm00.grib2     4400 Kb   216  3-h to 84-h   alaska  45      
+#  nam.t12z.awp217hh.tm00.grib2     1470 Kb   217  3-h to 84-h   alaska  22.5
+#  nam.t12z.awiphihh.tm00.grib2     4800 Kb   243  3-h to 84-h   hawaii  0.4 deg
+#  nam.t12z.afwahihh.grb2.tm00     15000 Kb   182  3-h to 84-h   hawaii  0.1 deg 25-mb (39 levels plus sfc, 1000 to 50 mb)

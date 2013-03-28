@@ -39,3 +39,14 @@ Param| Type |Level1|Level2| Name     | Units   | Description                    
   11 |   7  |   0  |      | TTT      | K       | Temperature at tropopause               |  0  |  0  |  0  |   7 |
    7 |   7  |   0  |      | HGTTROP  | m       | Height of tropopause                    |  0  |  3  |  5  |   7 |
 -----+------+------+------+----------+---------+-----------------------------------------+-----------------------+
+#
+#  Vtable for GFS pressure-level data from the ncep server.
+#
+#  ftp://ftpprd.ncep.noaa.gov/pub/data/nccf/com/gfs/prod/gfs.ccyymmddhh/    (note hh at end)
+#
+#                          approx.    grid    hours      domain  dx      notes
+#                         file size   no.
+#
+#  gfs.t12z.pgrb2f00       56000 Kb     4  3-h to 192-h  global  0.5 deg  (26 p-levels plus sfc and trop, 1000 to 10 mb).
+#  gfs.t12z.pgrbf00.grib2  18000 Kb     3  3-h to 384-h  global  1.0 deg  (26 p-levels plus sfc and trop, 1000 to 10 mb).
+#

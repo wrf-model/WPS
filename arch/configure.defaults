@@ -651,83 +651,50 @@ CPPFLAGS            = -D_UNDERSCORE -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -DBIT32 C
 ARFLAGS             =
 
 ########################################################################################################################
-#ARCH    Cray XT/XE Linux x86_64 (Opteron), PGI compiler 5.2 or higher # serial serial_NO_GRIB2 dmpar dmpar_NO_GRIB2
+#ARCH   Cray XE/XC CLE/Linux x86_64, Cray compiler  # serial serial_NO_GRIB2 dmpar dmpar_NO_GRIB2
 #
-COMPRESSION_LIBS        =       -L/contrib/jasper/lib -ljasper \
-                                -L/contrib/libpng/lib -lpng \
-                                -L/contrib/zlib/lib -lz
-COMPRESSION_INC         =       -I/contrib/zlib/include \
-                                -I/contrib/jasper/include \
-                                -I/contrib/libpng/include
-FDEFS               = CONFIGURE_FDEFS
-NCARG_LIBS2         = 
-SFC                 = pgf90
-SCC                 = pgcc
-DM_FC               = ftn
-DM_CC               = gcc
-FC                  = CONFIGURE_FC
-CC                  = CONFIGURE_CC
-LD                  = $(FC) 
-FFLAGS              = -Mfree -byteswapio -O
-F77FLAGS            = -Mfixed -byteswapio -O
-FCSUFFIX            = 
-FNGFLAGS            = $(FFLAGS)
-LDFLAGS             = 
-CFLAGS              = -O
-CPP                 = /lib/cpp -C -P -traditional
-CPPFLAGS            = -D_UNDERSCORE -DBYTESWAP -DLINUX -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -DBIT32 CONFIGURE_MPI
-ARFLAGS             =
-CC_TOOLS            = 
-
-########################################################################################################################
-#ARCH    Cray XT/XE Linux x86_64 (Opteron), Cray CCE compiler 7.0 or higher # dmpar dmpar_NO_GRIB2
-#
-COMPRESSION_LIBS        =       -L/contrib/jasper/lib -ljasper \
-                                -L/contrib/libpng/lib -lpng \
-                                -L/contrib/zlib/lib -lz
-COMPRESSION_INC         =       -I/contrib/zlib/include \
-                                -I/contrib/jasper/include \
-                                -I/contrib/libpng/include
-FDEFS               = CONFIGURE_FDEFS
-NCARG_LIBS2         = 
-SFC                 = ftn
-SCC                 = gcc
-DM_FC               = ftn
-DM_CC               = gcc
-FC                  = CONFIGURE_FC
-CC                  = CONFIGURE_CC
-LD                  = $(FC) 
-FFLAGS              = -ffree -h byteswapio
-F77FLAGS            = -ffixed -h byteswapio
-FCSUFFIX            = 
-FNGFLAGS            = $(FFLAGS)
-LDFLAGS             = 
-CFLAGS              = -O
-CPP                 = /lib/cpp -C -P -traditional
-CPPFLAGS            = -D_UNDERSCORE -DBYTESWAP -DLINUX -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -DBIT32 CONFIGURE_MPI
-ARFLAGS             =
-CC_TOOLS            = 
-
-########################################################################################################################
-#ARCH    UNICOS/mp crayx1   # serial serial_NO_GRIB2 dmpar dmpar_NO_GRIB2
-#  
 COMPRESSION_LIBS    = CONFIGURE_COMP_L
 COMPRESSION_INC     = CONFIGURE_COMP_I
 FDEFS               = CONFIGURE_FDEFS
 SFC                 = ftn
-SCC                 = cc
+SCC                 = gcc
 DM_FC               = ftn
 DM_CC               = cc
 FC                  = CONFIGURE_FC
 CC                  = CONFIGURE_CC
 LD                  = $(FC)
-FFLAGS              = -f free -N 255 -I. -dy -O3 -p../../$(WRF_DIR)/frame
-F77FLAGS            = -I. -O2 -dy -p./ngl/g2
-FNGFLAGS            = -I. -O2 -dy
+FFLAGS              = -N255 -f free -h byteswapio
+F77FLAGS            = -N255 -f fixed -h byteswapio
+FCSUFFIX            =
+FNGFLAGS            = $(FFLAGS)
 LDFLAGS             =
-CFLAGS              = -w
-CPP                 = cpp -C -P -traditional
-CPPFLAGS            = -D_UNDERSCORE -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -DBIT32 -UCRAY CONFIGURE_MPI
+CFLAGS              = -O2
+CPP                 = /lib/cpp -C -P -traditional
+CPPFLAGS            = -D_UNDERSCORE -DBYTESWAP -DLINUX -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -DBIT32 CONFIGURE_MPI
+ARFLAGS             =
+CC_TOOLS            =
+
+########################################################################################################################
+#ARCH   Cray XC CLE/Linux x86_64, Intel compiler  # serial serial_NO_GRIB2 dmpar dmpar_NO_GRIB2
+#
+COMPRESSION_LIBS    = CONFIGURE_COMP_L
+COMPRESSION_INC     = CONFIGURE_COMP_I
+FDEFS               = CONFIGURE_FDEFS
+SFC                 = ftn
+SCC                 = cc
+DM_FC               = $(SFC)
+DM_CC               = $(SCC) 
+FC                  = CONFIGURE_FC
+CC                  = CONFIGURE_CC
+LD                  = $(FC)
+FFLAGS              = -FR -convert big_endian
+F77FLAGS            = -FI -convert big_endian
+FCSUFFIX            =
+FNGFLAGS            = $(FFLAGS)
+LDFLAGS             =
+CFLAGS              =
+CPP                 = /lib/cpp -C -P -traditional
+CPPFLAGS            = -D_UNDERSCORE -DBYTESWAP -DLINUX -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -DBIT32 CONFIGURE_MPI
 ARFLAGS             =
 CC_TOOLS            =
 
