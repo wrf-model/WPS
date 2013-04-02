@@ -33,8 +33,8 @@ else
 endif
 
 if      ( ${#argv} == 0 ) then
-	set names	=	( geogrid ungrib metgrid g1print g2print plotfmt rd_intermediate plotgrids mod_levs avg_tsfc calc_ecmwf_p height_ukmo )
-	set NAMES	=	( GEOGRID UNGRIB METGRID GRIBUTIL GRIBUTIL UTIL     UTIL            UTIL      UTIL    UTIL      UTIL         UTIL     )
+	set names	=	( geogrid ungrib metgrid g1print g2print   rd_intermediate mod_levs avg_tsfc calc_ecmwf_p height_ukmo )
+	set NAMES	=	( GEOGRID UNGRIB METGRID GRIBUTIL GRIBUTIL UTIL            UTIL     UTIL     UTIL         UTIL     )
 else if ( $1 == wps    ) then
 	set names	=	( geogrid ungrib metgrid )
 	set NAMES	=	( GEOGRID UNGRIB METGRID )
