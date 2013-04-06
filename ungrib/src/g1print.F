@@ -27,7 +27,7 @@ program g1print
        & I3,1x, A5,1x, &
        & I4, &
        & 2(1x,I4),2x,I4.4,2("-",I2.2),"_",I2.2,":",&
-       & I2.2, 1x, "+", i2.2)'
+       & I2.2, 1x, "+", i3.2)'
   logical :: ivb = .FALSE.
   logical :: idb = .FALSE.
   integer :: year
