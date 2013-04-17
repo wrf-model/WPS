@@ -435,7 +435,8 @@ contains
          write(*,'("*** stopping in findgrib in gribcode ***\n")')
          write(*,'("\tI could not find the GRIB string in the input file")')
          write(*,'("\tafter testing the first 100,000 bytes.")')
-         write(*,'("\tEither the file is corrupt or it is not a GRIB file.\n")')
+         write(*,'("\tThe file may be corrupt or it is not a GRIB file.")')
+         write(*,'("\tPerhaps a gzipped GRIB file or netcdf?\n")')
          stop 'findgrib'
        endif
 
