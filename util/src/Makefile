@@ -72,7 +72,7 @@ mod_levs.exe: mod_levs.o module_debug.o read_met_module.o write_met_module.o mis
 mod_levs.o: module_debug.o read_met_module.o write_met_module.o mod_levs.F
 
 int2nc.exe: int2nc.o module_debug.o misc_definitions_module.o read_met_module.o cio.o
-	$(SFC) -o $(@) $(LDFLAGS) $(WRF_INCLUDE) $(WRF_LIB) int2nc.o module_debug.o misc_definitions_module.o read_met_module.o cio.o
+	$(SFC) -o $(@) $(LDFLAGS) $(WRF_INCLUDE) int2nc.o module_debug.o misc_definitions_module.o read_met_module.o cio.o $(WRF_LIB) 
 
 int2nc.o: int2nc.F module_debug.o misc_definitions_module.o read_met_module.o
 	$(RM) $*.f90
