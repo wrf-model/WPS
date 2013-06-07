@@ -356,6 +356,12 @@ SUBROUTINE rd_grib1(IUNIT, gribflnm, level, field, hdate,  &
   else
      FCST = KSEC1(17)
   endif
+! convert the fcst units to hours if necessary
+  if (ksec1(16) .eq. 254 ) then
+    fcst = fcst/3600.
+  elseif (ksec1(16) .eq. 0 ) then
+    fcst = fcst/60.
+  endif
 
   if (IYY.EQ.00) then
      YEAR = ICC*100

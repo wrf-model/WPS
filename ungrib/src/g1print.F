@@ -101,7 +101,12 @@ program g1print
      else
         CC = sec1(22)
         year = (cc-1)*100 + sec1(11)
-        write(*,FMT) irec, sec1(7), field, sec1(8:10), year,sec1(12:15),sec1(17)
+	if ( sec1(16) .eq. 254) then
+	  ifcst = sec1(17)/3600.
+	else
+	  ifcst = sec1(17)
+	endif
+        write(*,FMT) irec, sec1(7), field, sec1(8:10), year,sec1(12:15),ifcst
      endif
 
      call deallogrib
