@@ -17,7 +17,7 @@ INCLUDEPATH = -I$(WRF_DIR)/external/ioapi_share -I$(WRF_DIR)/external/io_netcdf 
 
 .F.o:
 	rm -f $@ $*.mod
-	cpp -C -P -traditional $(CPPFLAGS) $(INCLUDEPATH) $< > $*.f90
+	cpp -P -traditional $(CPPFLAGS) $(INCLUDEPATH) $< > $*.f90
 	$(FC) $(FFLAGS) -c $*.f90 $(INCLUDEPATH)
 	rm -f $*.f90
 
