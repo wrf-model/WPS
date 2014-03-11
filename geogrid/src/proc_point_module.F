@@ -786,7 +786,7 @@ module proc_point_module
    !   interpolated to or nearest the lat/lon.
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
    function get_point(xlat, xlon, lvl, fieldname, &
-                      ilevel, interp_type, msgval)
+                      ilevel, interp_type, interp_opts, msgval)
  
       ! Modules
       use interp_module
@@ -799,6 +799,7 @@ module proc_point_module
       real, intent(in) :: xlat, xlon, msgval
       character (len=128), intent(in) :: fieldname
       integer, dimension(:), intent(in) :: interp_type
+      integer, dimension(:), intent(in) :: interp_opts
   
       ! Return value
       real :: get_point
@@ -823,7 +824,7 @@ module proc_point_module
          call select_domain(current_domain)
    
          get_point = interp_sequence(rx, ry, lvl, src_array, src_min_x, src_max_x, src_min_y, &
-                                     src_max_y, src_min_z, src_max_z, msgval, interp_type, 1) 
+                                     src_max_y, src_min_z, src_max_z, msgval, interp_type, interp_opts, 1) 
   
       else
   
@@ -846,7 +847,7 @@ module proc_point_module
          call select_domain(current_domain)
    
          get_point = interp_sequence(rx, ry, lvl, src_array, src_min_x, src_max_x, src_min_y, &
-                                     src_max_y, src_min_z, src_max_z, msgval, interp_type, 1) 
+                                     src_max_y, src_min_z, src_max_z, msgval, interp_type, interp_opts, 1) 
       end if
   
       return

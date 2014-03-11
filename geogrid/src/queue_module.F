@@ -13,11 +13,13 @@ module queue_module
 #ifdef _GEOGRID
       real :: lat, lon
       integer :: x, y
+      integer :: depth ! Used by 'search' interpolation method
 #endif
 #ifdef _METGRID
       integer :: x, y
       integer :: sr_x, sr_y
       character (len=128) :: units, description, stagger
+      integer :: depth ! Used by 'search' interpolation method
 #endif
    end type q_data
  
