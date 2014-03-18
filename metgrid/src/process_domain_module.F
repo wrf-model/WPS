@@ -778,11 +778,11 @@ integer, parameter :: BDR_WIDTH = 3
                   ! Initialize fg_input structure to store the field
                   field%header%version = 1
                   field%header%date = fg_data%hdate//'        '
-                  if (do_const_processing) then
-                     field%header%time_dependent = .false.
-                  else
+!                  if (do_const_processing) then
+!                     field%header%time_dependent = .false.
+!                  else
                      field%header%time_dependent = .true.
-                  end if
+!                  end if
                   field%header%forecast_hour = fg_data%xfcst 
                   field%header%fg_source = 'FG'
                   field%header%field = ' '

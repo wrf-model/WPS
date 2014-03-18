@@ -597,3 +597,101 @@ name=T0
         missing_value=200.
         fill_missing=-20.
 ========================================
+name=QNWFA_JAN
+	z_dim_name=num_qnwfa_levels
+        interp_option=four_pt+average_4pt
+========================================
+name=QNWFA_FEB
+	z_dim_name=num_qnwfa_levels
+        interp_option=four_pt+average_4pt
+========================================
+name=QNWFA_MAR
+	z_dim_name=num_qnwfa_levels
+        interp_option=four_pt+average_4pt
+========================================
+name=QNWFA_APR
+	z_dim_name=num_qnwfa_levels
+        interp_option=four_pt+average_4pt
+========================================
+name=QNWFA_MAY
+	z_dim_name=num_qnwfa_levels
+        interp_option=four_pt+average_4pt
+========================================
+name=QNWFA_JUN
+	z_dim_name=num_qnwfa_levels
+        interp_option=four_pt+average_4pt
+========================================
+name=QNWFA_JUL
+	z_dim_name=num_qnwfa_levels
+        interp_option=four_pt+average_4pt
+========================================
+name=QNWFA_AUG
+	z_dim_name=num_qnwfa_levels
+        interp_option=four_pt+average_4pt
+========================================
+name=QNWFA_SEP
+	z_dim_name=num_qnwfa_levels
+        interp_option=four_pt+average_4pt
+========================================
+name=QNWFA_OCT
+	z_dim_name=num_qnwfa_levels
+        interp_option=four_pt+average_4pt
+========================================
+name=QNWFA_NOV
+	z_dim_name=num_qnwfa_levels
+        interp_option=four_pt+average_4pt
+========================================
+name=QNWFA_DEC
+	z_dim_name=num_qnwfa_levels
+        interp_option=four_pt+average_4pt
+        flag_in_output=FLAG_QNWFA
+========================================
+name=QNIFA_JAN
+	z_dim_name=num_qnifa_levels
+        interp_option=four_pt+average_4pt
+========================================
+name=QNIFA_FEB
+	z_dim_name=num_qnifa_levels
+        interp_option=four_pt+average_4pt
+========================================
+name=QNIFA_MAR
+	z_dim_name=num_qnifa_levels
+        interp_option=four_pt+average_4pt
+========================================
+name=QNIFA_APR
+	z_dim_name=num_qnifa_levels
+        interp_option=four_pt+average_4pt
+========================================
+name=QNIFA_MAY
+	z_dim_name=num_qnifa_levels
+        interp_option=four_pt+average_4pt
+========================================
+name=QNIFA_JUN
+	z_dim_name=num_qnifa_levels
+        interp_option=four_pt+average_4pt
+========================================
+name=QNIFA_JUL
+	z_dim_name=num_qnifa_levels
+        interp_option=four_pt+average_4pt
+========================================
+name=QNIFA_AUG
+	z_dim_name=num_qnifa_levels
+        interp_option=four_pt+average_4pt
+========================================
+name=QNIFA_SEP
+	z_dim_name=num_qnifa_levels
+        interp_option=four_pt+average_4pt
+========================================
+name=QNIFA_OCT
+	z_dim_name=num_qnifa_levels
+        interp_option=four_pt+average_4pt
+========================================
+name=QNIFA_NOV
+	z_dim_name=num_qnifa_levels
+        interp_option=four_pt+average_4pt
+========================================
+name=QNIFA_DEC
+	z_dim_name=num_qnifa_levels
+        interp_option=four_pt+average_4pt
+        flag_in_output=FLAG_QNIFA
+========================================
