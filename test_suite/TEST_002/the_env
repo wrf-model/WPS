@@ -1,5 +1,0 @@
-#
-setenv share DATE=2006081612
-setenv geogrid EUROPE
-setenv ungrib WPS
-setenv metgrid FILE

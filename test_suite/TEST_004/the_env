@@ -1,5 +1,0 @@
-#
-setenv share DATE=2000012412
-setenv geogrid CONUS_SE
-setenv ungrib WPS
-setenv metgrid FILE
