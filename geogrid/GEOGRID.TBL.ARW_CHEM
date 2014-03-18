@@ -4,8 +4,6 @@
 name = HGT_M
         priority = 1
         dest_type = continuous
-        df_dx=SLPX
-        df_dy=SLPY
         smooth_option = smth-desmth_special; smooth_passes=1
         fill_missing=0.
         interp_option =     30s:average_gcell(4.0)+four_pt+average_4pt
