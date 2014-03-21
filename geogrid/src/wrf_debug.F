@@ -1,12 +1,16 @@
 subroutine wrf_debug(i, msg)
 
+   use gridinfo_module
+
    implicit none
 
    ! Arguments
    integer, intent(in) :: i
    character (len=*), intent(in) :: msg
 
-   write(6,*) 'WRF_DEBUG:'//msg
+   if (debug_level > 0) then
+      write(6,*) 'WRF_DEBUG:'//msg
+   end if
 
 end subroutine wrf_debug
 
