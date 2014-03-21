@@ -123,6 +123,7 @@ name=LAI12M
         fill_missing = 0.
         rel_path=modis_lai:lai_modis/
         rel_path=default:greenfrac/
+        flag_in_output=FLAG_LAI12M
 ===============================
 name=SNOALB
         priority=1
@@ -354,4 +355,5 @@ name = LAKE_DEPTH
         masked=land
         interp_option = default:average_gcell(1.0)+search(5)
         rel_path = default:lake_depth/
+        flag_in_output=FLAG_LAKE_DEPTH
 ===============================
