@@ -36,7 +36,7 @@ module source_data_module
                   source_stdlon, source_scale_factor, source_missing_value, source_fill_missing
    character (len=128), pointer, dimension(:) :: source_fieldname, source_path, source_interp_string, &
                   source_dominant_category, source_dominant_only, source_dfdx, source_dfdy, &
-                  source_z_dim_name, source_units, source_descr
+                  source_z_dim_name, source_units, source_descr, source_output_flag
    character (len=128) :: source_mminlu
    logical, pointer, dimension(:) :: is_proj, is_wordsize, is_endian, is_fieldtype, &
                   is_dest_fieldtype, is_priority, is_tile_x, is_tile_y, is_tile_z, &
@@ -48,7 +48,7 @@ module source_data_module
                   is_dominant_only, is_dfdx, is_dfdy, is_z_dim_name, &
                   is_smooth_option, is_smooth_passes, is_signed, is_missing_value, &
                   is_fill_missing, is_halt_missing, is_output_stagger, is_row_order, &
-                  is_units, is_descr, is_subgrid
+                  is_units, is_descr, is_subgrid, is_output_flag
 
    type (list), pointer, dimension(:) :: source_res_path, source_interp_option, source_landmask_land, &
                                          source_landmask_water
@@ -171,6 +171,7 @@ module source_data_module
       allocate(source_interp_option(num_entries))
       allocate(source_landmask_land(num_entries))
       allocate(source_landmask_water(num_entries))
+      allocate(source_output_flag(num_entries))
       do i=1,num_entries
          call list_init(source_res_path(i))
          call list_init(source_interp_option(i))
@@ -221,6 +222,7 @@ module source_data_module
       allocate(is_missing_value(num_entries))
       allocate(is_fill_missing(num_entries))
       allocate(is_subgrid(num_entries))
+      allocate(is_output_flag(num_entries))
 
       source_wordsize=0
       source_endian=0
@@ -263,6 +265,7 @@ module source_data_module
       source_smooth_passes=0
       source_missing_value=0
       source_fill_missing=0
+      source_output_flag=' '
 
       is_wordsize=.false.
       is_endian=.false.
@@ -307,6 +310,7 @@ module source_data_module
       is_missing_value=.false.
       is_fill_missing=.false.
       is_subgrid=.false.
+      is_output_flag=.false.
 
       write(source_mminlu,'(a4)') 'USGS'
       source_iswater = 16
@@ -350,6 +354,7 @@ module source_data_module
             is_smooth_passes(i) = .false.
             is_fill_missing(i) = .false.
             is_subgrid(i) = .false.
+            is_output_flag(i) = .false.
          end if
   
       else
@@ -636,6 +641,14 @@ module source_data_module
                   else if (index('no',trim(buffer(idx+1:eos-1))) /= 0) then
                      is_subgrid(i) = .false.
                   end if
+
+               else if (index('flag_in_output',trim(buffer(1:idx-1))) /= 0) then
+                  ispace = idx+1
+                  do while ((ispace < eos) .and. (buffer(ispace:ispace) /= ' '))
+                     ispace = ispace + 1
+                  end do 
+                  is_output_flag(i) = .true.
+                  source_output_flag(i)(1:ispace-idx) = buffer(idx+1:ispace-1)
      
                else
                    call mprintf(.true., WARN, 'In GEOGRID.TBL, unrecognized option %s in '// &
@@ -1124,6 +1137,7 @@ module source_data_module
          deallocate(source_interp_option)
          deallocate(source_landmask_land)
          deallocate(source_landmask_water)
+         deallocate(source_output_flag)
      
          deallocate(is_wordsize)
          deallocate(is_endian)
@@ -1167,6 +1181,8 @@ module source_data_module
          deallocate(is_descr)
          deallocate(is_missing_value)
          deallocate(is_fill_missing)
+         deallocate(is_subgrid)
+         deallocate(is_output_flag)
       end if
   
       call hash_destroy(bad_files)
@@ -2440,6 +2456,41 @@ module source_data_module
       end do
 
    end subroutine get_subgrid_dim_name
+ 
+ 
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   ! Name: get_output_flag
+   !
+   ! Purpose:
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   subroutine get_output_flag(fieldnm, output_flag, istatus)
+ 
+      implicit none
+  
+      ! Arguments
+      integer, intent(out) :: istatus
+      character (len=*), intent(in) :: fieldnm
+      character (len=128), intent(out) :: output_flag
+  
+      ! Local variables
+      integer :: idx
+  
+      istatus = 1
+  
+      do idx=1,num_entries
+         if ((index(source_fieldname(idx),trim(fieldnm)) /= 0) .and. &
+             (len_trim(source_fieldname(idx)) == len_trim(fieldnm))) then
+   
+            if (is_output_flag(idx)) then
+               output_flag = source_output_flag(idx) 
+               istatus = 0
+               exit
+            end if
+   
+         end if
+      end do
+ 
+   end subroutine get_output_flag
 
 
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

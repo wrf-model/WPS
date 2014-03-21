@@ -43,6 +43,7 @@ module process_domain_module
       character (len=19) :: valid_date, temp_date
       character (len=128) :: title, mminlu
       character (len=128), allocatable, dimension(:) :: output_flags, td_output_flags
+      character (len=128), dimension(:), pointer :: geogrid_flags
 
       ! CWH Initialize local pointer variables
       nullify(landmask)
@@ -52,6 +53,7 @@ module process_domain_module
       nullify(xlon_u)
       nullify(xlat_v)
       nullify(xlon_v)
+      nullify(geogrid_flags)
 
       ! Compute number of times that we will process
       call geth_idts(end_date(n), start_date(n), idiff)
@@ -86,7 +88,7 @@ module process_domain_module
                     parent_grid_ratio, sub_x, sub_y, &
                     cen_lat, moad_cen_lat, cen_lon, stand_lon, truelat1, truelat2, &
                     pole_lat, pole_lon, dom_dx, dom_dy, landmask, xlat, xlon, xlat_u, xlon_u, &
-                    xlat_v, xlon_v, corner_lats, corner_lons, title)
+                    xlat_v, xlon_v, corner_lats, corner_lons, title, geogrid_flags)
 
 
       allocate(output_flags(num_entries))
@@ -114,7 +116,7 @@ module process_domain_module
                           j_parent_start, i_parent_end, j_parent_end, dom_dx, dom_dy, &
                           cen_lat, moad_cen_lat, cen_lon, stand_lon, truelat1, truelat2, &
                           pole_lat, pole_lon, parent_grid_ratio, sub_x, sub_y, &
-                          corner_lats, corner_lons, output_flags, 0)
+                          corner_lats, corner_lons, output_flags, geogrid_flags, 0)
 
       !
       ! Begin time-dependent processing
@@ -166,7 +168,7 @@ module process_domain_module
                              j_parent_start, i_parent_end, j_parent_end, dom_dx, dom_dy, &
                              cen_lat, moad_cen_lat, cen_lon, stand_lon, truelat1, truelat2, &
                              pole_lat, pole_lon, parent_grid_ratio, sub_x, sub_y, &
-                             corner_lats, corner_lons, td_output_flags, process_bdy_width)
+                             corner_lats, corner_lons, td_output_flags, geogrid_flags, process_bdy_width)
    
       end do  ! Loop over n_times
 
@@ -176,6 +178,8 @@ module process_domain_module
 
       deallocate(output_flags)
       deallocate(got_const_field)
+
+      if (associated(geogrid_flags)) deallocate(geogrid_flags)
    
       call storage_delete_all()
    
@@ -200,7 +204,7 @@ module process_domain_module
                     parent_grid_ratio, sub_x, sub_y,                                        &
                     cen_lat, moad_cen_lat, cen_lon, stand_lon, truelat1, truelat2,          &
                     pole_lat, pole_lon, dom_dx, dom_dy, landmask, xlat, xlon, xlat_u, xlon_u, &
-                    xlat_v, xlon_v, corner_lats, corner_lons, title)
+                    xlat_v, xlon_v, corner_lats, corner_lons, title, geogrid_flags)
 
       use gridinfo_module
       use input_module
@@ -208,6 +212,7 @@ module process_domain_module
       use parallel_module
       use storage_module
       use module_debug
+      use list_module
 
       implicit none
 
@@ -229,6 +234,7 @@ module process_domain_module
       real, pointer, dimension(:,:) :: xlat, xlon, xlat_u, xlon_u, xlat_v, xlon_v
       real, dimension(16), intent(out) :: corner_lats, corner_lons
       character (len=128), intent(inout) :: title, mminlu
+      character (len=128), dimension(:), pointer :: geogrid_flags
     
       ! Local variables
       integer :: istatus, i, j, k, sp1, ep1, sp2, ep2, sp3, ep3, &
@@ -239,9 +245,13 @@ module process_domain_module
                  sn_patch_subgrid_s, sn_patch_subgrid_e
       real, pointer, dimension(:,:,:) :: real_array
       character (len=3) :: memorder
-      character (len=128) :: grid_type, datestr, cname, stagger, cunits, cdesc
+      character (len=128) :: grid_type, datestr, cname, stagger, cunits, cdesc, ctemp
       character (len=128), dimension(3) :: dimnames
       type (fg_input) :: field
+      type (list) :: static_list, flag_list
+      type (list_item), dimension(:), pointer :: static_list_array      
+
+      call list_init(static_list)
 
       ! CWH Initialize local pointer variables
       nullify(real_array)
@@ -361,6 +371,7 @@ module process_domain_module
         if (istatus == 0) then
 
           call mprintf(.true.,LOGFILE, 'Read in static field %s.',s1=cname)
+          call list_insert(static_list, ckey=cname, cvalue=cname)
    
           ! We will also keep copies in core of the lat/lon arrays, for use in 
           !    interpolation of the met fields to the model grid.
@@ -570,9 +581,29 @@ module process_domain_module
     
         end if
       end do
+
+      static_list_array => list_get_keys(static_list)
+      call list_init(flag_list)
+      do i=1,size(static_list_array)
+         istatus = 0
+         ctemp = 'FLAG_'//trim(static_list_array(i)%ckey)
+         call ext_get_dom_ti_integer_scalar(ctemp, istatus, suppress_errors=.true.)
+         if (istatus == 1) call list_insert(flag_list, ckey=ctemp, cvalue=ctemp)
+      end do
+      deallocate(static_list_array)
+      call list_destroy(static_list)
     
       ! Done reading all static fields for this domain
       call input_close()
+
+      static_list_array => list_get_keys(flag_list)
+      allocate(geogrid_flags(size(static_list_array)))
+      do i=1,size(static_list_array)
+         geogrid_flags(i) = static_list_array(i)%ckey
+      end do
+      deallocate(static_list_array)
+
+      call list_destroy(flag_list)
 
    end subroutine get_static_fields
 
@@ -598,7 +629,7 @@ module process_domain_module
                              j_parent_start, i_parent_end, j_parent_end, dom_dx, dom_dy, &
                              cen_lat, moad_cen_lat, cen_lon, stand_lon, truelat1, truelat2, &
                              pole_lat, pole_lon, parent_grid_ratio, sub_x, sub_y, &
-                             corner_lats, corner_lons, output_flags, process_bdy_width)
+                             corner_lats, corner_lons, output_flags, geogrid_flags, process_bdy_width)
    
       use bitarray_module
       use gridinfo_module
@@ -638,6 +669,7 @@ module process_domain_module
       character (len=19), intent(in) :: temp_date
       character (len=128), intent(in) :: mminlu
       character (len=128), dimension(:), intent(inout) :: output_flags
+      character (len=128), dimension(:), pointer :: geogrid_flags
 
 ! BUG: Move this constant to misc_definitions_module?
 integer, parameter :: BDR_WIDTH = 3
@@ -1179,6 +1211,7 @@ integer, parameter :: BDR_WIDTH = 3
 
       ! Add in a flag to tell real that we have seven new msf fields
       nmet_flags = num_entries + 1
+      if (associated(geogrid_flags)) nmet_flags = nmet_flags + size(geogrid_flags)
       allocate(met_flags(nmet_flags))
       do i=1,num_entries
          met_flags(i) = output_flags(i)
@@ -1187,6 +1220,11 @@ integer, parameter :: BDR_WIDTH = 3
          met_flags(num_entries+1) = 'FLAG_MF_XY'
       else
          met_flags(num_entries+1) = ' '
+      end if
+      if (associated(geogrid_flags)) then
+         do i=1,size(geogrid_flags)
+            met_flags(num_entries+1+i) = geogrid_flags(i)
+         end do
       end if
 
       ! Find out how many soil levels or layers we have; this assumes a field named ST

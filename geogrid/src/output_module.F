@@ -87,6 +87,9 @@ module output_module
       character (len=128), dimension(1) :: geo_flags
       character (len=MAX_FILENAME_LEN) :: output_fname
       logical :: supports_training, supports_3d_fields
+#ifdef _GEOGRID
+      character (len=128) :: output_flag
+#endif
   
       call init_output_fields(nest_number, grid_type, &
                               start_dom_1, end_dom_1, start_dom_2, end_dom_2, &
@@ -396,6 +399,13 @@ module output_module
                               parent_grid_ratio(nest_number),                                            &
                               subgrid_ratio_x(nest_number), subgrid_ratio_y(nest_number),                &
                               corner_lats, corner_lons, flags=geo_flags, nflags=ngeo_flags)
+
+      do i=1,NUM_FIELDS
+         call get_output_flag(trim(fields(i)%fieldname), output_flag, istatus)
+         if (istatus == 0) then
+            call ext_put_dom_ti_integer_scalar(trim(output_flag), 1)
+         end if
+      end do
 #endif
  
    end subroutine output_init
