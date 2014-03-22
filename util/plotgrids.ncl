@@ -1,14 +1,21 @@
 
 ;   Script display location of model domains
 ;   Only works for ARW domains
+;   Only works for NCL versions later than 6.1
 ;   Reads namelist file directly
 
 load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/gsn_code.ncl"
 load "$NCARG_ROOT/lib/ncarg/nclscripts/wrf/WRFUserARW.ncl"
-;load "./WRFUserARW.ncl"
 
 begin
 ;
+
+; Check the version of NCL
+  version = systemfunc("ncl -V")
+  if(version.lt.6.1) then
+    print("You need NCL V6.1 or later to run this script. Try running plotgrids.ncl. Stopping now...")
+    return
+  end if
 
 ; We generate plots, but what kind do we prefer?
   type = "x11"
@@ -18,8 +25,7 @@ begin
   wks = gsn_open_wks(type,"wps_show_dom")
 
 ; read the following namelist file
-  filename = "./namelist.wps"
-
+  filename = "namelist.wps"
 
 ; Set the colors to be used
   colors = (/"white","black","White","ForestGreen","DeepSkyBlue","Red","Blue"/)
@@ -30,12 +36,14 @@ begin
   mpres = True
   mpres@mpFillOn = True
   mpres@mpFillColors  = (/"background","DeepSkyBlue","ForestGreen","DeepSkyBlue", "transparent"/)
+  mpres@mpDataBaseVersion           = "Ncarg4_1"
   mpres@mpGeophysicalLineColor      = "Black"
   mpres@mpGridLineColor             = "Black"
   mpres@mpLimbLineColor             = "Black"
   mpres@mpNationalLineColor         = "Black"
   mpres@mpPerimLineColor            = "Black"
   mpres@mpUSStateLineColor          = "Black"
+;  mpres@mpOutlineBoundarySets       = "AllBoundaries"
   ;mpres@mpGridSpacingF              = 45
   mpres@tiMainString                = " WPS Domain Configuration  "
 
@@ -53,70 +61,118 @@ begin
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Do not change anything between the ";;;;;" lines
 
-  mpres@max_dom   = stringtoint  (systemfunc("grep max_dom    " +filename+ " | cut -f2 -d'=' | cut -f1 -d','" ) )
-  mpres@dx        = stringtofloat(systemfunc("grep dx         " +filename+ " | cut -f2 -d'=' | cut -f1 -d','" ) )
-  mpres@dy        = stringtofloat(systemfunc("grep dy         " +filename+ " | cut -f2 -d'=' | cut -f1 -d','" ) )
-  mpres@ref_lat   = stringtofloat(systemfunc("grep ref_lat    " +filename+ " | cut -f2 -d'=' | cut -f1 -d','" ) )
-  mpres@ref_lon   = stringtofloat(systemfunc("grep ref_lon    " +filename+ " | cut -f2 -d'=' | cut -f1 -d','" ) )
-  test = systemfunc("grep truelat1 " +filename ) 
-  if ( .not. ismissing(test) )
-    mpres@truelat1  = stringtofloat(systemfunc("grep truelat1   " +filename+ " | cut -f2 -d'=' | cut -f1 -d','" ) )
-  else
-    mpres@truelat1  = 0.0
-  end if
-  test = systemfunc("grep truelat2 " +filename ) 
-  if ( .not. ismissing(test) )
-    mpres@truelat2  = stringtofloat(systemfunc("grep truelat2   " +filename+ " | cut -f2 -d'=' | cut -f1 -d','" ) )
-  else
-    mpres@truelat2  = 0.0
-  end if
-  mpres@stand_lon = stringtofloat(systemfunc("grep stand_lon  " +filename+ " | cut -f2 -d'=' | cut -f1 -d','" ) )
+  maxdom = 21
+  nvar = 17
+  parent_idn = new (maxdom,integer)
+  parent_grid_ration = new (maxdom,integer)
+  i_parent_startn = new (maxdom,integer)
+  j_parent_startn = new (maxdom,integer)
+  e_wen = new (maxdom,integer)
+  e_snn = new (maxdom,integer)
+  plotvar = new((/maxdom,nvar/),float)
+  plotvar@_FillValue = -999.0
 
-  test = systemfunc("grep lambert " +filename ) 
-  if ( .not. ismissing(test) )
-    mpres@map_proj          = "lambert"
-  end if
-  test = systemfunc("grep mercator " +filename ) 
-  if ( .not. ismissing(test) )
-    mpres@map_proj          = "mercator"
-  end if
-  test = systemfunc("grep polar " +filename ) 
-  if ( .not. ismissing(test) )
-    mpres@map_proj          = "polar"
-  end if
-  testa = systemfunc("grep 'lat-lon' " +filename ) 
-  if ( .not. ismissing(testa) )
-    mpres@map_proj          = "lat-lon"
-    mpres@pole_lat = stringtofloat(systemfunc("grep pole_lat  " +filename+ " | cut -f2 -d'=' | cut -f1 -d','" ) )
-    mpres@pole_lon = stringtofloat(systemfunc("grep pole_lon  " +filename+ " | cut -f2 -d'=' | cut -f1 -d','" ) )
+  plotvar = wrf_wps_read_nml(filename)
+
+  mpres@max_dom = floattointeger(plotvar(0,0))
+  mpres@dx = plotvar(0,1)
+  mpres@dy = plotvar(0,2)
+  mpres@ref_lat = plotvar(0,3)
+  mpres@ref_lon = plotvar(0,4)
+  mpres@truelat1 = plotvar(0,5)
+  mpres@truelat2 = plotvar(0,6)
+  mpres@stand_lon = plotvar(0,7)
+  mproj_int = plotvar(0,8)
+  mpres@pole_lat = plotvar(0,9)
+  mpres@pole_lon = plotvar(0,10)
+
+  do i = 0,maxdom-1
+    parent_idn(i) = floattointeger(plotvar(i,11))
+    parent_grid_ration(i) = floattointeger(plotvar(i,12))
+    i_parent_startn(i) = floattointeger(plotvar(i,13))
+    j_parent_startn(i) = floattointeger(plotvar(i,14))
+    e_wen(i) = floattointeger(plotvar(i,15))
+    e_snn(i) = floattointeger(plotvar(i,16))
+  end do
+
+  if(mpres@max_dom .gt. 1) then
+    do i = 1,mpres@max_dom-1
+
+      ;Making sure edge is nested grid is at least 5 grid points from mother domain.
+      if(i_parent_startn(i) .lt. 5) then
+        print("Warning: Western edge of grid must be at least 5 grid points from mother domain!")
+      end if
+      if(j_parent_startn(i) .lt. 5) then
+        print("Warning: Southern edge of grid must be at least 5 grid points from mother domain!")
+      end if
+      pointwe = (e_wen(i)-1.)/parent_grid_ration(i)
+      pointsn = (e_snn(i)-1.)/parent_grid_ration(i)
+      gridwe = e_wen(parent_idn(i)-1)-(pointwe+i_parent_startn(i))
+      gridsn = e_snn(parent_idn(i)-1)-(pointsn+j_parent_startn(i))
+      if(gridwe .lt. 5) then
+        print("Warning: Eastern edge of grid must be at least 5 grid points from mother domain!")
+      end if
+      if(gridsn .lt. 5) then
+        print("Warning: Northern edge of grid must be at least 5 grid points from mother domain!")
+      end if
+
+      ;Making sure nested grid is fully contained in mother domain.
+      gridsizewe = (((e_wen(parent_idn(i)-1)-4)-i_parent_startn(i))*parent_grid_ration(i))-(parent_grid_ration(i)-1)
+      gridsizesn = (((e_snn(parent_idn(i)-1)-4)-j_parent_startn(i))*parent_grid_ration(i))-(parent_grid_ration(i)-1)
+      if(gridwe .lt. 5) then
+        print("Warning: Inner nest (domain = " + (i+1) + ") is not fully contained in mother nest (domain = " + parent_idn(i) + ")!")
+        print("For the current setup of mother domain = " + parent_idn(i) + ", you can only have a nest of size " + gridsizewe + "X" + gridsizesn + ". Stopping Program!")
+        exit
+      end if
+      if(gridsn .lt. 5) then
+        print("Warning: Inner nest (domain = " + (i+1) + ") is not fully contained in mother nest (domain = " + parent_idn(i) + ")!")
+        print("For the current setup of mother domain = " + parent_idn(i) + ", you can only have a nest of size " + gridsizewe + "X" + gridsizesn + ". Stopping Program!")
+        exit
+      end if
+
+      ;Making sure the nest ends of a mother grid domain point.
+      pointwetrunc = decimalPlaces(pointwe,0,False)
+      pointsntrunc = decimalPlaces(pointsn,0,False)
+      if((pointwe-pointwetrunc) .ne. 0.) then
+        nest_we_up = (ceil(pointwe)*parent_grid_ration(i))+1
+        nest_we_dn = (floor(pointwe)*parent_grid_ration(i))+1
+        print("Nest does not end on mother grid domain point. Try " + nest_we_dn + " or " + nest_we_up + ".")
+      end if
+      if((pointsn-pointsntrunc) .ne. 0.) then
+        nest_sn_up = (ceil(pointsn)*parent_grid_ration(i))+1
+        nest_sn_dn = (floor(pointsn)*parent_grid_ration(i))+1
+        print("Nest does not end on mother grid domain point. Try " + nest_sn_dn + " or " + nest_sn_up + ".")
+      end if
+
+    end do
   end if
 
-  parent_id         = new ( mpres@max_dom , integer )
-  parent_grid_ratio = new ( mpres@max_dom , integer )
-  i_parent_start    = new ( mpres@max_dom , integer )
-  j_parent_start    = new ( mpres@max_dom , integer )
-  e_we              = new ( mpres@max_dom , integer )
-  e_sn              = new ( mpres@max_dom , integer )
+  mpres@parent_id = parent_idn(0:mpres@max_dom-1)
+  mpres@parent_grid_ratio = parent_grid_ration(0:mpres@max_dom-1)
+  mpres@i_parent_start = i_parent_startn(0:mpres@max_dom-1)
+  mpres@j_parent_start = j_parent_startn(0:mpres@max_dom-1)
+  mpres@e_we = e_wen(0:mpres@max_dom-1)
+  mpres@e_sn = e_snn(0:mpres@max_dom-1)
 
-  do n = 1, mpres@max_dom 
+  if(mproj_int .eq. 1) then
+    mpres@map_proj = "lambert"
+    mpres@pole_lat = 0.0
+    mpres@pole_lon = 0.0
+  else if(mproj_int .eq. 2) then
+    mpres@map_proj = "mercator"
+    mpres@pole_lat = 0.0
+    mpres@pole_lon = 0.0
+  else if(mproj_int .eq. 3) then
+    mpres@map_proj = "polar"
+    mpres@pole_lat = 0.0
+    mpres@pole_lon = 0.0
+  else if(mproj_int .eq. 4) then
+    mpres@map_proj = "lat-lon"
+  end if
+  end if
+  end if
+  end if
 
-    n0 = n - 1
-    parent_id(n0)         = stringtoint(systemfunc("grep parent_id         " +filename+ " | cut -f2 -d'=' | cut -f"+n+" -d','" ) )
-    parent_grid_ratio(n0) = stringtoint(systemfunc("grep parent_grid_ratio " +filename+ " | cut -f2 -d'=' | cut -f"+n+" -d','" ) )
-    i_parent_start(n0)    = stringtoint(systemfunc("grep i_parent_start    " +filename+ " | cut -f2 -d'=' | cut -f"+n+" -d','" ) )
-    j_parent_start(n0)    = stringtoint(systemfunc("grep j_parent_start    " +filename+ " | cut -f2 -d'=' | cut -f"+n+" -d','" ) )
-    e_we(n0)              = stringtoint(systemfunc("grep e_we              " +filename+ " | cut -f2 -d'=' | cut -f"+n+" -d','" ) )
-    e_sn(n0)              = stringtoint(systemfunc("grep e_sn              " +filename+ " | cut -f2 -d'=' | cut -f"+n+" -d','" ) )
- 
-  end do 
-
-  mpres@parent_id         = parent_id
-  mpres@parent_grid_ratio = parent_grid_ratio
-  mpres@i_parent_start    = i_parent_start
-  mpres@j_parent_start    = j_parent_start
-  mpres@e_we              = e_we
-  mpres@e_sn              = e_sn
-  
   mp = wrf_wps_dom (wks,mpres,lnres,txres)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
