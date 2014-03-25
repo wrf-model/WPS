@@ -1480,6 +1480,9 @@ integer, parameter :: BDR_WIDTH = 3
       real :: rx, ry, temp
       real, pointer, dimension(:,:) :: data_count
       type (fg_input) :: mask_field, mask_water_field, mask_land_field
+      !BPR BEGIN
+      real, dimension(sm1:em1,sm2:em2) :: r_arr_cur_source
+      !BPR END
 
       ! CWH Initialize local pointer variables
       nullify(interp_array)
@@ -1567,20 +1570,43 @@ integer, parameter :: BDR_WIDTH = 3
       ! Interpolate using average_gcell interpolation method
       !
       if (do_gcell_interp) then
+         !BPR BEGIN
+         !If a lower priority source of the current field has already been read
+         !in, the results of that input are currently in field%r_arr 
+         !Pass COPY of field%r_arr into accum_continous because in accum_continuous
+         !it will set the input variable to zero over points covered by the
+         !current source and then determine the appropriate value to place at
+         !that point.  This will overwrite data already put in field%r_arr by 
+         !lower priority sources.
+         !This is problematic if the current source results in missing values 
+         !over parts of the area covered by the current source where a lower
+         !priority source has already provided a value. In this case, if one 
+         !passes in field%r_arr, it will overwrite the value provided by the
+         !lower priority source with zero.
+         r_arr_cur_source = field%r_arr
+         !BPR END
          allocate(data_count(sm1:em1,sm2:em2))
          data_count = 0.
 
          if (interp_mask_status == 0) then
             call accum_continuous(slab, &
                          minx, maxx, miny, maxy, 1, 1, bdr, &
-                         field%r_arr, data_count, &
+                         !BPR BEGIN
+                         !Pass COPY of field%r_arr instead of field%r_arr itself
+                         !field%r_arr, data_count, &
+                         r_arr_cur_source, data_count, &
+                         !BPR END
                          sm1, em1, sm2, em2, 1, 1, &
                          istagger, &
                          new_pts, missing_value(idx), interp_mask_val(idx), interp_mask_relational(idx), mask_field%r_arr)
          else
             call accum_continuous(slab, &
                          minx, maxx, miny, maxy, 1, 1, bdr, &
-                         field%r_arr, data_count, &
+                         !BPR BEGIN
+                         !Pass COPY of field%r_arr instead of field%r_arr itself
+                         !field%r_arr, data_count, &
+                         r_arr_cur_source, data_count, &
+                         !BPR END
                          sm1, em1, sm2, em2, 1, 1, &
                          istagger, &
                          new_pts, missing_value(idx), -1.) ! The -1 is the maskval, but since we
@@ -1604,7 +1630,13 @@ integer, parameter :: BDR_WIDTH = 3
 
                   if (landmask(i,j) /= masked(idx)) then
                      if (data_count(i,j) > 0.) then
-                        field%r_arr(i,j) = field%r_arr(i,j) / data_count(i,j)
+                        !BPR BEGIN
+                        !accum_continuous is now passed a copy of field%r_arr (r_arr_cur_source)
+                        !instead of field%r_arr itself so that it does not set
+                        !field%r_arr to zero where the input source is marked as missing
+                        !field%r_arr(i,j) = field%r_arr(i,j) / data_count(i,j)
+                        field%r_arr(i,j) = r_arr_cur_source(i,j) / data_count(i,j)
+                        !BPR END
                         call bitarray_set(new_pts, i-sm1+1, j-sm2+1)
                      else
 
@@ -1642,7 +1674,13 @@ integer, parameter :: BDR_WIDTH = 3
                else
 
                   if (data_count(i,j) > 0.) then
-                     field%r_arr(i,j) = field%r_arr(i,j) / data_count(i,j)
+                     !BPR BEGIN
+                     !accum_continuous is now passed a copy of field%r_arr (r_arr_cur_source)
+                     !instead of field%r_arr itself so that it does not set
+                     !field%r_arr to zero where the input source is marked as missing
+                     !field%r_arr(i,j) = field%r_arr(i,j) / data_count(i,j)
+                     field%r_arr(i,j) = r_arr_cur_source(i,j) / data_count(i,j)
+                     !BPR END
                      call bitarray_set(new_pts, i-sm1+1, j-sm2+1)
                   else
 
