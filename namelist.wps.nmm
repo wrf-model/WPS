@@ -20,7 +20,7 @@
  map_proj = 'rotated_ll',
  ref_lat   =  42.00,
  ref_lon   = -71.00,
- geog_data_path = '/mmm/users/wrfhelp/WPS_GEOG'
+ geog_data_path = '/glade/p/work/wrfhelp/WPS_GEOG/'
 /
 
 &ungrib
