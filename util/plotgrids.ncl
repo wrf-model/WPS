@@ -13,7 +13,7 @@ begin
 ; Check the version of NCL
   version = systemfunc("ncl -V")
   if(version.lt.6.1) then
-    print("You need NCL V6.1 or later to run this script. Try running plotgrids.ncl. Stopping now...")
+    print("You need NCL V6.1 or later to run this script. Try running util/plotgrids_old.ncl. Stopping now...")
     return
   end if
 
