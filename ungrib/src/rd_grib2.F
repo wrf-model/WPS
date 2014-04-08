@@ -217,7 +217,7 @@ C  SET ARGUMENTS
 	     fcst = 0.
 	   endif
 
-           if ( gfld%idsect(6) .eq. 2 ) fcst = 0.
+           if ( gfld%idsect(5) .eq. 2 ) fcst = 0.
            ! Compute valid time.
 
            !print *, 'ymd',gfld%idsect(6),gfld%idsect(7),gfld%idsect(8)

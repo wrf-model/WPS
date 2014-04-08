@@ -90,6 +90,12 @@ The configure option lists both "build GRIB2" and
 the first builds be without the GRIB Edition 2
 capability.
 
+The utility plotting programs requiring NCAR Graphics are not 
+compiled automatically. Library paths must be set correctly
+in configure.wps and then compiled using 
+./compile plotfmt
+./compile plotgrids
+
 
 Running WPS (for serially compiled code)
 
