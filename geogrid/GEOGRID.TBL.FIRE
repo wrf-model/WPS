@@ -297,13 +297,13 @@ name=GREENFRAC
 name=LAI12M
         priority=1
         dest_type=continuous
-        interp_option=modis_lai:four_pt+average_4pt+average_16pt+search
-        interp_option=default:four_pt+average_4pt+average_16pt+search
+        interp_option=modis_lai:average_gcell(4.0)+four_pt+average_4pt+average_16pt+search
+        interp_option=default:average_gcell(4.0)+four_pt+average_4pt+average_16pt+search
         z_dim_name=month
         masked = water
         fill_missing = 0.
-        rel_path=modis_lai:lai_modis/
-        rel_path=default:greenfrac/
+        rel_path=modis_lai:lai_modis_30s/
+        rel_path=default:lai_modis_10m/
         flag_in_output=FLAG_LAI12M
 ===============================
 name=SNOALB
@@ -333,7 +333,22 @@ name=NFUEL_CAT
 	interp_option=default:nearest_neighbor+average_16pt+search
 	rel_path=default:landfire_data/
 	subgrid=yes
-==============================
+===============================
+name = VAR_SSO 
+        priority = 1
+        dest_type = continuous
+        fill_missing=0.
+        interp_option =   30s:average_gcell(4.0)+four_pt+average_4pt
+        interp_option =   2m:average_gcell(4.0)+four_pt+average_4pt
+        interp_option =   5m:average_gcell(4.0)+four_pt+average_4pt
+        interp_option =   10m:average_gcell(4.0)+four_pt+average_4pt
+        interp_option =   default:average_gcell(4.0)+four_pt+average_4pt
+        rel_path =        30s:varsso/
+        rel_path =        2m:varsso_2m/
+        rel_path =        5m:varsso_5m/
+        rel_path =        10m:varsso_10m/
+        rel_path =        default:varsso_10m/
+===============================
 name = LAKE_DEPTH
         priority=1
         dest_type = continuous
@@ -343,3 +358,11 @@ name = LAKE_DEPTH
         rel_path = default:lake_depth/
         flag_in_output=FLAG_LAKE_DEPTH
 ===============================
+#name=URB_PARAM
+#        priority=1
+#        dest_type=continuous
+#        fill_missing = 0.
+#        z_dim_name=num_urb_params
+#        interp_option=default:nearest_neighbor
+#        rel_path=default:NUDAPT44_1km/
+#===============================
