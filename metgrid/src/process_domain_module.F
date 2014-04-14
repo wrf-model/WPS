@@ -457,6 +457,7 @@ module process_domain_module
              field%header%date = start_date(n) 
              field%header%time_dependent = .false.
              field%header%mask_field = .false.
+             field%header%constant_field = .false.
              field%header%forecast_hour = 0.0
              field%header%fg_source = 'geogrid_model'
              field%header%field = cname
@@ -810,11 +811,13 @@ integer, parameter :: BDR_WIDTH = 3
                   ! Initialize fg_input structure to store the field
                   field%header%version = 1
                   field%header%date = fg_data%hdate//'        '
-!                  if (do_const_processing) then
-!                     field%header%time_dependent = .false.
-!                  else
+                  if (do_const_processing) then
+                     field%header%time_dependent = .false.
+                     field%header%constant_field = .true.
+                  else
                      field%header%time_dependent = .true.
-!                  end if
+                     field%header%constant_field = .false.
+                  end if
                   field%header%forecast_hour = fg_data%xfcst 
                   field%header%fg_source = 'FG'
                   field%header%field = ' '
@@ -1375,8 +1378,10 @@ integer, parameter :: BDR_WIDTH = 3
                   mask_field%header%date = fg_date
                   if (is_constants) then
                      mask_field%header%time_dependent = .false.
+                     mask_field%header%constant_field = .true.
                   else
                      mask_field%header%time_dependent = .true.
+                     mask_field%header%constant_field = .false.
                   end if
                   mask_field%header%mask_field = .true.
                   mask_field%header%forecast_hour = 0.
@@ -2207,6 +2212,7 @@ integer, parameter :: BDR_WIDTH = 3
       field%header%date = hdate//'        '
       field%header%time_dependent = .true.
       field%header%mask_field = .false.
+      field%header%constant_field = .false.
       field%header%forecast_hour = xfcst 
       field%header%fg_source = 'Derived from FG'
       field%header%field = ' '

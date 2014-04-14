@@ -14,7 +14,7 @@ module datatype_module
 
       !  YYYY?MM?DD?HH?mm?ss
       character (len=32) :: date
-      logical :: time_dependent, mask_field
+      logical :: time_dependent, mask_field, constant_field
 
       !  Set = 0 if this is an analysis.
       real :: forecast_hour
@@ -133,7 +133,7 @@ module datatype_module
 
 ! BUG: Eventually, we only want to sort pressure-level data this way, and 
 !      all others the opposite way, as in the else case below.
-      if (a%header%time_dependent) then
+      if (a%header%time_dependent .or. a%header%constant_field) then
          if (a%header%vertical_level > b%header%vertical_level) then
             secondary_cmp = LESS
          else if (a%header%vertical_level == b%header%vertical_level) then
@@ -201,6 +201,21 @@ module datatype_module
       is_mask_field = a%header%mask_field
 
    end function is_mask_field
+
+
+   function is_constant_field(a)
+
+      implicit none
+
+      ! Arguments
+      type (fg_input), intent(in) :: a
+
+      ! Return value
+      logical :: is_constant_field
+
+      is_constant_field = a%header%constant_field
+
+   end function is_constant_field
 
 
    ! Returns the vertical level of an fg_input type
