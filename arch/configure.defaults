@@ -37,8 +37,8 @@ NCARG_LIBS2         = -L${PGI}/linux86/6.1/lib -lpgftnrtl -lpgc \
                       -L/usr/lib/gcc-lib/i386-redhat-linux/3.2.3 -lg2c
 SFC                 = pgf90
 SCC                 = pgcc
-DM_FC               = mpif90 -f90=pgf90
-DM_CC               = mpicc -cc=gcc
+DM_FC               = mpif90
+DM_CC               = mpicc
 FC                  = CONFIGURE_FC
 CC                  = CONFIGURE_CC
 LD                  = $(FC)
@@ -157,8 +157,8 @@ NCARG_LIBS2         = -L${PGI}/linux86-64/5.2/lib -lpgftnrtl -lpgc \
                       -L/usr/lib64 -lg2c
 SFC                 = pgf90
 SCC                 = pgcc
-DM_FC               = mpif90 -f90=pgf90
-DM_CC               = mpicc -cc=pgcc
+DM_FC               = mpif90
+DM_CC               = mpicc
 FC                  = CONFIGURE_FC
 CC                  = CONFIGURE_CC
 LD                  = $(FC) 
@@ -279,8 +279,8 @@ COMPRESSION_INC     = CONFIGURE_COMP_I
 FDEFS               = CONFIGURE_FDEFS
 SFC                 = pgf90
 SCC                 = pgcc
-DM_FC               = mpif90 -f90=pgf90
-DM_CC               = mpicc -cc=pgcc
+DM_FC               = mpif90
+DM_CC               = mpicc
 FC                  = CONFIGURE_FC
 CC                  = CONFIGURE_CC
 LD                  = $(FC)
