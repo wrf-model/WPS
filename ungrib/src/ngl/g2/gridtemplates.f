@@ -39,6 +39,7 @@
 ! 2007-04-24  Vuong     -  Added GDT 3.204  Curilinear Orthogonal Grids
 ! 2008-05-29  Vuong     -  Added GDT 3.32768 Rotate Lat/Lon E-grid
 ! 2010-05-10  Vuong     -  Added GDT 3.32769 Rotate Lat/Lon Non E-Stagger grid
+! 2013-08-06  Vuong     -  Added GDT 3.4,3.5,3.12,3.101,3.140
 !
 ! USAGE:    use gridtemplates
 !
@@ -48,7 +49,7 @@
 !
 !$$$
 
-      integer,parameter :: MAXLEN=200,MAXTEMP=26
+      integer,parameter :: MAXLEN=200,MAXTEMP=31
 
       type gridtemplate
           integer :: template_num
@@ -208,6 +209,46 @@
       data templates(26)%needext /.false./
       data (templates(26)%mapgrid(j),j=1,21)
      &              /1,1,4,1,4,1,4,4,4,4,4,-4,4,1,-4,4,4,4,1,4,4/
+!
+!     GDT 3.4 Added (08/05/2013)
+!
+      data templates(27)%template_num /4/     !  Variable resolution Latitude/Longitude
+      data templates(27)%mapgridlen /13/
+      data templates(27)%needext /.true./
+      data (templates(27)%mapgrid(j),j=1,13)
+     &              /1,1,4,1,4,1,4,4,4,4,4,1,1/
+!
+!     GDT 3.5 Added (08/05/2013)
+!
+      data templates(28)%template_num /5/     !  Variable resolution rotate Latitude/Longitude
+      data templates(28)%mapgridlen /16/
+      data templates(28)%needext /.true./
+      data (templates(28)%mapgrid(j),j=1,16)
+     &              /1,1,4,1,4,1,4,4,4,4,4,1,1,-4,4,4/
+!
+!     GDT 3.12 Added (08/05/2013)
+!
+      data templates(29)%template_num /12/     !  Transverse Mercator
+      data templates(29)%mapgridlen /22/
+      data templates(29)%needext /.false./
+      data (templates(29)%mapgrid(j),j=1,22)
+     &              /1,1,4,1,4,1,4,4,4,-4,4,1,-4,4,4,1,4,4,-4,-4,-4,-4/
+!
+!     GDT 3.101 Added (08/05/2013)
+!
+      data templates(30)%template_num /101/     !  General unstructured grid
+      data templates(30)%mapgridlen /4/
+      data templates(30)%needext /.false./
+      data (templates(30)%mapgrid(j),j=1,4)
+     &              /1,4,1,-4/
+!
+!     GDT 3.140 Added (08/05/2013)
+!
+      data templates(31)%template_num /140/     !  Lambert Azimuthal Equal Area Projection
+      data templates(31)%mapgridlen /17/
+      data templates(31)%needext /.false./
+      data (templates(31)%mapgrid(j),j=1,17)
+     &              /1,1,4,1,4,1,4,4,4,-4,4,4,4,1,4,4,1/
 
       contains
 
@@ -327,6 +368,7 @@
 !
 ! PROGRAM HISTORY LOG:
 ! 2000-05-09  Gilbert
+! 2013-07-30  Vuong     -  Added GDT 3.4,3.5,3.12,3.101,3.140
 !
 ! USAGE:    CALL extgridtemplate(number,list,nummap,map)
 !   INPUT ARGUMENT LIST:
@@ -361,6 +403,28 @@
                 map(nummap+1)=2
                 map(nummap+2)=-2
                 nummap=nummap+2
+              enddo
+           elseif ( number.eq.4 ) then
+              NI=list(8)
+              do i=1,NI
+                map(nummap+1)=4
+                nummap=nummap+1
+              enddo
+              NJ=list(9)
+              do i=1,NJ
+                map(nummap+1)=-4
+                nummap=nummap+1
+              enddo
+           elseif ( number.eq.5 ) then
+              NI=list(8)
+              do i=1,NI
+                map(nummap+1)=4
+                nummap=nummap+1
+              enddo
+              NJ=list(9)
+              do i=1,NJ
+                map(nummap+1)=-4
+                nummap=nummap+1
               enddo
            elseif ( number.eq.1000 ) then
               N=list(20)

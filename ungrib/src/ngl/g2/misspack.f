@@ -16,6 +16,7 @@
 ! PROGRAM HISTORY LOG:
 ! 2000-06-21  Gilbert
 ! 2004-12-29  Gilbert  -  Corrected bug when encoding secondary missing values.
+! 2012-05-10  Boi Vuong   Added variable rmin4 for 4 byte real
 !
 ! USAGE:    CALL misspack(fld,ndpts,idrsnum,idrstmpl,cpack,lcpack)
 !   INPUT ARGUMENT LIST:
@@ -64,7 +65,7 @@
       integer,intent(inout) :: idrstmpl(*)
       integer,intent(out) :: lcpack
 
-      real(4) :: ref
+      real(4) :: ref, rmin4
       integer(4) :: iref
       integer,allocatable :: ifld(:),ifldmiss(:),jfld(:)
       integer,allocatable :: jmin(:),jmax(:),lbit(:)
@@ -90,7 +91,15 @@
 !  AND set up missing value mapping of the field.
 !
       allocate(ifldmiss(ndpts))
-      rmin=huge(rmin)
+c     rmin=huge(rmin)
+
+      if (missopt.eq.1 .and. fld(1).ne.rmissp) then
+         rmin=huge(rmin)
+      endif
+      if ( missopt.eq.2 .and. fld(1).ne.rmisss) then
+         rmin=huge(rmin)
+      endif
+
       if ( missopt .eq. 1 ) then        ! Primary missing value only
          do j=1,ndpts
            if (fld(j).eq.rmissp) then
@@ -476,7 +485,8 @@
 !
 !  Fill in ref value and number of bits in Template 5.2
 !
-      call mkieee(rmin,ref,1)   ! ensure reference value is IEEE format
+      rmin4 = rmin
+      call mkieee(rmin4,ref,1)   ! ensure reference value is IEEE format
 !      call gbyte(ref,idrstmpl(1),0,32)
       iref=transfer(ref,iref)
       idrstmpl(1)=iref

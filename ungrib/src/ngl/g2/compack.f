@@ -13,6 +13,7 @@
 !
 ! PROGRAM HISTORY LOG:
 ! 2000-06-21  Gilbert
+! 2011-10-24  Boi Vuong   Added variable rmin4 for 4 byte float
 !
 ! USAGE:    CALL compack(fld,ndpts,idrsnum,idrstmpl,cpack,lcpack)
 !   INPUT ARGUMENT LIST:
@@ -61,7 +62,9 @@
       integer,intent(inout) :: idrstmpl(*)
       integer,intent(out) :: lcpack
 
-      real(4) :: ref
+      real(4) :: ref,rmin4
+      real(8) :: rmin,rmax
+
       integer(4) :: iref
       integer,allocatable :: ifld(:)
       integer,allocatable :: jmin(:),jmax(:),lbit(:)
@@ -382,7 +385,8 @@
 !
 !  Fill in ref value and number of bits in Template 5.2
 !
-      call mkieee(rmin,ref,1)   ! ensure reference value is IEEE format
+      rmin4 = rmin
+      call mkieee(rmin4,ref,1)   ! ensure reference value is IEEE format
 !      call gbyte(ref,idrstmpl(1),0,32)
       iref=transfer(ref,iref)
       idrstmpl(1)=iref

@@ -156,6 +156,8 @@
 !                       -  Modified to increase length of seek(512)
 !                       -  Added Templates (Satellite Product) 4.31
 !                       -  Added Templates (ICAO WAFS) 4.15
+! 2013-05-07  Vuong     -  Initialized all pointers to null()
+! 2013-08-29  Vuong     -  Changed version number 2.5.0     )
 !
 ! USAGE:    use grib_mod
 !
@@ -165,31 +167,31 @@
 !
 !$$$
 
-      character(len=12) :: G2_VERSION="g2lib-1.2.4"
+      character(len=12) :: G2_VERSION="g2lib-2.5.0"
 
       type gribfield
           integer :: version,discipline
-          integer,pointer,dimension(:) :: idsect
+          integer,pointer,dimension(:) :: idsect         => null ()
           integer :: idsectlen
-          character(len=1),pointer,dimension(:) :: local
+          character(len=1),pointer,dimension(:) :: local => null ()
           integer :: locallen
           integer :: ifldnum
           integer :: griddef,ngrdpts
           integer :: numoct_opt,interp_opt,num_opt
-          integer,pointer,dimension(:) :: list_opt
+          integer,pointer,dimension(:) :: list_opt       => null ()
           integer :: igdtnum,igdtlen
-          integer,pointer,dimension(:) :: igdtmpl
+          integer,pointer,dimension(:) :: igdtmpl        => null ()
           integer :: ipdtnum,ipdtlen
-          integer,pointer,dimension(:) :: ipdtmpl
+          integer,pointer,dimension(:) :: ipdtmpl        => null ()
           integer :: num_coord
-          real,pointer,dimension(:) :: coord_list
+          real,pointer,dimension(:) :: coord_list        => null ()
           integer :: ndpts,idrtnum,idrtlen
-          integer,pointer,dimension(:) :: idrtmpl
+          integer,pointer,dimension(:) :: idrtmpl        => null ()
           logical :: unpacked
           logical :: expanded
           integer :: ibmap
-          logical*1,pointer,dimension(:) :: bmap
-          real,pointer,dimension(:) :: fld
+          logical*1,pointer,dimension(:) :: bmap         => null ()
+          real,pointer,dimension(:) :: fld               => null ()
       end type gribfield
 
       end module

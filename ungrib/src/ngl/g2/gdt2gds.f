@@ -266,18 +266,18 @@ C$$$
               enddo
            endif
         elseif (igds(5).eq.32768) then    ! Rotate Lat/Lon grid
-           kgds(1)=0                      ! Arakawa Staggerred E/B grid
+           kgds(1)=203                    ! Arakawa Staggerred E/B grid
            kgds(2)=igdstmpl(8)            ! Ni
            kgds(3)=igdstmpl(9)            ! Nj
            kgds(4)=igdstmpl(12)/1000      ! Lat of 1st grid point
-           kgds(5)=igdstmpl(13)/1000      ! Long of 1st grid point
+           kgds(5)=igdstmpl(13)/1000      ! Lon of 1st grid point
            kgds(6)=0                      ! resolution and component flags
            if (igdstmpl(1)==2 ) kgds(6)=64
            if ( btest(igdstmpl(14),4).OR.btest(igdstmpl(14),5) )
      &         kgds(6)=kgds(6)+128
            if ( btest(igdstmpl(14),3) ) kgds(6)=kgds(6)+8
            kgds(7)=igdstmpl(15)/1000      ! Lat of last grid point
-           kgds(8)=igdstmpl(16)/1000      ! Long of last grid point
+           kgds(8)=igdstmpl(16)/1000      ! Lon of last grid point
            kgds(9)=igdstmpl(17)/1000      ! Di
            kgds(10)=igdstmpl(18)/1000     ! Dj
            kgds(11)=igdstmpl(19)          ! Scanning mode
@@ -313,18 +313,18 @@ C$$$
               enddo
            endif
         elseif (igds(5).eq.32769) then    ! Rotate Lat/Lon grid
-           kgds(1)=0                      ! Arakawa Staggerred for Non-E Stagger grid
+           kgds(1)=205                    ! Arakawa Staggerred for Non-E Stagger grid
            kgds(2)=igdstmpl(8)            ! Ni
            kgds(3)=igdstmpl(9)            ! Nj
            kgds(4)=igdstmpl(12)/1000      ! Lat of 1st grid point
-           kgds(5)=igdstmpl(13)/1000      ! Long of 1st grid point
+           kgds(5)=igdstmpl(13)/1000      ! Lon of 1st grid point
            kgds(6)=0                      ! resolution and component flags
            if (igdstmpl(1)==2 ) kgds(6)=64
            if ( btest(igdstmpl(14),4).OR.btest(igdstmpl(14),5) )
      &         kgds(6)=kgds(6)+128
            if ( btest(igdstmpl(14),3) ) kgds(6)=kgds(6)+8
            kgds(7)=igdstmpl(15)/1000      ! Lat of last grid point
-           kgds(8)=igdstmpl(16)/1000      ! Long of last grid point
+           kgds(8)=igdstmpl(16)/1000      ! Lon of last grid point
            kgds(9)=igdstmpl(17)/1000      ! Di
            kgds(10)=igdstmpl(18)/1000     ! Dj
            kgds(11)=igdstmpl(19)          ! Scanning mode
