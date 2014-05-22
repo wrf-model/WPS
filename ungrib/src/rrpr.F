@@ -328,6 +328,18 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_level, out_f
            endif
         enddo
 
+! Repair GFS and ECMWF pressure-level RH
+        if (index(map%source,'NCEP GFS') .ne. 0 .or.  &
+            index(map%source,'ECMWF') .ne. 0 ) then
+          call mprintf(.true.,DEBUG, &
+             "RRPR:   Adjusting GFS/ECMWF RH values ")
+          do k = 1, nlvl
+            if ( is_there(nint(plvl(k)),'RH') .and. &
+                 is_there(nint(plvl(k)),'TT') ) then
+              call fix_gfs_rh (map%nx, map%ny, plvl(k))
+            endif
+          enddo
+        endif
 
 ! If upper-air RH is missing, see if we can compute RH from Specific Humidity:
 
@@ -387,18 +399,6 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_level, out_f
            endif
         enddo
 
-! Repair GFS and ECMWF pressure-level RH
-        if (index(map%source,'NCEP GFS') .ne. 0 .or.  &
-            index(map%source,'ECMWF') .ne. 0 ) then
-          call mprintf(.true.,DEBUG, &
-             "RRPR:   Adjusting GFS/ECMWF RH values ")
-          do k = 1, nlvl
-            if ( is_there(nint(plvl(k)),'RH') .and. &
-                 is_there(nint(plvl(k)),'TT') ) then
-              call fix_gfs_rh (map%nx, map%ny, plvl(k))
-            endif
-          enddo
-        endif
 !
 ! Check to see if we need to fill RH above 300 mb:
 !

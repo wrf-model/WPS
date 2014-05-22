@@ -25,7 +25,7 @@
  truelat1  =  39.338,
  truelat2  =  39.338,
  stand_lon = -106.807,
- geog_data_path = '/mmm/users/wrfhelp/WPS_GEOG'
+ geog_data_path = '/glade/p/work/wrfhelp/WPS_GEOG/'
 /
 
 &ungrib

@@ -147,13 +147,13 @@ print *,'model_levels, first_constant_r_rho_level, z_top_of_model = ', model_lev
                allocate ( eta ( model_levels ) )
                eta = 0.
                do k_loop = 1 , first_constant_r_rho_level-1
-                  read ( 10 , fmt='(66x,f9.7)' ) eta(k_loop)
+                  read ( 10 , fmt='(65x,f10.7)' ) eta(k_loop)
 !print *,k_loop,' eta = ',eta(k_loop)
                end do
                k_loop = first_constant_r_rho_level
-               read ( 10 , fmt='(30x,f9.7,27x,f9.7)' ) etac , eta(k_loop)
+               read ( 10 , fmt='(29x,f10.7,26x,f10.7)' ) etac , eta(k_loop)
                do k_loop = first_constant_r_rho_level+1 , model_levels
-                  read ( 10 , fmt='(66x,f9.7)' ) eta(k_loop)
+                  read ( 10 , fmt='(65x,f10.7)' ) eta(k_loop)
 !print *,k_loop,' eta = ',eta(k_loop)
                end do
 

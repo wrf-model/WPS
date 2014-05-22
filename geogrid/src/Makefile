@@ -60,7 +60,7 @@ smooth_module.o: parallel_module.o
 
 source_data_module.o: module_stringutil.o gridinfo_module.o hash_module.o list_module.o llxy_module.o misc_definitions_module.o module_debug.o
 
-wrf_debug.o: cio.o
+wrf_debug.o: gridinfo_module.o cio.o
 
 clean:
 	$(RM) $(OBJS) *.f90 *.mod

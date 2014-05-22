@@ -87,8 +87,8 @@ else
         printf "\$JASPERLIB or \$JASPERINC not found in environment. Using /opt/local for library paths...\n";
       }
       else {
-      $sw_jasperlib_path = '-L/contrib/jasper/lib -L/opt/freeware/lib -ljasper -lpng -lz';
-      $sw_jasperinc_path = '-I/contrib/libpng/include -I/contrib/zlib/include -I/contrib/jasper/include';
+      $sw_jasperlib_path = '-L/glade/u/home/wrfhelp/UNGRIB_LIBRARIES/lib -ljasper -lpng -lz';
+      $sw_jasperinc_path = '-I/glade/u/home/wrfhelp/UNGRIB_LIBRARIES/include';
         printf "\$JASPERLIB or \$JASPERINC not found in environment. Using default values for library paths...\n";
       }
     }

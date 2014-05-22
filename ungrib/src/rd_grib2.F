@@ -69,7 +69,7 @@
       character (len=9) :: my_field
       character (len=8) :: tmp8
       ! For subroutine output
-      integer , parameter :: maxlvl = 100
+      integer , parameter :: maxlvl = 150
       real , dimension(maxlvl) :: plvl
       integer :: nlvl
       integer , dimension(maxlvl) :: level_array
@@ -217,7 +217,7 @@ C  SET ARGUMENTS
 	     fcst = 0.
 	   endif
 
-           if ( gfld%idsect(6) .eq. 2 ) fcst = 0.
+           if ( gfld%idsect(5) .eq. 2 ) fcst = 0.
            ! Compute valid time.
 
            !print *, 'ymd',gfld%idsect(6),gfld%idsect(7),gfld%idsect(8)
@@ -688,10 +688,10 @@ C  SET ARGUMENTS
 		 else
                    cycle MATCH_LOOP
 		 endif
-              elseif((gfld%ipdtmpl(10).ge.222 .and.
+              elseif((gfld%ipdtmpl(10).ge.206 .and.
      &               gfld%ipdtmpl(10).le.234) .or.
-     &              (gfld%ipdtmpl(10).ge.206 .and.     
-     &               gfld%ipdtmpl(10).le.215)) then
+     &              (gfld%ipdtmpl(10).ge.242 .and.     
+     &               gfld%ipdtmpl(10).le.254)) then
                  ! NCEP cloud layers used for plotting
                    level=200100.
               elseif(gfld%ipdtmpl(10).eq.106.or.

@@ -37,7 +37,8 @@ WRF_INCLUDE     =       -I$(WRF_DIR)/external/io_netcdf \
                         -I$(WRF_DIR)/external/io_grib_share \
                         -I$(WRF_DIR)/external/io_grib1 \
                         -I$(WRF_DIR)/external/io_int \
-                        -I$(WRF_DIR)/inc
+                        -I$(WRF_DIR)/inc \
+                        -I$(NETCDF)/include
 
 WRF_LIB         =       -L$(WRF_DIR)/external/io_grib1 -lio_grib1 \
                         -L$(WRF_DIR)/external/io_grib_share -lio_grib_share \

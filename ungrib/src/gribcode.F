@@ -435,7 +435,8 @@ contains
          write(*,'("*** stopping in findgrib in gribcode ***\n")')
          write(*,'("\tI could not find the GRIB string in the input file")')
          write(*,'("\tafter testing the first 100,000 bytes.")')
-         write(*,'("\tEither the file is corrupt or it is not a GRIB file.\n")')
+         write(*,'("\tThe file may be corrupt or it is not a GRIB file.")')
+         write(*,'("\tPerhaps a gzipped GRIB file or netcdf?\n")')
          stop 'findgrib'
        endif
 
@@ -483,7 +484,7 @@ contains
        !!! HERE IS WHAT FSL CHANGED IT TO:
        datarray = DFAC*xec4(1)
        !!! because even though it is a constant value
-       !!! your still need to scale by the decimal scale factor.
+       !!! you still need to scale by the decimal scale factor.
     else
        !!! FSL developers MOVED THE CALL TO gbytes FROM line 441 ABOVE 
        !!! BECAUSE IF sec4(8)==0 BEFORE gbytes IS CALLED, THE MASKS ARRAY
@@ -521,18 +522,18 @@ contains
 !    counting the header bits), minus the number of unused buts, and then
 !    divided by the number of bits per data value.
 
-! If sec4(8) is 0, assume datarray is constant value of xec4(1)
+! Compute the parameters involved with packing
+    DFAC = 10.**(-sec1(24))
+    BFAC = 2.**sec4(7)
+
+! If sec4(8) is 0, assume datarray is constant value of xec4(1) scaled by DFAC
 
     if (sec4(8).eq.0) then
-       where(bitmap(1:ndat).eq.1) datarray = xec4(1)
+       where(bitmap(1:ndat).eq.1) datarray = xec4(1) * DFAC
        return
     endif
     nbm = ((sec4(1)-11)*8-sec4(6))/sec4(8)
     allocate(bmdat(nbm))
-
-! Compute the parameters involved with packing
-    DFAC = 10.**(-sec1(24))
-    BFAC = 2.**sec4(7)
 
 ! Set ISKIP to the beginning of the data.
     if (ied.eq.0) then

@@ -1,4 +1,4 @@
-WRF Pre-Processing System Version 3.4.1 (16 August 2012, revision 692)
+WRF Pre-Processing System Version 3.6 (18 April 2014)
 
 http://www.mmm.ucar.edu/wrf/users/
 
@@ -89,6 +89,12 @@ The configure option lists both "build GRIB2" and
 "do not build GRIB2" options.  It is suggested that
 the first builds be without the GRIB Edition 2
 capability.
+
+The utility plotting programs requiring NCAR Graphics are not 
+compiled automatically. Library paths must be set correctly
+in configure.wps and then compiled using 
+./compile plotfmt
+./compile plotgrids
 
 
 Running WPS (for serially compiled code)

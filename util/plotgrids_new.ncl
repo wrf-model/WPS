@@ -12,8 +12,8 @@ begin
 
 ; Check the version of NCL
   version = systemfunc("ncl -V")
-  if(version.lt.6.1) then
-    print("You need NCL V6.1 or later to run this script. Try running util/plotgrids_old.ncl. Stopping now...")
+  if(version.lt.6.2) then
+    print("You need NCL V6.2 or later to run this script. Try running plotgrids.ncl. Stopping now...")
     return
   end if
 
@@ -62,7 +62,7 @@ begin
 ; Do not change anything between the ";;;;;" lines
 
   maxdom = 21
-  nvar = 17
+  nvar = 19
   parent_idn = new (maxdom,integer)
   parent_grid_ration = new (maxdom,integer)
   i_parent_startn = new (maxdom,integer)
@@ -77,23 +77,38 @@ begin
   mpres@max_dom = floattointeger(plotvar(0,0))
   mpres@dx = plotvar(0,1)
   mpres@dy = plotvar(0,2)
-  mpres@ref_lat = plotvar(0,3)
-  mpres@ref_lon = plotvar(0,4)
-  mpres@truelat1 = plotvar(0,5)
-  mpres@truelat2 = plotvar(0,6)
-  mpres@stand_lon = plotvar(0,7)
-  mproj_int = plotvar(0,8)
-  mpres@pole_lat = plotvar(0,9)
-  mpres@pole_lon = plotvar(0,10)
+  if (.not.ismissing(plotvar(0,3))) then
+    mpres@ref_lat = plotvar(0,3)
+  else
+    mpres@ref_lat = 0.0
+  end if
+  if (.not.ismissing(plotvar(0,4))) then
+    mpres@ref_lon = plotvar(0,4)
+  else
+    mpres@ref_lon = 0.0
+  end if
+  if (.not.ismissing(plotvar(0,5))) then
+    mpres@ref_x = plotvar(0,5)
+  end if
+  if (.not.ismissing(plotvar(0,6))) then
+    mpres@ref_y = plotvar(0,6)
+  end if
+  mpres@truelat1 = plotvar(0,7)
+  mpres@truelat2 = plotvar(0,8)
+  mpres@stand_lon = plotvar(0,9)
+  mproj_int = plotvar(0,10)
+  mpres@pole_lat = plotvar(0,11)
+  mpres@pole_lon = plotvar(0,12)
 
   do i = 0,maxdom-1
-    parent_idn(i) = floattointeger(plotvar(i,11))
-    parent_grid_ration(i) = floattointeger(plotvar(i,12))
-    i_parent_startn(i) = floattointeger(plotvar(i,13))
-    j_parent_startn(i) = floattointeger(plotvar(i,14))
-    e_wen(i) = floattointeger(plotvar(i,15))
-    e_snn(i) = floattointeger(plotvar(i,16))
+    parent_idn(i) = floattointeger(plotvar(i,13))
+    parent_grid_ration(i) = floattointeger(plotvar(i,14))
+    i_parent_startn(i) = floattointeger(plotvar(i,15))
+    j_parent_startn(i) = floattointeger(plotvar(i,16))
+    e_wen(i) = floattointeger(plotvar(i,17))
+    e_snn(i) = floattointeger(plotvar(i,18))
   end do
+
 
   if(mpres@max_dom .gt. 1) then
     do i = 1,mpres@max_dom-1
@@ -130,7 +145,7 @@ begin
         exit
       end if
 
-      ;Making sure the nest ends of a mother grid domain point.
+      ;Making sure the nest ends at a mother grid domain point.
       pointwetrunc = decimalPlaces(pointwe,0,False)
       pointsntrunc = decimalPlaces(pointsn,0,False)
       if((pointwe-pointwetrunc) .ne. 0.) then
@@ -171,6 +186,15 @@ begin
   end if
   end if
   end if
+  end if
+
+; Deal with global wrf domains that don't have dx or dy
+
+  if (mpres@dx.lt.1e-10 .and. mpres@dx.lt.1e-10) then
+    mpres@dx = 360./(mpres@e_we(0) - 1)
+    mpres@dy = 180./(mpres@e_sn(0) - 1)
+    mpres@ref_lat = 0.0
+    mpres@ref_lon = 180.0
   end if
 
   mp = wrf_wps_dom (wks,mpres,lnres,txres)

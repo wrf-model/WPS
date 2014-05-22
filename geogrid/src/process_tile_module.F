@@ -292,7 +292,7 @@ module process_tile_module
       end if
 
       ! Initialize the output module now that we have the corner point lats/lons
-      call output_init(which_domain, 'OUTPUT FROM GEOGRID V3.5', '0000-00-00_00:00:00', grid_type, dynopt, &
+      call output_init(which_domain, 'OUTPUT FROM GEOGRID V3.6', '0000-00-00_00:00:00', grid_type, dynopt, &
                        corner_lats, corner_lons, &
                        start_dom_i,   end_dom_i,   start_dom_j,   end_dom_j, &
                        start_patch_i, end_patch_i, start_patch_j, end_patch_j, &
@@ -1192,6 +1192,7 @@ module process_tile_module
               user_known_x, user_known_y, user_known_lat, user_known_lon
       real, pointer, dimension(:,:,:) :: data_count
       integer, pointer, dimension(:) :: interp_type
+      integer, pointer, dimension(:) :: interp_opts
       character (len=128) :: interp_string
       type (bitarray) :: bit_domain, level_domain
       type (queue)    :: point_queue, tile_queue
@@ -1199,6 +1200,7 @@ module process_tile_module
 
       nullify(data_count)
       nullify(interp_type)
+      nullify(interp_opts)
 
       ! If this is the first trip through this routine, we need to allocate the bit array that
       !  will persist through all recursive calls, tracking which grid points have been assigned
@@ -1243,6 +1245,7 @@ module process_tile_module
       itype = iget_source_fieldtype(fieldname, ilevel, istatus)
       call get_interp_option(fieldname, ilevel, interp_string, istatus)
       interp_type => interp_array_from_string(interp_string)
+      interp_opts => interp_options_from_string(interp_string)
 
       ! Also, check whether we will be using the cell averaging interpolator for continuous fields
       if (index(interp_string,'average_gcell') /= 0 .and. itype == CONTINUOUS) then
@@ -1369,7 +1372,7 @@ module process_tile_module
                         if (landmask(ix,iy) /= mask_val) then
                            do k=start_src_k,end_src_k
                               temp = get_point(current_pt%lat, current_pt%lon, k, &
-                                               fieldname, ilevel, interp_type, msg_val)
+                                               fieldname, ilevel, interp_type, interp_opts, msg_val)
                               if (temp /= msg_val) then
                                  field(ix, iy, k) = temp
                                  call bitarray_set(level_domain, ix-start_i+1, iy-start_j+1)
@@ -1386,7 +1389,7 @@ module process_tile_module
                      else
                         do k=start_src_k,end_src_k
                            temp = get_point(current_pt%lat, current_pt%lon, k, &
-                                            fieldname, ilevel, interp_type, msg_val)
+                                            fieldname, ilevel, interp_type, interp_opts, msg_val)
                            if (temp /= msg_val) then
                               field(ix, iy, k) = temp
                               call bitarray_set(level_domain, ix-start_i+1, iy-start_j+1)
@@ -1416,7 +1419,7 @@ module process_tile_module
                      if (present(landmask) .and. (istagger == M .or. istagger == HH)) then
                         if (landmask(ix,iy) /= mask_val) then
                            temp = get_point(current_pt%lat, current_pt%lon, 1, &
-                                            fieldname, ilevel, interp_type, msg_val)
+                                            fieldname, ilevel, interp_type, interp_opts, msg_val)
       
                            do k=start_k,end_k
                               field(ix,iy,k) = 0.
@@ -1439,7 +1442,7 @@ module process_tile_module
                         end if
                      else
                         temp = get_point(current_pt%lat, current_pt%lon, 1, &
-                                         fieldname, ilevel, interp_type, msg_val)
+                                         fieldname, ilevel, interp_type, interp_opts, msg_val)
       
                         do k=start_k,end_k
                            field(ix,iy,k) = 0.
@@ -1575,6 +1578,7 @@ module process_tile_module
       end if
 
       deallocate(interp_type)
+      deallocate(interp_opts)
 
 
       ! We may need to scale this field by a constant

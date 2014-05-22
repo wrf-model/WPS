@@ -427,7 +427,11 @@ module input_module
 #endif
      
          call ext_get_dom_ti_char          ('TITLE', title)
-         if (index(title,'GEOGRID V3.5') /= 0) then
+         if (index(title,'GEOGRID V3.6') /= 0) then
+            wps_version = 3.6
+         else if (index(title,'GEOGRID V3.5.1') /= 0) then
+            wps_version = 3.51
+         else if (index(title,'GEOGRID V3.5') /= 0) then
             wps_version = 3.5
          else if (index(title,'GEOGRID V3.4.1') /= 0) then
             wps_version = 3.41
@@ -588,13 +592,14 @@ module input_module
    !
    ! Purpose: Read a domain time-independent integer attribute from input.
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-   subroutine ext_get_dom_ti_integer_scalar(var_name, var_value)
+   subroutine ext_get_dom_ti_integer_scalar(var_name, var_value, suppress_errors)
 
       implicit none
 
       ! Arguments
       integer, intent(out) :: var_value
       character (len=*), intent(in) :: var_name
+      logical, intent(in), optional :: suppress_errors
 
       ! Local variables
       integer :: istatus, outcount
@@ -621,7 +626,11 @@ module input_module
       end if
 #endif
 
-      call mprintf((istatus /= 0),ERROR,'Error while reading domain time-independent attribute.')
+      if (present(suppress_errors)) then
+         call mprintf((istatus /= 0 .and. .not.suppress_errors),ERROR,'Error while reading domain time-independent attribute.')
+      else
+         call mprintf((istatus /= 0),ERROR,'Error while reading domain time-independent attribute.')
+      end if
 
    end subroutine ext_get_dom_ti_integer_scalar
 

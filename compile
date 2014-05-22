@@ -33,14 +33,14 @@ else
 endif
 
 if      ( ${#argv} == 0 ) then
-	set names	=	( geogrid ungrib metgrid g1print g2print plotfmt rd_intermediate plotgrids mod_levs avg_tsfc calc_ecmwf_p height_ukmo )
-	set NAMES	=	( GEOGRID UNGRIB METGRID GRIBUTIL GRIBUTIL UTIL     UTIL            UTIL      UTIL    UTIL      UTIL         UTIL     )
+	set names	=	( geogrid ungrib metgrid g1print g2print   rd_intermediate mod_levs avg_tsfc calc_ecmwf_p height_ukmo int2nc )
+	set NAMES	=	( GEOGRID UNGRIB METGRID GRIBUTIL GRIBUTIL UTIL            UTIL     UTIL     UTIL         UTIL        UTIL   )
 else if ( $1 == wps    ) then
 	set names	=	( geogrid ungrib metgrid )
 	set NAMES	=	( GEOGRID UNGRIB METGRID )
 else if ( $1 == util    ) then
-	set names	=	( g1print g2print plotfmt rd_intermediate plotgrids mod_levs avg_tsfc calc_ecmwf_p height_ukmo )
-	set NAMES	=	( GRIBUTIL GRIBUTIL UTIL       UTIL          UTIL      UTIL    UTIL      UTIL         UTIL     )
+	set names	=	( g1print g2print plotfmt rd_intermediate plotgrids mod_levs avg_tsfc calc_ecmwf_p height_ukmo int2nc )
+	set NAMES	=	( GRIBUTIL GRIBUTIL UTIL       UTIL          UTIL      UTIL    UTIL      UTIL         UTIL     UTIL   )
 else if ( $1 == geogrid ) then
 	set names	=	( geogrid )
 	set NAMES	=	( GEOGRID )
@@ -77,6 +77,9 @@ else if ( $1 == calc_ecmwf_p ) then
 else if ( $1 == height_ukmo ) then
 	set names	=	( height_ukmo )
 	set NAMES	=	( UTIL )
+else if ( $1 == int2nc      ) then
+	set names	=	( int2nc )
+	set NAMES	=	( UTIL )
 else
         echo "*****"
         echo " "
@@ -98,6 +101,7 @@ else
         echo "   avg_tsfc"
         echo "   calc_ecmwf_p"
         echo "   height_ukmo"
+        echo "   int2nc"
         echo " "
         echo " or just run compile with no target to build everything."
         echo " "

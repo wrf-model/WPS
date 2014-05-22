@@ -70,7 +70,7 @@ rotate_winds_module.o: bitarray_module.o constants_module.o llxy_module.o misc_d
 
 storage_module.o: datatype_module.o minheap_module.o misc_definitions_module.o module_debug.o parallel_module.o module_stringutil.o
 
-wrf_debug.o: cio.o
+wrf_debug.o: gridinfo_module.o cio.o
 
 write_met_module.o: misc_definitions_module.o module_debug.o met_data_module.o
 

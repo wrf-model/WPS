@@ -22,7 +22,7 @@
 
   integer :: iprint
 
-  integer , parameter :: maxlvl = 100
+  integer , parameter :: maxlvl = 150
 
   real :: startlat, startlon, deltalat, deltalon
   real :: level
@@ -171,8 +171,8 @@ end program g2print
       real :: level
       real :: scale_factor
       integer :: iplvl, lvl2
-      ! For subroutine outout
-      integer , parameter :: maxlvl = 100
+      ! For subroutine output
+      integer , parameter :: maxlvl = 150
       real , dimension(maxlvl) :: plvl
       integer :: nlvl
       integer , dimension(maxlvl) :: level_array

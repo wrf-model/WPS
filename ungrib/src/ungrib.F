@@ -59,7 +59,7 @@ program ungrib
 
   integer :: debug_level
 
-  integer , parameter :: maxlvl = 100
+  integer , parameter :: maxlvl = 150
 
   real , dimension(maxlvl) :: plvl
   integer :: iplvl

@@ -71,6 +71,14 @@ mod_levs.exe: mod_levs.o module_debug.o read_met_module.o write_met_module.o mis
 
 mod_levs.o: module_debug.o read_met_module.o write_met_module.o mod_levs.F
 
+int2nc.exe: int2nc.o module_debug.o misc_definitions_module.o read_met_module.o cio.o
+	$(SFC) -o $(@) $(LDFLAGS) $(WRF_INCLUDE) int2nc.o module_debug.o misc_definitions_module.o read_met_module.o cio.o $(WRF_LIB) 
+
+int2nc.o: int2nc.F module_debug.o misc_definitions_module.o read_met_module.o
+	$(RM) $*.f90
+	$(CPP) $(CPPFLAGS) $< > $*.f90
+	$(SFC) $(FFLAGS) $(WRF_INCLUDE) -c $*.f90
+
 height_ukmo.exe: height_ukmo.o cio.o module_debug.o gridinfo_module.o read_met_module.o \
 		write_met_module.o module_date_pack.o misc_definitions_module.o met_data_module.o
 	$(SFC) $(LDFLAGS) -o $@ height_ukmo.o cio.o module_debug.o gridinfo_module.o \
@@ -103,6 +111,6 @@ module_date_pack.o: module_date_pack.F
 clean:
 	$(RM) $(OBJS) *.f90 *.mod
 	$(RM) plotgrids.exe plotfmt.exe avg_tsfc.exe elev_angle.exe calc_ecmwf_p.exe rd_intermediate.exe \
-	mod_levs.exe height_ukmo.exe
+	mod_levs.exe height_ukmo.exe int2nc.exe
 
 superclean:	clean
