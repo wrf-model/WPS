@@ -403,7 +403,9 @@ module output_module
       do i=1,NUM_FIELDS
          call get_output_flag(trim(fields(i)%fieldname), output_flag, istatus)
          if (istatus == 0) then
-            call ext_put_dom_ti_integer_scalar(trim(output_flag), 1)
+             if (my_proc_id == IO_NODE .or. do_tiled_output) then
+                call ext_put_dom_ti_integer_scalar(trim(output_flag), 1)
+             end if
          end if
       end do
 #endif
