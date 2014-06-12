@@ -1,4 +1,4 @@
-!*****************************************************************************!
+*****************************************************************************!
 ! Subroutine RD_GRIB2                                                         !
 !                                                                             !
 ! Purpose:                                                                    !
@@ -643,10 +643,17 @@ C  SET ARGUMENTS
 ! The grib2 standard allows scaling of the units, so make sure the soil level
 ! units are in cm (as used in the Vtable).
               if ( gfld%ipdtmpl(10) .eq. 106 ) then
-                glevel1 = 100. * gfld%ipdtmpl(12)*
-     &                      (10.**(-1.*gfld%ipdtmpl(11)))
-                glevel2 = 100. * gfld%ipdtmpl(15)*
-     &                      (10.**(-1.*gfld%ipdtmpl(14)))
+                if ( ( gfld%ipdtmpl(14) .EQ. -1*(2**07-1) ) .AND.
+     &               ( gfld%ipdtmpl(15) .EQ. -1*(2**31-1) ) ) THEN
+! special UM grib2
+                   glevel1 = gfld%ipdtmpl(12)
+                   glevel2 = gfld%ipdtmpl(11)
+                else
+                   glevel1 = 100. * gfld%ipdtmpl(12)*
+     &                         (10.**(-1.*gfld%ipdtmpl(11)))
+                   glevel2 = 100. * gfld%ipdtmpl(15)*
+     &                         (10.**(-1.*gfld%ipdtmpl(14)))
+                end if
                 TMP8LOOP: do j = 1, maxvar
                   if ((g2code(4,j) .eq. 106) .and.
      &               (gfld%ipdtmpl(2) .eq. g2code(3,j)) .and.
@@ -658,8 +665,8 @@ C  SET ARGUMENTS
                   endif
                 enddo TMP8LOOP
                 if (j .gt. maxvar ) then
-                  write(6,'(a,i6,a,i6,a)') 'Subsoil level ',
-     &               gfld%ipdtmpl(12),' to ',gfld%ipdtmpl(15),
+                  write(6,'(a,i6,a)') 'Subsoil level ',
+     &               gfld%ipdtmpl(12), 
      &           ' in the GRIB2 file, was not found in the Vtable'
                   cycle MATCH_LOOP
                 endif
@@ -671,7 +678,8 @@ C  SET ARGUMENTS
                  ! Pressure level (range from 1000mb to 0mb)
                  level=gfld%ipdtmpl(12) *
      &                           (10. ** (-1. * gfld%ipdtmpl(11)))
-              elseif(gfld%ipdtmpl(10).eq.105) then
+              elseif((gfld%ipdtmpl(10).eq.105).or.
+     &               (gfld%ipdtmpl(10).eq.118))then
                  ! Hybrid level (range from 1 to N)
                  level=gfld%ipdtmpl(12)
               elseif(gfld%ipdtmpl(10).eq.104) then
@@ -751,6 +759,25 @@ C  SET ARGUMENTS
      &            is_there(iplvl, 'P')) then
                   call g2_compute_rh_spechumd_upa(map%nx,map%ny,iplvl)
                  !call llstor_remove(iplvl, 'SH') !We are done with SH
+              endif
+
+              ! If Specific Humidity is present on hybrid levels AND 
+              ! upper-air RH is missing, see if we can compute RH from 
+              ! Specific Humidity - v2
+              if (.not. is_there(iplvl, 'RH') .and.
+     &            is_there(iplvl, 'SPECHUMD') .and.
+     &            is_there(iplvl, 'THETA') .and.
+     &            is_there(iplvl, 'TT')) then
+                  call g2_compute_rh_spechumd_upa2(map%nx,map%ny,iplvl)
+              endif
+
+              ! If Temperature and Theta are present on hybrid levels AND
+              ! upper-air PRESSURE is missing, see if we can compute PRESSURE from
+              ! Temperature and Theta
+              if (.not. is_there(iplvl, 'PRESSURE') .and.
+     &            is_there(iplvl, 'THETA') .and.
+     &            is_there(iplvl, 'TT')) then
+                  call g2_compute_pressure_tth_upa(map%nx,map%ny,iplvl)
               endif
 
               ith=ith+1
@@ -950,6 +977,65 @@ C  SET ARGUMENTS
       call put_storage(iiplvl, 'RH', rh, ix, jx)
     
       end subroutine g2_compute_rh_spechumd_upa
+
+!*****************************************************************************!
+
+      SUBROUTINE g2_compute_rh_spechumd_upa2(ix, jx, iiplvl)
+      ! Compute relative humidity from specific humidity in the upper air.
+      use storage_module
+      implicit none
+      integer :: ix, jx
+      integer :: iiplvl
+      real :: lat1, lon1, dx, dy
+      real, dimension(ix,jx) :: T, TH, RH, Q, P
+    
+      real, parameter :: svp1=611.2
+      real, parameter :: svp2=17.67
+      real, parameter :: svp3=29.65
+      real, parameter :: svpt0=273.15
+      real, parameter :: eps = 0.622
+    
+      real startlat, startlon, deltalat, deltalon
+
+      call get_storage(iiplvl, 'THETA', TH, ix, jx)
+      call get_storage(iiplvl, 'TT', T, ix, jx)
+      call get_storage(iiplvl, 'SPECHUMD', Q, ix, jx)
+    
+      p=1.e5*(t/th)**(1005/287.05)
+     
+      rh=1.E2*(p*q/(q*(1.-eps)+eps))/(svp1*exp(svp2*(t-svpt0)/(T-svp3)))
+     
+      call put_storage(iiplvl, 'RH', rh, ix, jx)
+    
+      end subroutine g2_compute_rh_spechumd_upa2
+
+!*****************************************************************************!
+
+      SUBROUTINE g2_compute_pressure_tth_upa(ix, jx, iiplvl)
+      ! Compute relative humidity from specific humidity in the upper air.
+      use storage_module
+      implicit none
+      integer :: ix, jx
+      integer :: iiplvl
+      real :: lat1, lon1, dx, dy
+      real, dimension(ix,jx) :: T, TH, P
+    
+      real, parameter :: svp1=611.2
+      real, parameter :: svp2=17.67
+      real, parameter :: svp3=29.65
+      real, parameter :: svpt0=273.15
+      real, parameter :: eps = 0.622
+    
+      real startlat, startlon, deltalat, deltalon
+
+      call get_storage(iiplvl, 'THETA', TH, ix, jx)
+      call get_storage(iiplvl, 'TT', T, ix, jx)
+    
+      p=1.e5*(t/th)**(1005/287.05)
+     
+      call put_storage(iiplvl, 'PRESSURE', p, ix, jx)
+    
+      end subroutine g2_compute_pressure_tth_upa
 
 !*****************************************************************************!
 
