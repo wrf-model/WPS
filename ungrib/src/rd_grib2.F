@@ -579,21 +579,6 @@ C  SET ARGUMENTS
            endif
 !MGD           print *,'G2 DRS TEMPLATE 5.',gfld%idrtnum,': ',
 !MGD     &          (gfld%idrtmpl(j),j=1,gfld%idrtlen)
-           fldmax=gfld%fld(1)
-           fldmin=gfld%fld(1)
-           sum=gfld%fld(1)
-           do j=2,gfld%ndpts
-             if (gfld%fld(j).gt.fldmax) fldmax=gfld%fld(j)
-             if (gfld%fld(j).lt.fldmin) fldmin=gfld%fld(j)
-             sum=sum+gfld%fld(j)
-           enddo ! gfld%ndpts
-
-!MGD           print *,'G2 Data Values:'
-           call mprintf(.true.,DEBUG,'G2 MIN=%f AVE=%f MAX=%f', 
-     &         newline=.true., f1=fldmin, f2=sum/gfld%ndpts, f3=fldmax)
-           !do j=1,gfld%ndpts\20
-           !   write(*,*) j, gfld%fld(j)
-           !enddo
          endif ! Additional Print information 
 ! ------------------------------------
 
@@ -635,7 +620,20 @@ C  SET ARGUMENTS
 !MGD     write(6,*) 'namvar(i) = ',namvar(i),' pabbrev = ',pabbrev
 !MGD     write(6,*) 'Parameter = ',gfld%ipdtmpl(2)
 !MGD    endif
-
+!  The following if-block is commented out since equivalent info can be obtained from g2print
+!       if (debug_level .gt. 1000) then
+!          fldmax=gfld%fld(1)
+!          fldmin=gfld%fld(1)
+!          sum=gfld%fld(1)
+!          do j=2,gfld%ndpts
+!            if (gfld%fld(j).gt.fldmax) fldmax=gfld%fld(j)
+!            if (gfld%fld(j).lt.fldmin) fldmin=gfld%fld(j)
+!            sum=sum+gfld%fld(j)
+!          enddo ! gfld%ndpts
+!          call mprintf(.true.,DEBUG,'G2 FIELD=%s MIN=%f AVG=%f MAX=%f',
+!    &         newline=.true., s1=pabbrev, f1=fldmin, f2=sum/gfld%ndpts,
+!    &         f3=fldmax)
+!       endif
 
 ! need to match up soil levels with those requested.
 ! For the Vtable levels, -88 = all levels, -99 = missing. The units
