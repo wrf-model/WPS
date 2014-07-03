@@ -25,22 +25,23 @@ Param| Type |Level1|Level2| Name     | Units   | Description                    
   91 |   1  |   0  |      | SEAICE   | proprtn | Ice flag                                | 10  |  2  |  0  |   1 |
   81 |   1  |   0  |      | LANDSEA  | proprtn | Land/Sea flag (1=land, 0 or 2=sea)      |  2  |  0  |  0  |   1 |
    7 |   1  |   0  |      | SOILHGT  | m       | Terrain field of source analysis        |  0  |  3  |  5  |   1 |
-  11 |   1  |   0  |      | SKINTEMP | K       | Skin temperature (can use for SST also) |  0  |  0  |  0  |   1 |
+  11 |   1  |   0  |      | SKINTEMP | K       | Skin temperature                        |  0  |  0  |  0  |   1 |
   65 |   1  |   0  |      | SNOW     | kg m-2  | Water equivalent snow depth             |  0  |  1  | 13  |   1 |
-     |   1  |   0  |      | SNOWH    | m       | Physical Snow Depth                     |  0  |  1  | 11  |   1 |
-  33 |   6  |   0  |      | UUW      | m s-1   | U                 at max wind           |  0  |  2  |  2  |   6 |
-  34 |   6  |   0  |      | VVW      | m s-1   | V                 at max wind           |  0  |  2  |  3  |   6 |
-   2 |   6  |   0  |      | PRESW    | Pa      | Pressure of max wind level              |  0  |  3  |  0  |   6 |
-  11 |   6  |   0  |      | TTW      | K       | Temperature at max wind level           |  0  |  0  |  0  |   6 |
-   7 |   6  |   0  |      | HGTW     | m       | Height of max wind level                |  0  |  3  |  5  |   6 |
-  33 |   7  |   0  |      | UUT      | m s-1   | U                 at tropopause         |  0  |  2  |  2  |   7 |
-  34 |   7  |   0  |      | VVT      | m s-1   | V                 at tropopause         |  0  |  2  |  3  |   7 |
-   2 |   7  |   0  |      | PREST    | Pa      | Pressure of tropopause                  |  0  |  3  |  0  |   7 |
-  11 |   7  |   0  |      | TTT      | K       | Temperature at tropopause               |  0  |  0  |  0  |   7 |
+     |   1  |   0  |      | SNOWH    | m       | Physical Snow Depth                     |  0  |  1  |     |   1 |
+  33 |   6  |   0  |      | UMAXW    | m s-1   | U                 at max wind           |  0  |  2  |  2  |   6 |
+  34 |   6  |   0  |      | VMAXW    | m s-1   | V                 at max wind           |  0  |  2  |  3  |   6 |
+   2 |   6  |   0  |      | PMAXW    | Pa      | Pressure of max wind level              |  0  |  3  |  0  |   6 |
+   2 |   6  |   0  |      | TMAXW    | K       | Temperature at max wind level           |  0  |  0  |  0  |   6 |
+   7 |   6  |   0  |      | HGTMAXW  | m       | Height of max wind level                |  0  |  3  |  5  |   6 |
+  33 |   7  |   0  |      | UTROP    | m s-1   | U                 at tropopause         |  0  |  2  |  2  |   7 |
+  34 |   7  |   0  |      | VTROP    | m s-1   | V                 at tropopause         |  0  |  2  |  3  |   7 |
+   2 |   7  |   0  |      | PTROP    | Pa      | Pressure of tropopause                  |  0  |  3  |  0  |   7 |
+   2 |   7  |   0  |      | TTROP    | K       | Temperature at tropopause               |  0  |  0  |  0  |   7 |
    7 |   7  |   0  |      | HGTTROP  | m       | Height of tropopause                    |  0  |  3  |  5  |   7 |
 -----+------+------+------+----------+---------+-----------------------------------------+-----------------------+
 #
 #  Vtable for GFS pressure-level data from the ncep server.
+#  This version includes fields from the Tropopause and Max Wind levels used by WRF V3.6.1 and later.
 #
 #  ftp://ftpprd.ncep.noaa.gov/pub/data/nccf/com/gfs/prod/gfs.ccyymmddhh/    (note hh at end)
 #
@@ -49,4 +50,5 @@ Param| Type |Level1|Level2| Name     | Units   | Description                    
 #
 #  gfs.t12z.pgrb2f00       56000 Kb     4  3-h to 192-h  global  0.5 deg  (26 p-levels plus sfc and trop, 1000 to 10 mb).
 #  gfs.t12z.pgrbf00.grib2  18000 Kb     3  3-h to 384-h  global  1.0 deg  (26 p-levels plus sfc and trop, 1000 to 10 mb).
+#
 #

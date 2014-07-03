@@ -706,10 +706,10 @@ C  SET ARGUMENTS
                  level=200100.
               elseif(gfld%ipdtmpl(10).eq.6) then
                  ! Level of Max wind
-                 level=6.    ! .06 mb should never be used by anyone
+                 level=200100.  
               elseif(gfld%ipdtmpl(10).eq.7) then
                  ! Tropopause
-                 level=7.    ! .07 mb should never be used by anyone
+                 level=200100.
               else
                  ! If we are here then the Vtable contains a level code
                  ! which we cannot handle. Write an info message and skip it.
