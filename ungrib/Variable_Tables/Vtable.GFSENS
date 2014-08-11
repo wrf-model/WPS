@@ -38,6 +38,6 @@ Param| Type |Level1|Level2| Name     | Units   | Description                    
 #                                  approx.    grid    hours       domain  dx      notes
 #                                 file size   no.
 #   
-#  gep01.txxz.pgrb2fhh             15500 Kb        0-h to 384-h   global  1 deg  20 ensemble members
+#  gep01.txxz.pgrb2fhh             15500 Kb    3   0-h to 384-h   global  1 deg  20 ensemble members
 #                                                                                 gep01 - gep20
 
