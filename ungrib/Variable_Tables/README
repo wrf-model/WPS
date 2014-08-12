@@ -43,7 +43,6 @@ Vtable.RAP.hybrid.ncep     NCEP Rapid Refresh (ARW) intepolated to hybrid levels
 Vtable.RAP.pressure.ncep   NCEP Rapid Refresh (ARW) pressure level output
 Vtable.RAP.sigma.gsd       NCEP Rapid Refresh (ARW) run by NOAA GSD
 Vtable.RUCb                NCEP RUC hybrid-level output
-Vtable.RUCb.old
 Vtable.RUCp                NCEP RUC pressure-level output
 Vtable.SST                 Generic Vtable for SST files
 Vtable.TCRP                Twentieth Century Global Reanalysis Version 2
@@ -51,17 +50,5 @@ Vtable.UKMO_ENDGame        U.K. Met Office model
 Vtable.UKMO_LANDSEA
 Vtable.UKMO_no_heights
 
-Legacy Vtables (those which are old or rarely used any more)
-have been moved to the legacy subdirectory.
 
-Notes on the Vtables
-
-
-SOILHGT (or model terrain height) has two possible definitions in GRIB2 files.
-
-  2   0   7   1   Model terrain height  (m)
-
-  0   3   5   1   Geopotential height  (gpm)
-
-  since the wrf system has a constant gravity, these are interchangable.
-
+Updated 12 Aug 2014
