@@ -1,7 +1,7 @@
 
 ;   Script display location of model domains
 ;   Only works for ARW domains
-;   Only works for NCL versions later than 6.1
+;   Only works for NCL versions 6.2 or later
 ;   Reads namelist file directly
 
 load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/gsn_code.ncl"

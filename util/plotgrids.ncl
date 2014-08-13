@@ -1,7 +1,7 @@
 
 ;   Script display location of model domains
 ;   Only works for ARW domains
-;   Only works for NCL versions later than 6.1
+;   Only works for NCL versions 6.1.x
 ;   Reads namelist file directly
 
 load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/gsn_code.ncl"
@@ -13,7 +13,11 @@ begin
 ; Check the version of NCL
   version = systemfunc("ncl -V")
   if(version.lt.6.1) then
-    print("You need NCL V6.1 or later to run this script. Try running util/plotgrids_old.ncl. Stopping now...")
+    print("You need NCL V6.1 to run this script. Try running util/plotgrids_old.ncl. Stopping now...")
+    return
+  end if
+  if(version.ge.6.2) then
+    print("You need NCL V6.1 to run this script. Try running util/plotgrids_new.ncl. Stopping now...")
     return
   end if
 

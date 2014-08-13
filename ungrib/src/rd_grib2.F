@@ -642,7 +642,12 @@ C  SET ARGUMENTS
 ! units are in cm (as used in the Vtable).
               if ( gfld%ipdtmpl(10) .eq. 106 ) then
                 if ( ( gfld%ipdtmpl(14) .EQ. -1*(2**07-1) ) .AND.
-     &               ( gfld%ipdtmpl(15) .EQ. -1*(2**31-1) ) ) THEN
+!    &               ( gfld%ipdtmpl(15) .EQ. -1*(2**31-1) ) ) THEN ! Some compilers cannot
+                                                                   ! handle the initial 2**31
+                                                                   ! part of the computation, 
+                                                                   ! which is an arithmetic 
+                                                                   ! overflow on 32 bit signed ints
+     &               ( gfld%ipdtmpl(15) .EQ. -2147483647  ) ) THEN
 ! special UM grib2
                    glevel1 = gfld%ipdtmpl(12)
                    glevel2 = gfld%ipdtmpl(11)
