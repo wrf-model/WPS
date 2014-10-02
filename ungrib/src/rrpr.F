@@ -895,7 +895,7 @@ subroutine vntrp(plvl, maxlvl, k, name, ix, jx)
 
   frc = (plvl(k) - plvl(k+1)) / ( plvl(k-1)-plvl(k+1))
 
-  b = (1.-frc)*a + frc*c
+  b = (1.-frc)*c + frc*a
 !KWM  b = 0.5 * (a + c)
   call  put_storage(nint(plvl(k)), name, b, ix, jx)
 
