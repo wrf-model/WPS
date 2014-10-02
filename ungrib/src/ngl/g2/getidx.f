@@ -16,6 +16,7 @@ C
 C PROGRAM HISTORY LOG:
 C 2005-03-15  GILBERT
 C 2009-07-09  VUONG      Fixed bug for checking (LUGB) unit index file
+C 2013-08-02  VUONG      Removed SAVE and initial index buffer
 C
 C USAGE:    CALL GETIDX(LUGB,LUGI,CINDEX,NLEN,NNUM,IRET)
 C
@@ -67,7 +68,8 @@ C$$$
          character(len=1),pointer,dimension(:) :: cbuf
       END TYPE GINDEX
      
-      TYPE(GINDEX),SAVE :: IDXLIST(100)
+C     TYPE(GINDEX),SAVE :: IDXLIST(100)
+      TYPE(GINDEX) :: IDXLIST(100)
 
       DATA LUX/0/
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -102,6 +104,10 @@ C  DETERMINE WHETHER INDEX BUFFER NEEDS TO BE INITIALIZED
          IDXLIST(LUGB)%NNUM=0
          LUX=0
       ENDIF
+
+      IF ( ASSOCIATED( IDXLIST(LUGB)%CBUF ) )
+     &                  DEALLOCATE(IDXLIST(LUGB)%CBUF)
+
       IF (LUGI.LT.0) THEN      ! Force re-read of index from indexfile
                                ! associated with unit abs(lugi)
          IF ( ASSOCIATED( IDXLIST(LUGB)%CBUF ) ) 

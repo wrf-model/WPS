@@ -569,20 +569,20 @@ CONTAINS
       
       ELSE IF (nlen.eq.19.or.nlen.eq.20) THEN
          WRITE(ndate(1:19),19) yrnew, monew, dynew, hrnew, minew, scnew
-      19   format(I4,'-',I2.2,'-',I2.2,'_',I2.2,':',I2.2,':',I2.2)
+      19   format(I4.4,'-',I2.2,'-',I2.2,'_',I2.2,':',I2.2,':',I2.2)
          IF (nlen.eq.20) ndate = ndate(1:19)//'.'
       
       ELSE IF (nlen.eq.16) THEN
          WRITE(ndate,16) yrnew, monew, dynew, hrnew, minew
-      16   format(I4,'-',I2.2,'-',I2.2,'_',I2.2,':',I2.2)
+      16   format(I4.4,'-',I2.2,'-',I2.2,'_',I2.2,':',I2.2)
       
       ELSE IF (nlen.eq.13) THEN
          WRITE(ndate,13) yrnew, monew, dynew, hrnew
-      13   format(I4,'-',I2.2,'-',I2.2,'_',I2.2)
+      13   format(I4.4,'-',I2.2,'-',I2.2,'_',I2.2)
       
       ELSE IF (nlen.eq.10) THEN
          WRITE(ndate,10) yrnew, monew, dynew
-      10   format(I4,'-',I2.2,'-',I2.2)
+      10   format(I4.4,'-',I2.2,'-',I2.2)
       
       END IF
       

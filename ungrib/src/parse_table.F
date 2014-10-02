@@ -437,7 +437,7 @@ subroutine parse_table(debug_level,vtable_columns)
 
   ipcount = 99
   do i = 1, maxvar
-     if (lcode(i).eq.105) then
+     if ((lcode(i).eq.105).or.(lcode(i).eq.118)) then
         ipcount = ipcount + 1
         iprty(i) = ipcount
      elseif (lcode(i).eq.116.and.level1(i).le.50.and.level2(i).eq.0) then

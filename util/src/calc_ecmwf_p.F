@@ -301,26 +301,30 @@ program calc_ecmwf_p
                     allocate(hgt_3ddata(ecmwf_data%nx,ecmwf_data%ny, n_levels))
                   end if
                                                      
-                  ! CvH_DvD: interpolate Q and T if they are not availalbe at all levels             
+                  ! CvH_DvD: interpolate Q and T if they are not available at all levels             
                   do i = n_levels, 1, -1
                     if (tt(1,1,i) .eq. 0) then  ! CvH_DvD: If TT is zero, level is unknown, so moisture is zero too 
-                      if (i .ne. n_levels) then
+                      if (i .eq. n_levels) then
+                        write(6,*) 'WARNING First level is missing!' ! CvH_DvD: First level should be there! 
+                      else if (i .eq. 1) then
+                        ! DvD: If TT is zero at the top level, so missing --> use previous level, 
+                        ! mod level will remove it anyway
+                        tt(:,:,i)=tt(:,:,i+1)
+                        qv(:,:,i)=qv(:,:,i+1)
+                      else
                         counter=1
                         ! CvH_DvD: Find first available level
-                        do while ((tt(1,1,i-counter) .eq. 0) .and. (i-counter .gt. 1)) 
+                        do while ((i-counter .gt. 1) .and. (tt(1,1,i-counter) .eq. 0)) 
                           counter=counter+1
                         end do
                         if (tt(1,1,i-counter) .gt. 0) then 
-                          ! CvH_DvD: If TT is zero, we're at the top level which is missing, so use previous level, 
-                          ! mod level will remove it anyway
+                          ! DvD: Interpolate tt and qv from next available level
                           tt(:,:,i)=tt(:,:,i+1)+(tt(:,:,i-counter)-tt(:,:,i+1))/(counter+1)
                           qv(:,:,i)=qv(:,:,i+1)+(qv(:,:,i-counter)-qv(:,:,i+1))/(counter+1)
                         else
-                          tt(:,:,i)=tt(:,:,i+1)
-                          qv(:,:,i)=qv(:,:,i+1)
-                        end if                                          
-                      else
-                        write(6,*) 'WARNING First level is missing!' ! CvH_DvD: First level should be there! 
+                          ! DvD: No available level found --> should not happen.
+                          write(6,*) 'WARNING No available level found near level ',i,'!' 
+                        end if                                           
                       end if
                     end if 
                   end do                           

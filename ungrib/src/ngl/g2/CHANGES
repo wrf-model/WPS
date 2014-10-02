@@ -116,3 +116,18 @@ g2lib-1.2.3 - Nov 2011      - Added new local parameters conversion entries
                               routine param_g1_to_g2
 
 g2lib-1.2.4 - Nov 2011      - Added 2 ECMWF parameters (TMAX/TMIN at 2m) conversion entries
+
+g2lib-1.4.0 - MAY 2012      - Added new parameters conversion entries
+                            - Fixed bug in PUTGB2 that caused segmentation fault
+                            - Added a new Grid Definition Template numbers 4.44,
+                              4.45, 4.46,4.47,4.48,4.50,4.51,4.91 and 4.32
+                            - Declared the variable rmin4 in routine misspack.f
+                            - Modified to change voidp to png_voidp in routines dec_png.c 
+                              and enc_png.c
+
+g2lib-2.5.0 - AUG 2013      - Added new parameters conversion entries
+                            - Modified GETIDX to allow users to open same unit file 
+                            - Added new Grid Definition Template numbers 3.4,3.5,.3.12,
+                              3.101, and 3.140
+                            - Added new Product Definition Template numbers 4.33, 4.34, 4.53,4.54
+

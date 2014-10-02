@@ -43,6 +43,9 @@
 !                         Added Templates (ICAO WAFS) 4.15
 ! 2010-08-03  VUONG    -  Added Templates 4.40,4.41,4.42,.4.43 
 ! 2010-12-08  Vuong    -  Corrected Product Definition Template 4.42 and 4.43
+! 2012-02-07  Vuong    -  Added Templates 4.44,4.45,4.46,4.47,4.48,4.50,
+!                         4.51,4.91,4.32 and 4.52
+! 2013-07-29  Vuong    -  Corrected 4.91 and added Templates 4.33,4.34,4.53,4.54
 !
 ! USAGE:    use pdstemplates
 !
@@ -52,7 +55,7 @@
 !
 !$$$
 
-      integer,parameter :: MAXLEN=200,MAXTEMP=29
+      integer,parameter :: MAXLEN=200,MAXTEMP=43
 
       type pdstemplate
           integer :: template_num
@@ -247,6 +250,111 @@
      &  /1,1,2,1,1,1,2,1,1,4,1,-1,-4,1,-1,-4,1,1,1,2,1,1,1,1,1,1,4,
      &   1,1,1,4,1,4/
 
+      data templates(30)%template_num /44/     !  Analysis or Forecast at a horizontal or in a
+      data templates(30)%mappdslen /21/        !  horizontal layer at a point in time for
+      data templates(30)%needext /.false./     !  Aerosol
+      data (templates(30)%mappds(j),j=1,21)
+     &  /1,1,2,1,-1,-4,-1,-4,1,1,1,2,1,1,2,1,-1,-4,1,-1,-4/
+
+      data templates(31)%template_num /45/     !  Individual ensemble forecast, control and 
+      data templates(31)%mappdslen /24/        !  perturbed, at horizontal level or in a horizontal
+      data templates(31)%needext /.false./     !  layer at a point in time for Aerosol
+      data (templates(31)%mappds(j),j=1,24)    
+     &  /1,1,2,1,-1,-4,-1,-4,1,1,1,2,1,1,4,1,-1,-4,1,-1,-4,1,1,1/
+
+      data templates(32)%template_num /46/     !  Ave or Accum or Extreme value at level/layer
+      data templates(32)%mappdslen /35/        !  in a continuous or non-continuous time interval
+      data templates(32)%needext /.true./      !  for Aerosol 
+      data (templates(32)%mappds(j),j=1,35)
+     &  /1,1,2,1,-1,-4,-1,-4,1,1,1,2,1,1,4,1,-1,-4,1,-1,-4,2,1,1,1,1,
+     &   1,1,4,1,1,1,4,1,4/
+
+      data templates(33)%template_num /47/     !  Individual ensemble forecast, control and
+      data templates(33)%mappdslen /38/        !  perturbed, at horizontal level or in a horizontal
+      data templates(33)%needext /.true./      !  in a continuous or non-continuous time interval
+      data (templates(33)%mappds(j),j=1,38)    !  for Aerosol
+     &  /1,1,1,2,1,-1,-4,-1,-4,1,1,2,1,1,4,1,-1,-4,1,-1,-4,1,1,1,2,1,
+     &   1,1,1,1,1,4,1,1,1,4,1,4/
+
+      data templates(34)%template_num /51/     !  Categorical forecasts at a horizontal level or
+      data templates(34)%mappdslen /16/        !  in a horizontal layer at a point in time
+      data templates(34)%needext /.true./
+      data (templates(34)%mappds(j),j=1,16)
+     &  /1,1,1,1,1,2,1,1,4,1,-1,-4,1,-1,-4,1/
+!
+!    PDT 4.91
+!
+      data templates(35)%template_num /91/     !  Categorical forecasts at a horizontal level or
+      data templates(35)%mappdslen /36/        !  in a horizontal layer in a continuous or
+      data templates(35)%needext /.true./      !  non-continuous time interval
+      data (templates(35)%mappds(j),j=1,36)
+     &       /1,1,1,1,1,2,1,1,4,1,-1,-4,1,-1,-4,1,1,1,-1,-4,-1,-4,
+     &        2,1,1,1,1,1,1,4,1,1,1,4,1,4/
+
+      data templates(36)%template_num /32/     !  Analysis or forecast at a horizontal level or
+      data templates(36)%mappdslen /10/        !  in a  horizontal layer at a point in time for
+      data templates(36)%needext /.true./      !  for simulate (synthetic) Satellite data
+      data (templates(36)%mappds(j),j=1,10)
+     &  /1,1,1,1,1,2,1,1,4,1/
+!
+!    PDT 4.48
+!
+      data templates(37)%template_num /48/     !  Analysis or forecast at a horizontal level or
+      data templates(37)%mappdslen /26/        !  in a  horizontal layer at a point in time for
+      data templates(37)%needext /.false./     !  Optical Properties of Aerosol
+      data (templates(37)%mappds(j),j=1,26)
+     &  /1,1,2,1,-1,-4,-1,-4,1,-1,-4,-1,-4,1,1,1,2,1,1,4,1,-1,-4,
+     &   1,-1,-4/
+!
+!    PDT 4.50   VALIDATION
+!
+      data templates(38)%template_num /50/     !  Analysis or Forecast of a multi component
+      data templates(38)%mappdslen /21/        !  parameter or matrix element at a point in time
+      data templates(38)%needext /.false./     !
+      data (templates(38)%mappds(j),j=1,21)
+     &  /1,1,1,1,1,2,1,1,4,1,-1,-4,1,-1,-4,1,1,4,4,4,4/
+!
+!    PDT 4.52   VALIDATION
+!
+      data templates(39)%template_num /52/     !  Analysis or forecast of Wave parameters
+      data templates(39)%mappdslen /15/        !  at the Sea surface at a point in time
+      data templates(39)%needext /.false./     ! 
+      data (templates(39)%mappds(j),j=1,15)
+     &  /1,1,1,1,1,1,1,1,2,1,1,4,1,-1,-4/
+!
+!    PDT 4.33  (07/29/2013)
+!
+      data templates(40)%template_num /33/     !  Individual ensemble forecast, control, perturbed,
+      data templates(40)%mappdslen /18/        !  at a horizontal level or in a  horizontal layer 
+      data templates(40)%needext /.true./      !  at a point in time for simulate (synthetic) Satellite data
+      data (templates(40)%mappds(j),j=1,18)
+     &  /1,1,1,1,1,2,1,1,4,1,2,2,2,-1,-4,1,1,1/
+!
+!    PDT 4.34  (07/29/2013)
+!
+      data templates(41)%template_num /34/     !  Individual ensemble forecast, control, perturbed,
+      data templates(41)%mappdslen /32/        !  at a horizontal level or in a  horizontal layer,
+      data templates(41)%needext /.true./      !  in a continuous or non-continuous interval
+      data (templates(41)%mappds(j),j=1,32)    !  for simulate (synthetic) Satellite data
+     &  /1,1,1,1,1,2,1,1,4,1,2,2,2,-1,-4,1,1,1,2,1,1,1,
+     &   1,1,1,4,1,1,1,4,1,4/
+!
+!    PDT 4.53  (07/30/2013)
+!
+      data templates(42)%template_num /53/     !  Partitioned parameters at 
+      data templates(42)%mappdslen /19/        !  horizontal level or horizontal layer
+      data templates(42)%needext /.true./      !  at a point in time
+      data (templates(42)%mappds(j),j=1,19)
+     &  /1,1,1,1,4,2,1,1,1,2,1,1,4,1,-1,-4,1,-1,-4/
+!
+!    PDT 4.54  (07/30/2013)
+!
+      data templates(43)%template_num /54/     !  Individual ensemble forecast, controli and perturbed,
+      data templates(43)%mappdslen /22/        !  at a horizontal level or in a  horizontal layer
+      data templates(43)%needext /.true./      !  at a point in time for partitioned parameters
+      data (templates(43)%mappds(j),j=1,22)
+     &  /1,1,1,1,4,2,1,1,1,2,1,1,4,1,-1,-4,1,-1,-4,1,1,1/
+
       contains
 
          integer function getpdsindex(number)
@@ -306,6 +414,7 @@
 ! 2000-05-11  Gilbert
 ! 2010-08-03  VUONG    -  Added Templates 4.40,4.41,4.42,.4.43 
 ! 2010-12-08  Vuong    -  Corrected Product Definition Template 4.42 and 4.43
+! 2013-07-29  Vuong    -  Added Templates 4.48,4.50,4.33,4.34,4.53,4.54
 !
 ! USAGE:    CALL getpdstemplate(number,nummap,map,needext,iret)
 !   INPUT ARGUMENT LIST:
@@ -367,6 +476,7 @@
 ! 2000-05-11  Gilbert
 ! 2010-08-03  VUONG    -  Added Templates 4.40,4.41,4.42,.4.43 
 ! 2010-12-08  Vuong    -  Corrected Product Definition Template 4.42 and 4.43
+! 2013-07-29  Vuong    -  Added Templates 4.48,4.50,4.33,4.34,4.53,4.54
 !
 ! USAGE:    CALL extpdstemplate(number,list,nummap,map)
 !   INPUT ARGUMENT LIST:
@@ -498,6 +608,35 @@
                 map(nummap+5)=4
                 nummap=nummap+5
               enddo
+           elseif ( number.eq.32 ) then
+              do j=1,list(10)
+                map(nummap+1)=2
+                map(nummap+2)=2
+                map(nummap+3)=2
+                map(nummap+4)=-1
+                map(nummap+5)=-4
+                nummap=nummap+5
+              enddo
+           elseif ( number.eq.33 ) then
+              N=list(10)
+              do i=1,N
+                map(nummap+i)=1
+              enddo
+              nummap=nummap+N
+           elseif ( number.eq.34 ) then
+              if ( list(25).gt.1 ) then
+                do j=2,list(25)
+                  do k=1,6
+                    map(nummap+k)=map(26+k)
+                  enddo
+                  nummap=nummap+6
+                enddo
+              endif
+              N=list(10)
+              do i=1,N
+                map(nummap+i)=1
+              enddo
+              nummap=nummap+N
            elseif ( number.eq.42 ) then
               if ( list(23).gt.1 ) then
                 do j=2,list(23)
@@ -516,6 +655,60 @@
                   nummap=nummap+6
                 enddo
               endif
+           elseif ( number.eq.46 ) then
+              if ( list(28).gt.1 ) then
+                do j=2,list(28)
+                  do k=1,6
+                    map(nummap+k)=map(29+k)
+                  enddo
+                  nummap=nummap+6
+                enddo
+              endif
+           elseif ( number.eq.47 ) then
+              if ( list(31).gt.1 ) then
+                do j=2,list(31)
+                  do k=1,6
+                    map(nummap+k)=map(32+k)
+                  enddo
+                  nummap=nummap+6
+                enddo
+              endif
+           elseif ( number.eq.51 ) then
+              do j=1,list(16)
+                map(nummap+1)=1
+                map(nummap+2)=1
+                map(nummap+3)=-1
+                map(nummap+4)=-4
+                map(nummap+5)=-1
+                map(nummap+6)=-4
+                nummap=nummap+6
+              enddo
+           elseif ( number.eq.53 ) then
+              N=list(4)
+              do i=1,N
+                map(nummap+i)=1
+              enddo
+              nummap=nummap+N
+           elseif ( number.eq.54 ) then
+              N=list(4)
+              do i=1,N
+                map(nummap+i)=1
+              enddo
+              nummap=nummap+N
+           elseif ( number.eq.91 ) then
+              if ( list(29).gt.1 ) then
+                do j=2,list(29)
+                  do k=1,6
+                    map(nummap+k)=map(30+k)
+                  enddo
+                  nummap=nummap+6
+                enddo
+              endif
+              N=list(16)
+              do i=1,N
+                map(nummap+i)=1
+              enddo
+              nummap=nummap+N
            endif
 
          end subroutine
@@ -561,6 +754,4 @@
 
          end function
 
-
       end module
-
