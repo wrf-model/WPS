@@ -272,6 +272,30 @@ ARFLAGS             =
 CC_TOOLS            = 
 
 ########################################################################################################################
+#ARCH    Linux x86_64, Intel compiler, IBM POE   # serial serial_NO_GRIB2 dmpar dmpar_NO_GRIB2
+#
+COMPRESSION_LIBS    = CONFIGURE_COMP_L
+COMPRESSION_INC     = CONFIGURE_COMP_I
+FDEFS               = CONFIGURE_FDEFS
+SFC                 = ifort
+SCC                 = icc
+DM_FC               = mpfort
+DM_CC               = mpcc
+FC                  = CONFIGURE_FC
+CC                  = CONFIGURE_CC
+LD                  = $(FC)
+FFLAGS              = -FR -convert big_endian
+F77FLAGS            = -FI -convert big_endian
+FCSUFFIX            = 
+FNGFLAGS            = $(FFLAGS)
+LDFLAGS             = 
+CFLAGS              = -w
+CPP                 = /lib/cpp -P -traditional
+CPPFLAGS            = -D_UNDERSCORE -DBYTESWAP -DLINUX -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -DBIT32 CONFIGURE_MPI
+ARFLAGS             =
+CC_TOOLS            = 
+
+########################################################################################################################
 #ARCH    Darwin Intel PGI compiler  # serial serial_NO_GRIB2 dmpar dmpar_NO_GRIB2
 #
 COMPRESSION_LIBS    = CONFIGURE_COMP_L
