@@ -38,3 +38,10 @@ Param| Type |Level1|Level2| Name     |  Units   | Description                   
  223 |  1   |   0  |      | CANWAT   | kg m-2   | Plant Canopy Surface Water              |  2  |  0  | 196 |   1 |
   81 |  1   |   0  |      | LANDSEA  | proprtn  | Land/Sea flag (1=land, 0 or 2=sea)      |  2  |  0  |  0  |   1 |
 -----+------+------+------+----------+----------+-----------------------------------------+-----------------------+
+
+
+#  Vtable for WRF-ARW output that has been processed by UPP and is on eta/sigma levels and in Grib format
+#
+#    Note that ARW output written directly to Grib format cannot be used by ungrib. WPS cannot process
+#    ARW output fields such as MU (instead of pressure) and Theta perturbation (instead of temperature).
+#
