@@ -5,84 +5,98 @@ name = HCNVX
         priority = 1
         dest_type = continuous
         interp_option = default:average_4pt
+        fill_missing = 0.
         rel_path = default:hcnvx/
 ===============================
 name = HSTDV
         priority = 1
         dest_type = continuous
         interp_option = default:average_4pt
+        fill_missing = 0.
         rel_path = default:hstdv/
 ===============================
 name = HASYW
         priority = 1
         dest_type = continuous
         interp_option = default:average_4pt
+        fill_missing = 0.
         rel_path = default:hasyw/
 ===============================
 name = HASYS
         priority = 1
         dest_type = continuous
         interp_option = default:average_4pt
+        fill_missing = 0.
         rel_path = default:hasys/
 ===============================
 name = HASYSW
         priority = 1
         dest_type = continuous
         interp_option = default:average_4pt
+        fill_missing = 0.
         rel_path = default:hasysw/
 ===============================
 name = HASYNW
         priority = 1
         dest_type = continuous
         interp_option = default:average_4pt
+        fill_missing = 0.
         rel_path = default:hasynw/
 ===============================
 name = HLENW
         priority = 1
         dest_type = continuous
         interp_option = default:average_4pt
+        fill_missing = 0.
         rel_path = default:hlenw/
 ===============================
 name = HLENS
         priority = 1
         dest_type = continuous
         interp_option = default:average_4pt
+        fill_missing = 0.
         rel_path = default:hlens/
 ===============================
 name = HLENSW
         priority = 1
         dest_type = continuous
         interp_option = default:average_4pt
+        fill_missing = 0.
         rel_path = default:hlensw/
 ===============================
 name = HLENNW
         priority = 1
         dest_type = continuous
         interp_option = default:average_4pt
+        fill_missing = 0.
         rel_path = default:hlennw/
 ===============================
 name = HANIS
         priority = 1
         dest_type = continuous
         interp_option = default:average_4pt
+        fill_missing = 0.
         rel_path = default:hanis/
 ===============================
 name = HSLOP
         priority = 1
         dest_type = continuous
         interp_option = default:average_4pt
+        fill_missing = 0.
         rel_path = default:hslop/
 ===============================
 name = HANGL
         priority = 1
         dest_type = continuous
         interp_option = default:average_4pt
+        fill_missing = 0.
         rel_path = default:hangl/
 ===============================
 name = HZMAX
         priority = 1
         dest_type = continuous
         interp_option = default:average_4pt
+        fill_missing = 0.
         rel_path = default:hzmax/
 ===============================
 name = HGT_M
