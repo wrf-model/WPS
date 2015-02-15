@@ -21,10 +21,10 @@ Param| Type |Level1|Level2| Name     | Units   | Description                    
   11 | 112  |  10  |  40  | ST010040 | K       | T 10-40 cm below ground layer (Upper)   |  0  |  0  |  0  | 106 |
   11 | 112  |  40  | 100  | ST040100 | K       | T 40-100 cm below ground layer (Upper)  |  0  |  0  |  0  | 106 |
   11 | 112  | 100  | 200  | ST100200 | K       | T 100-200 cm below ground layer (Bottom)|  0  |  0  |  0  | 106 |
-     | 112  |   0  |  10  | ST000010 | K       | T 0-10 cm below ground layer (Upper)    |  2  |  0  |  2  | 106 |
-     | 112  |  10  |  40  | ST010040 | K       | T 10-40 cm below ground layer (Upper)   |  2  |  0  |  2  | 106 |
-     | 112  |  40  | 100  | ST040100 | K       | T 40-100 cm below ground layer (Upper)  |  2  |  0  |  2  | 106 |
-     | 112  | 100  | 200  | ST100200 | K       | T 100-200 cm below ground layer (Bottom)|  2  |  0  |  2  | 106 |
+  85 | 112  |   0  |  10  | ST000010 | K       | T 0-10 cm below ground layer (Upper)    |  2  |  0  |  2  | 106 |
+  85 | 112  |  10  |  40  | ST010040 | K       | T 10-40 cm below ground layer (Upper)   |  2  |  0  |  2  | 106 |
+  85 | 112  |  40  | 100  | ST040100 | K       | T 40-100 cm below ground layer (Upper)  |  2  |  0  |  2  | 106 |
+  85 | 112  | 100  | 200  | ST100200 | K       | T 100-200 cm below ground layer (Bottom)|  2  |  0  |  2  | 106 |
   11 | 112  |  10  | 200  | ST010200 | K       | T 10-200 cm below ground layer (Bottom) |  0  |  0  |  0  | 106 |
   91 |   1  |   0  |      | SEAICE   | proprtn | Ice flag                                | 10  |  2  |  0  |   1 |
   81 |   1  |   0  |      | LANDSEA  | proprtn | Land/Sea flag (1=land, 0 or 2=sea)      |  2  |  0  |  0  |   1 |
@@ -47,7 +47,7 @@ Param| Type |Level1|Level2| Name     | Units   | Description                    
 #  Vtable for GFS pressure-level data from the ncep server.
 #  This version includes fields from the Tropopause and Max Wind levels used by WRF V3.6.1 and later.
 #  NCEP has used multiple definitions of the soil temperature in their output and the Vtable attempts
-#  to account for these possibilities. 
+#  to account for these possibilities. (Definition changed 14 Jan 2015).
 #
 #  ftp://ftpprd.ncep.noaa.gov/pub/data/nccf/com/gfs/prod/gfs.ccyymmddhh/    (note hh at end)
 #
@@ -55,6 +55,10 @@ Param| Type |Level1|Level2| Name     | Units   | Description                    
 #                         file size   no.
 #
 #  gfs.t12z.pgrb2.0p25    220000 Kb   193  3-h to 240-h  global  0.25 deg  (26 p-levels plus sfc and trop, 1000 to 10 mb).
+#  gfs.t12z.pgrb2.0p50    650000 Kb     4  3-h to 240-h  global  0.5  deg  (26 p-levels plus sfc and trop, 1000 to 10 mb).
+#                                          
+#  Prior to 12z 14 January 2015:
+#
 #  gfs.t12z.pgrb2f00       56000 Kb     4  3-h to 192-h  global  0.5  deg  (26 p-levels plus sfc and trop, 1000 to 10 mb).
 #  gfs.t12z.pgrbf00.grib2  18000 Kb     3  3-h to 384-h  global  1.0  deg  (26 p-levels plus sfc and trop, 1000 to 10 mb).
 #
