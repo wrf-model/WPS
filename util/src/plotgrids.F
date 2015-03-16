@@ -43,6 +43,7 @@ program plotgrids
    integer :: debug_level
    logical :: is_used
    logical :: nocolons
+   integer :: isize
 
    type (proj_info) :: map_projection
 
@@ -215,12 +216,18 @@ program plotgrids
          if (floor(rparent_gridpts) /= ceiling(rparent_gridpts)) then
             write(6,*) 'For nest ',i,' (e_we-s_we+1) must be one greater than an '// &
                        'integer multiple of the parent_grid_ratio.'
+            write(6,*) 'Current values are s_we(i) = ',s_we(i),' e_we(i) = ',e_we(i)
+	    isize = nint(real(ixdim(i)-1)/real(parent_grid_ratio(i)))
+	    write(6,*) 'An e_we = ',isize * parent_grid_ratio(i) + 1,' might work'
             stop
          end if
          rparent_gridpts = real(jydim(i)-1)/real(parent_grid_ratio(i))
          if (floor(rparent_gridpts) /= ceiling(rparent_gridpts)) then
             write(6,*) 'For nest ',i,' (e_sn-s_sn+1) must be one greater than an '// &
                        'integer multiple of the parent_grid_ratio.'
+            write(6,*) ' Current values are, s_sn(i) = ',s_sn(i),' e_sn(i) = ',e_sn(i)
+	    isize = nint(real(jydim(i)-1)/real(parent_grid_ratio(i)))
+	    write(6,*) 'An e_sn = ',isize * parent_grid_ratio(i) + 1,' might work'
             stop
          end if
       end do

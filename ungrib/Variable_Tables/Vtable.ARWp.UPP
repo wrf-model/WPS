@@ -35,3 +35,8 @@ Param| Type |Level1|Level2| Name     |  Units  | Description                    
   65 |   1  |   0  |      | SNOW     | kg m-2  | Water equivalent snow depth             |  0  |  1  | 13  |   1 |
 -----+------+------+------+----------+---------+-----------------------------------------+-----------------------+
 
+#  Vtable for WRF-ARW output that has been processed by UPP and is on pressure levels and in Grib format
+#
+#    Note that ARW output written directly to Grib format cannot be used by ungrib. WPS cannot process
+#    ARW output fields such as MU (instead of pressure) and Theta perturbation (instead of temperature).
+#

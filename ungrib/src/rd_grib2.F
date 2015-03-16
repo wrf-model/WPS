@@ -272,6 +272,8 @@ C  SET ARGUMENTS
                map%source = 'NCEP GFS Ensemble'
              elseif (iprocess.eq.129) then
                map%source = 'NCEP GODAS'
+             elseif (iprocess.eq.197) then
+               map%source = 'NCEP CDAS CFSV2'
              elseif (iprocess.eq.25) then
                map%source = 'NCEP SNOW COVER ANALYSIS'
              else

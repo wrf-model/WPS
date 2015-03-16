@@ -330,9 +330,10 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_level, out_f
 
 ! Repair GFS and ECMWF pressure-level RH
         if (index(map%source,'NCEP GFS') .ne. 0 .or.  &
+            index(map%source,'NCEP CDAS CFSV2') .ne. 0 .or.  &
             index(map%source,'ECMWF') .ne. 0 ) then
           call mprintf(.true.,DEBUG, &
-             "RRPR:   Adjusting GFS/ECMWF RH values ")
+             "RRPR:   Adjusting RH values ")
           do k = 1, nlvl
             if ( is_there(nint(plvl(k)),'RH') .and. &
                  is_there(nint(plvl(k)),'TT') ) then
@@ -895,7 +896,7 @@ subroutine vntrp(plvl, maxlvl, k, name, ix, jx)
 
   frc = (plvl(k) - plvl(k+1)) / ( plvl(k-1)-plvl(k+1))
 
-  b = (1.-frc)*a + frc*c
+  b = (1.-frc)*c + frc*a
 !KWM  b = 0.5 * (a + c)
   call  put_storage(nint(plvl(k)), name, b, ix, jx)
 
