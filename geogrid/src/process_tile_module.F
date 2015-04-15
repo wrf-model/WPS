@@ -74,6 +74,7 @@ module process_tile_module
       type (hashtable) :: processed_fieldnames
       character (len=128), dimension(2) :: dimnames
       integer :: sub_x, sub_y
+      integer :: opt_status
 
       ! Probably not all of these nullify statements are needed...
       nullify(xlat_array)
@@ -702,9 +703,11 @@ module process_tile_module
          ! There is another field in the GEOGRID.TBL file 
          if (ifieldstatus == 0) then
             temp_string(1:128) = fieldname
+
+            call get_source_opt_status(fieldname, 0, opt_status)
       
             ! If this field is still to be processed
-            if (.not. hash_search(processed_fieldnames, temp_string)) then
+            if (.not. hash_search(processed_fieldnames, temp_string) .and. opt_status == 0) then
      
                call hash_insert(processed_fieldnames, temp_string)
                call mprintf(.true.,STDOUT,'  Processing %s', s1=trim(fieldname))
@@ -1184,6 +1187,7 @@ module process_tile_module
       integer :: start_src_k, end_src_k
       integer :: i, j, k, ix, iy, itype
       integer :: user_iproj, istatus
+      integer :: opt_status
       real :: mask_val
       real :: temp
       real :: scale_factor
@@ -1206,11 +1210,9 @@ module process_tile_module
       !  will persist through all recursive calls, tracking which grid points have been assigned
       !  a value. 
       if (ilevel == 1) call bitarray_create(processed_domain, end_i-start_i+1, end_j-start_j+1)
-    
-      ! Find out the projection of the data for this "priority level" (given by ilevel)
-      call get_data_projection(fieldname, user_iproj, user_stand_lon, user_truelat1, user_truelat2, &
-                               user_dxkm, user_dykm, user_known_x, user_known_y, user_known_lat, &
-                               user_known_lon, ilevel, istatus)
+
+      ! Find out if this "priority level" (given by ilevel) exists
+      call check_priority_level(fieldname, ilevel, istatus)
     
       ! A bad status indicates that that no data for priority level ilevel is available, and thus, that
       !   no further levels will be specified. We are done processing for this level.
@@ -1219,157 +1221,182 @@ module process_tile_module
          return 
       end if
     
-      ! A good status indicates that there is data for this priority level, so we store the projection
-      !   of that data on a stack. The projection will be on the top of the stack (and hence will be 
-      !   the "active" projection) once all higher-priority levels have been processed
-      call push_source_projection(user_iproj, user_stand_lon, user_truelat1, user_truelat2, &
-                               user_dxkm, user_dykm, user_dykm, user_dxkm, user_known_x, user_known_y, &
-                               user_known_lat, user_known_lon)
-    
       ! Before proceeding with processing for this level, though, process for the next highest priority level
       !   of source data
       call calc_field(fieldname, field, xlat_array, xlon_array, istagger, start_i, end_i, &
                       start_j, end_j, start_k, end_k, processed_domain, ilevel+1, landmask, sr_x, sr_y)
-    
+
       ! At this point, all levels of source data with higher priority have been processed, and we can assign
       !   values to all grid points that have not already been given values from higher-priority data
-    
-      ! Initialize point processing module
-      call proc_point_init()
-    
-      ! Initialize queues
-      call q_init(point_queue)
-      call q_init(tile_queue)
-    
-      ! Determine whether we will be processing categorical data or continuous data
-      itype = iget_source_fieldtype(fieldname, ilevel, istatus)
-      call get_interp_option(fieldname, ilevel, interp_string, istatus)
-      interp_type => interp_array_from_string(interp_string)
-      interp_opts => interp_options_from_string(interp_string)
 
-      ! Also, check whether we will be using the cell averaging interpolator for continuous fields
-      if (index(interp_string,'average_gcell') /= 0 .and. itype == CONTINUOUS) then
-         call get_gcell_threshold(interp_string, threshold, istatus)
-         if (istatus == 0) then
-            call get_source_resolution(fieldname, ilevel, src_dx, src_dy, istatus)
+      call get_source_opt_status(fieldname, ilevel, opt_status)
+      if (opt_status == 0) then
+
+         ! Find out the projection of the data for this "priority level" (given by ilevel)
+         call get_data_projection(fieldname, user_iproj, user_stand_lon, user_truelat1, user_truelat2, &
+                                  user_dxkm, user_dykm, user_known_x, user_known_y, user_known_lat, &
+                                  user_known_lon, ilevel, istatus)
+       
+         ! A good status indicates that there is data for this priority level, so we store the projection
+         !   of that data on a stack. The projection will be on the top of the stack (and hence will be 
+         !   the "active" projection) once all higher-priority levels have been processed
+         call push_source_projection(user_iproj, user_stand_lon, user_truelat1, user_truelat2, &
+                                  user_dxkm, user_dykm, user_dykm, user_dxkm, user_known_x, user_known_y, &
+                                  user_known_lat, user_known_lon)
+       
+         ! Initialize point processing module
+         call proc_point_init()
+       
+         ! Initialize queues
+         call q_init(point_queue)
+         call q_init(tile_queue)
+       
+         ! Determine whether we will be processing categorical data or continuous data
+         itype = iget_source_fieldtype(fieldname, ilevel, istatus)
+         call get_interp_option(fieldname, ilevel, interp_string, istatus)
+         interp_type => interp_array_from_string(interp_string)
+         interp_opts => interp_options_from_string(interp_string)
+   
+         ! Also, check whether we will be using the cell averaging interpolator for continuous fields
+         if (index(interp_string,'average_gcell') /= 0 .and. itype == CONTINUOUS) then
+            call get_gcell_threshold(interp_string, threshold, istatus)
             if (istatus == 0) then
-               call get_domain_resolution(dom_dx, dom_dy)
-               if (gridtype == 'C') then
-                  if (threshold*max(src_dx,src_dy)*111. <= max(dom_dx,dom_dy)/1000.) then
-                     itype = SP_CONTINUOUS
-                     allocate(data_count(start_i:end_i,start_j:end_j,start_k:end_k))
-                     data_count = 0.
-                  end if
-               else if (gridtype == 'E') then
-                  if (max(src_dx,src_dy) >= threshold*max(dom_dx,dom_dy)) then
-                     itype = SP_CONTINUOUS
-                     allocate(data_count(start_i:end_i,start_j:end_j,start_k:end_k))
-                     data_count = 0.
+               call get_source_resolution(fieldname, ilevel, src_dx, src_dy, istatus)
+               if (istatus == 0) then
+                  call get_domain_resolution(dom_dx, dom_dy)
+                  if (gridtype == 'C') then
+                     if (threshold*max(src_dx,src_dy)*111. <= max(dom_dx,dom_dy)/1000.) then
+                        itype = SP_CONTINUOUS
+                        allocate(data_count(start_i:end_i,start_j:end_j,start_k:end_k))
+                        data_count = 0.
+                     end if
+                  else if (gridtype == 'E') then
+                     if (max(src_dx,src_dy) >= threshold*max(dom_dx,dom_dy)) then
+                        itype = SP_CONTINUOUS
+                        allocate(data_count(start_i:end_i,start_j:end_j,start_k:end_k))
+                        data_count = 0.
+                     end if
                   end if
                end if
             end if
          end if
-      end if
-
-      call get_missing_value(fieldname, ilevel, msg_val, istatus)
-      if (istatus /= 0) msg_val = NAN
-      call get_missing_fill_value(fieldname, msg_fill_val, istatus)
-      if (istatus /= 0) msg_fill_val = NAN
-    
-      call get_masked_value(fieldname, ilevel, mask_val, istatus)
-      if (istatus /= 0) mask_val = -1.
-    
-      if (itype == CONTINUOUS .or. itype == SP_CONTINUOUS) then
-         call get_source_levels(fieldname, ilevel, start_src_k, end_src_k, istatus)
-         if (istatus /= 0) return
-      end if
-    
-      ! Initialize bitarray used to track which points have been visited and assigned values while 
-      !   processing *this* priority level of data
-      call bitarray_create(bit_domain, end_i-start_i+1, end_j-start_j+1)
-      call bitarray_create(level_domain, end_i-start_i+1, end_j-start_j+1)
-    
-      ! Begin by placing a point in the tile_queue
-      current_pt%lat = xlat_array(start_i,start_j)
-      current_pt%lon = xlon_array(start_i,start_j)
-      current_pt%x = start_i
-      current_pt%y = start_j
-      call q_insert(tile_queue, current_pt)
-    
-      ! While there are still grid points in tiles that have not yet been processed
-      do while (q_isdata(tile_queue))
-    
-         ! Take a point from the outer queue and place it in the point_queue for processing 
-         current_pt = q_remove(tile_queue)
-     
-         ! If this level of data is categorical (i.e., is given as an array of category indices),
-         !   then first try to process the entire tile in one call to accum_categorical. Any grid
-         !   points that are not given values by accum_categorical and that lie within the current
-         !   tile of source data are individually assigned values in the inner loop
-         if (itype == CATEGORICAL) then
-     
-            ! Have we already visited this point? If so, this tile has already been processed by 
-            !   accum_categorical. 
-            if (.not. bitarray_test(bit_domain, current_pt%x-start_i+1, current_pt%y-start_j+1)) then
-               call q_insert(point_queue, current_pt) 
-               if (.not. have_processed_tile(current_pt%lat, current_pt%lon, fieldname, ilevel)) then
-                  call accum_categorical(current_pt%lat, current_pt%lon, istagger, field, &
-                                         start_i, end_i, start_j, end_j, start_k, end_k, &
-                                         fieldname, processed_domain, level_domain, &
-                                         ilevel, msg_val, mask_val, sr_x, sr_y)
-! BUG: Where do we mask out those points that are on land/water when masked=land/water is set? 
-               end if
-               call bitarray_set(bit_domain, current_pt%x-start_i+1, current_pt%y-start_j+1)
-            end if
-     
-         else if (itype == SP_CONTINUOUS) then
-
-            ! Have we already visited this point? If so, this tile has already been processed by 
-            !   accum_continuous. 
-            if (.not. bitarray_test(bit_domain, current_pt%x-start_i+1, current_pt%y-start_j+1)) then
-               call q_insert(point_queue, current_pt) 
-               if (.not. have_processed_tile(current_pt%lat, current_pt%lon, fieldname, ilevel)) then
-                  call accum_continuous(current_pt%lat, current_pt%lon, istagger, field, data_count, &
-                                         start_i, end_i, start_j, end_j, start_k, end_k, &
-                                         fieldname, processed_domain, level_domain, &
-                                         ilevel, msg_val, mask_val, sr_x, sr_y)
-! BUG: Where do we mask out those points that are on land/water when masked=land/water is set? 
-               end if
-               call bitarray_set(bit_domain, current_pt%x-start_i+1, current_pt%y-start_j+1)
-            end if
-
-         else if (itype == CONTINUOUS) then
-     
-            ! Have we already visited this point? If so, the tile containing this point has already been
-            !   processed in the inner loop.
-            if (.not. bitarray_test(bit_domain, current_pt%x-start_i+1, current_pt%y-start_j+1)) then
-               call q_insert(point_queue, current_pt) 
-               call bitarray_set(bit_domain, current_pt%x-start_i+1, current_pt%y-start_j+1)
-            end if
-     
+   
+         call get_missing_value(fieldname, ilevel, msg_val, istatus)
+         if (istatus /= 0) msg_val = NAN
+         call get_missing_fill_value(fieldname, msg_fill_val, istatus)
+         if (istatus /= 0) msg_fill_val = NAN
+       
+         call get_masked_value(fieldname, ilevel, mask_val, istatus)
+         if (istatus /= 0) mask_val = -1.
+       
+         if (itype == CONTINUOUS .or. itype == SP_CONTINUOUS) then
+            call get_source_levels(fieldname, ilevel, start_src_k, end_src_k, istatus)
+            if (istatus /= 0) return
          end if
-     
-         ! This inner loop, where all grid points contained in the current source tile are processed
-         do while (q_isdata(point_queue))
-            current_pt = q_remove(point_queue)
-            ix = current_pt%x
-            iy = current_pt%y
-      
-            ! Process the current point
-            if (itype == CONTINUOUS .or. itype == SP_CONTINUOUS) then
-      
-               ! Have we already assigned this point a value from this priority level?
-               if (.not. bitarray_test(level_domain, ix-start_i+1, iy-start_j+1)) then
+       
+         ! Initialize bitarray used to track which points have been visited and assigned values while 
+         !   processing *this* priority level of data
+         call bitarray_create(bit_domain, end_i-start_i+1, end_j-start_j+1)
+         call bitarray_create(level_domain, end_i-start_i+1, end_j-start_j+1)
+       
+         ! Begin by placing a point in the tile_queue
+         current_pt%lat = xlat_array(start_i,start_j)
+         current_pt%lon = xlon_array(start_i,start_j)
+         current_pt%x = start_i
+         current_pt%y = start_j
+         call q_insert(tile_queue, current_pt)
+       
+         ! While there are still grid points in tiles that have not yet been processed
+         do while (q_isdata(tile_queue))
+       
+            ! Take a point from the outer queue and place it in the point_queue for processing 
+            current_pt = q_remove(tile_queue)
         
-                  ! If the point was already assigned a value from a higher-priority level, no 
-                  !   need to assign a new value
-                  if (bitarray_test(processed_domain, ix-start_i+1, iy-start_j+1)) then
-                     call bitarray_set(level_domain, ix-start_i+1, iy-start_j+1)
+            ! If this level of data is categorical (i.e., is given as an array of category indices),
+            !   then first try to process the entire tile in one call to accum_categorical. Any grid
+            !   points that are not given values by accum_categorical and that lie within the current
+            !   tile of source data are individually assigned values in the inner loop
+            if (itype == CATEGORICAL) then
+        
+               ! Have we already visited this point? If so, this tile has already been processed by 
+               !   accum_categorical. 
+               if (.not. bitarray_test(bit_domain, current_pt%x-start_i+1, current_pt%y-start_j+1)) then
+                  call q_insert(point_queue, current_pt) 
+                  if (.not. have_processed_tile(current_pt%lat, current_pt%lon, fieldname, ilevel)) then
+                     call accum_categorical(current_pt%lat, current_pt%lon, istagger, field, &
+                                            start_i, end_i, start_j, end_j, start_k, end_k, &
+                                            fieldname, processed_domain, level_domain, &
+                                            ilevel, msg_val, mask_val, sr_x, sr_y)
+! BUG: Where do we mask out those points that are on land/water when masked=land/water is set? 
+                  end if
+                  call bitarray_set(bit_domain, current_pt%x-start_i+1, current_pt%y-start_j+1)
+               end if
+        
+            else if (itype == SP_CONTINUOUS) then
+   
+               ! Have we already visited this point? If so, this tile has already been processed by 
+               !   accum_continuous. 
+               if (.not. bitarray_test(bit_domain, current_pt%x-start_i+1, current_pt%y-start_j+1)) then
+                  call q_insert(point_queue, current_pt) 
+                  if (.not. have_processed_tile(current_pt%lat, current_pt%lon, fieldname, ilevel)) then
+                     call accum_continuous(current_pt%lat, current_pt%lon, istagger, field, data_count, &
+                                            start_i, end_i, start_j, end_j, start_k, end_k, &
+                                            fieldname, processed_domain, level_domain, &
+                                            ilevel, msg_val, mask_val, sr_x, sr_y)
+! BUG: Where do we mask out those points that are on land/water when masked=land/water is set? 
+                  end if
+                  call bitarray_set(bit_domain, current_pt%x-start_i+1, current_pt%y-start_j+1)
+               end if
+   
+            else if (itype == CONTINUOUS) then
+        
+               ! Have we already visited this point? If so, the tile containing this point has already been
+               !   processed in the inner loop.
+               if (.not. bitarray_test(bit_domain, current_pt%x-start_i+1, current_pt%y-start_j+1)) then
+                  call q_insert(point_queue, current_pt) 
+                  call bitarray_set(bit_domain, current_pt%x-start_i+1, current_pt%y-start_j+1)
+               end if
+        
+            end if
+        
+            ! This inner loop, where all grid points contained in the current source tile are processed
+            do while (q_isdata(point_queue))
+               current_pt = q_remove(point_queue)
+               ix = current_pt%x
+               iy = current_pt%y
          
-                  ! Otherwise, need to assign values from this level of source data if we can
-                  else
-                     if (present(landmask) .and. (istagger == M .or. istagger == HH)) then
-                        if (landmask(ix,iy) /= mask_val) then
+               ! Process the current point
+               if (itype == CONTINUOUS .or. itype == SP_CONTINUOUS) then
+         
+                  ! Have we already assigned this point a value from this priority level?
+                  if (.not. bitarray_test(level_domain, ix-start_i+1, iy-start_j+1)) then
+           
+                     ! If the point was already assigned a value from a higher-priority level, no 
+                     !   need to assign a new value
+                     if (bitarray_test(processed_domain, ix-start_i+1, iy-start_j+1)) then
+                        call bitarray_set(level_domain, ix-start_i+1, iy-start_j+1)
+            
+                     ! Otherwise, need to assign values from this level of source data if we can
+                     else
+                        if (present(landmask) .and. (istagger == M .or. istagger == HH)) then
+                           if (landmask(ix,iy) /= mask_val) then
+                              do k=start_src_k,end_src_k
+                                 temp = get_point(current_pt%lat, current_pt%lon, k, &
+                                                  fieldname, ilevel, interp_type, interp_opts, msg_val)
+                                 if (temp /= msg_val) then
+                                    field(ix, iy, k) = temp
+                                    call bitarray_set(level_domain, ix-start_i+1, iy-start_j+1)
+                                    if (itype == SP_CONTINUOUS) data_count(ix, iy, k) = 1.0
+                                 else
+                                    field(ix, iy, k) = msg_fill_val
+                                 end if
+                              end do
+                           else
+                              do k=start_k,end_k
+                                 field(ix,iy,k) = msg_fill_val
+                              end do
+                           end if
+                        else
                            do k=start_src_k,end_src_k
                               temp = get_point(current_pt%lat, current_pt%lon, k, &
                                                fieldname, ilevel, interp_type, interp_opts, msg_val)
@@ -1381,50 +1408,56 @@ module process_tile_module
                                  field(ix, iy, k) = msg_fill_val
                               end if
                            end do
-                        else
-                           do k=start_k,end_k
-                              field(ix,iy,k) = msg_fill_val
-                           end do
                         end if
-                     else
-                        do k=start_src_k,end_src_k
-                           temp = get_point(current_pt%lat, current_pt%lon, k, &
-                                            fieldname, ilevel, interp_type, interp_opts, msg_val)
-                           if (temp /= msg_val) then
-                              field(ix, iy, k) = temp
-                              call bitarray_set(level_domain, ix-start_i+1, iy-start_j+1)
-                              if (itype == SP_CONTINUOUS) data_count(ix, iy, k) = 1.0
-                           else
-                              field(ix, iy, k) = msg_fill_val
-                           end if
-                        end do
                      end if
                   end if
-               end if
-      
-            else if (itype == CATEGORICAL) then
-      
-               ! Have we already assigned this point a value from this priority level?
-               if (.not.bitarray_test(level_domain, ix-start_i+1, iy-start_j+1)) then
-       
-                  ! If the point was already assigned a value from a higher-priority level, no 
-                  !   need to assign a new value
-                  if (bitarray_test(processed_domain, ix-start_i+1, iy-start_j+1)) then
-                     call bitarray_set(level_domain, ix-start_i+1, iy-start_j+1)
          
-                  ! Otherwise, the point was apparently not given a value when accum_categorical
-                  !   was called for the current tile, and we need to assign values from this 
-                  !   level of source data if we can
-                  else
-                     if (present(landmask) .and. (istagger == M .or. istagger == HH)) then
-                        if (landmask(ix,iy) /= mask_val) then
+               else if (itype == CATEGORICAL) then
+         
+                  ! Have we already assigned this point a value from this priority level?
+                  if (.not.bitarray_test(level_domain, ix-start_i+1, iy-start_j+1)) then
+          
+                     ! If the point was already assigned a value from a higher-priority level, no 
+                     !   need to assign a new value
+                     if (bitarray_test(processed_domain, ix-start_i+1, iy-start_j+1)) then
+                        call bitarray_set(level_domain, ix-start_i+1, iy-start_j+1)
+            
+                     ! Otherwise, the point was apparently not given a value when accum_categorical
+                     !   was called for the current tile, and we need to assign values from this 
+                     !   level of source data if we can
+                     else
+                        if (present(landmask) .and. (istagger == M .or. istagger == HH)) then
+                           if (landmask(ix,iy) /= mask_val) then
+                              temp = get_point(current_pt%lat, current_pt%lon, 1, &
+                                               fieldname, ilevel, interp_type, interp_opts, msg_val)
+         
+                              do k=start_k,end_k
+                                 field(ix,iy,k) = 0.
+                              end do
+         
+                              if (temp /= msg_val) then
+                                 if (int(temp) >= start_k .and. int(temp) <= end_k) then
+                                    field(ix, iy, int(temp)) = field(ix, iy, int(temp)) + 1.
+                                 else
+                                    call mprintf(.true.,WARN,' Attempted to assign an invalid category '// &
+                                                 '%i to grid point (%i, %i)', i1=int(temp), i2=ix, i3=iy)
+                                 end if
+                                 call bitarray_set(level_domain, ix-start_i+1, iy-start_j+1)
+                              end if
+      
+                           else
+                              do k=start_k,end_k
+                                 field(ix,iy,k) = 0.
+                              end do
+                           end if
+                        else
                            temp = get_point(current_pt%lat, current_pt%lon, 1, &
                                             fieldname, ilevel, interp_type, interp_opts, msg_val)
-      
+         
                            do k=start_k,end_k
                               field(ix,iy,k) = 0.
                            end do
-      
+         
                            if (temp /= msg_val) then
                               if (int(temp) >= start_k .and. int(temp) <= end_k) then
                                  field(ix, iy, int(temp)) = field(ix, iy, int(temp)) + 1.
@@ -1434,101 +1467,99 @@ module process_tile_module
                               end if
                               call bitarray_set(level_domain, ix-start_i+1, iy-start_j+1)
                            end if
-   
-                        else
-                           do k=start_k,end_k
-                              field(ix,iy,k) = 0.
-                           end do
-                        end if
-                     else
-                        temp = get_point(current_pt%lat, current_pt%lon, 1, &
-                                         fieldname, ilevel, interp_type, interp_opts, msg_val)
-      
-                        do k=start_k,end_k
-                           field(ix,iy,k) = 0.
-                        end do
-      
-                        if (temp /= msg_val) then
-                           if (int(temp) >= start_k .and. int(temp) <= end_k) then
-                              field(ix, iy, int(temp)) = field(ix, iy, int(temp)) + 1.
-                           else
-                              call mprintf(.true.,WARN,' Attempted to assign an invalid category '// &
-                                           '%i to grid point (%i, %i)', i1=int(temp), i2=ix, i3=iy)
-                           end if
-                           call bitarray_set(level_domain, ix-start_i+1, iy-start_j+1)
                         end if
                      end if
                   end if
+         
                end if
-      
-            end if
-      
-            ! Scan neighboring points, adding them to the appropriate queue based on whether they
-            !   are in the current tile or not
-            if (iy > start_j) then
+         
+               ! Scan neighboring points, adding them to the appropriate queue based on whether they
+               !   are in the current tile or not
+               if (iy > start_j) then
+                  if (ix > start_i) then
+           
+                     ! Neighbor with relative position (-1,-1)
+                     call process_neighbor(ix-1, iy-1, bit_domain, point_queue, tile_queue, &
+                                           xlat_array, xlon_array, start_i, end_i, start_j, end_j, ilevel)
+                  end if
+          
+                  ! Neighbor with relative position (0,-1) 
+                  call process_neighbor(ix, iy-1, bit_domain, point_queue, tile_queue, &
+                                        xlat_array, xlon_array, start_i, end_i, start_j, end_j, ilevel)
+          
+                  if (ix < end_i) then
+          
+                     ! Neighbor with relative position (+1,-1)
+                     call process_neighbor(ix+1, iy-1, bit_domain, point_queue, tile_queue, &
+                                           xlat_array, xlon_array, start_i, end_i, start_j, end_j, ilevel)
+                  end if
+               end if
+         
                if (ix > start_i) then
+         
+                  ! Neighbor with relative position (-1,0)
+                  call process_neighbor(ix-1, iy, bit_domain, point_queue, tile_queue, &
+                                        xlat_array, xlon_array, start_i, end_i, start_j, end_j, ilevel)
+               end if
+         
+               if (ix < end_i) then
+         
+                  ! Neighbor with relative position (+1,0)
+                  call process_neighbor(ix+1, iy, bit_domain, point_queue, tile_queue, &
+                                        xlat_array, xlon_array, start_i, end_i, start_j, end_j, ilevel)
+               end if
+         
+               if (iy < end_j) then
+                  if (ix > start_i) then
+          
+                     ! Neighbor with relative position (-1,+1)
+                     call process_neighbor(ix-1, iy+1, bit_domain, point_queue, tile_queue, &
+                                           xlat_array, xlon_array, start_i, end_i, start_j, end_j, ilevel)
+                  end if
+          
+                  ! Neighbor with relative position (0,+1)
+                  call process_neighbor(ix, iy+1, bit_domain, point_queue, tile_queue, &
+                                        xlat_array, xlon_array, start_i, end_i, start_j, end_j, ilevel)
+                  if (ix < end_i) then
+          
+                     ! Neighbor with relative position (+1,+1)
+                     call process_neighbor(ix+1, iy+1, bit_domain, point_queue, tile_queue, &
+                                           xlat_array, xlon_array, start_i, end_i, start_j, end_j, ilevel)
+                  end if
+               end if
+         
+            end do
         
-                  ! Neighbor with relative position (-1,-1)
-                  call process_neighbor(ix-1, iy-1, bit_domain, point_queue, tile_queue, &
-                                        xlat_array, xlon_array, start_i, end_i, start_j, end_j, ilevel)
-               end if
-       
-               ! Neighbor with relative position (0,-1) 
-               call process_neighbor(ix, iy-1, bit_domain, point_queue, tile_queue, &
-                                     xlat_array, xlon_array, start_i, end_i, start_j, end_j, ilevel)
-       
-               if (ix < end_i) then
-       
-                  ! Neighbor with relative position (+1,-1)
-                  call process_neighbor(ix+1, iy-1, bit_domain, point_queue, tile_queue, &
-                                        xlat_array, xlon_array, start_i, end_i, start_j, end_j, ilevel)
-               end if
-            end if
-      
-            if (ix > start_i) then
-      
-               ! Neighbor with relative position (-1,0)
-               call process_neighbor(ix-1, iy, bit_domain, point_queue, tile_queue, &
-                                     xlat_array, xlon_array, start_i, end_i, start_j, end_j, ilevel)
-            end if
-      
-            if (ix < end_i) then
-      
-               ! Neighbor with relative position (+1,0)
-               call process_neighbor(ix+1, iy, bit_domain, point_queue, tile_queue, &
-                                     xlat_array, xlon_array, start_i, end_i, start_j, end_j, ilevel)
-            end if
-      
-            if (iy < end_j) then
-               if (ix > start_i) then
-       
-                  ! Neighbor with relative position (-1,+1)
-                  call process_neighbor(ix-1, iy+1, bit_domain, point_queue, tile_queue, &
-                                        xlat_array, xlon_array, start_i, end_i, start_j, end_j, ilevel)
-               end if
-       
-               ! Neighbor with relative position (0,+1)
-               call process_neighbor(ix, iy+1, bit_domain, point_queue, tile_queue, &
-                                     xlat_array, xlon_array, start_i, end_i, start_j, end_j, ilevel)
-               if (ix < end_i) then
-       
-                  ! Neighbor with relative position (+1,+1)
-                  call process_neighbor(ix+1, iy+1, bit_domain, point_queue, tile_queue, &
-                                        xlat_array, xlon_array, start_i, end_i, start_j, end_j, ilevel)
-               end if
-            end if
-      
          end do
-     
-      end do
-
-      if (itype == SP_CONTINUOUS) then
-         itype = CONTINUOUS
-         if (present(landmask) .and. (istagger == M .or. istagger == HH)) then
-            do j=start_j,end_j
-               do i=start_i,end_i
-                  if (landmask(i,j) /= mask_val) then
-                     do k=start_k,end_k
+   
+         if (itype == SP_CONTINUOUS) then
+            itype = CONTINUOUS
+            if (present(landmask) .and. (istagger == M .or. istagger == HH)) then
+               do j=start_j,end_j
+                  do i=start_i,end_i
+                     if (landmask(i,j) /= mask_val) then
+                        do k=start_k,end_k
+                           if (data_count(i,j,k) > 0.) then
+                              field(i,j,k) = field(i,j,k) / data_count(i,j,k)
+                           else
+                              if (.not.bitarray_test(processed_domain, i-start_i+1, j-start_j+1)) then
+                                 field(i,j,k) = msg_fill_val
+                              end if
+                           end if
+                        end do
+                     else
+                        if (.not.bitarray_test(processed_domain, i-start_i+1, j-start_j+1)) then
+                           do k=start_k,end_k
+                              field(i,j,k) = msg_fill_val
+                           end do
+                        end if
+                     end if
+                  end do
+               end do
+            else
+               do k=start_k,end_k
+                  do j=start_j,end_j
+                     do i=start_i,end_i
                         if (data_count(i,j,k) > 0.) then
                            field(i,j,k) = field(i,j,k) / data_count(i,j,k)
                         else
@@ -1537,83 +1568,70 @@ module process_tile_module
                            end if
                         end if
                      end do
-                  else
-                     if (.not.bitarray_test(processed_domain, i-start_i+1, j-start_j+1)) then
-                        do k=start_k,end_k
-                           field(i,j,k) = msg_fill_val
-                        end do
-                     end if
-                  end if
+                  end do
                end do
-            end do
-         else
-            do k=start_k,end_k
+            end if
+            deallocate(data_count)
+   
+         else if (itype == CATEGORICAL) then
+            if (present(landmask) .and. (istagger == M .or. istagger == HH)) then
                do j=start_j,end_j
                   do i=start_i,end_i
-                     if (data_count(i,j,k) > 0.) then
-                        field(i,j,k) = field(i,j,k) / data_count(i,j,k)
-                     else
-                        if (.not.bitarray_test(processed_domain, i-start_i+1, j-start_j+1)) then
-                           field(i,j,k) = msg_fill_val
-                        end if
+                     if (landmask(i,j) == mask_val) then
+                        do k=start_k,end_k
+                           field(i,j,k) = 0.
+                        end do
                      end if
                   end do
                end do
-            end do
+            end if
          end if
-         deallocate(data_count)
-
-      else if (itype == CATEGORICAL) then
-         if (present(landmask) .and. (istagger == M .or. istagger == HH)) then
-            do j=start_j,end_j
-               do i=start_i,end_i
-                  if (landmask(i,j) == mask_val) then
+   
+         deallocate(interp_type)
+         deallocate(interp_opts)
+   
+   
+         ! We may need to scale this field by a constant
+         call get_field_scale_factor(fieldname, ilevel, scale_factor, istatus)
+         if (istatus == 0) then
+            do i=start_i, end_i
+               do j=start_j, end_j
+                  if (bitarray_test(level_domain,i-start_i+1,j-start_j+1) .and. &
+                      .not. bitarray_test(processed_domain,i-start_i+1,j-start_j+1)) then
                      do k=start_k,end_k
-                        field(i,j,k) = 0.
+                        if (field(i,j,k) /= msg_fill_val) then
+                           field(i,j,k) = field(i,j,k) * scale_factor
+                        end if
                      end do
                   end if
                end do
             end do
          end if
+   
+       
+         ! Now add the points that were assigned values at this priority level to the complete array
+         !   of points that have been assigned values
+         call bitarray_merge(processed_domain, level_domain)
+       
+         call bitarray_destroy(bit_domain)
+         call bitarray_destroy(level_domain)
+         call q_destroy(point_queue)
+         call q_destroy(tile_queue)
+         call proc_point_shutdown()
+       
+         ! Remove the projection of the current level of source data from the stack, thus "activating" 
+         !   the projection of the next highest level
+         call pop_source_projection()
+
+      else
+         call mprintf(.true.,STDOUT,'   Important note: could not open input dataset for priority level %i, '// &
+                                    'but this level is optional.', i1=ilevel)
+         call mprintf(.true.,LOGFILE,'   Important note: could not open input dataset for priority level %i, '// &
+                                    'but this level is optional.', i1=ilevel)
       end if
 
-      deallocate(interp_type)
-      deallocate(interp_opts)
-
-
-      ! We may need to scale this field by a constant
-      call get_field_scale_factor(fieldname, ilevel, scale_factor, istatus)
-      if (istatus == 0) then
-         do i=start_i, end_i
-            do j=start_j, end_j
-               if (bitarray_test(level_domain,i-start_i+1,j-start_j+1) .and. &
-                   .not. bitarray_test(processed_domain,i-start_i+1,j-start_j+1)) then
-                  do k=start_k,end_k
-                     if (field(i,j,k) /= msg_fill_val) then
-                        field(i,j,k) = field(i,j,k) * scale_factor
-                     end if
-                  end do
-               end if
-            end do
-         end do
-      end if
-
-    
-      ! Now add the points that were assigned values at this priority level to the complete array
-      !   of points that have been assigned values
-      call bitarray_merge(processed_domain, level_domain)
-    
-      call bitarray_destroy(bit_domain)
-      call bitarray_destroy(level_domain)
-      call q_destroy(point_queue)
-      call q_destroy(tile_queue)
-      call proc_point_shutdown()
       ! If this is the last level of the recursion, we can also deallocate processed_domain
       if (ilevel == 1) call bitarray_destroy(processed_domain)
-    
-      ! Remove the projection of the current level of source data from the stack, thus "activating" 
-      !   the projection of the next highest level
-      call pop_source_projection()
    
    end subroutine calc_field
    
