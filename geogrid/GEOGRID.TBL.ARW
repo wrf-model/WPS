@@ -356,27 +356,30 @@ name = LAKE_DEPTH
         rel_path = default:lake_depth/
         flag_in_output=FLAG_LAKE_DEPTH
 ===============================
-#name=URB_PARAM
-#        priority=1
-#        dest_type=continuous
-#        fill_missing = 0.
-#        z_dim_name=num_urb_params
-#        interp_option=default:nearest_neighbor
-#        rel_path=default:NUDAPT44_1km/
-#===============================
-#name=IMPERV
-#        priority=1
-#        dest_type=continuous
-#        interp_option = default:average_gcell(0.0)
-#        masked=water
-#        fill_missing=0.
-#        rel_path = default:nlcd2011_imp_ll_9s/
-#===============================
-#name=CANFRA
-#        priority=1
-#        dest_type=continuous
-#        interp_option = default:average_gcell(0.0)
-#        masked=water
-#        fill_missing=0.
-#        rel_path = default:nlcd2011_can_ll_9s/
-#===============================
+name=URB_PARAM
+        priority=1
+        optional=yes
+        dest_type=continuous
+        fill_missing = 0.
+        z_dim_name=num_urb_params
+        interp_option=default:nearest_neighbor
+        rel_path=default:NUDAPT44_1km/
+===============================
+name=IMPERV
+        priority=1
+        optional=yes
+        dest_type=continuous
+        interp_option = default:average_gcell(0.0)
+        masked=water
+        fill_missing=0.
+        rel_path = default:nlcd2011_imp_ll_9s/
+===============================
+name=CANFRA
+        priority=1
+        optional=yes
+        dest_type=continuous
+        interp_option = default:average_gcell(0.0)
+        masked=water
+        fill_missing=0.
+        rel_path = default:nlcd2011_can_ll_9s/
+===============================
