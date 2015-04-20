@@ -7,7 +7,7 @@
 load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/gsn_code.ncl"
 load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/gsn_csm.ncl"
 begin
-  grb_file = addfile( "gfs_150416_12_00.grb","r")
+  grb_file = addfile( "gfs_2010042700_12.grib2","r")
   names = getfilevarnames(grb_file)  ; Get the variable names in the
   print(names)                       ; GRIB file and print them out.
 
@@ -17,10 +17,10 @@ begin
   npres=dimsizes(pres)
   presRH= grb_file->lv_ISBL6
   npresRH=dimsizes(presRH)
-  soil= grb_file->lv_DBLL10_l0
+  soil= grb_file->lv_DBLL2_l1
   nsoil=dimsizes(soil)
-  wks = gsn_open_wks("x11","gfs") ; Open an X11 workstation.
-  gsn_define_colormap(wks,"wh-bl-gr-ye-re")
+
+  wks = gsn_open_wks("pdf","gfs") ; Open an X11 workstation.
 
 ;----------- MCHEN Begin plot -----------------------------------------
   resources             = True
@@ -60,7 +60,7 @@ begin
         else
           resources@tiMainString = "TMP_P0_L103_GLL0"
         end if               
-    plot = gsn_csm_contour_map_ce(wks,T2(0,:,:),resources)
+    plot = gsn_csm_contour_map_ce(wks,T2,resources)
     end if
 ; U10
     if(names(i).eq."UGRD_P0_L103_GLL0") then   
@@ -70,7 +70,7 @@ begin
         else
           resources@tiMainString = "UGRD_P0_L103_GLL0"
         end if               
-    plot = gsn_csm_contour_map_ce(wks,U10(0,:,:),resources)
+    plot = gsn_csm_contour_map_ce(wks,U10,resources)
     end if
 ; V10
     if(names(i).eq."VGRD_P0_L103_GLL0") then   
@@ -80,7 +80,7 @@ begin
         else
           resources@tiMainString = "VGRD_P0_L103_GLL0"
         end if               
-    plot = gsn_csm_contour_map_ce(wks,V10(0,:,:),resources)
+    plot = gsn_csm_contour_map_ce(wks,V10,resources)
     end if
 ;  SOILM in 4 levels
     if(names(i).eq."SOILW_P0_2L106_GLL0") then   
