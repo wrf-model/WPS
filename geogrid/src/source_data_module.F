@@ -25,6 +25,7 @@ module source_data_module
    integer :: num_entries
    integer :: next_field = 1
    integer :: output_field_state = RETURN_LANDMASK 
+   character (len=128) :: last_output_fieldname = ''
    integer, pointer, dimension(:) :: source_proj, source_wordsize, source_endian, source_fieldtype, &
                   source_dest_fieldtype, source_priority, source_tile_x, source_tile_y, &
                   source_tile_z, source_tile_z_start, source_tile_z_end, source_tile_bdr, &
@@ -36,7 +37,7 @@ module source_data_module
                   source_stdlon, source_scale_factor, source_missing_value, source_fill_missing
    character (len=128), pointer, dimension(:) :: source_fieldname, source_path, source_interp_string, &
                   source_dominant_category, source_dominant_only, source_dfdx, source_dfdy, &
-                  source_z_dim_name, source_units, source_descr, source_output_flag
+                  source_z_dim_name, source_units, source_descr, source_output_flag, source_res
    character (len=128) :: source_mminlu
    logical, pointer, dimension(:) :: is_proj, is_wordsize, is_endian, is_fieldtype, &
                   is_dest_fieldtype, is_priority, is_tile_x, is_tile_y, is_tile_z, &
@@ -48,7 +49,7 @@ module source_data_module
                   is_dominant_only, is_dfdx, is_dfdy, is_z_dim_name, &
                   is_smooth_option, is_smooth_passes, is_signed, is_missing_value, &
                   is_fill_missing, is_halt_missing, is_output_stagger, is_row_order, &
-                  is_units, is_descr, is_subgrid, is_output_flag
+                  is_units, is_descr, is_subgrid, is_output_flag, is_optional, is_not_found
 
    type (list), pointer, dimension(:) :: source_res_path, source_interp_option, source_landmask_land, &
                                          source_landmask_water
@@ -163,6 +164,7 @@ module source_data_module
       allocate(source_z_dim_name(num_entries))
       allocate(source_units(num_entries))
       allocate(source_descr(num_entries))
+      allocate(source_res(num_entries))
       allocate(source_smooth_option(num_entries))
       allocate(source_smooth_passes(num_entries))
       allocate(source_missing_value(num_entries))
@@ -223,6 +225,8 @@ module source_data_module
       allocate(is_fill_missing(num_entries))
       allocate(is_subgrid(num_entries))
       allocate(is_output_flag(num_entries))
+      allocate(is_optional(num_entries))
+      allocate(is_not_found(num_entries))
 
       source_wordsize=0
       source_endian=0
@@ -261,6 +265,7 @@ module source_data_module
       source_z_dim_name=' '
       source_units=' '
       source_descr=' '
+      source_res=' '
       source_smooth_option=0
       source_smooth_passes=0
       source_missing_value=0
@@ -311,6 +316,8 @@ module source_data_module
       is_fill_missing=.false.
       is_subgrid=.false.
       is_output_flag=.false.
+      is_optional=.false.
+      is_not_found=.false.
 
       write(source_mminlu,'(a4)') 'USGS'
       source_iswater = 16
@@ -355,6 +362,7 @@ module source_data_module
             is_fill_missing(i) = .false.
             is_subgrid(i) = .false.
             is_output_flag(i) = .false.
+            is_optional(i) = .false.
          end if
   
       else
@@ -649,6 +657,13 @@ module source_data_module
                   end do 
                   is_output_flag(i) = .true.
                   source_output_flag(i)(1:ispace-idx) = buffer(idx+1:ispace-1)
+
+               else if (index('optional',trim(buffer(1:idx-1))) /= 0) then
+                  if (index('yes',trim(buffer(idx+1:eos-1))) /= 0) then
+                     is_optional(i) = .true.
+                  else if (index('no',trim(buffer(idx+1:eos-1))) /= 0) then
+                     is_subgrid(i) = .false.
+                  end if
      
                else
                    call mprintf(.true., WARN, 'In GEOGRID.TBL, unrecognized option %s in '// &
@@ -705,14 +720,14 @@ module source_data_module
       character (len=128), intent(in) :: res_string
   
       ! Local variables
-      integer :: idx, i, is, ie, ispace, eos, iquoted, funit
+      integer :: idx, i, is, ie, ispace, eos, iquoted, funit, iostatus
       character (len=128) :: temp_data, temp_interp
       character (len=256) :: test_fname
       character (len=BUFSIZE) :: buffer
       logical :: have_specification, is_used
 
       ! For each entry in the GEOGRID.TBL file
-      do idx=1,num_entries
+      ENTRY_LOOP: do idx=1,num_entries
 
          ! Initialize metadata
          is_wordsize(idx)  = .false.
@@ -743,6 +758,7 @@ module source_data_module
          is_descr(idx)        = .false.
          is_signed(idx)       = .false.
          is_missing_value(idx) = .false.
+         is_not_found(idx)     = .false.
    
          
          ! Set the interpolator sequence for the field to be the first value in res_string that matches
@@ -807,6 +823,7 @@ module source_data_module
             call mprintf(.true., INFORM, 'Using %s data source for %s.', &
                          s1=temp_data, s2=trim(source_fieldname(idx)))
          end if
+         source_res(idx) = temp_data
 
          call mprintf(trim(temp_data) /= trim(temp_interp),WARN,'For %s, using %s data source with %s interpolation sequence.', &
                       s1=source_fieldname(idx), s2=temp_data, s3=temp_interp)
@@ -820,7 +837,20 @@ module source_data_module
             inquire(unit=funit, opened=is_used)
             if (.not. is_used) exit
          end do
-         open(funit,file=trim(test_fname),form='formatted',status='old',err=1000)
+         open(funit,file=trim(test_fname),form='formatted',status='old',iostat=iostatus)
+         if (iostatus /= 0) then
+            if (is_optional(idx)) then
+               is_not_found(idx) = .true.
+               call mprintf(.true.,INFORM,'Could not read ''index'' file %s for field %s', s1=trim(test_fname), &
+                            s2=trim(source_fieldname(idx)))
+               call mprintf(.true.,INFORM,'This field is optional and will not be processed.')
+            else
+               call mprintf(.true.,ERROR,'Could not open %s', s1=trim(test_fname))
+            end if
+
+            cycle ENTRY_LOOP
+
+         end if
    
       30 buffer = ' '
          read(funit,'(a)',end=40, err=1001) buffer
@@ -1062,11 +1092,10 @@ module source_data_module
     
     40 close(funit)
 
-      end do
+      end do ENTRY_LOOP
 
       return
   
-    1000 call mprintf(.true.,ERROR,'Could not open %s', s1=trim(test_fname))
     1001 call mprintf(.true.,ERROR,'Encountered error while reading %s', s1=trim(test_fname))
  
    end subroutine get_source_params
@@ -1125,6 +1154,7 @@ module source_data_module
          deallocate(source_smooth_passes)
          deallocate(source_units)
          deallocate(source_descr)
+         deallocate(source_res)
          deallocate(source_missing_value)
          deallocate(source_fill_missing)
          do i=1,num_entries
@@ -1183,6 +1213,8 @@ module source_data_module
          deallocate(is_fill_missing)
          deallocate(is_subgrid)
          deallocate(is_output_flag)
+         deallocate(is_optional)
+         deallocate(is_not_found)
       end if
   
       call hash_destroy(bad_files)
@@ -1239,9 +1271,9 @@ module source_data_module
    ! Purpose: 
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
    recursive subroutine get_next_output_fieldname(nest_num, field_name, ndims, &
-                                            min_cat, max_cat, &
-                                            istagger, memorder, dimnames, units, &
-                                            description, sr_x, sr_y, istatus)
+                                            min_cat, max_cat, istagger, memorder, &
+                                            dimnames, units, description, sr_x, sr_y, &
+                                            derived_from, istatus)
 
       use gridinfo_module
  
@@ -1253,7 +1285,7 @@ module source_data_module
       integer, intent(in) :: nest_num
       integer, intent(out) :: istatus, ndims, istagger, min_cat, max_cat
       integer, intent(out) :: sr_x, sr_y
-      character (len=128), intent(out) :: memorder, field_name, units, description
+      character (len=128), intent(out) :: memorder, field_name, units, description, derived_from
       character (len=128), dimension(3), intent(out) :: dimnames
   
       ! Local variables
@@ -1268,6 +1300,8 @@ module source_data_module
       if (output_field_state == RETURN_LANDMASK) then
          call hash_init(duplicate_fnames)
          call get_landmask_field(geog_data_res(nest_num), field_name, is_water_mask, landmask, istatus)
+         derived_from = ''
+         last_output_fieldname(1:128) = field_name(1:128)
          if (istatus == 0) then
             temphash(129:256) = ' '
             temphash(1:128) = field_name(1:128)
@@ -1279,7 +1313,7 @@ module source_data_module
                call get_next_output_fieldname(nest_num, field_name, ndims, &
                                               min_cat, max_cat, istagger, &
                                               memorder, dimnames, units, description, &
-                                              sr_x, sr_y, istatus)
+                                              sr_x, sr_y, derived_from, istatus)
                return
             else
                ndims = 2
@@ -1335,12 +1369,14 @@ module source_data_module
             call get_next_output_fieldname(nest_num, field_name, ndims, &
                                            min_cat, max_cat, istagger, &
                                            memorder, dimnames, units, description, &
-                                           sr_x, sr_y, istatus)
+                                           sr_x, sr_y, derived_from, istatus)
             return
          end if
   
       else if (output_field_state == RETURN_FIELDNAME) then
          call get_next_fieldname(field_name, istatus)
+         derived_from = ''
+         last_output_fieldname(1:128) = field_name(1:128)
          temphash(129:256) = ' '
          temphash(1:128) = field_name(1:128)
          if (istatus == 0 .and. (.not. hash_search(duplicate_fnames, temphash))) then
@@ -1352,7 +1388,7 @@ module source_data_module
                call get_next_output_fieldname(nest_num, field_name, ndims, &
                                               min_cat, max_cat, istagger, &
                                               memorder, dimnames, units, description, &
-                                              sr_x, sr_y, istatus)
+                                              sr_x, sr_y, derived_from, istatus)
                return
      
             ! Return the fractional field
@@ -1413,12 +1449,13 @@ module source_data_module
             call get_next_output_fieldname(nest_num, field_name, ndims, &
                                            min_cat, max_cat, istagger, &
                                            memorder, dimnames, units, description, &
-                                           sr_x, sr_y, istatus)
+                                           sr_x, sr_y, derived_from, istatus)
             return
          end if
   
       else if (output_field_state == RETURN_DOMCAT .or. &
                output_field_state == RETURN_DOMCAT_LM ) then
+         derived_from = last_output_fieldname
          if (output_field_state == RETURN_DOMCAT) then
             next_field = next_field - 1
             call get_next_fieldname(field_name, istatus)
@@ -1469,7 +1506,7 @@ module source_data_module
                call get_next_output_fieldname(nest_num, field_name, ndims, &
                                               min_cat, max_cat, istagger, &
                                               memorder, dimnames, units, description, &
-                                              sr_x, sr_y, istatus)
+                                              sr_x, sr_y, derived_from, istatus)
               return
             end if 
          else
@@ -1479,6 +1516,7 @@ module source_data_module
   
       else if (output_field_state == RETURN_DFDX .or. &
                output_field_state == RETURN_DFDX_LM) then
+         derived_from = last_output_fieldname
          if (output_field_state == RETURN_DFDX) then
             next_field = next_field - 1
             call get_next_fieldname(field_name, istatus)
@@ -1547,7 +1585,7 @@ module source_data_module
                call get_next_output_fieldname(nest_num, field_name, ndims, &
                                               min_cat, max_cat, istagger, &
                                               memorder, dimnames, units, description, &
-                                              sr_x, sr_y, istatus)
+                                              sr_x, sr_y, derived_from, istatus)
                return
             end if 
          else
@@ -1557,6 +1595,7 @@ module source_data_module
   
       else if (output_field_state == RETURN_DFDY .or. &
                output_field_state == RETURN_DFDY_LM) then
+         derived_from = last_output_fieldname
          if (output_field_state == RETURN_DFDY) then
             next_field = next_field - 1
             call get_next_fieldname(field_name, istatus)
@@ -1617,7 +1656,7 @@ module source_data_module
                call get_next_output_fieldname(nest_num, field_name, ndims, &
                                               min_cat, max_cat, istagger, &
                                               memorder, dimnames, units, description, &
-                                              sr_x, sr_y, istatus)
+                                              sr_x, sr_y, derived_from, istatus)
                return
             end if 
          else
@@ -3019,6 +3058,37 @@ module source_data_module
 
 
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
+   ! Name: check_priority_level
+   !
+   ! Purpose: Determines whether there exists the specified priority level for
+   !   the specified field.
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
+   subroutine check_priority_level(fieldnm, ilevel, istatus)
+ 
+      implicit none
+  
+      ! Arguments
+      character (len=*), intent(in) :: fieldnm
+      integer, intent(in) :: ilevel
+      integer, intent(out) :: istatus
+  
+      ! Local variables
+      integer :: idx
+  
+      istatus = 1
+      do idx=1,num_entries
+         if ((index(source_fieldname(idx),trim(fieldnm)) /= 0) .and. &
+             (len_trim(source_fieldname(idx)) == len_trim(fieldnm))) then
+            if (ilevel == source_priority(idx)) then
+               istatus = 0
+            end if
+         end if
+      end do
+
+   end subroutine check_priority_level
+
+
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
    ! Name: get_data_projection
    !
    ! Purpose: To acquire the parameters necessary in defining the grid on which
@@ -3126,6 +3196,61 @@ module source_data_module
       end do
  
    end subroutine get_data_projection
+ 
+ 
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
+   ! Name: get_source_opt_status
+   !
+   ! Purpose: Determines whether a field is optional and can be skipped
+   !
+   ! If ilevel is specified as 0, the return value, istatus, will be 0 if
+   ! any priority level is available for the field, and 1 otherwise. Otherwise,
+   ! istatus will be set to 0 only if the specified priority level for 
+   ! the field is available.
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
+   subroutine get_source_opt_status(fieldnm, ilevel, istatus)
+
+      implicit none
+
+      ! Arguments
+      character (len=*), intent(in) :: fieldnm
+      integer, intent(in) :: ilevel
+      integer, intent(out) :: istatus
+  
+      ! Local variables
+      integer :: idx
+
+  
+      ! Any priority level is available
+      if (ilevel == 0) then
+         istatus = 1
+         do idx=1,num_entries
+            if ((index(source_fieldname(idx),trim(fieldnm)) /= 0) .and. &
+                (len_trim(source_fieldname(idx)) == len_trim(fieldnm))) then
+               if (.not. is_not_found(idx)) then
+                  istatus = 0
+                  exit
+               end if 
+            end if
+         end do
+
+      ! Only the specified level is to be checked
+      else
+         istatus = 0
+         do idx=1,num_entries
+            if ((index(source_fieldname(idx),trim(fieldnm)) /= 0) .and. &
+                (len_trim(source_fieldname(idx)) == len_trim(fieldnm))) then
+               if (ilevel == source_priority(idx)) then
+                  if (is_not_found(idx)) then
+                     istatus = 1
+                     exit
+                  end if 
+               end if
+            end if
+         end do
+      end if
+
+   end subroutine get_source_opt_status
  
  
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -3470,5 +3595,49 @@ module source_data_module
       enddo
  
    end subroutine s_len
+
+
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
+   ! Name: display_optional_field_msgs
+   !
+   ! Purpose: This routine prints out information regarding any optional fields
+   !    in the GEOGRID.TBL file that were not found at run-time and were
+   !    skipped.
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
+   subroutine display_optional_field_msgs()
+
+      implicit none
+
+      integer :: idx
+      logical :: do_prints
+
+
+      do_prints = .false.
+
+      do idx=1,num_entries
+         if (is_optional(idx) .and. is_not_found(idx)) then
+            do_prints = .true.
+            exit
+         end if 
+      end do
+
+      if (do_prints) then
+         call mprintf(.true., STDOUT, ' ')
+         call mprintf(.true., STDOUT, '  Optional fields not processed by geogrid:')
+         call mprintf(.true., LOGFILE, 'Optional fields not processed by geogrid:')
+
+         do idx=1,num_entries
+            if (is_optional(idx) .and. is_not_found(idx)) then
+               call mprintf(.true., STDOUT, '    %s (priority=%i, resolution=''%s'', path=''%s'')', s1=source_fieldname(idx), &
+                            i1=source_priority(idx), s2=source_res(idx), s3=source_path(idx))
+               call mprintf(.true., LOGFILE, '    %s (priority=%i, resolution=''%s'', path=''%s'')', s1=source_fieldname(idx), &
+                            i1=source_priority(idx), s2=source_res(idx), s3=source_path(idx))
+            end if 
+         end do
+
+         call mprintf(.true., STDOUT, ' ')
+      end if
+
+   end subroutine display_optional_field_msgs
  
 end module source_data_module

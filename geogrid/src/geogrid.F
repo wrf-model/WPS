@@ -70,6 +70,9 @@ program geogrid
                               1,       ixdim(i), 1,       jydim(i), &
                               my_minx, my_maxx,  my_miny, my_maxy,  &   ! These come from parallel_module
                               ew_extra_col, sn_extra_row)
+
+            ! Print summary of any optional fields that were not processed
+            call display_optional_field_msgs()
          else
             call mprintf(.true.,STDOUT,'Skipping domain %i of %i', i1=i, i2=n_domains)
             call mprintf(.true.,LOGFILE,'Skipping domain %i of %i', i1=i, i2=n_domains)
@@ -117,6 +120,9 @@ program geogrid
                               1, ixdim(nest_level), 1, jydim(nest_level), &
                               my_minx, my_maxx, my_miny, my_maxy, &   ! These come from parallel_module
                               ew_extra_col, sn_extra_row)
+
+            ! Print summary of any optional fields that were not processed
+            call display_optional_field_msgs()
          end if
       end do
 

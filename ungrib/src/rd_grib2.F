@@ -454,6 +454,15 @@ C  SET ARGUMENTS
                  map%dy = (map%dy/scale_factor)*(-1)
               endif
 
+              ! Fix for zonal shift in CFSR data, following a similar fix 
+              ! for global lat-lon data in rd_grib1.F
+              if ( ABS(map%nx * map%dx - 360.0) < 1.0 ) then
+                 if (ABS(map%dx - (360./real(map%nx))) > 0.00001) then
+                    write(0,*) 'CFSR fix: recomputing delta-longitude'
+                    map%dx = 360./real(map%nx)
+                 endif
+              endif
+
               ! Scale lat/lon values to 0-180, default range is 1e6.
               if (map%lat1.ge.scale_factor) then 
                  map%lat1 = map%lat1/scale_factor

@@ -345,7 +345,7 @@ call mprintf(.true.,WARN,'PLEASE REPORT THIS BUG TO THE DEVELOPER!')
    subroutine get_next_output_fieldname(nest_num, field_name, ndims, &
                                         min_level, max_level, &
                                         istagger, mem_order, dim_names, units, description, &
-                                        sr_x, sr_y, &
+                                        sr_x, sr_y, derived_from, &
                                         istatus)
 
       implicit none
@@ -354,7 +354,7 @@ call mprintf(.true.,WARN,'PLEASE REPORT THIS BUG TO THE DEVELOPER!')
       integer, intent(in) :: nest_num
       integer, intent(out) :: ndims, min_level, max_level, istagger, istatus
       integer, intent(out) :: sr_x, sr_y
-      character (len=128), intent(out) :: field_name, mem_order, units, description
+      character (len=128), intent(out) :: field_name, mem_order, units, description, derived_from
       character (len=128), dimension(3), intent(out) :: dim_names
 
 #include "wrf_io_flags.h"
@@ -364,6 +364,8 @@ call mprintf(.true.,WARN,'PLEASE REPORT THIS BUG TO THE DEVELOPER!')
       type (data_node), pointer :: data_cursor
 
       istatus = 1
+
+      derived_from = ''
  
       if (.not. associated(next_output_field)) return
 

@@ -1,6 +1,6 @@
-WRF Pre-Processing System Version 3.7 Pre-Release (30 January 2015)
+WRF Pre-Processing System Version 3.7 (20 April 2015, revision 891)
 
-http://www.mmm.ucar.edu/wrf/users/
+http://www2.mmm.ucar.edu/wrf/users/
 
 The WRF Pre-Processing System (WPS) is a collection
 of Fortran and C programs that provides data used as
@@ -10,7 +10,7 @@ programs that are part of WPS.  Both the ARW and NMM
 dynamical cores in WRF are supported by WPS.
 
 For questions and help to run the program, please see the 
-User's Guide at http://www.mmm.ucar.edu/wrf/users/docs/user_guide_V3/contents.html
+User's Guide at http://www2.mmm.ucar.edu/wrf/users/docs/user_guide_V3/contents.html
 and send email to wrfhelp@ucar.edu.
 
 ===================================================
@@ -220,7 +220,7 @@ Static Input Data
 The static input data is provided in two tar files: one
 contains full resolution data (30", 2', 5' and 10') and the other
 contains only 10' low-resolution data. The data may be downloaded 
-from http://www.mmm.ucar.edu/wrf/users/download/get_source.html.
+from http://www2.mmm.ucar.edu/wrf/users/download/get_source.html.
 
 
 
@@ -230,7 +230,7 @@ Meteorological Input Data
 The meteorological input data for WPS is the GRIB
 Edition 1 GFS data from NCEP.  A test
 data set (Jan 2000, 24/12Z to 25/12Z) is available from
-http://www.mmm.ucar.edu/wrf/users/download/get_source.html.
+http://www2.mmm.ucar.edu/wrf/users/download/get_source.html.
 
 
 
@@ -238,4 +238,4 @@ Sample WPS output data for WRF
 
 Samples of the output data from WPS for use in WRF for the
 Jan 2000 and June 2001 cases are provided from
-http://www.mmm.ucar.edu/wrf/users/download/get_source.html.
+http://www2.mmm.ucar.edu/wrf/users/download/get_source.html.

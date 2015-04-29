@@ -453,7 +453,9 @@ module output_module
                  nfields, min_category, max_category
       integer :: lhalo_width, rhalo_width, bhalo_width, thalo_width
       integer :: ndims
+      integer :: optstatus
       character (len=128) :: fieldname
+      character (len=128) :: derived_from
       character (len=128) :: memorder, units, description
       character (len=128), dimension(3) :: dimnames 
       integer :: sr_x, sr_y
@@ -465,13 +467,25 @@ module output_module
   
       ifieldstatus = 0
       nfields = 0
+      optstatus = 0
       do while (ifieldstatus == 0)
+   
          call get_next_output_fieldname(nest_num, fieldname, ndims, &
                                         min_category, max_category, &
                                         istagger, memorder, dimnames, &
-                                        units, description, sr_x, sr_y, ifieldstatus)
+                                        units, description, sr_x, sr_y, &
+                                        derived_from, ifieldstatus)
+#ifdef _GEOGRID
+         if (len_trim(derived_from) > 0) then
+            call get_source_opt_status(trim(derived_from), 0, optstatus)
+         else
+            call get_source_opt_status(trim(fieldname), 0, optstatus)
+         end if
+#endif
    
-         if (ifieldstatus == 0) nfields = nfields + 1
+         if (ifieldstatus == 0 .and. optstatus == 0) then
+            nfields = nfields + 1
+         end if
       end do
   
 #ifdef _METGRID
@@ -800,13 +814,23 @@ module output_module
       nfields = 1
 #endif
   
+      optstatus = 0
       do while (ifieldstatus == 0)  !{
          call get_next_output_fieldname(nest_num, fieldname, ndims, &
                                       min_category, max_category, &
                                       istagger, memorder, dimnames, &
-                                      units, description, sr_x, sr_y, ifieldstatus)
+                                      units, description, sr_x, sr_y, &
+                                      derived_from, ifieldstatus)
+#ifdef _GEOGRID
+         if (len_trim(derived_from) > 0) then
+            call get_source_opt_status(trim(derived_from), 0, optstatus)
+         else
+            call get_source_opt_status(trim(fieldname), 0, optstatus)
+         end if
+#endif
+
    
-         if (ifieldstatus == 0) then !{
+         if (ifieldstatus == 0 .and. optstatus == 0) then !{
      
             fields(nfields)%ndims = ndims
             fields(nfields)%fieldname = fieldname
