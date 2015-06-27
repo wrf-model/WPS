@@ -370,13 +370,6 @@ end program g2print
           write(6,*) 'gfld%ibmap = ',gfld%ibmap
           endif
 
-          if (debug_level .le. 50) then
-          write(6,*) '---------------------------------------------------------------------------------------'
-          write(6,*) ' rec Prod Cat Param  Lvl    Lvl      Lvl     Prod    Name            Time          Fcst'
-          write(6,*) ' num Disc     num    code   one      two     Templ                                 hour'
-          write(6,*) '---------------------------------------------------------------------------------------'
-          endif
-
            year  =gfld%idsect(6)     !(FOUR-DIGIT) YEAR OF THE DATA
            month =gfld%idsect(7)     ! MONTH OF THE DATA
            day   =gfld%idsect(8)     ! DAY OF THE DATA
@@ -419,12 +412,19 @@ end program g2print
 
 
            if (icenter.eq.7) then
-             if (iprocess.eq.83 .or. iprocess.eq.84) then
-               map%source = 'NCEP NAM Model'
-             elseif (iprocess.eq.81) then
-               map%source = 'NCEP GFS Model'
+! Values obtained from http://www.nco.ncep.noaa.gov/pmb/docs/on388/tablea.html
+! Note that NCEP recycles process numbers. This may cause labelling issues for
+! ancient datasets.
+             if (iprocess.eq.81) then
+               map%source = 'NCEP GFS Analysis'
              elseif (iprocess.eq.82) then
-               map%source = 'NCEP GFS GDAS'
+               map%source = 'NCEP GFS GDAS/FNL'
+             elseif (iprocess.eq.83) then
+               map%source = 'NCEP HRRR Model'
+             elseif (iprocess.eq.84) then
+               map%source = 'NCEP MESO NAM Model'
+             elseif (iprocess.eq.89) then
+               map%source = 'NCEP NMM '
              elseif (iprocess.eq.96) then
                map%source = 'NCEP GFS Model'
              elseif (iprocess.eq.86 .or. iprocess.eq.100) then
@@ -432,7 +432,11 @@ end program g2print
              elseif (iprocess.eq.101) then
                map%source = 'NCEP RUC Model'    ! 40 km
              elseif (iprocess.eq.105) then
-               map%source = 'NCEP RUC Model'    ! 20 km
+               if (year .gt. 2011) then
+                 map%source = 'NCEP RAP Model'
+               else
+                 map%source = 'NCEP RUC Model'  ! 20 km
+               endif
              elseif (iprocess.eq.107) then
                map%source = 'NCEP GEFS'
              elseif (iprocess.eq.109) then
@@ -447,6 +451,8 @@ end program g2print
                map%source = 'NCEP GFS Ensemble'
              elseif (iprocess.eq.107) then          ! renumbered as of 23 Feb 2010
                map%source = 'NCEP GFS Ensemble'
+             elseif (iprocess.eq.112) then
+               map%source = 'NCEP WRF-NMM Model'
              elseif (iprocess.eq.129) then
                map%source = 'NCEP GODAS'
              elseif (iprocess.eq.197) then
@@ -474,6 +480,15 @@ end program g2print
            else
              map%source = 'unknown model and orig center'
            end if
+           write (6,*) '     ',map%source
+
+          if (debug_level .le. 50) then
+          write(6,*) '---------------------------------------------------------------------------------------'
+          write(6,*) ' rec Prod Cat Param  Lvl    Lvl      Lvl     Prod    Name            Time          Fcst'
+          write(6,*) ' num Disc     num    code   one      two     Templ                                 hour'
+          write(6,*) '---------------------------------------------------------------------------------------'
+          endif
+
 
            !--
 
