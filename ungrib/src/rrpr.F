@@ -328,6 +328,24 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_level, out_f
            endif
         enddo
 
+!
+! If this is GFS data, we might have data at the level of max wind speed, 
+! or the level of the tropopause.  If so, we want to replicate the pressures
+! at those levels (new names).  The replicated names are to allow the
+! metgrid program to interpolate the 2d pressure array with both a nearest
+! neighbor AND a 4-pt technique.  Those two pressures are used in ARW real
+! for vertical interpolation of the trop and max wind level data.
+!
+
+        if (index(map%source,'NCEP GFS') .ne. 0 ) then
+          call mprintf(.true.,DEBUG, &
+             "RRPR:   Replicating GFS pressures for max wind and trop")
+            if ( is_there(200100,'PMAXW  ') .or. &
+                 is_there(200100,'PTROP  ') ) then
+              call gfs_trop_maxw_pressures (map%nx, map%ny)
+            endif
+        endif
+
 ! Repair GFS and ECMWF pressure-level RH
         if (index(map%source,'NCEP GFS') .ne. 0 .or.  &
             index(map%source,'NCEP CDAS CFSV2') .ne. 0 .or.  &
@@ -879,6 +897,31 @@ subroutine compute_rh_dewpt(ix,jx)
   call put_storage(200100,'RH      ', rh, ix, jx)
 
 end subroutine compute_rh_dewpt
+
+subroutine gfs_trop_maxw_pressures(ix,jx)
+! These are duplicate pressure values from the GFS, for
+! the level of max wind speed and for the trop level.
+! The duplicates are saved with a different name, so that
+! the metgrid program can horizontally interpolate them to
+! the model domain with a nearest neighbor method.
+  use storage_module
+  implicit none
+  integer :: ix, jx
+  real, dimension(ix,jx) :: pmaxw, pmaxwnn, ptrop, ptropnn
+
+  if ( is_there(200100, 'PMAXW   ') ) then
+     call get_storage(200100, 'PMAXW   ', pmaxw  , ix, jx)
+     pmaxwnn = pmaxw
+     call put_storage(200100, 'PMAXWNN ', pmaxwnn, ix, jx)
+  end if
+
+  if ( is_there(200100, 'PTROP   ') ) then
+     call get_storage(200100, 'PTROP   ', ptrop  , ix, jx)
+     ptropnn = ptrop
+     call put_storage(200100, 'PTROPNN ', ptropnn, ix, jx)
+  end if
+
+end subroutine gfs_trop_maxw_pressures
 
 subroutine vntrp(plvl, maxlvl, k, name, ix, jx)
   use storage_module
