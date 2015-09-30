@@ -236,12 +236,12 @@ DM_CC               = mpicc -cc=icc
 FC                  = CONFIGURE_FC
 CC                  = CONFIGURE_CC
 LD                  = $(FC)
-FFLAGS              = -FR -convert big_endian
-F77FLAGS            = -FI -convert big_endian
+FFLAGS              = -FR -convert big_endian ${ARCHINTELOPT}
+F77FLAGS            = -FI -convert big_endian ${ARCHINTELOPT}
 FCSUFFIX            = 
 FNGFLAGS            = $(FFLAGS)
-LDFLAGS             = 
-CFLAGS              = -w
+LDFLAGS             = ${ARCHINTELOPT}
+CFLAGS              = -w ${ARCHINTELOPT}
 CPP                 = /lib/cpp -P -traditional
 CPPFLAGS            = -D_UNDERSCORE -DBYTESWAP -DLINUX -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -DBIT32 CONFIGURE_MPI
 ARFLAGS             =
