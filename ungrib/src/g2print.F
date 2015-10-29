@@ -451,8 +451,12 @@ end program g2print
                map%source = 'NCEP GFS Ensemble'
              elseif (iprocess.eq.107) then          ! renumbered as of 23 Feb 2010
                map%source = 'NCEP GFS Ensemble'
+             elseif (iprocess.eq.111) then
+               map%source = 'NCEP NMMB Model'
              elseif (iprocess.eq.112) then
                map%source = 'NCEP WRF-NMM Model'
+             elseif (iprocess.eq.116) then
+               map%source = 'NCEP WRF-ARW Model'
              elseif (iprocess.eq.129) then
                map%source = 'NCEP GODAS'
              elseif (iprocess.eq.197) then
