@@ -5,7 +5,7 @@
 # Be sure to run as ./configure (to avoid getting a system configure command by mistake)
 # There are two (2) reads of the configure.defaults one to present the user with
 # the appropriate options for the type of machine, and the OS, and the compiler!
-
+select((select(STDOUT), $|=1)[0]);
 $sw_perl_path   = perl;
 $sw_netcdf_path = "";
 $sw_netcdff_lib = "";
@@ -67,8 +67,14 @@ if($ENV{JASPERLIB} && $ENV{JASPERINC})
    printf "Found Jasper environment variables for GRIB2 support...\n";
    printf("  \$JASPERLIB = %s\n",$ENV{JASPERLIB});
    printf("  \$JASPERINC = %s\n",$ENV{JASPERINC});
-   $sw_jasperlib_path = "-L$ENV{JASPERLIB} -ljasper -lpng -lz"; 
-   $sw_jasperinc_path = "-I$ENV{JASPERINC}"; 
+   $sw_jasperlib_path = "-L$ENV{JASPERLIB} -ljasper"; 
+   $sw_jasperinc_path = "-I$ENV{JASPERINC} ${PNG_CFLAGS}"; 
+   if(defined($ENV{PNG_LDFLAGS}) && $ENV{PNG_LDFLAGS} ne '') {
+       $sw_jasperlib_path = "$sw_jasperlib_path $ENV{PNG_LDFLAGS}";
+   } else {
+       $sw_jasperlib_path = "$sw_jasperlib_path -lpng";
+   }
+   $sw_jasperlib_path = "$sw_jasperlib_path -lz";
 }
 else
 {
