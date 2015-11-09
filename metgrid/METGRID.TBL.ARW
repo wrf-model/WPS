@@ -732,50 +732,58 @@ name=QNIFA_DEC
         flag_in_output=FLAG_QNIFA
 ========================================
 name=UTROP
-        interp_option=nearest_neighbor
+        interp_option=four_pt
         is_u_field=yes
         output_stagger=U
         flag_in_output=FLAG_UTROP
 ========================================
 name=VTROP
-        interp_option=nearest_neighbor
+        interp_option=four_pt
         is_v_field=yes
         output_stagger=V
         flag_in_output=FLAG_VTROP
 ========================================
 name=TTROP
-        interp_option=nearest_neighbor
+        interp_option=four_pt
         flag_in_output=FLAG_TTROP
 ========================================
 name=PTROP
-        interp_option=nearest_neighbor
+        interp_option=four_pt
         flag_in_output=FLAG_PTROP
 ========================================
-name=HGTTROP
+name=PTROPNN
         interp_option=nearest_neighbor
+        flag_in_output=FLAG_PTROPNN
+========================================
+name=HGTTROP
+        interp_option=four_pt
         flag_in_output=FLAG_HGTTROP
 ========================================
 name=UMAXW
-        interp_option=nearest_neighbor
+        interp_option=four_pt
         is_u_field=yes
         output_stagger=U
         flag_in_output=FLAG_UMAXW
 ========================================
 name=VMAXW
-        interp_option=nearest_neighbor
+        interp_option=four_pt
         is_v_field=yes
         output_stagger=V
         flag_in_output=FLAG_VMAXW
 ========================================
 name=TMAXW
-        interp_option=nearest_neighbor
+        interp_option=four_pt
         flag_in_output=FLAG_TMAXW
 ========================================
 name=PMAXW
-        interp_option=nearest_neighbor
+        interp_option=four_pt
         flag_in_output=FLAG_PMAXW
 ========================================
-name=HGTMAXW
+name=PMAXWNN
         interp_option=nearest_neighbor
+        flag_in_output=FLAG_PMAXWNN
+========================================
+name=HGTMAXW
+        interp_option=four_pt
         flag_in_output=FLAG_HGTMAXW
 ========================================

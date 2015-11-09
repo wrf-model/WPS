@@ -30,7 +30,8 @@ module source_data_module
                   source_dest_fieldtype, source_priority, source_tile_x, source_tile_y, &
                   source_tile_z, source_tile_z_start, source_tile_z_end, source_tile_bdr, &
                   source_category_min, source_category_max, source_smooth_option, &
-                  source_smooth_passes, source_output_stagger, source_row_order
+                  source_smooth_passes, source_output_stagger, source_row_order, &
+                  source_filename_digits
    integer :: source_iswater, source_islake, source_isice, source_isurban, source_isoilwater
    real, pointer, dimension(:) :: source_dx, source_dy, source_known_x, source_known_y, &
                   source_known_lat, source_known_lon, source_masked, source_truelat1, source_truelat2, &
@@ -150,6 +151,7 @@ module source_data_module
       allocate(source_tile_z(num_entries))
       allocate(source_tile_z_start(num_entries))
       allocate(source_tile_z_end(num_entries))
+      allocate(source_filename_digits(num_entries))
       allocate(source_category_min(num_entries))
       allocate(source_category_max(num_entries))
       allocate(source_tile_bdr(num_entries))
@@ -251,6 +253,7 @@ module source_data_module
       source_tile_z=0
       source_tile_z_start=0
       source_tile_z_end=0
+      source_filename_digits=5
       source_category_min=0
       source_category_max=0
       source_tile_bdr=0
@@ -1055,6 +1058,9 @@ module source_data_module
                      is_tile_z_end(idx) = .true.
                      read(buffer(i+1:eos-1),'(i10)') source_tile_z_end(idx)
         
+                  else if (index('filename_digits',trim(buffer(1:i-1))) /= 0) then
+                     read(buffer(i+1:eos-1),'(i10)') source_filename_digits(idx)
+        
                   else if (index('category_min',trim(buffer(1:i-1))) /= 0) then
                      is_category_min(idx) = .true.
                      read(buffer(i+1:eos-1),'(i10)') source_category_min(idx)
@@ -1138,6 +1144,7 @@ module source_data_module
          deallocate(source_tile_z)
          deallocate(source_tile_z_start)
          deallocate(source_tile_z_end)
+         deallocate(source_filename_digits)
          deallocate(source_tile_bdr)
          deallocate(source_category_min)
          deallocate(source_category_max)
@@ -3010,8 +3017,19 @@ module source_data_module
       ry = real(source_tile_y(idx)) * real(floor((ry-0.5) / real(source_tile_y(idx)))) + 1.0
 
       if (rx > 0. .and. ry > 0.) then
-         write(test_fname, '(a,i5.5,a1,i5.5,a1,i5.5,a1,i5.5)') trim(source_path(idx)), &
-                  nint(rx),'-',nint(rx)+source_tile_x(idx)-1,'.',nint(ry),'-',nint(ry)+source_tile_y(idx)-1
+         select case(source_filename_digits(idx))
+            case (5)
+               write(test_fname, '(a,i5.5,a1,i5.5,a1,i5.5,a1,i5.5)') trim(source_path(idx)), &
+                        nint(rx),'-',nint(rx)+source_tile_x(idx)-1,'.',nint(ry),'-',nint(ry)+source_tile_y(idx)-1
+            case (6)
+               write(test_fname, '(a,i6.6,a1,i6.6,a1,i6.6,a1,i6.6)') trim(source_path(idx)), &
+                        nint(rx),'-',nint(rx)+source_tile_x(idx)-1,'.',nint(ry),'-',nint(ry)+source_tile_y(idx)-1
+            case default
+               call mprintf(.true., ERROR, 'In GEOGRID.TBL, for index file of data at '// &
+                            'entry %i, filename_digits must be either 5 or 6.', i1=idx)
+               istatus = 1
+               return
+         end select
       end if
 
    end subroutine get_tile_fname
@@ -3558,6 +3576,7 @@ module source_data_module
       end do
   
       check_data_specification = .true.
+
    end function check_data_specification
  
  
