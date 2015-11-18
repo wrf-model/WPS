@@ -725,7 +725,8 @@ C  SET ARGUMENTS
               elseif((gfld%ipdtmpl(10).ge.206 .and.
      &               gfld%ipdtmpl(10).le.234) .or.
      &              (gfld%ipdtmpl(10).ge.242 .and.     
-     &               gfld%ipdtmpl(10).le.254)) then
+     &               gfld%ipdtmpl(10).le.254) .or.
+     &              (gfld%ipdtmpl(10).eq.10) ) then
                  ! NCEP cloud layers used for plotting
                    level=200100.
               elseif(gfld%ipdtmpl(10).eq.106.or.
