@@ -22,6 +22,10 @@ Param| Type |Level1|Level2| Name     | Units   | Description                    
   11 | 112  |  40  | 100  | ST040100 | K       | T 40-100 cm below ground layer (Upper)  |  0  |  0  |  0  | 106 | 1 |
   11 | 112  | 100  | 200  | ST100200 | K       | T 100-200 cm below ground layer (Bottom)|  0  |  0  |  0  | 106 | 1 |
   11 | 112  |  10  | 200  | ST010200 | K       | T 10-200 cm below ground layer (Bottom) |  0  |  0  |  0  | 106 | 1 |
+  85 | 112  |   0  |  10  | ST000010 | K       | T 0-10 cm below ground layer (Upper)    |  2  |  0  |  2  | 106 | 1 |
+  85 | 112  |  10  |  40  | ST010040 | K       | T 10-40 cm below ground layer (Upper)   |  2  |  0  |  2  | 106 | 1 |
+  85 | 112  |  40  | 100  | ST040100 | K       | T 40-100 cm below ground layer (Upper)  |  2  |  0  |  2  | 106 | 1 |
+  85 | 112  | 100  | 200  | ST100200 | K       | T 100-200 cm below ground layer (Bottom)|  2  |  0  |  2  | 106 | 1 |
   91 |   1  |   0  |      | SEAICE   | proprtn | Ice flag                                | 10  |  2  |  0  |   1 | 1 |
   81 |   1  |   0  |      | LANDSEA  | proprtn | Land/Sea flag (1=land, 0 or 2=sea)      |  2  |  0  |  0  |   1 | 1 |
    7 |   1  |   0  |      | SOILHGT  | m       | Terrain field of source analysis        |  0  |  3  |  5  |   1 | 1 |
@@ -40,4 +44,4 @@ Param| Type |Level1|Level2| Name     | Units   | Description                    
 #   
 #  gep01.txxz.pgrb2fhh             15500 Kb    3   0-h to 384-h   global  1 deg  20 ensemble members
 #                                                                                 gep01 - gep20
-
+# NCEP updated the soil temperature fields on 2 December 2015, matching the changes made in January to the operational GFS.
