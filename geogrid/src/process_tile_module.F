@@ -491,6 +491,18 @@ module process_tile_module
                             min_category, max_category, processed_domain, 1, landmask=landmask, sr_x=1, sr_y=1)
          end if
      
+         ! If user wants to halt when a missing value is found in output field, check now
+         if (halt_on_missing) then
+            do i=start_mem_i, end_mem_i
+               do j=start_mem_j, end_mem_j
+                  ! Only need to examine k=1
+                  if (field(i,j,1) == msg_fill_val) then
+                     call mprintf(.true.,ERROR,' Missing value encountered in output field. Quitting.')
+                  end if
+               end do
+            end do
+         end if
+     
          ! Find fractions
          do i=start_mem_i, end_mem_i
             do j=start_mem_j, end_mem_j
@@ -509,18 +521,6 @@ module process_tile_module
                end if
             end do
          end do
-     
-         ! If user wants to halt when a missing value is found in output field, check now
-         if (halt_on_missing) then
-            do i=start_mem_i, end_mem_i
-               do j=start_mem_j, end_mem_j
-                  ! Only need to examine k=1
-                  if (field(i,j,1) == msg_fill_val) then
-                     call mprintf(.true.,ERROR,' Missing value encountered in output field. Quitting.')
-                  end if
-               end do
-            end do
-         end if
      
          if (is_water_mask) then
             call mprintf(.true.,STDOUT,'  Calculating landmask from %s ( WATER =', &
@@ -986,6 +986,18 @@ module process_tile_module
                                      sm1, em1, sm2, em2, min_category, max_category, &
                                      processed_domain, 1, landmask=landmask, sr_x=sub_x, sr_y=sub_y)
                   end if
+        
+                  ! If user wants to halt when a missing value is found in output field, check now
+                  if (halt_on_missing) then
+                     do i=sm1, em1
+                        do j=sm2, em2
+                           ! Only need to examine k=1
+                           if (field(i,j,1) == msg_fill_val) then
+                              call mprintf(.true.,ERROR,' Missing value encountered in output field. Quitting.')
+                           end if
+                        end do
+                     end do
+                  end if
        
                   ! Find fractions
                   do i=sm1, em1
@@ -1005,18 +1017,6 @@ module process_tile_module
                         end if
                      end do
                   end do
-        
-                  ! If user wants to halt when a missing value is found in output field, check now
-                  if (halt_on_missing) then
-                     do i=sm1, em1
-                        do j=sm2, em2
-                           ! Only need to examine k=1
-                           if (field(i,j,1) == msg_fill_val) then
-                              call mprintf(.true.,ERROR,' Missing value encountered in output field. Quitting.')
-                           end if
-                        end do
-                     end do
-                  end if
         
                   ! If we should only save the dominant category, then no need to write out fractional field
                   if (.not.only_save_dominant .or. (idomcatstatus /= 0)) then
