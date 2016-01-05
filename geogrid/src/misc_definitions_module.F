@@ -26,7 +26,7 @@ module misc_definitions_module
 
    integer, parameter :: CONTINUOUS=0, CATEGORICAL=1, SP_CONTINUOUS=2
 
-   integer, parameter :: M=1, U=2, V=3, HH=4, VV=5
+   integer, parameter :: M=1, U=2, V=3, HH=4, VV=5, CORNER=6
 
    integer, parameter :: ONETWOONE=1, SMTHDESMTH=2, SMTHDESMTH_SPECIAL=3
 

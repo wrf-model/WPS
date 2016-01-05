@@ -57,6 +57,7 @@ module process_tile_module
       real, pointer, dimension(:,:) :: xlat_array,   xlon_array,   &
                                        xlat_array_u, xlon_array_u, &
                                        xlat_array_v, xlon_array_v, &
+                                       xlat_array_corner, xlon_array_corner, &
                                        clat_array,   clon_array,   &
                                        xlat_array_subgrid, xlon_array_subgrid, &
                                        f_array, e_array, &
@@ -83,6 +84,8 @@ module process_tile_module
       nullify(xlon_array_u)
       nullify(xlat_array_v)
       nullify(xlon_array_v)
+      nullify(xlat_array_corner)
+      nullify(xlon_array_corner)
       nullify(clat_array)
       nullify(clon_array)
       nullify(xlat_array_subgrid)
@@ -184,6 +187,8 @@ module process_tile_module
          allocate(xlon_array_u(start_mem_i:end_mem_stag_i, start_mem_j:end_mem_j))
          allocate(clat_array(start_mem_i:end_mem_i, start_mem_j:end_mem_j))
          allocate(clon_array(start_mem_i:end_mem_i, start_mem_j:end_mem_j))
+         allocate(xlat_array_corner(start_mem_i:end_mem_stag_i, start_mem_j:end_mem_stag_j))
+         allocate(xlon_array_corner(start_mem_i:end_mem_stag_i, start_mem_j:end_mem_stag_j))
       end if
       nullify(xlat_array_subgrid)
       nullify(xlon_array_subgrid)
@@ -206,6 +211,8 @@ module process_tile_module
                                start_mem_j, end_mem_i, end_mem_stag_j, V)
          call get_lat_lon_fields(xlat_array_u, xlon_array_u, start_mem_i, &
                                start_mem_j, end_mem_stag_i, end_mem_j, U)
+         call get_lat_lon_fields(xlat_array_corner, xlon_array_corner, start_mem_i, &
+                               start_mem_j, end_mem_stag_i, end_mem_stag_j, CORNER)
          call get_lat_lon_fields(clat_array, clon_array, start_mem_i, &
                                start_mem_j, end_mem_i, end_mem_j, M, comp_ll=.true.)
 
@@ -313,6 +320,10 @@ module process_tile_module
                         'XLAT_U', datestr, real_array = xlat_array_u)
          call write_field(start_mem_i, end_mem_stag_i, start_mem_j, end_mem_j, 1, 1, &
                         'XLONG_U', datestr, real_array = xlon_array_u)
+         call write_field(start_mem_i, end_mem_stag_i, start_mem_j, end_mem_stag_j, 1, 1, &
+                        'XLAT_C', datestr, real_array = xlat_array_corner)
+         call write_field(start_mem_i, end_mem_stag_i, start_mem_j, end_mem_stag_j, 1, 1, &
+                        'XLONG_C', datestr, real_array = xlon_array_corner)
          call write_field(start_mem_i, end_mem_i, start_mem_j, end_mem_j, 1, 1, &
                         'CLAT', datestr, real_array = clat_array)
          call write_field(start_mem_i, end_mem_i, start_mem_j, end_mem_j, 1, 1, &
@@ -1131,6 +1142,8 @@ module process_tile_module
       if (grid_type == 'C') then
          if (associated(xlat_array_u)) deallocate(xlat_array_u)
          if (associated(xlon_array_u)) deallocate(xlon_array_u)
+         if (associated(xlat_array_corner)) deallocate(xlat_array_corner)
+         if (associated(xlon_array_corner)) deallocate(xlon_array_corner)
          if (associated(mapfac_array_u_x)) deallocate(mapfac_array_u_x)
          if (associated(mapfac_array_u_y)) deallocate(mapfac_array_u_y)
       end if

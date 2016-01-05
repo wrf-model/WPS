@@ -493,7 +493,7 @@ module output_module
 #endif
   
 #ifdef _GEOGRID
-      if (grid_type == 'C') NUM_AUTOMATIC_FIELDS = 22
+      if (grid_type == 'C') NUM_AUTOMATIC_FIELDS = 24
       if (grid_type == 'E') NUM_AUTOMATIC_FIELDS = 7
   
       NUM_FIELDS = nfields+NUM_AUTOMATIC_FIELDS
@@ -595,6 +595,14 @@ module output_module
          fields(22)%fieldname = 'LANDMASK'
          fields(22)%units = 'none'
          fields(22)%descr = 'Landmask : 1=land, 0=water'
+
+         fields(23)%fieldname = 'XLAT_C'
+         fields(23)%units = 'degrees latitude'
+         fields(23)%descr = 'Latitude at grid cell corners'
+   
+         fields(24)%fieldname = 'XLONG_C'
+         fields(24)%units = 'degrees longitude'
+         fields(24)%descr = 'Longitude at grid cell corners'
    
       else if (grid_type == 'E') then
          fields(1)%fieldname = 'XLAT_M'
@@ -787,6 +795,46 @@ module output_module
          fields(17)%dimnames(1) = 'west_east_stag'
          fields(17)%stagger = 'U'
          fields(17)%istagger = U
+
+         ! Lat (unstaggered)
+         if (extra_row) then
+            fields(23)%dom_end(2) = fields(23)%dom_end(2) + 1
+            fields(23)%mem_end(2) = fields(23)%mem_end(2) + 1
+            fields(23)%patch_end(2) = fields(23)%patch_end(2) + 1
+         else if (my_proc_id == IO_NODE .and. .not. do_tiled_output) then
+            fields(23)%dom_end(2) = fields(23)%dom_end(2) + 1
+         end if
+         if (extra_col) then
+            fields(23)%dom_end(1) = fields(23)%dom_end(1) + 1
+            fields(23)%mem_end(1) = fields(23)%mem_end(1) + 1
+            fields(23)%patch_end(1) = fields(23)%patch_end(1) + 1
+         else if (my_proc_id == IO_NODE .and. .not. do_tiled_output) then
+            fields(23)%dom_end(1) = fields(23)%dom_end(1) + 1
+         end if
+         fields(23)%dimnames(1) = 'west_east_stag'
+         fields(23)%dimnames(2) = 'south_north_stag'
+         fields(23)%stagger = 'CORNER'
+         fields(23)%istagger = CORNER
+   
+         ! Lon (unstaggered)
+         if (extra_row) then
+            fields(24)%dom_end(2) = fields(24)%dom_end(2) + 1
+            fields(24)%mem_end(2) = fields(24)%mem_end(2) + 1
+            fields(24)%patch_end(2) = fields(24)%patch_end(2) + 1
+         else if (my_proc_id == IO_NODE .and. .not. do_tiled_output) then
+            fields(24)%dom_end(2) = fields(24)%dom_end(2) + 1
+         end if
+         if (extra_col) then
+            fields(24)%dom_end(1) = fields(24)%dom_end(1) + 1
+            fields(24)%mem_end(1) = fields(24)%mem_end(1) + 1
+            fields(24)%patch_end(1) = fields(24)%patch_end(1) + 1
+         else if (my_proc_id == IO_NODE .and. .not. do_tiled_output) then
+            fields(24)%dom_end(1) = fields(24)%dom_end(1) + 1
+         end if
+         fields(24)%dimnames(1) = 'west_east_stag'
+         fields(24)%dimnames(2) = 'south_north_stag'
+         fields(24)%stagger = 'CORNER'
+         fields(24)%istagger = CORNER
    
       else if (grid_type == 'E') then
          ! Lat V
@@ -845,6 +893,8 @@ module output_module
                fields(nfields)%stagger = 'M'
             else if (istagger == VV) then
                fields(nfields)%stagger = 'V'
+            else if (istagger == CORNER) then
+               fields(nfields)%stagger = 'CORNER'
             end if
             fields(nfields)%mem_order = memorder
             fields(nfields)%dimnames(1) = dimnames(1)
@@ -876,19 +926,21 @@ module output_module
             fields(nfields)%sr_x=sr_x
             fields(nfields)%sr_y=sr_y
     
-            if (extra_col .and. (istagger == U .or. sr_x > 1)) then !{
+            if (extra_col .and. (istagger == U .or. istagger == CORNER .or. sr_x > 1)) then !{
                fields(nfields)%dom_end(1)   = fields(nfields)%dom_end(1) + 1
                fields(nfields)%mem_end(1)   = fields(nfields)%mem_end(1) + 1
                fields(nfields)%patch_end(1) = fields(nfields)%patch_end(1) + 1
-            else if ((istagger == U .or. sr_x > 1) .and. my_proc_id == IO_NODE .and. .not. do_tiled_output) then
+            else if ((istagger == U .or. istagger == CORNER .or. sr_x > 1) &
+                     .and. my_proc_id == IO_NODE .and. .not. do_tiled_output) then
                fields(nfields)%dom_end(1)=fields(nfields)%dom_end(1) + 1
             end if !}
     
-            if (extra_row .and. (istagger == V .or. sr_y > 1)) then !{
+            if (extra_row .and. (istagger == V .or. istagger == CORNER .or. sr_y > 1)) then !{
                fields(nfields)%dom_end(2)   = fields(nfields)%dom_end(2) + 1
                fields(nfields)%mem_end(2)   = fields(nfields)%mem_end(2) + 1
                fields(nfields)%patch_end(2) = fields(nfields)%patch_end(2) + 1
-            else if ((istagger == V .or. sr_y > 1) .and. my_proc_id == IO_NODE .and. .not. do_tiled_output) then
+            else if ((istagger == V .or. istagger == CORNER .or. sr_y > 1) &
+                     .and. my_proc_id == IO_NODE .and. .not. do_tiled_output) then
                fields(nfields)%dom_end(2)=fields(nfields)%dom_end(2) + 1
             end if !}
 

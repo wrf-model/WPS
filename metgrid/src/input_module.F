@@ -296,10 +296,10 @@ module input_module
          ep3 = domain_end(3)
    
          if (internal_gridtype == 'C') then
-            if (my_x /= nproc_x - 1 .or. stagger == 'U' .or. sr_x > 1) then
+            if (my_x /= nproc_x - 1 .or. stagger == 'U' .or. stagger == 'CORNER' .or. sr_x > 1) then
                ep1 = ep1 + 1
             end if
-            if (my_y /= nproc_y - 1 .or. stagger == 'V' .or. sr_y > 1) then
+            if (my_y /= nproc_y - 1 .or. stagger == 'V' .or. stagger == 'CORNER' .or. sr_y > 1) then
                ep2 = ep2 + 1
             end if
          else if (internal_gridtype == 'E') then
