@@ -14,7 +14,22 @@
  j_parent_start    =   1,  17,
  e_we              =  74, 112,
  e_sn              =  61,  97,
- geog_data_res     = '10m','2m',
+ !
+ !!!!!!!!!!!!!!!!!!!!!!!!!!!! IMPORTANT NOTE !!!!!!!!!!!!!!!!!!!!!!!!!!!!
+ ! The default datasets used to produce the HGT_M, GREENFRAC, 
+ ! and LU_INDEX/LANDUSEF fields have changed in WPS v3.8. The HGT_M field
+ ! is now interpolated from 30-arc-second USGS GMTED2010, the GREENFRAC 
+ ! field is interpolated from MODIS FPAR, and the LU_INDEX/LANDUSEF fields 
+ ! are interpolated from 21-class MODIS.
+ !
+ ! To match the output given by the default namelist.wps in WPS v3.7.1, 
+ ! the following setting for geog_data_res may be used:
+ !
+ ! geog_data_res = 'gtopo_10m+usgs_10m+nesdis_greenfrac+10m','gtopo_2m+usgs_2m+nesdis_greenfrac+2m',
+ !
+ !!!!!!!!!!!!!!!!!!!!!!!!!!!! IMPORTANT NOTE !!!!!!!!!!!!!!!!!!!!!!!!!!!!
+ !
+ geog_data_res = 'default','default',
  dx = 30000,
  dy = 30000,
  map_proj = 'lambert',
