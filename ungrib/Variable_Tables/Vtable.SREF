@@ -16,12 +16,6 @@ Param| Type |Level1|Level2| Name     | Units   | Description                    
  144 | 112  |  10  |  40  | SM010040 | fraction| Soil Moist 10-40 cm below grn layer     |  2  |  0  | 192 | 106 | 1 |
  144 | 112  |  40  | 100  | SM040100 | fraction| Soil Moist 40-100 cm below grn layer    |  2  |  0  | 192 | 106 | 1 |
  144 | 112  | 100  | 200  | SM100200 | fraction| Soil Moist 100-200 cm below gr layer    |  2  |  0  | 192 | 106 | 1 |
- 144 | 112  |  10  | 200  | SM010200 | fraction| Soil Moist 10-200 cm below gr layer     |  2  |  0  | 192 | 106 | 1 |
-  11 | 112  |   0  |  10  | ST000010 | K       | T 0-10 cm below ground layer (Upper)    |  0  |  0  |  0  | 106 | 1 |
-  11 | 112  |  10  |  40  | ST010040 | K       | T 10-40 cm below ground layer (Upper)   |  0  |  0  |  0  | 106 | 1 |
-  11 | 112  |  40  | 100  | ST040100 | K       | T 40-100 cm below ground layer (Upper)  |  0  |  0  |  0  | 106 | 1 |
-  11 | 112  | 100  | 200  | ST100200 | K       | T 100-200 cm below ground layer (Bottom)|  0  |  0  |  0  | 106 | 1 |
-  11 | 112  |  10  | 200  | ST010200 | K       | T 10-200 cm below ground layer (Bottom) |  0  |  0  |  0  | 106 | 1 |
   85 | 112  |   0  |  10  | ST000010 | K       | T 0-10 cm below ground layer (Upper)    |  2  |  0  |  2  | 106 | 1 |
   85 | 112  |  10  |  40  | ST010040 | K       | T 10-40 cm below ground layer (Upper)   |  2  |  0  |  2  | 106 | 1 |
   85 | 112  |  40  | 100  | ST040100 | K       | T 40-100 cm below ground layer (Upper)  |  2  |  0  |  2  | 106 | 1 |
@@ -31,17 +25,17 @@ Param| Type |Level1|Level2| Name     | Units   | Description                    
    7 |   1  |   0  |      | SOILHGT  | m       | Terrain field of source analysis        |  0  |  3  |  5  |   1 | 1 |
   11 |   1  |   0  |      | SKINTEMP | K       | Skin temperature (can use for SST also) |  0  |  0  |  0  |   1 | 1 |
   65 |   1  |   0  |      | SNOW     | kg m-2  | Water equivalent snow depth             |  0  |  1  | 13  |   1 | 1 |
+ 223 |   1  |   0  |      | CANWAT   | kg m-2  | Plant Canopy Surface Water              |  2  |  0  | 196 |   1 | 1 |
 -----+------+------+------+----------+---------+-----------------------------------------+---------------------------+
 #
+#  Vtable for SREF pressure-level data from the NCEP server.
 #
-#    GFS Ensemble (Product Definition Template 1)
-#        the files also contain some PDT 11 fields.
+# ftp://ftpprd.ncep.noaa.gov/pub/data/nccf/com/sref/prod/sref.ccyymmdd/hh/pgrb/
 #
-#  ftp://ftpprd.ncep.noaa.gov/pub/data/nccf/com/gens/prod/gefs.ccyymmdd
+#  For use with SREF files produced after 15z 21 October 2015
 #
-#                                  approx.    grid    hours       domain  dx      notes
-#                                 file size   no.
-#   
-#  gep01.txxz.pgrb2fhh             15500 Kb    3   0-h to 384-h   global  1 deg  20 ensemble members
-#                                                                                 gep01 - gep20
-# NCEP updated the soil temperature fields on 2 December 2015, matching the changes made in January to the operational GFS.
+#                                         approx.    grid    hours      domain  dx      notes
+#                                        file size   no.
+#
+#  sref_arw.t15z.pgrb132.ctl.f00.grib2    72000 Kb   132      87        conus   16
+#  sref_arw.t15z.pgrb212.ctl.f00.grib2     4800 Kb   212      87        conus   40

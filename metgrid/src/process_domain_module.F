@@ -493,6 +493,12 @@ module process_domain_module
                    field%header%dim1(2) = we_mem_e
                    field%header%dim2(1) = sn_mem_stag_s
                    field%header%dim2(2) = sn_mem_stag_e
+                else if (trim(stagger) == 'CORNER') then
+                   field%map%stagger = CORNER
+                   field%header%dim1(1) = we_mem_stag_s
+                   field%header%dim1(2) = we_mem_stag_e
+                   field%header%dim2(1) = sn_mem_stag_s
+                   field%header%dim2(2) = sn_mem_stag_e
                 end if
              else if (gridtype == 'E') then
                 if (trim(stagger) == 'M') then
@@ -569,6 +575,21 @@ module process_domain_module
                                      (sn_mem_stag_e-sn_mem_stag_s)+1)
                 do j=1,(sn_mem_stag_e-sn_mem_stag_s)+1
                    do i=1,(we_mem_e-we_mem_s)+1
+                      call bitarray_set(field%valid_mask, i, j)     
+                   end do
+                end do
+             else if (field%map%stagger == CORNER) then
+                allocate(field%r_arr(we_mem_stag_s:we_mem_stag_e,&
+                                     sn_mem_stag_s:sn_mem_stag_e))
+                field%r_arr(we_patch_stag_s:we_patch_stag_e,sn_patch_stag_s:sn_patch_stag_e) = real_array(sp1:ep1,sp2:ep2,k)
+                call exchange_halo_r(field%r_arr, &
+                           we_mem_stag_s, we_mem_stag_e, sn_mem_stag_s, sn_mem_stag_e, 1, 1, &
+                           we_patch_stag_s, we_patch_stag_e, sn_patch_stag_s, sn_patch_stag_e, 1, 1)
+                call bitarray_create(field%valid_mask, &
+                                     (we_mem_stag_e-we_mem_stag_s)+1, &
+                                     (sn_mem_stag_e-sn_mem_stag_s)+1)
+                do j=1,(sn_mem_stag_e-sn_mem_stag_s)+1
+                   do i=1,(we_mem_stag_e-we_mem_stag_s)+1
                       call bitarray_set(field%valid_mask, i, j)     
                    end do
                 end do
@@ -1184,7 +1205,7 @@ integer, parameter :: BDR_WIDTH = 3
       !   now we simply output every field from the storage module.
       !
     
-      title = 'OUTPUT FROM METGRID V3.7.1' 
+      title = 'OUTPUT FROM METGRID V3.8 PRE-RELEASE 1' 
    
       ! Initialize the output module for this domain and time
       call mprintf(.true.,LOGFILE,'Initializing output module.')

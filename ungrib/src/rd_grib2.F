@@ -276,8 +276,12 @@ C  SET ARGUMENTS
                map%source = 'NCEP GFS Ensemble'
              elseif (iprocess.eq.107) then             ! renumbered as of 23 Feb 2010
                map%source = 'NCEP GFS Ensemble'
+             elseif (iprocess.eq.111) then
+               map%source = 'NCEP NMMB Model'
              elseif (iprocess.eq.112) then
                map%source = 'NCEP WRF-NMM Model'
+             elseif (iprocess.eq.116) then
+               map%source = 'NCEP WRF-ARW Model'
              elseif (iprocess.eq.129) then
                map%source = 'NCEP GODAS'
              elseif (iprocess.eq.197) then
@@ -721,7 +725,8 @@ C  SET ARGUMENTS
               elseif((gfld%ipdtmpl(10).ge.206 .and.
      &               gfld%ipdtmpl(10).le.234) .or.
      &              (gfld%ipdtmpl(10).ge.242 .and.     
-     &               gfld%ipdtmpl(10).le.254)) then
+     &               gfld%ipdtmpl(10).le.254) .or.
+     &              (gfld%ipdtmpl(10).eq.10) ) then
                  ! NCEP cloud layers used for plotting
                    level=200100.
               elseif(gfld%ipdtmpl(10).eq.106.or.

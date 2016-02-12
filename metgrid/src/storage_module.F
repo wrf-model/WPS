@@ -415,6 +415,9 @@ call mprintf(.true.,WARN,'PLEASE REPORT THIS BUG TO THE DEVELOPER!')
          else if (istagger == V) then
             dim_names(1) = 'west_east'
             dim_names(2) = 'south_north_stag'
+         else if (istagger == CORNER) then
+            dim_names(1) = 'west_east_stag'
+            dim_names(2) = 'south_north_stag'
          else
             dim_names(1) = 'i-dimension'
             dim_names(2) = 'j-dimension'

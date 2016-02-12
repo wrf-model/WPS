@@ -16,6 +16,23 @@
  j_parent_start    =   1,  15, 15, 15, 15, 15, 15, 15, 15, 15, 
  e_we              =  43,  43, 43, 43, 43, 43, 43, 43, 43, 43,
  e_sn              =  43,  43, 43, 43, 43, 43, 43, 43, 43, 43,
+ !
+ !!!!!!!!!!!!!!!!!!!!!!!!!!!! IMPORTANT NOTE !!!!!!!!!!!!!!!!!!!!!!!!!!!!
+ ! The default datasets used to produce the HGT_M, GREENFRAC,
+ ! and LU_INDEX/LANDUSEF fields have changed in WPS v3.8. The HGT_M field
+ ! is now interpolated from 30-arc-second USGS GMTED2010, the GREENFRAC
+ ! field is interpolated from MODIS FPAR, and the LU_INDEX/LANDUSEF fields
+ ! are interpolated from 21-class MODIS.
+ !
+ ! To match the output given by the default namelist.wps.fire in WPS v3.7.1,
+ ! the following setting for geog_data_res may be used:
+ !
+ ! geog_data_res = 'gtopo_30s+usgs_30s+nesdis_greenfrac+30s','gtopo_2m+usgs_2m+nesdis_greenfrac+2m', [repeat the previous string...]
+ !
+ !!!!!!!!!!!!!!!!!!!!!!!!!!!! IMPORTANT NOTE !!!!!!!!!!!!!!!!!!!!!!!!!!!!
+ !
+ geog_data_res = 'default','default','default','default','default','default','default','default','default','default',
+
  geog_data_res     = '30s','2m','2m','2m','2m','2m','2m','2m','2m','2m',
  dx = 60,
  dy = 60,

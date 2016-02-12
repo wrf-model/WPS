@@ -804,6 +804,9 @@ module llxy_module
          x = x + 0.5
       else if (stagger == V) then
          y = y + 0.5
+      else if (stagger == CORNER) then
+         x = x + 0.5
+         y = y + 0.5
       end if
  
    end subroutine lltoxy
@@ -844,6 +847,10 @@ module llxy_module
          proj_stack(current_nest_number)%stagger = VV
          rx = x
          ry = y
+      else if (stagger == CORNER) then
+         proj_stack(current_nest_number)%stagger = CORNER
+         rx = x - 0.5
+         ry = y - 0.5
       else
          rx = x
          ry = y
