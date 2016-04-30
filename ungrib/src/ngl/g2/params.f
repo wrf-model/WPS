@@ -38,7 +38,7 @@
 !
 !$$$
 
-      integer,parameter :: MAXPARAM=775
+      integer,parameter :: MAXPARAM=790
 
       type gribparam
           integer :: g1tblver
@@ -836,6 +836,22 @@
        data paramlist(773) /gribparam(131,193,0,0,21,'APTMP')/
        data paramlist(774) /gribparam(131,137,0,17,0,'LTNGSD')/
        data paramlist(775) /gribparam(131,194,0,1,39,'CPOFP')/
+! Added 04/28/16 for HRRR fields. NCEP hasn't updated this routine in 3 years
+       data paramlist(776) /gribparam(131,207,2,0,11,'MSTAV')/
+       data paramlist(777) /gribparam(129,240,0,16,3,'RETOP')/
+       data paramlist(778) /gribparam(131,221,0,3,18,'HPBL')/
+       data paramlist(779) /gribparam(2,131,0,7,10,'LFTX')/
+       data paramlist(780) /gribparam(2,132,0,7,11,'4LFTX')/
+       data paramlist(781) /gribparam(2,212,0,5,4,'ULWRF')/
+       data paramlist(782) /gribparam(2,196,0,2,27,'USTM')/
+       data paramlist(783) /gribparam(2,197,0,2,28,'VSTM')/
+       data paramlist(784) /gribparam(129,255,0,1,74,'TCOLG')/
+       data paramlist(785) /gribparam(2,140,0,1,33,'CRAIN')/
+       data paramlist(786) /gribparam(2,141,0,1,34,'CFRZR')/
+       data paramlist(787) /gribparam(2,142,0,1,35,'CICEP')/
+       data paramlist(788) /gribparam(2,143,0,1,36,'CSNOW')/
+       data paramlist(789) /gribparam(2,238,0,1,42,'SNOWC')/
+       data paramlist(790) /gribparam(2,204,0,4,7,'DSWRF')/
 
       contains
 
