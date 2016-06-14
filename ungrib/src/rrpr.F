@@ -323,6 +323,8 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_level, out_f
                  call get_storage(nint(plvl(k)), 'GEOPT', scr2d, map%nx, map%ny)
                  scr2d = scr2d / 9.81
                  call put_storage(nint(plvl(k)), 'HGT',   scr2d, map%nx, map%ny)
+                 call mprintf(.true.,DEBUG, &
+		   "RRPR:   Computing GHT from GEOPT ")
                  deallocate(scr2d)
               endif
            endif
@@ -528,6 +530,8 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_level, out_f
            call get_storage(200100, 'SOILGEO', scr2d, map%nx, map%ny)
            scr2d = scr2d / 9.81
            call put_storage(200100, 'SOILHGT', scr2d, map%nx, map%ny)
+           call mprintf(.true.,DEBUG, &
+             "RRPR:   Computing SOILGHT from SOILGEO ")
            deallocate(scr2d)
         endif
 
