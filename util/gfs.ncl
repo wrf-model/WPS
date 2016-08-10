@@ -27,7 +27,7 @@ begin
   resources@cnFillOn                    = True                 ; turn on color
   resources@cnLinesOn                   = False                ; no contour lines
   resources@gsnSpreadColors             = True                 ; use full color map
-  resources@lbLabelAutoStride           = True                    ; every other label
+  resources@lbLabelAutoStride           = True                 ; every other label
   resources@cnLevelSelectionMode        = "ManualLevels"       ; manual levels
 
   do i = 0,dimsizes(names)-1
