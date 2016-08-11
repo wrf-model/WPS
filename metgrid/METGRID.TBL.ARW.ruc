@@ -14,7 +14,7 @@ name=ST
         fill_lev =   7 : ST000007(200100)
         fill_lev =  28 : ST007028(200100)
         fill_lev = 100 : ST028100(200100)
-        fill_lev = 255 : ST100255(200100)
+        fill_lev = 289 : ST100289(200100)
 ========================================
 name=SM
         z_dim_name=num_sm_layers
@@ -31,7 +31,7 @@ name=SM
         fill_lev =   7 : SM000007(200100)
         fill_lev =  28 : SM007028(200100)
         fill_lev = 100 : SM028100(200100)
-        fill_lev = 255 : SM100255(200100)
+        fill_lev = 289 : SM100289(200100)
 ========================================
 name=SW
         z_dim_name=num_sw_layers
@@ -263,12 +263,12 @@ name=SM028100
         fill_missing=1.
         flag_in_output=FLAG_SM028100
 ========================================
-name=SM100255
+name=SM100289
         interp_option=sixteen_pt+four_pt+average_4pt+search
         masked=water
         interp_mask=LANDSEA(0)
         fill_missing=1.
-        flag_in_output=FLAG_SM100255
+        flag_in_output=FLAG_SM100289
 ========================================
 name=ST000007
         interp_option=sixteen_pt+four_pt+average_4pt+search
@@ -291,12 +291,12 @@ name=ST028100
         fill_missing=285.
         flag_in_output=FLAG_ST028100
 ========================================
-name=ST100255
+name=ST100289
         interp_option=sixteen_pt+four_pt+average_4pt+search
         masked=water
         interp_mask=LANDSEA(0)
         fill_missing=285.
-        flag_in_output=FLAG_ST100255
+        flag_in_output=FLAG_ST100289
 ========================================
 name=SOILM000
         interp_option=four_pt+average_4pt+search

@@ -25,11 +25,11 @@ Code | Code |   1  |   2  | Name     |  Units   | Description                   
  139 | 112  |   0  |   7  | ST000007 | K        | T of 0-7 cm ground layer                 |
  170 | 112  |   7  |  28  | ST007028 | K        | T of 7-28 cm ground layer                |
  183 | 112  |  28  | 100  | ST028100 | K        | T of 28-100 cm ground layer              |
- 236 | 112  | 100  | 255  | ST100255 | K        | T of 100-255 cm ground layer             |
+ 236 | 112  | 100  | 255  | ST100289 | K        | T of 100-289 cm ground layer             |
   39 | 112  |   0  |   7  | SM000007 | m3 m-3   | Soil moisture of 0-7 cm ground layer     |
   40 | 112  |   7  |  28  | SM007028 | m3 m-3   | Soil moisture of 7-28 cm ground layer    |
   41 | 112  |  28  | 100  | SM028100 | m3 m-3   | Soil moisture of 28-100 cm ground layer  |
-  42 | 112  | 100  | 255  | SM100255 | m3 m-3   | Soil moisture of 100-255 cm ground layer |
+  42 | 112  | 100  | 255  | SM100289 | m3 m-3   | Soil moisture of 100-289 cm ground layer |
 -----+------+------+------+----------+----------+------------------------------------------+
 #
 #  For use with ERA-interim model-level output.
