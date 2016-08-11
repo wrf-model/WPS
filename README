@@ -228,8 +228,8 @@ from http://www2.mmm.ucar.edu/wrf/users/download/get_source.html.
 Meteorological Input Data
 
 The meteorological input data for WPS is the GRIB
-Edition 1 GFS data from NCEP.  A test
-data set (Jan 2000, 24/12Z to 25/12Z) is available from
+Edition 1 GFS data from NCEP.  A test data set 
+(Jan 2000, 24/12Z to 25/12Z) is available from
 http://www2.mmm.ucar.edu/wrf/users/download/get_source.html.
 
 
