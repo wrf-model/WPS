@@ -15,14 +15,14 @@ Param| Type |Level1|Level2| Name     | Units   | Description                    
    1 |   1  |   0  |      | PSFC     | Pa      | Surface Pressure                        |  0  |  3  |  0  |   1 |
    2 | 102  |   0  |      | PMSL     | Pa      | Sea-level Pressure                      |  0  |  3  |  1  | 101 |
   11 |   1  |   0  |      | SKINTEMP | K       | Skin Temperature                        |  0  |  0  |  0  | 103 |
-  86 | 112  |   0  |  10  | SM000010 | fraction| Soil Moist 0-10 cm below grn layer (Up) |  2  |  0  | 192 | 106 |
-  86 | 112  |  10  |  35  | SM010035 | fraction| Soil Moist 10-35 cm below grn layer     |  2  |  0  | 192 | 106 |
-  86 | 112  |  35  | 100  | SM035100 | fraction| Soil Moist 35-100 cm below grn layer    |  2  |  0  | 192 | 106 |
-  86 | 112  | 100  | 255  | SM100255 | fraction| Soil Moist 100-255 cm below gr layer    |  2  |  0  | 192 | 106 |
-  85 | 112  |   0  |  10  | ST000010 | K       | T 0-10 cm below ground layer (Upper)    |  0  |  0  |  0  | 106 |
-  85 | 112  |  10  |  35  | ST010035 | K       | T 10-35 cm below ground layer (Upper)   |  0  |  0  |  0  | 106 |
-  85 | 112  |  35  | 100  | ST035100 | K       | T 35-100 cm below ground layer (Upper)  |  0  |  0  |  0  | 106 |
-  85 | 112  | 100  | 255  | ST100255 | K       | T 100-255 cm below ground layer (Bottom)|  0  |  0  |  0  | 106 |
+  86 | 106  |  10  |      | SM000010 | fraction| Soil Moist 0-10 cm below grn layer      |  2  |  3  | 193 | 106 |
+  86 | 106  |  35  |      | SM010035 | fraction| Soil Moist 10-35 cm below grn layer     |  2  |  3  | 193 | 106 |
+  86 | 106  | 100  |      | SM035100 | fraction| Soil Moist 35-100 cm below grn layer    |  2  |  3  | 193 | 106 |
+  86 | 106  | 300  |      | SM100300 | fraction| Soil Moist 100-300 cm below gr layer    |  2  |  3  | 193 | 106 |
+  85 | 106  |  10  |      | ST000010 | K       | T 0-10 cm below ground layer            |  2  |  3  | 192 | 106 |
+  85 | 106  |  35  |      | ST010035 | K       | T 10-35 cm below ground layer           |  2  |  3  | 192 | 106 |
+  85 | 106  | 100  |      | ST035100 | K       | T 35-100 cm below ground layer          |  2  |  3  | 192 | 106 |
+  85 | 106  | 300  |      | ST100300 | K       | T 100-300 cm below ground layer         |  2  |  3  | 192 | 106 |
  148 |   1  |   0  |      | SOILHGT  | m       | Topography Elevation                    |  2  |  0  |  0  |   1 |
  159 |   1  |   0  |      | SEAICE   | proprtn | Seaice fraction, 0=none, 1=covered      |  2  |  0  |  0  |   1 |
 -----+------+------+------+----------+---------+-----------------------------------------+-----------------------+
