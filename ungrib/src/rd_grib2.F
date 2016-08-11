@@ -307,7 +307,9 @@ C  SET ARGUMENTS
              map%source = 'US Navy FNOC'
            else if (icenter .eq. 59) then
              if (iprocess .eq. 125) then
-               map%source = 'NOAA GSD Rapid Refresh'
+               map%source = 'NOAA GSD Rapid Refresh Model'
+             else if (iprocess .eq. 83) then
+               map%source = 'NOAA GSD HRRR Model'
              else if (iprocess .eq. 105) then
                map%source = 'NOAA GSD'
              else 
