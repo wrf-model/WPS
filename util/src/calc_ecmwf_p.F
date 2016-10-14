@@ -5,13 +5,21 @@ module coefficients
 
    contains
 
-   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
    ! Name: read_coeffs
    !
-   ! Notes: Obtain table of coefficients for input by this routine from
-   !        http://www.ecmwf.int/products/data/technical/model_levels/index.html
-   !
-   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   ! Notes: Obtain table of coefficients for input by this routine from the link
+   !        below that corresponds to the correct number of levels:
+   !        http://www.ecmwf.int/en/forecasts/documentation-and-support/16-model-levels
+   !        http://www.ecmwf.int/en/forecasts/documentation-and-support/19-model-levels
+   !        http://www.ecmwf.int/en/forecasts/documentation-and-support/31-model-levels
+   !        http://www.ecmwf.int/en/forecasts/documentation-and-support/40-model-levels
+   !        http://www.ecmwf.int/en/forecasts/documentation-and-support/50-model-levels
+   !        http://www.ecmwf.int/en/forecasts/documentation-and-support/60-model-levels
+   !        http://www.ecmwf.int/en/forecasts/documentation-and-support/62-model-levels
+   !        http://www.ecmwf.int/en/forecasts/documentation-and-support/91-model-levels
+   !        http://www.ecmwf.int/en/forecasts/documentation-and-support/137-model-levels
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
    subroutine read_coeffs()
       
       implicit none
