@@ -601,8 +601,8 @@ module process_domain_module
     
           end do
     
-        end if
-      end do
+        end if   ! if (istatus == 0) 
+      end do  ! do while (istatus == 0)
 
       static_list_array => list_get_keys(static_list)
       call list_init(flag_list)
@@ -827,7 +827,11 @@ integer, parameter :: BDR_WIDTH = 3
                   call push_source_projection(fg_data%iproj, fg_data%xlonc, fg_data%truelat1, &
                                               fg_data%truelat2, fg_data%dx, fg_data%dy, fg_data%deltalat, &
                                               fg_data%deltalon, fg_data%starti, fg_data%startj, &
-                                              fg_data%startlat, fg_data%startlon, earth_radius=fg_data%earth_radius*1000.)
+                                              fg_data%startlat, fg_data%startlon,  & 
+                                              fg_data%pole_lat, fg_data%pole_lon,        &  
+                                              fg_data%centerlat, fg_data%centerlon,      &  
+                                              real(fg_data%nx)/2., real(fg_data%ny)/2.,  &  
+                                              earth_radius=fg_data%earth_radius*1000.)
       
                   ! Initialize fg_input structure to store the field
                   field%header%version = 1
@@ -1054,11 +1058,15 @@ integer, parameter :: BDR_WIDTH = 3
             end do
       
             call read_met_close()
-   
-            call push_source_projection(fg_data%iproj, fg_data%xlonc, fg_data%truelat1, &
-                                        fg_data%truelat2, fg_data%dx, fg_data%dy, fg_data%deltalat, &
-                                        fg_data%deltalon, fg_data%starti, fg_data%startj, &
-                                        fg_data%startlat, fg_data%startlon, earth_radius=fg_data%earth_radius*1000.)
+                  call push_source_projection(fg_data%iproj, fg_data%xlonc, fg_data%truelat1, &
+                                              fg_data%truelat2, fg_data%dx, fg_data%dy, fg_data%deltalat, &
+                                              fg_data%deltalon, fg_data%starti, fg_data%startj, &
+                                              fg_data%startlat, fg_data%startlon,  & 
+                                              fg_data%pole_lat, fg_data%pole_lon,        &  
+                                              fg_data%centerlat, fg_data%centerlon,      &  
+                                              real(fg_data%nx)/2., real(fg_data%ny)/2.,  &  
+                                              earth_radius=fg_data%earth_radius*1000.)
+      
       
             !
             ! If necessary, rotate winds to earth-relative for this fg source

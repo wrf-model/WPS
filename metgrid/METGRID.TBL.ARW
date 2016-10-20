@@ -70,6 +70,13 @@ name=SOILM
         fill_lev =  40 : SOILM040(200100)      
         fill_lev = 160 : SOILM160(200100)      
         fill_lev = 300 : SOILM300(200100)      
+# HRRR
+        fill_lev =   1 : SOILM001(200100)      
+        fill_lev =   4 : SOILM004(200100)      
+        fill_lev =  10 : SOILM010(200100)      
+        fill_lev =  30 : SOILM030(200100)      
+        fill_lev =  60 : SOILM060(200100)      
+        fill_lev = 100 : SOILM100(200100)      
 ========================================
 name=SOILT
         z_dim_name=num_soilt_levels
@@ -82,6 +89,13 @@ name=SOILT
         fill_lev = 300 : SOILT300(200100)      
         fill_lev =  49 : SOILT050(200100)
         fill_lev =  51 : SOILT050(200100)
+#HRRR
+        fill_lev =   1 : SOILT001(200100)      
+        fill_lev =   4 : SOILT004(200100)      
+        fill_lev =  10 : SOILT010(200100)      
+        fill_lev =  30 : SOILT030(200100)      
+        fill_lev =  60 : SOILT060(200100)      
+        fill_lev = 100 : SOILT100(200100)      
 ========================================
 name=SOIL_LEVELS
         derived=yes
@@ -377,12 +391,33 @@ name=SOILM000
         fill_missing=1.
         flag_in_output=FLAG_SOILM000
 ========================================
+name=SOILM001
+        interp_option=sixteen_pt+four_pt+wt_average_4pt+wt_average_16pt+search
+        masked=water
+        interp_mask=LANDSEA(0)
+        fill_missing=1.
+        flag_in_output=FLAG_SOILM001
+========================================
+name=SOILM004
+        interp_option=sixteen_pt+four_pt+wt_average_4pt+wt_average_16pt+search
+        masked=water
+        interp_mask=LANDSEA(0)
+        fill_missing=1.
+        flag_in_output=FLAG_SOILM004
+========================================
 name=SOILM005
         interp_option=sixteen_pt+four_pt+wt_average_4pt+wt_average_16pt+search
         masked=water
         interp_mask=LANDSEA(0)
         fill_missing=1.
         flag_in_output=FLAG_SOILM005
+========================================
+name=SOILM010
+        interp_option=sixteen_pt+four_pt+wt_average_4pt+wt_average_16pt+search
+        masked=water
+        interp_mask=LANDSEA(0)
+        fill_missing=1.
+        flag_in_output=FLAG_SOILM010
 ========================================
 name=SOILM020
         interp_option=sixteen_pt+four_pt+wt_average_4pt+wt_average_16pt+search
@@ -391,12 +426,33 @@ name=SOILM020
         fill_missing=1.
         flag_in_output=FLAG_SOILM020
 ========================================
+name=SOILM030
+        interp_option=sixteen_pt+four_pt+wt_average_4pt+wt_average_16pt+search
+        masked=water
+        interp_mask=LANDSEA(0)
+        fill_missing=1.
+        flag_in_output=FLAG_SOILM030
+========================================
 name=SOILM040
         interp_option=sixteen_pt+four_pt+wt_average_4pt+wt_average_16pt+search
         masked=water
         interp_mask=LANDSEA(0)
         fill_missing=1.
         flag_in_output=FLAG_SOILM040
+========================================
+name=SOILM060
+        interp_option=sixteen_pt+four_pt+wt_average_4pt+wt_average_16pt+search
+        masked=water
+        interp_mask=LANDSEA(0)
+        fill_missing=1.
+        flag_in_output=FLAG_SOILM060
+========================================
+name=SOILM100
+        interp_option=sixteen_pt+four_pt+wt_average_4pt+wt_average_16pt+search
+        masked=water
+        interp_mask=LANDSEA(0)
+        fill_missing=1.
+        flag_in_output=FLAG_SOILM100
 ========================================
 name=SOILM160
         interp_option=sixteen_pt+four_pt+wt_average_4pt+wt_average_16pt+search
@@ -419,12 +475,33 @@ name=SOILT000
         fill_missing=285.
         flag_in_output=FLAG_SOILT000
 ========================================
+name=SOILT001
+        interp_option=sixteen_pt+four_pt+wt_average_4pt+wt_average_16pt+search
+        masked=water
+        interp_mask=LANDSEA(0)
+        fill_missing=285.
+        flag_in_output=FLAG_SOILT001
+========================================
+name=SOILT004
+        interp_option=sixteen_pt+four_pt+wt_average_4pt+wt_average_16pt+search
+        masked=water
+        interp_mask=LANDSEA(0)
+        fill_missing=285.
+        flag_in_output=FLAG_SOILT004
+========================================
 name=SOILT005
         interp_option=sixteen_pt+four_pt+wt_average_4pt+wt_average_16pt+search
         masked=water
         interp_mask=LANDSEA(0)
         fill_missing=285.
         flag_in_output=FLAG_SOILT005
+========================================
+name=SOILT010
+        interp_option=sixteen_pt+four_pt+wt_average_4pt+wt_average_16pt+search
+        masked=water
+        interp_mask=LANDSEA(0)
+        fill_missing=285.
+        flag_in_output=FLAG_SOILT010
 ========================================
 name=SOILT020
         interp_option=sixteen_pt+four_pt+wt_average_4pt+wt_average_16pt+search
@@ -433,12 +510,33 @@ name=SOILT020
         fill_missing=285.
         flag_in_output=FLAG_SOILT020
 ========================================
+name=SOILT030
+        interp_option=sixteen_pt+four_pt+wt_average_4pt+wt_average_16pt+search
+        masked=water
+        interp_mask=LANDSEA(0)
+        fill_missing=285.
+        flag_in_output=FLAG_SOILT030
+========================================
 name=SOILT040
         interp_option=sixteen_pt+four_pt+wt_average_4pt+wt_average_16pt+search
         masked=water
         interp_mask=LANDSEA(0)
         fill_missing=285.
         flag_in_output=FLAG_SOILT040
+========================================
+name=SOILT060
+        interp_option=sixteen_pt+four_pt+wt_average_4pt+wt_average_16pt+search
+        masked=water
+        interp_mask=LANDSEA(0)
+        fill_missing=285.
+        flag_in_output=FLAG_SOILT060
+========================================
+name=SOILT100
+        interp_option=sixteen_pt+four_pt+wt_average_4pt+wt_average_16pt+search
+        masked=water
+        interp_mask=LANDSEA(0)
+        fill_missing=285.
+        flag_in_output=FLAG_SOILT100
 ========================================
 name=SOILT160
         interp_option=sixteen_pt+four_pt+wt_average_4pt+wt_average_16pt+search
@@ -786,4 +884,16 @@ name=PMAXWNN
 name=HGTMAXW
         interp_option=four_pt
         flag_in_output=FLAG_HGTMAXW
+========================================
+name=QNC
+        output=no
+========================================
+name=QNR
+        output=no
+========================================
+name=QNWFA
+        output=no
+========================================
+name=QNIFA
+        output=no
 ========================================

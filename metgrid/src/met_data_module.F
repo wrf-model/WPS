@@ -5,6 +5,8 @@ module met_data_module
       integer                       :: version, nx, ny, iproj
       real                          :: xfcst, xlvl, startlat, startlon, starti, startj, &
                                        deltalat, deltalon, dx, dy, xlonc, &
+                                       centerlat, centerlon,  &   
+                                       pole_lat, pole_lon,  &   
                                        truelat1, truelat2, earth_radius
       real, pointer, dimension(:,:) :: slab
       logical                       :: is_wind_grid_rel

@@ -327,7 +327,24 @@ module read_met_module
                                                     fg_data % truelat1, &
                                                     fg_data % earth_radius
      
+         ! CASSINI  
+         else if (fg_data % iproj == 6) then
+            fg_data % iproj = PROJ_CASSINI
+            read(unit=input_unit,err=1001,end=1001) startloc, &
+                                                    fg_data % startlat, &
+                                                    fg_data % startlon, &
+                                                    fg_data % dx,       &
+                                                    fg_data % dy,       &
+                                                    fg_data % centerlat,    &
+                                                    fg_data % centerlon,    &
+                                                    fg_data % earth_radius
+     
          ! ?????????
+            fg_data % pole_lat = 90. - fg_data % centerlat
+            fg_data % pole_lon = 180.
+            fg_data % xlonc = -fg_data % centerlon
+            fg_data % deltalon = fg_data % dx
+            fg_data % deltalat = fg_data % dy
          else
             call mprintf(.true.,ERROR,'Unrecognized projection code %i when reading from %s', &
                          i1=fg_data % iproj, s1=filename)
