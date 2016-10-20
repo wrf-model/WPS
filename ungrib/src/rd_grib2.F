@@ -490,7 +490,6 @@ C  SET ARGUMENTS
      &     newline=.true.,f1=map%dx,f2=map%dy,f3=map%lat1,f4=map%lon1,
      &     i1=nint(map%dy))
               end if
-!mchen add 
            elseif (gfld%igdtnum.eq.32769) then ! Arakawa Non-E Staggered grid.
               map%igrid = 6               
               map%nx = gfld%igdtmpl(8)        

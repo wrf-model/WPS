@@ -1058,7 +1058,7 @@ integer, parameter :: BDR_WIDTH = 3
             end do
       
             call read_met_close()
-                  call push_source_projection(fg_data%iproj, fg_data%xlonc, fg_data%truelat1, &
+            call push_source_projection(fg_data%iproj, fg_data%xlonc, fg_data%truelat1, &
                                               fg_data%truelat2, fg_data%dx, fg_data%dy, fg_data%deltalat, &
                                               fg_data%deltalon, fg_data%starti, fg_data%startj, &
                                               fg_data%startlat, fg_data%startlon,  & 
