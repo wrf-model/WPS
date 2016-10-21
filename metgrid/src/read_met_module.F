@@ -340,9 +340,15 @@ module read_met_module
                                                     fg_data % earth_radius
      
          ! ?????????
+            if (NH ) Then
             fg_data % pole_lat = 90. - fg_data % centerlat
             fg_data % pole_lon = 180.
             fg_data % xlonc = -fg_data % centerlon
+            else
+            fg_data % pole_lat = 90. + fg_data % centerlat
+            fg_data % pole_lon = 0.
+            fg_data % xlonc = 180 - fg_data % centerlon
+            end if
             fg_data % deltalon = fg_data % dx
             fg_data % deltalat = fg_data % dy
          else

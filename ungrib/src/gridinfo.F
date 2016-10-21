@@ -17,7 +17,7 @@ module gridinfo
                        ! 0 = lat/lon
                        ! 3 = Lambert Conformal
                        ! 5 = Polar Stereographic grid.
-                       ! 6 = Cassini grib.   
+                       ! 6 = Cassini grid.   
      integer :: nx     ! Number of points in the X direction.
      integer :: ny     ! Number of points in the Y direction.
      real :: truelat1  ! First true latitude (for Polar Stereo. and Lam. Conf.)
