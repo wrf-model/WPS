@@ -341,16 +341,16 @@ module read_met_module
      
          ! ?????????
             if ( fg_data % centerlat.gt.0. ) Then
-            fg_data % pole_lat = 90. - fg_data % centerlat
-            fg_data % pole_lon = 180.
-            fg_data % xlonc = -fg_data % centerlon
+                fg_data % pole_lat = 90. - fg_data % centerlat
+                fg_data % pole_lon = 180.
+                fg_data % xlonc = -fg_data % centerlon
             else
-            fg_data % pole_lat = 90. + fg_data % centerlat
-            fg_data % pole_lon = 0.
-            fg_data % xlonc = 180 - fg_data % centerlon
+                fg_data % pole_lat = 90. + fg_data % centerlat
+                fg_data % pole_lon = 0.
+                fg_data % xlonc = 180. - fg_data % centerlon
             end if
-            fg_data % deltalon = fg_data % dx
-            fg_data % deltalat = fg_data % dy
+                fg_data % deltalon = fg_data % dx
+                fg_data % deltalat = fg_data % dy
          else
             call mprintf(.true.,ERROR,'Unrecognized projection code %i when reading from %s', &
                          i1=fg_data % iproj, s1=filename)

@@ -1060,13 +1060,13 @@ integer, parameter :: BDR_WIDTH = 3
             call read_met_close()
 
             call push_source_projection(fg_data%iproj, fg_data%xlonc, fg_data%truelat1, &
-                                              fg_data%truelat2, fg_data%dx, fg_data%dy, fg_data%deltalat, &
-                                              fg_data%deltalon, fg_data%starti, fg_data%startj, &
-                                              fg_data%startlat, fg_data%startlon,  & 
-                                              fg_data%pole_lat, fg_data%pole_lon,        &  
-                                              fg_data%centerlat, fg_data%centerlon,      &  
-                                              real(fg_data%nx)/2., real(fg_data%ny)/2.,  &  
-                                              earth_radius=fg_data%earth_radius*1000.)
+                                        fg_data%truelat2, fg_data%dx, fg_data%dy, fg_data%deltalat, &
+                                        fg_data%deltalon, fg_data%starti, fg_data%startj, &
+                                        fg_data%startlat, fg_data%startlon,  & 
+                                        fg_data%pole_lat, fg_data%pole_lon,        &  
+                                        fg_data%centerlat, fg_data%centerlon,      &  
+                                        real(fg_data%nx)/2., real(fg_data%ny)/2.,  &  
+                                        earth_radius=fg_data%earth_radius*1000.)
       
       
             !
