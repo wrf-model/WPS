@@ -830,7 +830,7 @@ integer, parameter :: BDR_WIDTH = 3
                                               fg_data%startlat, fg_data%startlon,  & 
                                               fg_data%pole_lat, fg_data%pole_lon,        &  
                                               fg_data%centerlat, fg_data%centerlon,      &  
-                                              real(fg_data%nx)/2., real(fg_data%ny)/2.,  &  
+                                              real(fg_data%nx+1)/2., real(fg_data%ny+1)/2.,  &  
                                               earth_radius=fg_data%earth_radius*1000.)
       
                   ! Initialize fg_input structure to store the field
@@ -1065,7 +1065,7 @@ integer, parameter :: BDR_WIDTH = 3
                                         fg_data%startlat, fg_data%startlon,  & 
                                         fg_data%pole_lat, fg_data%pole_lon,        &  
                                         fg_data%centerlat, fg_data%centerlon,      &  
-                                        real(fg_data%nx)/2., real(fg_data%ny)/2.,  &  
+                                        real(fg_data%nx+1)/2., real(fg_data%ny+1)/2.,  &  
                                         earth_radius=fg_data%earth_radius*1000.)
       
       
