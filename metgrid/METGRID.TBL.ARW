@@ -2,7 +2,7 @@
 name=ST
 	z_dim_name=num_st_layers
         derived=yes
-# IF
+ IF
         fill_lev =  10 : ST000010(200100)
         fill_lev =  40 : ST010040(200100)
         fill_lev = 100 : ST040100(200100)
@@ -633,103 +633,199 @@ name=T0
         missing_value=200.
         fill_missing=-20.
 ========================================
-name=QNWFA_JAN
-	z_dim_name=num_qnwfa_levels
+name=QNWFA_JAN ; output_name=W_WIF_JAN
+========================================
+name=W_WIF_JAN 
+        z_dim_name=num_wif_levels
         interp_option=four_pt+average_4pt
 ========================================
-name=QNWFA_FEB
-	z_dim_name=num_qnwfa_levels
+name=QNWFA_FEB ; output_name=W_WIF_FEB
+========================================
+name=W_WIF_FEB 
+        z_dim_name=num_wif_levels
         interp_option=four_pt+average_4pt
 ========================================
-name=QNWFA_MAR
-	z_dim_name=num_qnwfa_levels
+name=QNWFA_MAR ; output_name=W_WIF_MAR
+========================================
+name=W_WIF_MAR 
+        z_dim_name=num_wif_levels
         interp_option=four_pt+average_4pt
 ========================================
-name=QNWFA_APR
-	z_dim_name=num_qnwfa_levels
+name=QNWFA_APR ; output_name=W_WIF_APR
+========================================
+name=W_WIF_APR 
+        z_dim_name=num_wif_levels
         interp_option=four_pt+average_4pt
 ========================================
-name=QNWFA_MAY
-	z_dim_name=num_qnwfa_levels
+name=QNWFA_MAY ; output_name=W_WIF_MAY
+========================================
+name=W_WIF_MAY 
+        z_dim_name=num_wif_levels
         interp_option=four_pt+average_4pt
 ========================================
-name=QNWFA_JUN
-	z_dim_name=num_qnwfa_levels
+name=QNWFA_JUN ; output_name=W_WIF_JUN
+========================================
+name=W_WIF_JUN 
+        z_dim_name=num_wif_levels
         interp_option=four_pt+average_4pt
 ========================================
-name=QNWFA_JUL
-	z_dim_name=num_qnwfa_levels
+name=QNWFA_JUL ; output_name=W_WIF_JUL
+========================================
+name=W_WIF_JUL 
+        z_dim_name=num_wif_levels
         interp_option=four_pt+average_4pt
 ========================================
-name=QNWFA_AUG
-	z_dim_name=num_qnwfa_levels
+name=QNWFA_AUG ; output_name=W_WIF_AUG
+========================================
+name=W_WIF_AUG 
+        z_dim_name=num_wif_levels
         interp_option=four_pt+average_4pt
 ========================================
-name=QNWFA_SEP
-	z_dim_name=num_qnwfa_levels
+name=QNWFA_SEP ; output_name=W_WIF_SEP
+========================================
+name=W_WIF_SEP 
+        z_dim_name=num_wif_levels
         interp_option=four_pt+average_4pt
 ========================================
-name=QNWFA_OCT
-	z_dim_name=num_qnwfa_levels
+name=QNWFA_OCT ; output_name=W_WIF_OCT
+========================================
+name=W_WIF_OCT 
+        z_dim_name=num_wif_levels
         interp_option=four_pt+average_4pt
 ========================================
-name=QNWFA_NOV
-	z_dim_name=num_qnwfa_levels
+name=QNWFA_NOV ; output_name=W_WIF_NOV
+========================================
+name=W_WIF_NOV 
+        z_dim_name=num_wif_levels
         interp_option=four_pt+average_4pt
 ========================================
-name=QNWFA_DEC
-	z_dim_name=num_qnwfa_levels
+name=QNWFA_DEC ; output_name=W_WIF_DEC
+========================================
+name=W_WIF_DEC 
+        z_dim_name=num_wif_levels
         interp_option=four_pt+average_4pt
         flag_in_output=FLAG_QNWFA
 ========================================
-name=QNIFA_JAN
-	z_dim_name=num_qnifa_levels
+name=QNIFA_JAN ; output_name=I_WIF_JAN
+========================================
+name=I_WIF_JAN 
+        z_dim_name=num_wif_levels
         interp_option=four_pt+average_4pt
 ========================================
-name=QNIFA_FEB
-	z_dim_name=num_qnifa_levels
+name=QNIFA_FEB ; output_name=I_WIF_FEB
+========================================
+name=I_WIF_FEB 
+        z_dim_name=num_wif_levels
         interp_option=four_pt+average_4pt
 ========================================
-name=QNIFA_MAR
-	z_dim_name=num_qnifa_levels
+name=QNIFA_MAR ; output_name=I_WIF_MAR
+========================================
+name=I_WIF_MAR 
+        z_dim_name=num_wif_levels
         interp_option=four_pt+average_4pt
 ========================================
-name=QNIFA_APR
-	z_dim_name=num_qnifa_levels
+name=QNIFA_APR ; output_name=I_WIF_APR
+========================================
+name=I_WIF_APR 
+        z_dim_name=num_wif_levels
         interp_option=four_pt+average_4pt
 ========================================
-name=QNIFA_MAY
-	z_dim_name=num_qnifa_levels
+name=QNIFA_MAY ; output_name=I_WIF_MAY
+========================================
+name=I_WIF_MAY 
+        z_dim_name=num_wif_levels
         interp_option=four_pt+average_4pt
 ========================================
-name=QNIFA_JUN
-	z_dim_name=num_qnifa_levels
+name=QNIFA_JUN ; output_name=I_WIF_JUN
+========================================
+name=I_WIF_JUN 
+        z_dim_name=num_wif_levels
         interp_option=four_pt+average_4pt
 ========================================
-name=QNIFA_JUL
-	z_dim_name=num_qnifa_levels
+name=QNIFA_JUL ; output_name=I_WIF_JUL
+========================================
+name=I_WIF_JUL 
+        z_dim_name=num_wif_levels
         interp_option=four_pt+average_4pt
 ========================================
-name=QNIFA_AUG
-	z_dim_name=num_qnifa_levels
+name=QNIFA_AUG ; output_name=I_WIF_AUG
+========================================
+name=I_WIF_AUG 
+        z_dim_name=num_wif_levels
         interp_option=four_pt+average_4pt
 ========================================
-name=QNIFA_SEP
-	z_dim_name=num_qnifa_levels
+name=QNIFA_SEP ; output_name=I_WIF_SEP
+========================================
+name=I_WIF_SEP 
+        z_dim_name=num_wif_levels
         interp_option=four_pt+average_4pt
 ========================================
-name=QNIFA_OCT
-	z_dim_name=num_qnifa_levels
+name=QNIFA_OCT ; output_name=I_WIF_OCT
+========================================
+name=I_WIF_OCT 
+        z_dim_name=num_wif_levels
         interp_option=four_pt+average_4pt
 ========================================
-name=QNIFA_NOV
-	z_dim_name=num_qnifa_levels
+name=QNIFA_NOV ; output_name=I_WIF_NOV
+========================================
+name=I_WIF_NOV 
+        z_dim_name=num_wif_levels
         interp_option=four_pt+average_4pt
 ========================================
-name=QNIFA_DEC
-	z_dim_name=num_qnifa_levels
+name=QNIFA_DEC ; output_name=I_WIF_DEC
+========================================
+name=I_WIF_DEC 
+        z_dim_name=num_wif_levels
         interp_option=four_pt+average_4pt
         flag_in_output=FLAG_QNIFA
+========================================
+name=P_WIF_JAN
+        z_dim_name=num_wif_levels
+        interp_option=four_pt+average_4pt
+========================================
+name=P_WIF_FEB
+        z_dim_name=num_wif_levels
+        interp_option=four_pt+average_4pt
+========================================
+name=P_WIF_MAR
+        z_dim_name=num_wif_levels
+        interp_option=four_pt+average_4pt
+========================================
+name=P_WIF_APR
+        z_dim_name=num_wif_levels
+        interp_option=four_pt+average_4pt
+========================================
+name=P_WIF_MAY
+        z_dim_name=num_wif_levels
+        interp_option=four_pt+average_4pt
+========================================
+name=P_WIF_JUN
+        z_dim_name=num_wif_levels
+        interp_option=four_pt+average_4pt
+========================================
+name=P_WIF_JUL
+        z_dim_name=num_wif_levels
+        interp_option=four_pt+average_4pt
+========================================
+name=P_WIF_AUG
+        z_dim_name=num_wif_levels
+        interp_option=four_pt+average_4pt
+========================================
+name=P_WIF_SEP
+        z_dim_name=num_wif_levels
+        interp_option=four_pt+average_4pt
+========================================
+name=P_WIF_OCT
+        z_dim_name=num_wif_levels
+        interp_option=four_pt+average_4pt
+========================================
+name=P_WIF_NOV
+        z_dim_name=num_wif_levels
+        interp_option=four_pt+average_4pt
+========================================
+name=P_WIF_DEC
+        z_dim_name=num_wif_levels
+        interp_option=four_pt+average_4pt
 ========================================
 name=UTROP
         interp_option=four_pt
