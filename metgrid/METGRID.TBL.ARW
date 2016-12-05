@@ -2,7 +2,7 @@
 name=ST
 	z_dim_name=num_st_layers
         derived=yes
- IF
+# IF
         fill_lev =  10 : ST000010(200100)
         fill_lev =  40 : ST010040(200100)
         fill_lev = 100 : ST040100(200100)
