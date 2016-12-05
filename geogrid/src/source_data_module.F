@@ -1573,10 +1573,17 @@ module source_data_module
                   memorder = '   ' 
                   dimnames(3) = ' '
                end if
-               field_name = dfdx_name
-               units = '-'
+!---------- B. Kosovic 2016-10-28 ---- Changes begin
+! The following two lines of code are in the wrong place resulting in
+! incorrect size of the dfdx array on the nested domain(s)
+!               field_name = dfdx_name
+!               units = '-'
 
                call get_subgrid_dim_name(nest_num, field_name, dimnames(1:2), sr_x, sr_y, istatus)
+! Correct location of the two lines of code is below (see also dfdy)
+               field_name = dfdx_name
+               units = '-'
+!---------- B. Kosovic 2016-10-28 ----- End of changes 
                description = 'df/dx'
                if (output_field_state == RETURN_DFDX) then
                   output_field_state = RETURN_DFDY
