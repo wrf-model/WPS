@@ -674,6 +674,19 @@ name=QNI
         fill_lev=200100:const(0.)
         flag_in_output=FLAG_QNI
 ========================================
+name=QNC
+        output=no
+        interp_option=four_pt+average_4pt
+        fill_missing=0.
+        fill_lev=200100:const(0.)
+        flag_in_output=FLAG_QNI
+========================================
+name=QNR
+        interp_option=four_pt+average_4pt
+        fill_missing=0.
+        fill_lev=200100:const(0.)
+        flag_in_output=FLAG_QNI
+========================================
 name=VPTMP
         interp_option=sixteen_pt+four_pt+average_4pt
         fill_missing=0.
@@ -885,15 +898,11 @@ name=HGTMAXW
         interp_option=four_pt
         flag_in_output=FLAG_HGTMAXW
 ========================================
-name=QNC
-        output=no
-========================================
-name=QNR
-        output=no
-========================================
 name=QNWFA
-        output=no
+	z_dim_name=num_qnwfa_levels
+        interp_option=four_pt+average_4pt
 ========================================
 name=QNIFA
-        output=no
+	z_dim_name=num_qnwfa_levels
+        interp_option=four_pt+average_4pt
 ========================================
