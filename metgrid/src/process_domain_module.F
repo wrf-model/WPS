@@ -1,5 +1,14 @@
 module process_domain_module
 
+   use mpas_mesh
+   use target_mesh
+   use remapper
+
+   type (mpas_mesh_type) :: mpas_source_mesh
+   type (target_mesh_type) :: wrf_target_mesh_m, wrf_target_mesh_u, wrf_target_mesh_v
+   type (remap_info_type) :: remap_info_m, remap_info_u, remap_info_v
+   real, dimension(:,:), allocatable, target :: xlat_rad, xlon_rad, xlat_u_rad, xlon_u_rad, xlat_v_rad, xlon_v_rad
+
    contains
 
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -23,6 +32,7 @@ module process_domain_module
       logical, intent(in) :: extra_row, extra_col
    
       ! Local variables
+      integer :: istatus
       integer :: i, t, dyn_opt, &
                  we_dom_s, we_dom_e, sn_dom_s, sn_dom_e, &
                  we_patch_s, we_patch_e, we_patch_stag_s, we_patch_stag_e, &
@@ -182,6 +192,25 @@ module process_domain_module
       if (associated(geogrid_flags)) deallocate(geogrid_flags)
    
       call storage_delete_all()
+
+write(0,*) 'Freeing source mesh'
+      istatus = mpas_mesh_free(mpas_source_mesh)
+
+write(0,*) 'Freeing target mesh'
+      if (allocated(xlat_rad)) deallocate(xlat_rad)
+      if (allocated(xlon_rad)) deallocate(xlon_rad)
+      if (allocated(xlat_u_rad)) deallocate(xlat_u_rad)
+      if (allocated(xlon_u_rad)) deallocate(xlon_u_rad)
+      if (allocated(xlat_v_rad)) deallocate(xlat_v_rad)
+      if (allocated(xlon_v_rad)) deallocate(xlon_v_rad)
+      istatus = target_mesh_free(wrf_target_mesh_m)
+      istatus = target_mesh_free(wrf_target_mesh_u)
+      istatus = target_mesh_free(wrf_target_mesh_v)
+
+write(0,*) 'Freeing remapping weights'
+      istatus = remap_info_free(remap_info_m)
+      istatus = remap_info_free(remap_info_u)
+      istatus = remap_info_free(remap_info_v)
    
    end subroutine process_domain
 
@@ -735,17 +764,31 @@ integer, parameter :: BDR_WIDTH = 3
          call mprintf(.true.,STDOUT, '    %s', s1=input_name)
          call mprintf(.true.,LOGFILE, 'Getting input fields from %s', s1=input_name)
 
-         call process_intermediate_fields(input_name, do_const_processing, temp_date, fg_data, got_this_field, &
-                                          landmask, process_bdy_width, &
-                                          u_field, v_field, &
-                                          dom_dx, dom_dy, &
-                                          xlat, xlon, xlat_u, xlon_u, xlat_v, xlon_v, &
-                                          output_flags, west_east_dim, south_north_dim, &
-                                          we_domain_s, we_domain_e, sn_domain_s, sn_domain_e, &
-                                          we_patch_s, we_patch_e, we_patch_stag_s, we_patch_stag_e, &
-                                          sn_patch_s, sn_patch_e, sn_patch_stag_s, sn_patch_stag_e, &
-                                          we_mem_s, we_mem_e, we_mem_stag_s, we_mem_stag_e, &
-                                          sn_mem_s, sn_mem_e, sn_mem_stag_s, sn_mem_stag_e )
+         if (index(input_name, 'mpas:') == 1) then
+            call process_mpas_fields(input_name, do_const_processing, temp_date, fg_data, got_this_field, &
+                                     landmask, process_bdy_width, &
+                                     u_field, v_field, &
+                                     dom_dx, dom_dy, &
+                                     xlat, xlon, xlat_u, xlon_u, xlat_v, xlon_v, &
+                                     output_flags, west_east_dim, south_north_dim, &
+                                     we_domain_s, we_domain_e, sn_domain_s, sn_domain_e, &
+                                     we_patch_s, we_patch_e, we_patch_stag_s, we_patch_stag_e, &
+                                     sn_patch_s, sn_patch_e, sn_patch_stag_s, sn_patch_stag_e, &
+                                     we_mem_s, we_mem_e, we_mem_stag_s, we_mem_stag_e, &
+                                     sn_mem_s, sn_mem_e, sn_mem_stag_s, sn_mem_stag_e )
+         else
+            call process_intermediate_fields(input_name, do_const_processing, temp_date, fg_data, got_this_field, &
+                                             landmask, process_bdy_width, &
+                                             u_field, v_field, &
+                                             dom_dx, dom_dy, &
+                                             xlat, xlon, xlat_u, xlon_u, xlat_v, xlon_v, &
+                                             output_flags, west_east_dim, south_north_dim, &
+                                             we_domain_s, we_domain_e, sn_domain_s, sn_domain_e, &
+                                             we_patch_s, we_patch_e, we_patch_stag_s, we_patch_stag_e, &
+                                             sn_patch_s, sn_patch_e, sn_patch_stag_s, sn_patch_stag_e, &
+                                             we_mem_s, we_mem_e, we_mem_stag_s, we_mem_stag_e, &
+                                             sn_mem_s, sn_mem_e, sn_mem_stag_s, sn_mem_stag_e )
+         end if
    
          fg_idx = fg_idx + 1
          if (do_const_processing) then
@@ -1409,9 +1452,233 @@ integer, parameter :: BDR_WIDTH = 3
    !
    ! Purpose:
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-   subroutine process_mpas_fields()
+   subroutine process_mpas_fields(input_name, do_const_processing, temp_date, fg_data, got_this_field, &
+                                          landmask, process_bdy_width, &
+                                          u_field, v_field, &
+                                          dom_dx, dom_dy, &
+                                          xlat, xlon, xlat_u, xlon_u, xlat_v, xlon_v, &
+                                          output_flags, west_east_dim, south_north_dim, &
+                                          we_domain_s, we_domain_e, sn_domain_s, sn_domain_e, &
+                                          we_patch_s, we_patch_e, we_patch_stag_s, we_patch_stag_e, &
+                                          sn_patch_s, sn_patch_e, sn_patch_stag_s, sn_patch_stag_e, &
+                                          we_mem_s, we_mem_e, we_mem_stag_s, we_mem_stag_e, &
+                                          sn_mem_s, sn_mem_e, sn_mem_stag_s, sn_mem_stag_e )
+
+      use bitarray_module
+      use gridinfo_module
+      use interp_module
+      use interp_option_module
+      use read_met_module
+      use llxy_module
+      use misc_definitions_module
+      use module_debug
+      use output_module
+      use parallel_module
+      use rotate_winds_module
+      use storage_module
+      use scan_input
+      use mpas_mesh
 
       implicit none
+
+! BUG: Move this constant to misc_definitions_module?
+integer, parameter :: BDR_WIDTH = 3
+
+      character (len=*), intent(inout) :: input_name
+      logical, intent(in) :: do_const_processing
+      character (len=*), intent(in) :: temp_date
+      type (met_data), intent(inout) :: fg_data
+      logical, dimension(:), intent(inout) :: got_this_field
+      real, pointer, dimension(:,:) :: landmask
+      integer, intent(in) :: process_bdy_width
+      type (fg_input), intent(inout) :: u_field, v_field
+      character (len=128), dimension(:), intent(inout) :: output_flags
+      real, intent(in) :: dom_dx, dom_dy
+      real, pointer, dimension(:,:) :: xlat, xlon, xlat_u, xlon_u, xlat_v, xlon_v
+      integer, intent(in) :: west_east_dim, south_north_dim, &
+                 we_domain_s, we_domain_e, sn_domain_s, sn_domain_e, &
+                 we_patch_s, we_patch_e, we_patch_stag_s, we_patch_stag_e, &
+                 sn_patch_s, sn_patch_e, sn_patch_stag_s, sn_patch_stag_e, &
+                 we_mem_s, we_mem_e, we_mem_stag_s, we_mem_stag_e, &
+                 sn_mem_s, sn_mem_e, sn_mem_stag_s, sn_mem_stag_e
+
+      real, parameter :: deg2rad = asin(1.0) / 90.0
+
+      integer :: i, j, k
+      integer :: istat
+      integer :: strlen
+      character (len=MAX_FILENAME_LEN) :: mpas_filename
+      integer :: nRecords
+      type (input_handle_type) :: mpas_handle
+      type (input_field_type) :: mpas_field
+      type (target_field_type) :: wrf_field
+      type (fg_input) :: field_to_store
+
+      strlen = len_trim(input_name)
+      if (do_const_processing) then
+         write(mpas_filename,'(a)') input_name(6:strlen)
+      else
+         write(mpas_filename,'(a)') input_name(6:strlen)//'.'//trim(temp_date)//'.nc'
+      end if
+      call mprintf(.true.,LOGFILE,'Processing MPAS fields from file %s',s1=mpas_filename)
+
+      !
+      ! If we do not already have mesh information, get that now...
+      !
+      if (.not. mpas_source_mesh % valid) then
+         if (mpas_mesh_setup(mpas_filename, mpas_source_mesh) /= 0) then
+            call mprintf(.true.,ERROR, 'Error setting up MPAS mesh %s with scan_input_open', s1=mpas_filename)
+         end if
+      end if
+
+      !
+      ! If we have not already defined the WRF grid, do that now...
+      !
+      if (.not. wrf_target_mesh_m % valid) then
+         allocate(xlat_rad(size(xlat,1), size(xlat,2)))
+         allocate(xlon_rad(size(xlat,1), size(xlat,2)))
+         xlat_rad(:,:) = xlat(:,:) * deg2rad
+         xlon_rad(:,:) = xlon(:,:) * deg2rad
+         call mprintf(.true.,LOGFILE,'Need to set up WRF target mass-grid')
+         if (target_mesh_setup(wrf_target_mesh_m, lat2d=xlat_rad, lon2d=xlon_rad) /= 0) then
+            call mprintf(.true.,ERROR, 'Error setting up WRF target grid')
+         end if
+
+         call mprintf(.true.,LOGFILE,'Also computing remapping weights...')
+         if (remap_info_setup(mpas_source_mesh, wrf_target_mesh_m, remap_info_m) /= 0) then
+            call mprintf(.true.,ERROR, 'Error computing remapping weights from MPAS to WRF grid')
+         end if
+      else
+         call mprintf(.true.,LOGFILE,'Already set up WRF target mass-grid')
+      end if
+
+      if (.not. wrf_target_mesh_u % valid) then
+         allocate(xlat_u_rad(size(xlat_u,1), size(xlat_u,2)))
+         allocate(xlon_u_rad(size(xlat_u,1), size(xlat_u,2)))
+         xlat_u_rad(:,:) = xlat_u(:,:) * deg2rad
+         xlon_u_rad(:,:) = xlon_u(:,:) * deg2rad
+         call mprintf(.true.,LOGFILE,'Need to set up WRF target U-grid')
+         if (target_mesh_setup(wrf_target_mesh_u, lat2d=xlat_u_rad, lon2d=xlon_u_rad) /= 0) then
+            call mprintf(.true.,ERROR, 'Error setting up WRF target grid')
+         end if
+
+         call mprintf(.true.,LOGFILE,'Also computing remapping weights...')
+         if (remap_info_setup(mpas_source_mesh, wrf_target_mesh_u, remap_info_u) /= 0) then
+            call mprintf(.true.,ERROR, 'Error computing remapping weights from MPAS to WRF grid')
+         end if
+      else
+         call mprintf(.true.,LOGFILE,'Already set up WRF target U-grid')
+      end if
+
+      if (.not. wrf_target_mesh_v % valid) then
+         allocate(xlat_v_rad(size(xlat_v,1), size(xlat_v,2)))
+         allocate(xlon_v_rad(size(xlat_v,1), size(xlat_v,2)))
+         xlat_v_rad(:,:) = xlat_v(:,:) * deg2rad
+         xlon_v_rad(:,:) = xlon_v(:,:) * deg2rad
+         call mprintf(.true.,LOGFILE,'Need to set up WRF target V-grid')
+         if (target_mesh_setup(wrf_target_mesh_v, lat2d=xlat_v_rad, lon2d=xlon_v_rad) /= 0) then
+            call mprintf(.true.,ERROR, 'Error setting up WRF target grid')
+         end if
+
+         call mprintf(.true.,LOGFILE,'Also computing remapping weights...')
+         if (remap_info_setup(mpas_source_mesh, wrf_target_mesh_v, remap_info_v) /= 0) then
+            call mprintf(.true.,ERROR, 'Error computing remapping weights from MPAS to WRF grid')
+         end if
+      else
+         call mprintf(.true.,LOGFILE,'Already set up WRF target V-grid')
+      end if
+
+
+      if (scan_input_open(mpas_filename, mpas_handle, nRecords) /= 0) then
+         call mprintf(.true.,ERROR, 'Error opening %s with scan_input_open', s1=mpas_filename)
+      end if
+
+
+      ! Initialize fg_input structure to store the field
+      field_to_store%header%version = 1
+      field_to_store%header%date = '?'
+      if (do_const_processing) then
+         field_to_store%header%time_dependent = .false.
+         field_to_store%header%constant_field = .true.
+      else
+         field_to_store%header%time_dependent = .true.
+         field_to_store%header%constant_field = .false.
+      end if
+      field_to_store%header%forecast_hour = 0.0
+      field_to_store%header%fg_source = 'FG'
+      field_to_store%header%field = ' '
+      field_to_store%header%field(1:9) = '?'
+      field_to_store%header%units = ' '
+      field_to_store%header%units(1:25) = '?'
+      field_to_store%header%description = ' '
+      field_to_store%header%description(1:46) = '?'
+      field_to_store%header%vertical_coord = 'z_dim_name'
+      field_to_store%header%vertical_level = 0
+      field_to_store%header%sr_x = 1
+      field_to_store%header%sr_y = 1
+      field_to_store%header%array_order = 'XY ' 
+      field_to_store%header%is_wind_grid_rel = .false.
+      field_to_store%header%array_has_missing_values = .false.
+      nullify(field_to_store%r_arr)
+      nullify(field_to_store%valid_mask)
+      nullify(field_to_store%modified_mask)
+
+      ! If we should not output this field, just list it as a mask field
+!???      if (output_this_field(idx)) then
+         field_to_store%header%mask_field = .false.
+!???      else
+!???         field%header%mask_field = .true.
+!???      end if
+
+
+      do while (scan_input_next_field(mpas_handle, mpas_field) == 0) 
+
+         if (can_remap_field(mpas_field)) then
+            write(0,*) 'Found '//trim(mpas_field % name)
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! Maybe we need some routine to match up MPAS field names to WPS field names,
+! which could also be used to tell us whether we should remap a field
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            if (trim(mpas_field % name) == 'qv') then
+    
+               istat = scan_input_read_field(mpas_field, frame=1)
+    
+               ! should depend on output staggering...
+               write(0,*) 'Remapping '//trim(mpas_field % name)
+               istat = remap_field(remap_info_m, mpas_field, wrf_field)
+               field_to_store%map%stagger = M
+
+
+               ! Do something to put fields into storage module?
+               if (trim(wrf_field % dimnames(1)) == 'nVertLevels') then   ! 3-d MPAS field
+                  field_to_store % header % field = 'FOO'
+                  field_to_store % header % vertical_coord = 'num_mpas_levels'
+                  do k=1,wrf_field % dimlens(1)
+                     allocate(field_to_store % r_arr(wrf_field % dimlens(2), wrf_field % dimlens(3)))
+                     allocate(field_to_store % valid_mask)
+                     call bitarray_create(field_to_store % valid_mask, wrf_field % dimlens(2), wrf_field % dimlens(3))
+                     do j=1,wrf_field % dimlens(3)
+                     do i=1,wrf_field % dimlens(2)
+                        call bitarray_set(field_to_store % valid_mask, i, j)
+                     end do
+                     end do
+                     field_to_store % header % vertical_level = k
+                     field_to_store % r_arr(:,:) = wrf_field % array3d(k,:,:)
+                     call storage_put_field(field_to_store)
+                  end do
+               end if
+       
+               istat = free_target_field(wrf_field)
+            end if
+         end if
+
+         istat = scan_input_free_field(mpas_field)
+      end do
+      
+      if (scan_input_close(mpas_handle) /= 0) then
+         call mprintf(.true.,ERROR, 'Error closing %s with scan_input_close', s1=mpas_filename)
+      end if
 
    end subroutine process_mpas_fields
 
