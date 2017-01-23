@@ -899,10 +899,10 @@ name=HGTMAXW
         flag_in_output=FLAG_HGTMAXW
 ========================================
 name=QNWFA
-	z_dim_name=num_qnwfa_levels
+        z_dim_name=num_qnwfa_levels
         interp_option=four_pt+average_4pt
 ========================================
 name=QNIFA
-	z_dim_name=num_qnwfa_levels
+        z_dim_name=num_qnwfa_levels
         interp_option=four_pt+average_4pt
 ========================================
