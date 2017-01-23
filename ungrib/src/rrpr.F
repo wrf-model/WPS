@@ -134,6 +134,9 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_level, out_f
           case (1)
            read (iunit) map%startloc, map%lat1, map%lon1, map%dy, map%dx, &
                 map%truelat1, map%r_earth
+          case (6)
+           read (iunit) map%startloc, map%lat1, map%lon1, map%dy, map%dx, &
+                map%lat0,map%lon0, map%r_earth
           case default
              call mprintf(.true.,ERROR, &
                 "Unrecognized map%%igrid: %i in RRPR 1",i1=map%igrid)

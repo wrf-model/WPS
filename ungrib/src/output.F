@@ -236,6 +236,9 @@ subroutine output(hdate, nlvl, maxlvl, plvl, interval, iflag, out_format, prefix
               elseif (map%igrid.eq.1)then ! Mercator
                  write (iunit) map%startloc, map%lat1, map%lon1, map%dy, map%dx, &
                       map%truelat1, map%r_earth
+              elseif (map%igrid.eq.6)then ! CASSINI
+                 write (iunit) map%startloc, map%lat1, map%lon1, map%dy, map%dx, &
+                      map%lat0, map%lon0, map%r_earth  ! refer to gridinfo.F
               else
                  call mprintf(.true.,ERROR, &
                 "Unrecognized map%%igrid: %i in subroutine output 1",i1=map%igrid)

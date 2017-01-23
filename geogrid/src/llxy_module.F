@@ -38,7 +38,11 @@ module llxy_module
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
    subroutine push_source_projection(iprojection, user_stand_lon, user_truelat1, user_truelat2, &
                                   user_dxkm, user_dykm, user_dlat, user_dlon, user_known_x, &
-                                  user_known_y, user_known_lat, user_known_lon, earth_radius)
+                                  user_known_y, user_known_lat, user_known_lon, &
+                                  user_pole_lat, user_pole_lon, &   
+                                  user_centerlat, user_centerlon, &   
+                                  user_centeri, user_centerj, &   
+                                  earth_radius)
  
       implicit none
   
@@ -48,6 +52,9 @@ module llxy_module
                           user_dlat, user_dlon, &
                           user_known_x, user_known_y, user_known_lat, user_known_lon
       real, intent(in), optional :: earth_radius
+      real, intent(in), optional :: user_centerlon, user_centerlat, user_pole_lat, user_pole_lon 
+      real, intent(in), optional :: user_centerj, user_centeri   
+      
 
       SOURCE_PROJ = SOURCE_PROJ-1
       if (SOURCE_PROJ < -MAX_SOURCE_LEVELS) then
@@ -82,8 +89,18 @@ module llxy_module
                           //'source data in push_source_projection()')
   
       else if (iprojection == PROJ_CASSINI) then
-         call mprintf(.true.,ERROR,'Should not have PROJ_CASSINI as projection for ' &
-                          //'source data in push_source_projection()')
+  
+         call map_set(iprojection, proj_stack(SOURCE_PROJ), &
+                      latinc=user_dlat, &
+                      loninc=user_dlon, &
+                      stdlon=user_stand_lon, &  
+                      lat1=user_centerlat, &
+                      lon1=user_centerlon, &
+                      lat0=user_pole_lat, &
+                      lon0=user_pole_lon, &
+                      knowni=user_centeri, &
+                      knownj=user_centerj, &
+                      r_earth=earth_radius)
   
       else if (iprojection == PROJ_LC) then
          call map_set(iprojection, proj_stack(SOURCE_PROJ), &
