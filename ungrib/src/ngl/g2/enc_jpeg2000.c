@@ -1,10 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#ifdef USE_JPEG2000
 #include "jasper/jasper.h"
 #define JAS_1_700_2
-#endif /* USE_JPEG2000 */
 
 #ifdef __64BIT__
   typedef int g2int;
@@ -12,15 +10,20 @@
   typedef long g2int;
 #endif
 
-
-#if defined _UNDERSCORE
-   #define enc_jpeg2000 enc_jpeg2000_
-#elif defined _DOUBLEUNDERSCORE
-   #define enc_jpeg2000 enc_jpeg2000__
+#if defined CRAY90
+   #include <fortran.h>
+   #define SUB_NAME ENC_JPEG2000
+#elif defined LINUXF90
+   #define SUB_NAME ENC_JPEG2000
+#elif defined LINUXG95
+   #define SUB_NAME enc_jpeg2000__
+#elif defined HP || defined AIX
+   #define SUB_NAME enc_jpeg2000
+#elif defined SGI || defined LINUX || defined VPP5000
+   #define SUB_NAME enc_jpeg2000_
 #endif
 
-
-int enc_jpeg2000(unsigned char *cin,g2int *pwidth,g2int *pheight,g2int *pnbits,
+int SUB_NAME(unsigned char *cin,g2int *pwidth,g2int *pheight,g2int *pnbits,
                  g2int *ltype, g2int *ratio, g2int *retry, char *outjpc, 
                  g2int *jpclen)
 /*$$$  SUBPROGRAM DOCUMENTATION BLOCK
@@ -80,9 +83,7 @@ int enc_jpeg2000(unsigned char *cin,g2int *pwidth,g2int *pheight,g2int *pnbits,
 *
 *$$$*/
 {
-    int rwcnt = 0;
-#ifdef USE_JPEG2000
-    int ier ;
+    int ier,rwcnt;
     jas_image_t image;
     jas_stream_t *jpcstream,*istream;
     jas_image_cmpt_t cmpt,*pcmpt;
@@ -99,26 +100,26 @@ int enc_jpeg2000(unsigned char *cin,g2int *pwidth,g2int *pheight,g2int *pnbits,
     printf(" enc_jpeg2000:nbits %ld\n",nbits);
     printf(" enc_jpeg2000:jpclen %ld\n",*jpclen);
 */
-/*    jas_init(); */
+//    jas_init();
 
-/*
- *    Set lossy compression options, if requested.
- */
+//
+//    Set lossy compression options, if requested.
+//
     if ( *ltype != 1 ) {
        opts[0]=(char)0;
     }
     else {
        snprintf(opts,MAXOPTSSIZE,"mode=real\nrate=%f",1.0/(float)*ratio);
     }
-    if ( *retry == 1 ) {             /* option to increase number of guard bits */
+    if ( *retry == 1 ) {             // option to increase number of guard bits
        strcat(opts,"\nnumgbits=4");
     }
-    /* printf("SAGopts: %s\n",opts); */
+    //printf("SAGopts: %s\n",opts);
     
-/*
- *     Initialize the JasPer image structure describing the grayscale
- *     image to encode into the JPEG2000 code stream.
- */
+//
+//     Initialize the JasPer image structure describing the grayscale
+//     image to encode into the JPEG2000 code stream.
+//
     image.tlx_=0;
     image.tly_=0;
 #ifdef JAS_1_500_4 
@@ -160,36 +161,36 @@ int enc_jpeg2000(unsigned char *cin,g2int *pwidth,g2int *pheight,g2int *pnbits,
     pcmpt=&cmpt;
     image.cmpts_=&pcmpt;
 
-/*
- *    Open a JasPer stream containing the input grayscale values
- */
+//
+//    Open a JasPer stream containing the input grayscale values
+//
     istream=jas_stream_memopen((char *)cin,height*width*cmpt.cps_);
     cmpt.stream_=istream;
 
-/*
- *    Open an output stream that will contain the encoded jpeg2000
- *    code stream.
- */
+//
+//    Open an output stream that will contain the encoded jpeg2000
+//    code stream.
+//
     jpcstream=jas_stream_memopen(outjpc,(int)(*jpclen));
 
-/*
- *     Encode image.
- */
+//
+//     Encode image.
+//
     ier=jpc_encode(&image,jpcstream,opts);
     if ( ier != 0 ) {
        printf(" jpc_encode return = %d \n",ier);
        return -3;
     }
-/*
- *     Clean up JasPer work structures.
- */    
+//
+//     Clean up JasPer work structures.
+//    
     rwcnt=jpcstream->rwcnt_;
     ier=jas_stream_close(istream);
     ier=jas_stream_close(jpcstream);
-/*
- *      Return size of jpeg2000 code stream
- */
-#endif /* USE_JPEG2000 */
+//
+//      Return size of jpeg2000 code stream
+//
     return (rwcnt);
 
 }
+

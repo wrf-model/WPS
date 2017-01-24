@@ -126,8 +126,16 @@ g2lib-1.4.0 - MAY 2012      - Added new parameters conversion entries
                               and enc_png.c
 
 g2lib-2.5.0 - AUG 2013      - Added new parameters conversion entries
-                            - Modified GETIDX to allow users to open same unit file 
+                            - Modified GETIDEX to allow users to open same unit file 
                             - Added new Grid Definition Template numbers 3.4,3.5,.3.12,
                               3.101, and 3.140
                             - Added new Product Definition Template numbers 4.33, 4.34, 4.53,4.54
 
+g2lib-2.5.1 - MAY 2015      - Removed two bugs causing array overflows in copygb2 (in gfs_gempak job):
+                              getgb2r.f: added "if (ilen.lt.6) ilen=6" so that CTEMP has always at least size 6
+                              reduce.f: NTOTBT and NBOXJ arrays (and loop 112) start at index 0, not 1
+
+g2lib-2.6.0 - MAR 2016      - Added new parameters conversion entries
+                            - Restore original getidx.f from version 1.2.3 and 
+                            - Modified GETIDEX to allow to open range of unit file number up to 9999
+                            - Added new Product Definition Template numbers: 4.60, 4.61 

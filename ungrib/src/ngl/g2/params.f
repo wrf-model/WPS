@@ -28,8 +28,9 @@
 !                         parameter from 3 to 2 and RHPW from Dis 0 cat 19
 !                         to 1
 ! 2013-07-24  Vuong    -  Added more parameters and Removed
-!                         spaces in abbreviation
+!                         sapces in abbreviation
 !
+! 2016-03-30  Vuong    -  Added parameter Heat Exchange Coefficient (CH)
 ! USAGE:    use params
 !
 ! ATTRIBUTES:
@@ -38,7 +39,7 @@
 !
 !$$$
 
-      integer,parameter :: MAXPARAM=775
+      integer,parameter :: MAXPARAM=776
 
       type gribparam
           integer :: g1tblver
@@ -836,6 +837,8 @@
        data paramlist(773) /gribparam(131,193,0,0,21,'APTMP')/
        data paramlist(774) /gribparam(131,137,0,17,0,'LTNGSD')/
        data paramlist(775) /gribparam(131,194,0,1,39,'CPOFP')/
+! Added 03/30/2016
+       data paramlist(776) /gribparam(128,144,10,3,203,'CH')/
 
       contains
 

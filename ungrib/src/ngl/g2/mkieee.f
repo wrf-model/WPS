@@ -32,15 +32,8 @@
 
       integer(4) :: ieee 
 
-      real,save :: two23
-      real,save :: two126
-      integer,save :: once=0
-
-      if ( once .EQ. 0 ) then
-         once=1
-         two23=scale(1.0,23)
-         two126=scale(1.0,126)
-      endif
+      real, parameter :: two23=scale(1.0,23)
+      real, parameter :: two126=scale(1.0,126)
 
       alog2=alog(2.0)
 

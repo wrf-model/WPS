@@ -58,7 +58,7 @@
 !   MACHINE:  IBM SP
 !
 !$$$
-
+      use intmath
       integer,intent(in) :: ndpts,idrsnum
       real,intent(in) :: fld(ndpts)
       character(len=1),intent(out) :: cpack(*)
@@ -72,9 +72,11 @@
       integer,parameter :: zero=0
       integer,allocatable :: gref(:),gwidth(:),glen(:)
       integer :: glength,grpwidth
-      logical :: simple_alg = .false.
-      
-      alog2=alog(2.0)
+      logical :: simple_alg
+      logical :: have_rmin
+
+      simple_alg = .false.
+      have_rmin = .false.
       bscale=2.0**real(-idrstmpl(2))
       dscale=10.0**real(idrstmpl(3))
       missopt=idrstmpl(7)
@@ -93,22 +95,21 @@
       allocate(ifldmiss(ndpts))
 c     rmin=huge(rmin)
 
-      if (missopt.eq.1 .and. fld(1).ne.rmissp) then
-         rmin=huge(rmin)
-      endif
-      if ( missopt.eq.2 .and. fld(1).ne.rmisss) then
-         rmin=huge(rmin)
-      endif
-
       if ( missopt .eq. 1 ) then        ! Primary missing value only
          do j=1,ndpts
            if (fld(j).eq.rmissp) then
               ifldmiss(j)=1
            else
               ifldmiss(j)=0
-              if (fld(j).lt.rmin) rmin=fld(j)
+              if(have_rmin) then
+                 if (fld(j).lt.rmin) rmin=fld(j)
+              else
+                 rmin=fld(j)
+                 have_rmin=.true.
+              endif
            endif
          enddo
+         if(.not.have_rmin) rmin=rmissp
       endif
       if ( missopt .eq. 2 ) then        ! Primary and secondary missing values
          do j=1,ndpts
@@ -118,8 +119,14 @@ c     rmin=huge(rmin)
               ifldmiss(j)=2
            else
               ifldmiss(j)=0
-              if (fld(j).lt.rmin) rmin=fld(j)
+              if(have_rmin) then
+                 if (fld(j).lt.rmin) rmin=fld(j)
+              else
+                 rmin=fld(j)
+                 have_rmin=.true.
+              endif
            endif
+           if(.not.have_rmin) rmin=rmissp
          enddo
       endif
 !
@@ -148,7 +155,7 @@ c     rmin=huge(rmin)
            do j=1,ndpts
               if (ifldmiss(j).eq.0) then
                 nonmiss=nonmiss+1
-                jfld(nonmiss)=nint(fld(j)*dscale)-imin
+                jfld(nonmiss)=max(0,nint(fld(j)*dscale)-imin)
               endif
            enddo
         else                              !  Use binary scaling factor
@@ -157,7 +164,7 @@ c     rmin=huge(rmin)
            do j=1,ndpts
               if (ifldmiss(j).eq.0) then
                 nonmiss=nonmiss+1
-                jfld(nonmiss)=nint(((fld(j)*dscale)-rmin)*bscale)
+                jfld(nonmiss)=max(0,nint(((fld(j)*dscale)-rmin)*bscale))
               endif
            enddo
         endif
@@ -167,19 +174,31 @@ c     rmin=huge(rmin)
         if (idrsnum.eq.3) then        ! spatial differences
            if (idrstmpl(17).ne.1.and.idrstmpl(17).ne.2) idrstmpl(17)=2
            if (idrstmpl(17).eq.1) then      ! first order
-              ival1=jfld(1)
+              if(nonmiss<1) then
+                 ival1=1.0
+              else
+                 ival1=jfld(1)
+              endif
               do j=nonmiss,2,-1
                  jfld(j)=jfld(j)-jfld(j-1)
               enddo
-              jfld(1)=0
+              if(nonmiss>0)             jfld(1)=0
            elseif (idrstmpl(17).eq.2) then      ! second order
-              ival1=jfld(1)
-              ival2=jfld(2)
+              if(nonmiss==1) then
+                 ival1=jfld(1)
+                 ival2=jfld(1)
+              elseif(nonmiss<1) then
+                 ival1=1.0
+                 ival2=1.0
+              else
+                 ival1=jfld(1)
+                 ival2=jfld(2)
+              endif
               do j=nonmiss,3,-1
                  jfld(j)=jfld(j)-(2*jfld(j-1))+jfld(j-2)
               enddo
-              jfld(1)=0
-              jfld(2)=0
+              if(nonmiss>=1) jfld(1)=0
+              if(nonmiss>=2) jfld(2)=0
            endif
            !
            !  subtract min value from spatial diff field
@@ -193,7 +212,7 @@ c     rmin=huge(rmin)
            !   find num of bits need to store minsd and add 1 extra bit
            !   to indicate sign
            !
-           temp=alog(real(abs(minsd)+1))/alog2
+           temp=i1log2(abs(minsd))
            nbitsd=ceiling(temp)+1
            !
            !   find num of bits need to store ifld(1) ( and ifld(2)
@@ -201,7 +220,7 @@ c     rmin=huge(rmin)
            !
            maxorig=ival1
            if (idrstmpl(17).eq.2.and.ival2.gt.ival1) maxorig=ival2
-           temp=alog(real(maxorig+1))/alog2
+           temp=i1log2(maxorig)
            nbitorig=ceiling(temp)+1
            if (nbitorig.gt.nbitsd) nbitsd=nbitorig
            !   increase number of bits to even multiple of 8 ( octet )
@@ -262,6 +281,7 @@ c     rmin=huge(rmin)
               ifld(j)=miss2
            endif
         enddo
+        if(ndpts<2) simple_alg=.true.
         !
         !   Determine Groups to be used.
         !
@@ -333,7 +353,7 @@ c     rmin=huge(rmin)
              if (missopt.eq.2) imax=imax+2
              !   calc num of bits needed to hold data
              if ( gref(ng).ne.imax ) then
-                temp=alog(real(imax-gref(ng)+1))/alog2
+                temp=i1log2(imax-gref(ng))
                 gwidth(ng)=ceiling(temp)
              else
                 gwidth(ng)=0
@@ -365,7 +385,7 @@ c     rmin=huge(rmin)
         if (missopt.eq.1) igmax=igmax+1
         if (missopt.eq.2) igmax=igmax+2
         if (igmax.ne.0) then
-           temp=alog(real(igmax+1))/alog2
+           temp=i1log2(igmax)
            nbitsgref=ceiling(temp)
            ! restet the ref values of any "missing only" groups.
            mtemp=2**nbitsgref
@@ -394,7 +414,7 @@ c     rmin=huge(rmin)
         iwmax=maxval(gwidth(1:ngroups))
         ngwidthref=minval(gwidth(1:ngroups))
         if (iwmax.ne.ngwidthref) then
-           temp=alog(real(iwmax-ngwidthref+1))/alog2
+           temp=i1log2(iwmax-ngwidthref)
            nbitsgwidth=ceiling(temp)
            do i=1,ngroups
               gwidth(i)=gwidth(i)-ngwidthref
@@ -420,9 +440,13 @@ c     rmin=huge(rmin)
         !write(77,*)'GLENS: ',(glen(j),j=1,ngroups)
         ilmax=maxval(glen(1:ngroups-1))
         nglenref=minval(glen(1:ngroups-1))
-        nglenlast=glen(ngroups)
+        if(ngroups>0) then
+           nglenlast=glen(ngroups)
+        else
+           nglenlast=0
+        endif
         if (ilmax.ne.nglenref) then
-           temp=alog(real(ilmax-nglenref+1))/alog2
+           temp=i1log2(ilmax-nglenref)
            nbitsglen=ceiling(temp)
            do i=1,ngroups-1
               glen(i)=glen(i)-nglenref

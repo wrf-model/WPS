@@ -16,6 +16,7 @@
 ! 2004-12-29  Gilbert  -  Added test ( provided by Arthur Taylor/MDL )
 !                         to verify that group widths and lengths are
 !                         consistent with section length.
+! 2016-02-26              update unpacking for template 5.3
 !
 ! USAGE:    CALL comunpack(cpack,len,lensec,idrsnum,idrstmpl,ndpts,fld,ier)
 !   INPUT ARGUMENT LIST:
@@ -109,17 +110,11 @@
 !
       if (idrsnum.eq.3) then
          if (nbitsd.ne.0) then
-              call gbyte(cpack,isign,iofst,1)
-              iofst=iofst+1
-              call gbyte(cpack,ival1,iofst,nbitsd-1)
-              iofst=iofst+nbitsd-1
-              if (isign.eq.1) ival1=-ival1
+              call gbyte(cpack,ival1,iofst,nbitsd)
+              iofst=iofst+nbitsd
               if (idrstmpl(17).eq.2) then
-                 call gbyte(cpack,isign,iofst,1)
-                 iofst=iofst+1
-                 call gbyte(cpack,ival2,iofst,nbitsd-1)
-                 iofst=iofst+nbitsd-1
-                 if (isign.eq.1) ival2=-ival2
+                 call gbyte(cpack,ival2,iofst,nbitsd)
+                 iofst=iofst+nbitsd
               endif
               call gbyte(cpack,isign,iofst,1)
               iofst=iofst+1

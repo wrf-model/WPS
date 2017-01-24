@@ -1,22 +1,22 @@
-      subroutine simunpack(cpack,len,idrstmpl,ndpts,fld)
+      subroutine pngunpack(cpack,len,idrstmpl,ndpts,fld)
 !$$$  SUBPROGRAM DOCUMENTATION BLOCK
 !                .      .    .                                       .
-! SUBPROGRAM:    simunpack
+! SUBPROGRAM:    pngunpack
 !   PRGMMR: Gilbert          ORG: W/NP11    DATE: 2000-06-21
 !
-! ABSTRACT: This subroutine unpacks a data field that was packed using a 
-!   simple packing algorithm as defined in the GRIB2 documention,
-!   using info from the GRIB2 Data Representation Template 5.0.
+! ABSTRACT: This subroutine unpacks a data field that was packed into a
+!   PNG image format 
+!   using info from the GRIB2 Data Representation Template 5.41 or 5.40010.
 !
 ! PROGRAM HISTORY LOG:
 ! 2000-06-21  Gilbert
 !
-! USAGE:    CALL simunpack(cpack,len,idrstmpl,ndpts,fld)
+! USAGE:    CALL pngunpack(cpack,len,idrstmpl,ndpts,fld)
 !   INPUT ARGUMENT LIST:
 !     cpack    - The packed data field (character*1 array)
 !     len      - length of packed field cpack().
 !     idrstmpl - Contains the array of values for Data Representation
-!                Template 5.0
+!                Template 5.41 or 5.40010
 !     ndpts    - The number of data values to unpack
 !
 !   OUTPUT ARGUMENT LIST:
@@ -36,8 +36,10 @@
       real,intent(out) :: fld(ndpts)
 
       integer :: ifld(ndpts)
+      character(len=1),allocatable :: ctemp(:)
       integer(4) :: ieee
       real :: ref,bscale,dscale
+      integer :: dec_png,width,height
 
       ieee = idrstmpl(1)
       call rdieee(ieee,ref,1)
@@ -50,13 +52,14 @@
 !  is the data value at each gridpoint
 !
       if (nbits.ne.0) then
-         call gbytes(cpack,ifld,0,nbits,0,ndpts)
+         allocate(ctemp(ndpts*4))
+         iret=dec_png(cpack,width,height,ctemp)
+         call gbytes(ctemp,ifld,0,nbits,0,ndpts)
+         deallocate(ctemp)
          do j=1,ndpts
            fld(j)=((real(ifld(j))*bscale)+ref)*dscale
          enddo
       else
-         !print *,'unpack ref ',ref
-         !print *,'unpack ndpts ',ndpts
          do j=1,ndpts
            fld(j)=ref
          enddo

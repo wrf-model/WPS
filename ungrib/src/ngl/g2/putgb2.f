@@ -195,11 +195,15 @@ C$$$
       INTEGER,INTENT(OUT) :: IRET
 
       CHARACTER(LEN=1),ALLOCATABLE,DIMENSION(:) :: CGRIB
-      integer :: listsec0(2)=(/0,2/)
-      integer :: igds(5)=(/0,0,0,0,0/)
-      real    :: coordlist=0.0
-      integer :: ilistopt=0
+      integer :: listsec0(2)
+      integer :: igds(5)
+      real    :: coordlist
+      integer :: ilistopt
 
+      listsec0=(/0,2/)
+      igds=(/0,0,0,0,0/)
+      coordlist=0.0
+      ilistopt=0
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 C  ALLOCATE ARRAY FOR GRIB2 FIELD
       lcgrib=gfld%ngrdpts*4

@@ -12,7 +12,7 @@
 ! 2007-04-20  Vuong    -  Add more parameters
 ! 2007-10-11  Vuong    -  Add more parameters
 ! 2011-11-16  Vuong    -  Add parameters MAX and MIN temperature
-! 2013-07-24  Vuong    -  Removed space in abbreviation
+! 2013-07-24  Vuong    -  Removed sape in abbreviation
 !
 ! USAGE:    use params
 !

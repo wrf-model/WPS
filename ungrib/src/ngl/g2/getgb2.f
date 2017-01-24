@@ -33,6 +33,7 @@ C   94-04-01  IREDELL
 C   95-10-31  IREDELL     MODULARIZED PORTIONS OF CODE INTO SUBPROGRAMS
 C                         AND ALLOWED FOR UNSPECIFIED INDEX FILE
 C 2002-01-11  GILBERT     MODIFIED FROM GETGB AND GETGBM TO WORK WITH GRIB2
+C 2015-11-10  VUONG       MODIFIED DOC BLOCK FOR gfld%ngrdpts and gfld%ndpts 
 C
 C USAGE:    CALL GETGB2(LUGB,LUGI,J,JDISC,JIDS,JPDTN,JPDT,JGDTN,JGDT,
 C    &                  UNPACK,K,GFLD,IRET)
@@ -169,6 +170,9 @@ C        gfld%griddef = Source of grid definition (see Code Table 3.0)
 C                      0 - Specified in Code table 3.1
 C                      1 - Predetermined grid Defined by originating centre
 C        gfld%ngrdpts = Number of grid points in the defined grid.
+C                       Note that the number of actual data values returned from
+C                       getgb2 (in gfld%ndpts) may be less than this value if a
+C                       logical bitmap is in use with grid points that are being masked out.
 C        gfld%numoct_opt = Number of octets needed for each
 C                          additional grid points definition.
 C                          Used to define number of
@@ -215,6 +219,9 @@ C                            This element is actually a pointer to an array
 C                            that holds the data.
 C        gfld%num_coord = number of values in array gfld%coord_list().
 C        gfld%ndpts = Number of data points unpacked and returned.
+C                     Note that this number may be different from the value of
+C                     gfld%ngrdpts if a logical bitmap is in use with grid points
+C                     that are being masked out.
 C        gfld%idrtnum = Data Representation Template Number
 C                       ( see Code Table 5.0)
 C        gfld%idrtmpl() = Contains the data values for the specified Data

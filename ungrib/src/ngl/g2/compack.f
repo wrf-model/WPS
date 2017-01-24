@@ -55,13 +55,22 @@
 !   MACHINE:  IBM SP
 !
 !$$$
-
+      use intmath
+      implicit none
       integer,intent(in) :: ndpts,idrsnum
       real,intent(in) :: fld(ndpts)
       character(len=1),intent(out) :: cpack(*)
       integer,intent(inout) :: idrstmpl(*)
       integer,intent(out) :: lcpack
 
+      real :: bscale,dscale
+      integer :: j,iofst,imin,ival1,ival2,minsd,nbitsd,n
+      integer :: igmax,nbitsgref,left,iwmax,i,ilmax,kk,ij
+      integer :: ngwidthref,nbitsgwidth,nglenref,nglenlast
+      integer :: maxorig,nbitorig,isd,ngroups,itemp,minpk
+      integer :: kfildo,inc,maxgrps,missopt,miss1,miss2,lg
+      integer :: ibit,jbit,kbit,novref,lbitref,ier,ng,imax
+      integer :: nbitsglen
       real(4) :: ref,rmin4
       real(8) :: rmin,rmax
 
@@ -71,16 +80,22 @@
       integer,parameter :: zero=0
       integer,allocatable :: gref(:),gwidth(:),glen(:)
       integer :: glength,grpwidth
-      logical :: simple_alg = .false.
-      
-      alog2=alog(2.0)
+      logical :: simple_alg
+
+      simple_alg = .false.
+
       bscale=2.0**real(-idrstmpl(2))
       dscale=10.0**real(idrstmpl(3))
 !
 !  Find max and min values in the data
 !
-      rmax=fld(1)
-      rmin=fld(1)
+      if(ndpts>0) then
+         rmax=fld(1)
+         rmin=fld(1)
+      else
+         rmax=1.0
+         rmin=1.0
+      endif
       do j=2,ndpts
         if (fld(j).gt.rmax) rmax=fld(j)
         if (fld(j).lt.rmin) rmin=fld(j)
@@ -91,7 +106,7 @@
 !  value (rmin) is the value for each point in the field and
 !  set nbits to 0.
 !
-      if (rmin.ne.rmax) then
+      multival: if (rmin.ne.rmax) then
         iofst=0
         allocate(ifld(ndpts))
         allocate(gref(ndpts))
@@ -105,22 +120,26 @@
            !imax=nint(rmax*dscale)
            rmin=real(imin)
            do j=1,ndpts
-             ifld(j)=nint(fld(j)*dscale)-imin
+             ifld(j)=max(0,nint(fld(j)*dscale)-imin)
            enddo
         else                              !  Use binary scaling factor
            rmin=rmin*dscale
            !rmax=rmax*dscale
            do j=1,ndpts
-             ifld(j)=nint(((fld(j)*dscale)-rmin)*bscale)
+             ifld(j)=max(0,nint(((fld(j)*dscale)-rmin)*bscale))
            enddo
         endif
         !
         !  Calculate Spatial differences, if using DRS Template 5.3
         !
-        if (idrsnum.eq.3) then        ! spatial differences
+        alg3: if (idrsnum.eq.3) then        ! spatial differences
            if (idrstmpl(17).ne.1.and.idrstmpl(17).ne.2) idrstmpl(17)=2
            if (idrstmpl(17).eq.1) then      ! first order
               ival1=ifld(1)
+              if(ival1<0) then
+                 print *,'G2: negative ival1',ival1
+                 stop 101
+              endif
               do j=ndpts,2,-1
                  ifld(j)=ifld(j)-ifld(j-1)
               enddo
@@ -128,6 +147,14 @@
            elseif (idrstmpl(17).eq.2) then      ! second order
               ival1=ifld(1)
               ival2=ifld(2)
+              if(ival1<0) then
+                 print *,'G2: negative ival1',ival1
+                 stop 11
+              endif
+              if(ival2<0) then
+                 print *,'G2: negative ival2',ival2
+                 stop 12
+              endif
               do j=ndpts,3,-1
                  ifld(j)=ifld(j)-(2*ifld(j-1))+ifld(j-2)
               enddo
@@ -146,16 +173,14 @@
            !   find num of bits need to store minsd and add 1 extra bit
            !   to indicate sign
            !
-           temp=alog(real(abs(minsd)+1))/alog2
-           nbitsd=ceiling(temp)+1
+           nbitsd=i1log2(abs(minsd))+1
            !
            !   find num of bits need to store ifld(1) ( and ifld(2)
            !   if using 2nd order differencing )
            !
            maxorig=ival1
            if (idrstmpl(17).eq.2.and.ival2.gt.ival1) maxorig=ival2
-           temp=alog(real(maxorig+1))/alog2
-           nbitorig=ceiling(temp)+1
+           nbitorig=i1log2(maxorig)+1
            if (nbitorig.gt.nbitsd) nbitsd=nbitorig
            !   increase number of bits to even multiple of 8 ( octet )
            if (mod(nbitsd,8).ne.0) nbitsd=nbitsd+(8-mod(nbitsd,8))
@@ -198,13 +223,14 @@
               endif
            endif
          !print *,'SDp ',ival1,ival2,minsd,nbitsd
-        endif     !  end of spatial diff section
+        endif alg3              !  end of spatial diff section
         !
         !   Determine Groups to be used.
         !
-        if ( simple_alg ) then
+        simplealg: if ( simple_alg ) then
            !  set group length to 10 :  calculate number of groups
            !  and length of last group
+           print *,'G2: use simple algorithm'
            ngroups=ndpts/10
            glen(1:ngroups)=10
            itemp=mod(ndpts,10)
@@ -218,7 +244,7 @@
            kfildo=6
            minpk=10
            inc=1
-           maxgrps=(ndpts/minpk)+1
+           maxgrps=((ndpts+minpk-1)/minpk)
            allocate(jmin(maxgrps))
            allocate(jmax(maxgrps))
            allocate(lbit(maxgrps))
@@ -226,14 +252,38 @@
            call pack_gp(kfildo,ifld,ndpts,missopt,minpk,inc,miss1,miss2,
      &                  jmin,jmax,lbit,glen,maxgrps,ngroups,ibit,jbit,
      &                  kbit,novref,lbitref,ier)
-           !print *,'SAGier = ',ier,ibit,jbit,kbit,novref,lbitref
-           do ng=1,ngroups
-              glen(ng)=glen(ng)+novref
-           enddo
-           deallocate(jmin)
-           deallocate(jmax)
-           deallocate(lbit)
-        endif
+           if(ier/=0) then
+              ! Dr. Glahn's algorithm failed; use simple packing method instead.
+ 1099         format('G2: fall back to simple algorithm (glahn ier=',I0,&
+     &               ')')
+              print 1099,ier
+              ngroups=ndpts/10
+              glen(1:ngroups)=10
+              itemp=mod(ndpts,10)
+              if (itemp.ne.0) then
+                 ngroups=ngroups+1
+                 glen(ngroups)=itemp
+              endif
+           elseif(ngroups<1) then
+              ! Dr. Glahn's algorithm failed; use simple packing method instead.
+              print *,'Glahn algorithm failed; use simple packing'
+              ngroups=ndpts/10
+              glen(1:ngroups)=10
+              itemp=mod(ndpts,10)
+              if (itemp.ne.0) then
+                 ngroups=ngroups+1
+                 glen(ngroups)=itemp
+              endif
+           else
+!print *,'SAGier = ',ier,ibit,jbit,kbit,novref,lbitref
+              do ng=1,ngroups
+                 glen(ng)=glen(ng)+novref
+              enddo
+              deallocate(jmin)
+              deallocate(jmax)
+              deallocate(lbit)
+           endif
+        endif simplealg
         !  
         !  For each group, find the group's reference value
         !  and the number of bits needed to hold the remaining values
@@ -251,8 +301,7 @@
            enddo
            !   calc num of bits needed to hold data
            if ( gref(ng).ne.imax ) then
-              temp=alog(real(imax-gref(ng)+1))/alog2
-              gwidth(ng)=ceiling(temp)
+              gwidth(ng)=i1log2(imax-gref(ng))
            else
               gwidth(ng)=0
            endif
@@ -273,12 +322,10 @@
         !write(77,*)'GREFS: ',(gref(j),j=1,ngroups)
         igmax=maxval(gref(1:ngroups))
         if (igmax.ne.0) then
-           temp=alog(real(igmax+1))/alog2
-           nbitsgref=ceiling(temp)
+           nbitsgref=i1log2(igmax)
            call sbytes(cpack,gref,iofst,nbitsgref,0,ngroups)
            itemp=nbitsgref*ngroups
            iofst=iofst+itemp
-           !         Pad last octet with Zeros, if necessary,
            if (mod(itemp,8).ne.0) then
               left=8-mod(itemp,8)
               call sbyte(cpack,zero,iofst,left)
@@ -296,10 +343,13 @@
         iwmax=maxval(gwidth(1:ngroups))
         ngwidthref=minval(gwidth(1:ngroups))
         if (iwmax.ne.ngwidthref) then
-           temp=alog(real(iwmax-ngwidthref+1))/alog2
-           nbitsgwidth=ceiling(temp)
+           nbitsgwidth=i1log2(iwmax-ngwidthref)
            do i=1,ngroups
               gwidth(i)=gwidth(i)-ngwidthref
+              if(gwidth(i)<0) then
+                 write(0,*) 'i,gw,ngw=',i,gwidth(i),ngwidthref
+                 stop 9
+              endif
            enddo
            call sbytes(cpack,gwidth,iofst,nbitsgwidth,0,ngroups)
            itemp=nbitsgwidth*ngroups
@@ -324,10 +374,13 @@
         nglenref=minval(glen(1:ngroups-1))
         nglenlast=glen(ngroups)
         if (ilmax.ne.nglenref) then
-           temp=alog(real(ilmax-nglenref+1))/alog2
-           nbitsglen=ceiling(temp)
+           nbitsglen=i1log2(ilmax-nglenref)
            do i=1,ngroups-1
               glen(i)=glen(i)-nglenref
+              if(glen(i)<0) then
+                 write(0,*) 'i,glen(i) = ',i,glen(i)
+                 stop 23
+              endif
            enddo
            call sbytes(cpack,glen,iofst,nbitsglen,0,ngroups)
            itemp=nbitsglen*ngroups
@@ -376,11 +429,16 @@
         if ( allocated(gwidth) ) deallocate(gwidth)
         if ( allocated(glen) ) deallocate(glen)
       else           !   Constant field ( max = min )
-        nbits=0
         lcpack=0
         nbitsgref=0
         ngroups=0
-      endif
+        ngwidthref=0
+        nbitsgwidth=0
+        nglenref=0
+        nglenlast=0
+        nbitsglen=0
+        nbitsd=0
+      endif multival
 
 !
 !  Fill in ref value and number of bits in Template 5.2
@@ -408,5 +466,4 @@
                                     ! differencing values
       endif
 
-      return
       end

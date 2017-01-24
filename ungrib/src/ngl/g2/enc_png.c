@@ -1,10 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#ifdef USE_PNG
 #include <png.h>
-#include <zlib.h>
-#endif /* USE_PNG */
 
 #ifdef __64BIT__
   typedef int g2int;
@@ -12,13 +9,19 @@
   typedef long g2int;
 #endif
 
-#if defined _UNDERSCORE
-   #define enc_png enc_png_
-#elif defined _DOUBLEUNDERSCORE
-   #define enc_png enc_png__
+#if defined CRAY90
+   #include <fortran.h>
+   #define SUB_NAME ENC_PNG
+#elif defined LINUXF90
+   #define SUB_NAME ENC_PNG
+#elif defined LINUXG95
+   #define SUB_NAME enc_png__
+#elif defined HP || defined AIX
+   #define SUB_NAME enc_png
+#elif defined SGI || defined LINUX || defined VPP5000
+   #define SUB_NAME enc_png_
 #endif
 
-#ifdef USE_PNG
 struct png_stream {
    unsigned char *stream_ptr;     /*  location to write PNG stream  */
    g2int stream_len;               /*  number of bytes written       */
@@ -55,18 +58,16 @@ void user_flush_data(png_structp png_ptr)
 {
    int *do_nothing=NULL;
 }
-#endif /* USE_PNG */
 
 
-int enc_png(char *data,g2int *width,g2int *height,g2int *nbits,char *pngbuf)
+int SUB_NAME(char *data,g2int *width,g2int *height,g2int *nbits,char *pngbuf)
 {
-    g2int pnglen;
-#ifdef USE_PNG
+ 
     int color_type;
-    g2int j,bytes,bit_depth;
+    g2int j,bytes,pnglen,bit_depth;
     png_structp png_ptr;
     png_infop info_ptr;
-/*    png_bytep *row_pointers[*height]; */
+//    png_bytep *row_pointers[*height];
     png_bytep **row_pointers;
     png_stream write_io_ptr;
 
@@ -138,7 +139,6 @@ int enc_png(char *data,g2int *width,g2int *height,g2int *nbits,char *pngbuf)
     png_destroy_write_struct(&png_ptr, &info_ptr);
     free(row_pointers);
     pnglen=write_io_ptr.stream_len;
-#endif /* USE_PNG */
     return pnglen;
 
 }

@@ -47,8 +47,8 @@ OBJS	=	gridtemplates.o pdstemplates.o drstemplates.o gribmod.o realloc.o addfiel
 		mkieee.o rdieee.o simpack.o simunpack.o cmplxpack.o compack.o misspack.o pack_gp.o \
 		reduce.o comunpack.o specpack.o specunpack.o jpcpack.o jpcunpack.o enc_jpeg2000.o \
 		dec_jpeg2000.o pngpack.o pngunpack.o enc_png.o dec_png.o gbytesc.o skgb.o ixgb2.o \
-		getidx.o getg2i.o getg2ir.o getgb2s.o getgb2r.o getgb2l.o getgb2.o getgb2p.o getgb2rp.o \
-		putgb2.o g2grids.o gdt2gds.o params.o params_ecmwf.o mova2i.o
+		getidxes.o getidx.o getg2i.o getg2ir.o getgb2s.o getgb2r.o getgb2l.o getgb2.o getgb2p.o getgb2rp.o \
+		putgb2.o g2grids.o gdt2gds.o params.o params_ecmwf.o mova2i.o intmath.o
 
 all:	$(LIB)
 
@@ -73,3 +73,11 @@ superclean:	clean
 
 .c.o:
 	$(CC) -c $(CFLAGS) $(CFLAGS2) $<
+
+compack.o: intmath.o
+simpack.o: intmath.o
+misspack.o: intmath.o
+
+$(LIB)(compack.o): $(LIB)(intmath.o)
+$(LIB)(simpack.o): $(LIB)(intmath.o)
+$(LIB)(misspack.o): $(LIB)(intmath.o)

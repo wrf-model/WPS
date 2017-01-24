@@ -1,10 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#ifdef USE_PNG
 #include <png.h>
-#include <zlib.h>
-#endif /* USE_PNG */
 
 #ifdef __64BIT__
   typedef int g2int;
@@ -12,13 +9,19 @@
   typedef long g2int;
 #endif
 
-#if defined _UNDERSCORE
-   #define dec_png dec_png_
-#elif defined _DOUBLEUNDERSCORE
-   #define dec_png dec_png__
+#if defined CRAY90
+   #include <fortran.h>
+   #define SUB_NAME DEC_PNG
+#elif defined LINUXF90
+   #define SUB_NAME DEC_PNG
+#elif defined LINUXG95
+   #define SUB_NAME dec_png__
+#elif defined HP || defined AIX
+   #define SUB_NAME dec_png
+#elif defined SGI || defined LINUX || defined VPP5000
+   #define SUB_NAME dec_png_
 #endif
 
-#ifdef USE_PNG
 struct png_stream {
    unsigned char *stream_ptr;     /*  location to write PNG stream  */
    g2int stream_len;               /*  number of bytes written       */
@@ -44,13 +47,11 @@ void user_read_data(png_structp png_ptr,png_bytep data, png_uint_32 length)
      memcpy(data,ptr+offset,length);
      mem->stream_len += length;
 }
-#endif /* USE_PNG */
 
 
 
-int dec_png(unsigned char *pngbuf,g2int *width,g2int *height,char *cout)
+int SUB_NAME(unsigned char *pngbuf,g2int *width,g2int *height,char *cout)
 {
-#ifdef USE_PNG
     int interlace,color,compres,filter,bit_depth;
     g2int j,k,n,bytes,clen;
     png_structp png_ptr;
@@ -150,7 +151,6 @@ int dec_png(unsigned char *pngbuf,g2int *width,g2int *height,char *cout)
 /*      Clean up   */
 
     png_destroy_read_struct(&png_ptr, &info_ptr, &end_info);
-#endif /* USE_PNG */
     return 0;
 
 }

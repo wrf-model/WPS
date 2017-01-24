@@ -11,6 +11,7 @@
 !
 ! PROGRAM HISTORY LOG:
 ! 2000-06-21  Gilbert
+! 2011-10-24  Boi Vuong   Added variable rmin4 for 4 byte float
 !
 ! USAGE:    CALL simpack(fld,ndpts,idrstmpl,cpack,lcpack)
 !   INPUT ARGUMENT LIST:
@@ -52,14 +53,16 @@
 !   MACHINE:  IBM SP
 !
 !$$$
-
+      use intmath
       integer,intent(in) :: ndpts
       real,intent(in) :: fld(ndpts)
       character(len=1),intent(out) :: cpack(*)
       integer,intent(inout) :: idrstmpl(*)
       integer,intent(out) :: lcpack
 
-      real(4) :: ref
+      real(4) :: ref,rmin4
+C     real(8) :: rmin,rmax
+
       integer(4) :: iref
       integer :: ifld(ndpts)
       integer,parameter :: zero=0
@@ -74,12 +77,17 @@
 !
 !  Find max and min values in the data
 !
-      rmax=fld(1)
-      rmin=fld(1)
-      do j=2,ndpts
-        if (fld(j).gt.rmax) rmax=fld(j)
-        if (fld(j).lt.rmin) rmin=fld(j)
-      enddo
+      if(ndpts<1) then
+         rmin=0
+         rmax=0
+      else
+         rmax=fld(1)
+         rmin=fld(1)
+         do j=2,ndpts
+            if (fld(j).gt.rmax) rmax=fld(j)
+            if (fld(j).lt.rmin) rmin=fld(j)
+         enddo
+      endif
 !
 !  If max and min values are not equal, pack up field.
 !  If they are equal, we have a constant field, and the reference
@@ -99,7 +107,7 @@
            imin=nint(rmin*dscale)
            imax=nint(rmax*dscale)
            maxdif=imax-imin
-           temp=alog(real(maxdif+1))/alog(2.0)
+           temp=i1log2(maxdif+1)
            nbits=ceiling(temp)
            rmin=real(imin)
            !   scale data
@@ -114,12 +122,12 @@
            rmin=rmin*dscale
            rmax=rmax*dscale
            maxnum=(2**nbits)-1
-           temp=alog(real(maxnum)/(rmax-rmin))/alog(2.0)
+           temp=ilog2(nint(real(maxnum)/(rmax-rmin)))
            idrstmpl(2)=ceiling(-1.0*temp)
            bscale=2.0**real(-idrstmpl(2))
            !   scale data
            do j=1,ndpts
-             ifld(j)=nint(((fld(j)*dscale)-rmin)*bscale)
+             ifld(j)=max(0,nint(((fld(j)*dscale)-rmin)*bscale))
            enddo
         elseif (nbits.eq.0.AND.idrstmpl(2).ne.0) then
            !
@@ -129,11 +137,11 @@
            rmin=rmin*dscale
            rmax=rmax*dscale
            maxdif=nint((rmax-rmin)*bscale)
-           temp=alog(real(maxdif+1))/alog(2.0)
+           temp=i1log2(maxdif)
            nbits=ceiling(temp)
            !   scale data
            do j=1,ndpts
-             ifld(j)=nint(((fld(j)*dscale)-rmin)*bscale)
+             ifld(j)=max(0,nint(((fld(j)*dscale)-rmin)*bscale))
            enddo
         elseif (nbits.ne.0.AND.idrstmpl(2).ne.0) then
            !
@@ -145,7 +153,7 @@
            rmin=rmin*dscale
            !   scale data
            do j=1,ndpts
-             ifld(j)=nint(((fld(j)*dscale)-rmin)*bscale)
+             ifld(j)=max(0,nint(((fld(j)*dscale)-rmin)*bscale))
            enddo
         endif
         !
@@ -162,6 +170,7 @@
         lcpack=nbittot/8
 
       else
+        !print *,'nbits 0'
         nbits=0
         lcpack=0
       endif
@@ -169,7 +178,8 @@
 !
 !  Fill in ref value and number of bits in Template 5.0
 !
-      call mkieee(rmin,ref,1)   ! ensure reference value is IEEE format
+      rmin4 = rmin
+      call mkieee(rmin4,ref,1)   ! ensure reference value is IEEE format
       !print *,'SAGref = ',rmin,ref
 !      call gbyte(ref,idrstmpl(1),0,32)
       iref=transfer(ref,iref)

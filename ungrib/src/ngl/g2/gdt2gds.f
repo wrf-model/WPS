@@ -266,7 +266,7 @@ C$$$
               enddo
            endif
         elseif (igds(5).eq.32768) then    ! Rotate Lat/Lon grid
-           kgds(1)=203                    ! Arakawa Staggerred E/B grid
+           kgds(1)=203                      ! Arakawa Staggerred E/B grid
            kgds(2)=igdstmpl(8)            ! Ni
            kgds(3)=igdstmpl(9)            ! Nj
            kgds(4)=igdstmpl(12)/1000      ! Lat of 1st grid point

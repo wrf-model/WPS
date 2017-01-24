@@ -1,0 +1,9 @@
+mkdir ../incmod/g2_4 ; mkdir ../incmod/g2_d
+
+module use -a /nwprod/lib/modulefiles 
+module load jasper/v1.900.1
+module load png/v1.2.44
+module load z/v1.2.6
+
+make -f makefile_4  #for g2_4
+make -f makefile_d  #for g2_d
