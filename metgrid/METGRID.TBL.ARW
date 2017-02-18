@@ -106,7 +106,7 @@ name=SOIL_LEVELS
 name=PRES
         z_dim_name=num_metgrid_levels
         derived=yes
-        mandatory=yes    # MUST HAVE THIS FIELD
+#        mandatory=yes    # MUST HAVE THIS FIELD
         fill_lev=all:PRESSURE
         fill_lev=200100:PSFC(200100)
         fill_lev=all:vertical_index; level_template=TT
@@ -599,7 +599,7 @@ name=T ; output_name=TT  # If we get T, use entry from TT and
                          #   write the field out as TT
 ========================================
 name=TT
-        mandatory=yes    # MUST HAVE THIS FIELD
+#        mandatory=yes    # MUST HAVE THIS FIELD
         interp_option=sixteen_pt+four_pt+average_4pt
         fill_missing=0.
         fill_lev=200100:const(-1.E30)
@@ -608,7 +608,7 @@ name=U ; output_name=UU  # If we get U, use entry from UU and
                          #   write the field out as UU
 ========================================
 name=UU
-        mandatory=yes    # MUST HAVE THIS FIELD
+#        mandatory=yes    # MUST HAVE THIS FIELD
         interp_option=sixteen_pt+four_pt+average_4pt
         is_u_field=yes
         output_stagger=U
@@ -619,7 +619,7 @@ name=V ; output_name=VV  # If we get V, use entry from VV and
                          #   write the field out as VV
 ========================================
 name=VV
-        mandatory=yes    # MUST HAVE THIS FIELD
+#        mandatory=yes    # MUST HAVE THIS FIELD
         interp_option=sixteen_pt+four_pt+average_4pt
         is_v_field=yes
         output_stagger=V
