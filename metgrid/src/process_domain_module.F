@@ -1640,80 +1640,77 @@ integer, parameter :: BDR_WIDTH = 3
 ! Maybe we need some routine to match up MPAS field names to WPS field names,
 ! which could also be used to tell us whether we should remap a field
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            if (trim(mpas_field % name) == 'qv' .or. &
-                trim(mpas_field % name) == 'surface_pressure') then
     
-               istat = scan_input_read_field(mpas_field, frame=1)
-    
-               ! should depend on output staggering...
-               write(0,*) 'Remapping '//trim(mpas_field % name)
-               istat = remap_field(remap_info_m, mpas_field, wrf_field)
-               field_to_store%header%dim1(1) = we_mem_s
-               field_to_store%header%dim1(2) = we_mem_e
-               field_to_store%header%dim2(1) = sn_mem_s
-               field_to_store%header%dim2(2) = sn_mem_e
-               field_to_store%map%stagger = M
+            istat = scan_input_read_field(mpas_field, frame=1)
+ 
+            ! should depend on output staggering...
+            write(0,*) 'Remapping '//trim(mpas_field % name)
+            istat = remap_field(remap_info_m, mpas_field, wrf_field)
+            field_to_store%header%dim1(1) = we_mem_s
+            field_to_store%header%dim1(2) = we_mem_e
+            field_to_store%header%dim2(1) = sn_mem_s
+            field_to_store%header%dim2(2) = sn_mem_e
+            field_to_store%map%stagger = M
 
-               ! Do something to put fields into storage module?
-               if (wrf_field % ndims == 3 .and. trim(wrf_field % dimnames(1)) == 'nVertLevels') then   ! 3-d MPAS atmosphere field
-                  field_to_store % header % field = mpas_to_intermediate_name(mpas_field % name)
+            ! Do something to put fields into storage module?
+            if (wrf_field % ndims == 3 .and. trim(wrf_field % dimnames(1)) == 'nVertLevels') then   ! 3-d MPAS atmosphere field
+               field_to_store % header % field = mpas_to_intermediate_name(mpas_field % name)
 
-                  ! If no match in the METGRID.TBL was found for this MPAS field, just use the MPAS name
-                  if (len_trim(field_to_store % header % field) == 0) then
-                     field_to_store % header % field = trim(mpas_field % name)
-                  end if
+               ! If no match in the METGRID.TBL was found for this MPAS field, just use the MPAS name
+               if (len_trim(field_to_store % header % field) == 0) then
+                  field_to_store % header % field = trim(mpas_field % name)
+               end if
 
-                  field_to_store % header % vertical_coord = 'num_mpas_levels'
-                  do k=1,wrf_field % dimlens(1)
-                     allocate(field_to_store % r_arr(wrf_field % dimlens(2), wrf_field % dimlens(3)))
-                     allocate(field_to_store % valid_mask)
-                     call bitarray_create(field_to_store % valid_mask, wrf_field % dimlens(2), wrf_field % dimlens(3))
-                     do j=1,wrf_field % dimlens(3)
-                     do i=1,wrf_field % dimlens(2)
-                        call bitarray_set(field_to_store % valid_mask, i, j)
-                     end do
-                     end do
-                     field_to_store % header % vertical_level = k
-
-                     if (wrf_field % xtype == FIELD_TYPE_REAL) then
-                        field_to_store % r_arr(:,:) = wrf_field % array3r(k,:,:)
-                     else if (wrf_field % xtype == FIELD_TYPE_DOUBLE) then
-                        field_to_store % r_arr(:,:) = wrf_field % array3d(k,:,:)
-                     end if
-
-                     call storage_put_field(field_to_store)
-                  end do
-
-               else if (wrf_field % ndims == 2) then   ! 2-d MPAS field
-                  field_to_store % header % field = mpas_to_intermediate_name(mpas_field % name)
-
-                  ! If no match in the METGRID.TBL was found for this MPAS field, just use the MPAS name
-                  if (len_trim(field_to_store % header % field) == 0) then
-                     field_to_store % header % field = trim(mpas_field % name)
-                  end if
-
-                  field_to_store % header % vertical_coord = 'none'
-                  allocate(field_to_store % r_arr(wrf_field % dimlens(1), wrf_field % dimlens(2)))
+               field_to_store % header % vertical_coord = 'num_mpas_levels'
+               do k=1,wrf_field % dimlens(1)
+                  allocate(field_to_store % r_arr(wrf_field % dimlens(2), wrf_field % dimlens(3)))
                   allocate(field_to_store % valid_mask)
-                  call bitarray_create(field_to_store % valid_mask, wrf_field % dimlens(1), wrf_field % dimlens(2))
-                  do j=1,wrf_field % dimlens(2)
-                  do i=1,wrf_field % dimlens(1)
+                  call bitarray_create(field_to_store % valid_mask, wrf_field % dimlens(2), wrf_field % dimlens(3))
+                  do j=1,wrf_field % dimlens(3)
+                  do i=1,wrf_field % dimlens(2)
                      call bitarray_set(field_to_store % valid_mask, i, j)
                   end do
                   end do
-                  field_to_store % header % vertical_level = 200100.0
+                  field_to_store % header % vertical_level = k
 
                   if (wrf_field % xtype == FIELD_TYPE_REAL) then
-                     field_to_store % r_arr(:,:) = wrf_field % array2r(:,:)
+                     field_to_store % r_arr(:,:) = wrf_field % array3r(k,:,:)
                   else if (wrf_field % xtype == FIELD_TYPE_DOUBLE) then
-                     field_to_store % r_arr(:,:) = wrf_field % array2d(:,:)
+                     field_to_store % r_arr(:,:) = wrf_field % array3d(k,:,:)
                   end if
 
                   call storage_put_field(field_to_store)
+               end do
+
+            else if (wrf_field % ndims == 2) then   ! 2-d MPAS field
+               field_to_store % header % field = mpas_to_intermediate_name(mpas_field % name)
+
+               ! If no match in the METGRID.TBL was found for this MPAS field, just use the MPAS name
+               if (len_trim(field_to_store % header % field) == 0) then
+                  field_to_store % header % field = trim(mpas_field % name)
                end if
-       
-               istat = free_target_field(wrf_field)
+
+               field_to_store % header % vertical_coord = 'none'
+               allocate(field_to_store % r_arr(wrf_field % dimlens(1), wrf_field % dimlens(2)))
+               allocate(field_to_store % valid_mask)
+               call bitarray_create(field_to_store % valid_mask, wrf_field % dimlens(1), wrf_field % dimlens(2))
+               do j=1,wrf_field % dimlens(2)
+               do i=1,wrf_field % dimlens(1)
+                  call bitarray_set(field_to_store % valid_mask, i, j)
+               end do
+               end do
+               field_to_store % header % vertical_level = 200100.0
+
+               if (wrf_field % xtype == FIELD_TYPE_REAL) then
+                  field_to_store % r_arr(:,:) = wrf_field % array2r(:,:)
+               else if (wrf_field % xtype == FIELD_TYPE_DOUBLE) then
+                  field_to_store % r_arr(:,:) = wrf_field % array2d(:,:)
+               end if
+
+               call storage_put_field(field_to_store)
             end if
+    
+            istat = free_target_field(wrf_field)
          end if
 
          istat = scan_input_free_field(mpas_field)
