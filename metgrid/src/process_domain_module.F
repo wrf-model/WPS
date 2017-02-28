@@ -1653,10 +1653,15 @@ integer, parameter :: BDR_WIDTH = 3
                field_to_store%header%dim2(2) = sn_mem_e
                field_to_store%map%stagger = M
 
-
                ! Do something to put fields into storage module?
                if (trim(wrf_field % dimnames(1)) == 'nVertLevels') then   ! 3-d MPAS field
-                  field_to_store % header % field = 'FOO'
+                  field_to_store % header % field = mpas_to_intermediate_name(mpas_field % name)
+
+                  ! If no match in the METGRID.TBL was found for this MPAS field, just use the MPAS name
+                  if (len_trim(field_to_store % header % field) == 0) then
+                     field_to_store % header % field = trim(mpas_field % name)
+                  end if
+
                   field_to_store % header % vertical_coord = 'num_mpas_levels'
                   do k=1,wrf_field % dimlens(1)
                      allocate(field_to_store % r_arr(wrf_field % dimlens(2), wrf_field % dimlens(3)))
@@ -1668,7 +1673,13 @@ integer, parameter :: BDR_WIDTH = 3
                      end do
                      end do
                      field_to_store % header % vertical_level = k
-                     field_to_store % r_arr(:,:) = wrf_field % array3r(k,:,:)
+
+                     if (wrf_field % xtype == FIELD_TYPE_REAL) then
+                        field_to_store % r_arr(:,:) = wrf_field % array3r(k,:,:)
+                     else if (wrf_field % xtype == FIELD_TYPE_DOUBLE) then
+                        field_to_store % r_arr(:,:) = wrf_field % array3d(k,:,:)
+                     end if
+
                      call storage_put_field(field_to_store)
                   end do
                end if
