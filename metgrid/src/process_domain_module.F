@@ -1652,7 +1652,6 @@ integer, parameter :: BDR_WIDTH = 3
             field_to_store%header%dim2(2) = sn_mem_e
             field_to_store%map%stagger = M
 
-            ! Do something to put fields into storage module?
             if (wrf_field % ndims == 3 .and. trim(wrf_field % dimnames(1)) == 'nVertLevels') then   ! 3-d MPAS atmosphere field
                field_to_store % header % field = mpas_to_intermediate_name(mpas_field % name)
 
@@ -1677,6 +1676,57 @@ integer, parameter :: BDR_WIDTH = 3
                      field_to_store % r_arr(:,:) = wrf_field % array3r(k,:,:)
                   else if (wrf_field % xtype == FIELD_TYPE_DOUBLE) then
                      field_to_store % r_arr(:,:) = wrf_field % array3d(k,:,:)
+                  end if
+
+                  call storage_put_field(field_to_store)
+               end do
+
+            else if (wrf_field % ndims == 3 .and. trim(wrf_field % dimnames(1)) == 'nVertLevelsP1') then   ! 3-d MPAS atmosphere field
+               field_to_store % header % field = mpas_to_intermediate_name(mpas_field % name)
+
+               ! If no match in the METGRID.TBL was found for this MPAS field, just use the MPAS name
+               if (len_trim(field_to_store % header % field) == 0) then
+                  field_to_store % header % field = trim(mpas_field % name)
+               end if
+
+               ! Handle surface level
+               field_to_store % header % vertical_coord = 'none'
+               allocate(field_to_store % r_arr(wrf_field % dimlens(2), wrf_field % dimlens(3)))
+               allocate(field_to_store % valid_mask)
+               call bitarray_create(field_to_store % valid_mask, wrf_field % dimlens(2), wrf_field % dimlens(3))
+               do j=1,wrf_field % dimlens(3)
+               do i=1,wrf_field % dimlens(2)
+                  call bitarray_set(field_to_store % valid_mask, i, j)
+               end do
+               end do
+               field_to_store % header % vertical_level = 200100.0
+
+               if (wrf_field % xtype == FIELD_TYPE_REAL) then
+                  field_to_store % r_arr(:,:) = wrf_field % array3r(1,:,:)
+               else if (wrf_field % xtype == FIELD_TYPE_DOUBLE) then
+                  field_to_store % r_arr(:,:) = wrf_field % array3d(1,:,:)
+               end if
+
+               call storage_put_field(field_to_store)
+
+               ! Handle all other layers
+               field_to_store % header % vertical_coord = 'num_mpas_levels'
+               do k=1,wrf_field % dimlens(1) - 1
+                  allocate(field_to_store % r_arr(wrf_field % dimlens(2), wrf_field % dimlens(3)))
+                  allocate(field_to_store % valid_mask)
+                  call bitarray_create(field_to_store % valid_mask, wrf_field % dimlens(2), wrf_field % dimlens(3))
+                  do j=1,wrf_field % dimlens(3)
+                  do i=1,wrf_field % dimlens(2)
+                     call bitarray_set(field_to_store % valid_mask, i, j)
+                  end do
+                  end do
+                  field_to_store % header % vertical_level = k
+
+                  ! Average to layer midpoint
+                  if (wrf_field % xtype == FIELD_TYPE_REAL) then
+                     field_to_store % r_arr(:,:) = 0.5 * (wrf_field % array3r(k,:,:) + wrf_field % array3r(k+1,:,:))
+                  else if (wrf_field % xtype == FIELD_TYPE_DOUBLE) then
+                     field_to_store % r_arr(:,:) = 0.5 * (wrf_field % array3d(k,:,:) + wrf_field % array3d(k+1,:,:))
                   end if
 
                   call storage_put_field(field_to_store)
