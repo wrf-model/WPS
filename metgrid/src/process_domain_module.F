@@ -1647,6 +1647,10 @@ integer, parameter :: BDR_WIDTH = 3
                ! should depend on output staggering...
                write(0,*) 'Remapping '//trim(mpas_field % name)
                istat = remap_field(remap_info_m, mpas_field, wrf_field)
+               field_to_store%header%dim1(1) = we_mem_s
+               field_to_store%header%dim1(2) = we_mem_e
+               field_to_store%header%dim2(1) = sn_mem_s
+               field_to_store%header%dim2(2) = sn_mem_e
                field_to_store%map%stagger = M
 
 
@@ -1664,7 +1668,7 @@ integer, parameter :: BDR_WIDTH = 3
                      end do
                      end do
                      field_to_store % header % vertical_level = k
-                     field_to_store % r_arr(:,:) = wrf_field % array3d(k,:,:)
+                     field_to_store % r_arr(:,:) = wrf_field % array3r(k,:,:)
                      call storage_put_field(field_to_store)
                   end do
                end if
