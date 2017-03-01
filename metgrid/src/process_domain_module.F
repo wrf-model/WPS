@@ -797,7 +797,7 @@ integer, parameter :: BDR_WIDTH = 3
             input_name = fg_name(fg_idx)
          end if
       end do ! while (input_name /= '*')
-   
+
       !
       ! Rotate winds from earth-relative to grid-relative
       !
@@ -1635,6 +1635,19 @@ integer, parameter :: BDR_WIDTH = 3
 
          if (can_remap_field(mpas_field)) then
             write(0,*) 'Found '//trim(mpas_field % name)
+
+            ! Here, rename a few MPAS fields that would be difficult to treat
+            ! with METGRID.TBL options; principally, these are surface fields
+            ! that have different names from their upper-air counterparts.
+            if (trim(mpas_field % name) == 'u10') then
+               mpas_field % name = 'uReconstructZonal'
+            else if (trim(mpas_field % name) == 'v10') then
+               mpas_field % name = 'uReconstructMeridional'
+            else if (trim(mpas_field % name) == 'q2') then
+               mpas_field % name = 'qv'
+            else if (trim(mpas_field % name) == 't2m') then
+               mpas_field % name = 'theta'
+            end if
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! Maybe we need some routine to match up MPAS field names to WPS field names,
