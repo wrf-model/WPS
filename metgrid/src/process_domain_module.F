@@ -1645,12 +1645,29 @@ integer, parameter :: BDR_WIDTH = 3
  
             ! should depend on output staggering...
             write(0,*) 'Remapping '//trim(mpas_field % name)
-            istat = remap_field(remap_info_m, mpas_field, wrf_field)
-            field_to_store%header%dim1(1) = we_mem_s
-            field_to_store%header%dim1(2) = we_mem_e
-            field_to_store%header%dim2(1) = sn_mem_s
-            field_to_store%header%dim2(2) = sn_mem_e
-            field_to_store%map%stagger = M
+            field_to_store%map%stagger = mpas_output_stagger(mpas_field % name)
+            if (field_to_store%map%stagger == M) then
+               field_to_store%header%dim1(1) = we_mem_s
+               field_to_store%header%dim1(2) = we_mem_e
+               field_to_store%header%dim2(1) = sn_mem_s
+               field_to_store%header%dim2(2) = sn_mem_e
+               istat = remap_field(remap_info_m, mpas_field, wrf_field)
+            else if (field_to_store%map%stagger == U) then
+               field_to_store%header%dim1(1) = we_mem_stag_s
+               field_to_store%header%dim1(2) = we_mem_stag_e
+               field_to_store%header%dim2(1) = sn_mem_s
+               field_to_store%header%dim2(2) = sn_mem_e
+               istat = remap_field(remap_info_u, mpas_field, wrf_field)
+            else if (field_to_store%map%stagger == V) then
+               field_to_store%header%dim1(1) = we_mem_s
+               field_to_store%header%dim1(2) = we_mem_e
+               field_to_store%header%dim2(1) = sn_mem_stag_s
+               field_to_store%header%dim2(2) = sn_mem_stag_e
+               istat = remap_field(remap_info_v, mpas_field, wrf_field)
+            else
+               call mprintf(.true.,ERROR, 'Cannot handle requested output stagger %i for MPAS field %s ...', &
+                            i1=field_to_store%map%stagger, s1=trim(mpas_field % name))
+            end if
 
             if (wrf_field % ndims == 3 .and. trim(wrf_field % dimnames(1)) == 'nVertLevels') then   ! 3-d MPAS atmosphere field
                field_to_store % header % field = mpas_to_intermediate_name(mpas_field % name)
