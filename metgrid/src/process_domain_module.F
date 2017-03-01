@@ -1732,6 +1732,75 @@ integer, parameter :: BDR_WIDTH = 3
                   call storage_put_field(field_to_store)
                end do
 
+            else if (wrf_field % ndims == 3 .and. trim(wrf_field % dimnames(1)) == 'nSoilLevels') then   ! 3-d MPAS soil field
+
+               field_to_store % header % vertical_coord = 'none'
+               if (trim(mpas_field % name) == 'tslb') then
+                  do k=1,wrf_field % dimlens(1)
+                     if (k == 1) then
+                        field_to_store % header % field = 'ST000010'
+                     else if (k == 2) then
+                        field_to_store % header % field = 'ST010040'
+                     else if (k == 3) then
+                        field_to_store % header % field = 'ST040100'
+                     else if (k == 4) then
+                        field_to_store % header % field = 'ST100200'
+                     else
+                        call mprintf(.true.,ERROR, 'Too many soil layers in MPAS soil field %s ...', s1=trim(mpas_field % name))
+                     end if
+                     allocate(field_to_store % r_arr(wrf_field % dimlens(2), wrf_field % dimlens(3)))
+                     allocate(field_to_store % valid_mask)
+                     call bitarray_create(field_to_store % valid_mask, wrf_field % dimlens(2), wrf_field % dimlens(3))
+                     do j=1,wrf_field % dimlens(3)
+                     do i=1,wrf_field % dimlens(2)
+                        call bitarray_set(field_to_store % valid_mask, i, j)
+                     end do
+                     end do
+                     field_to_store % header % vertical_level = 200100.0
+
+                     if (wrf_field % xtype == FIELD_TYPE_REAL) then
+                        field_to_store % r_arr(:,:) = wrf_field % array3r(k,:,:)
+                     else if (wrf_field % xtype == FIELD_TYPE_DOUBLE) then
+                        field_to_store % r_arr(:,:) = wrf_field % array3d(k,:,:)
+                     end if
+
+                     call storage_put_field(field_to_store)
+                  end do
+               else if (trim(mpas_field % name) == 'smois') then
+                  do k=1,wrf_field % dimlens(1)
+                     if (k == 1) then
+                        field_to_store % header % field = 'SM000010'
+                     else if (k == 2) then
+                        field_to_store % header % field = 'SM010040'
+                     else if (k == 3) then
+                        field_to_store % header % field = 'SM040100'
+                     else if (k == 4) then
+                        field_to_store % header % field = 'SM100200'
+                     else
+                        call mprintf(.true.,ERROR, 'Too many soil layers in MPAS soil field %s ...', s1=trim(mpas_field % name))
+                     end if
+                     allocate(field_to_store % r_arr(wrf_field % dimlens(2), wrf_field % dimlens(3)))
+                     allocate(field_to_store % valid_mask)
+                     call bitarray_create(field_to_store % valid_mask, wrf_field % dimlens(2), wrf_field % dimlens(3))
+                     do j=1,wrf_field % dimlens(3)
+                     do i=1,wrf_field % dimlens(2)
+                        call bitarray_set(field_to_store % valid_mask, i, j)
+                     end do
+                     end do
+                     field_to_store % header % vertical_level = 200100.0
+
+                     if (wrf_field % xtype == FIELD_TYPE_REAL) then
+                        field_to_store % r_arr(:,:) = wrf_field % array3r(k,:,:)
+                     else if (wrf_field % xtype == FIELD_TYPE_DOUBLE) then
+                        field_to_store % r_arr(:,:) = wrf_field % array3d(k,:,:)
+                     end if
+
+                     call storage_put_field(field_to_store)
+                  end do
+               else
+                  call mprintf(.true.,WARN, 'Skipping unknown MPAS soil field %s ...', s1=trim(mpas_field % name))
+               end if
+
             else if (wrf_field % ndims == 2) then   ! 2-d MPAS field
                field_to_store % header % field = mpas_to_intermediate_name(mpas_field % name)
 
