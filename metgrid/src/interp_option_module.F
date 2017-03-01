@@ -627,6 +627,35 @@ module interp_option_module
 
 
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   ! Name: mpas_output_stagger
+   !
+   ! Pupose:
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   function mpas_output_stagger(mpasname) result(istagger)
+  
+      implicit none
+ 
+      ! Arguments
+      character (len=*), intent(in) :: mpasname
+
+      ! Return value
+      integer :: istagger
+
+      ! Local variables
+      integer :: i
+
+      istagger = M
+      do i=1,num_entries
+         if (trim(mpasname) == trim(mpas_name(i))) then
+            istagger = output_stagger(i)
+            exit
+         end if
+      end do
+
+   end function mpas_output_stagger
+
+
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
    ! Name: get_gcell_threshold
    !
    ! Pupose:
