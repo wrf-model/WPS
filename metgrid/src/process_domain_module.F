@@ -1695,6 +1695,16 @@ integer, parameter :: BDR_WIDTH = 3
                      field_to_store % r_arr(:,:) = wrf_field % array3d(k,:,:)
                   end if
 
+                  ! The u_field and v_field are used later by calling code to
+                  ! determine which fields represent the x- and y-components of
+                  ! horizonal wind velocity for the purposes of wind rotation
+                  if (trim(mpas_field % name) == 'uReconstructZonal') then
+                     call dup(field_to_store, u_field)
+                  end if
+                  if (trim(mpas_field % name) == 'uReconstructMeridional') then
+                     call dup(field_to_store, v_field)
+                  end if
+
                   call storage_put_field(field_to_store)
                end do
 
