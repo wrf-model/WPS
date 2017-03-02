@@ -598,6 +598,35 @@ module interp_option_module
 
 
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   ! Name: mpas_name_to_idx
+   !
+   ! Pupose:
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   function mpas_name_to_idx(mpasname) result(idx)
+  
+      implicit none
+ 
+      ! Arguments
+      character (len=*), intent(in) :: mpasname
+
+      ! Return value
+      integer :: idx
+
+      ! Local variables
+      integer :: i
+
+      idx = 0
+      do i=1,num_entries
+         if (trim(mpasname) == trim(mpas_name(i))) then
+            idx = i
+            exit
+         end if
+      end do
+
+   end function mpas_name_to_idx
+
+
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
    ! Name: mpas_to_intermediate_name
    !
    ! Pupose:
