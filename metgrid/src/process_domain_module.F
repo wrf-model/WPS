@@ -852,6 +852,13 @@ integer, parameter :: BDR_WIDTH = 3
                                  got_this_field, output_flags)
 
       !
+      ! Derive some MPAS fields from others, e.g., TT from theta and pressure
+      !
+      if (.not. do_const_processing) then
+         call derive_mpas_fields()
+      end if
+
+      !
       ! Check that every mandatory field was found in input data
       !
       do i=1,num_entries
@@ -1880,6 +1887,104 @@ integer, parameter :: BDR_WIDTH = 3
       end if
 
    end subroutine process_mpas_fields
+
+
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   ! Name: derive_mpas_fields
+   !
+   ! Purpose:
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   subroutine derive_mpas_fields()
+
+      use bitarray_module
+      use gridinfo_module
+      use interp_module
+      use interp_option_module
+      use read_met_module
+      use llxy_module
+      use misc_definitions_module
+      use module_debug
+      use output_module
+      use parallel_module
+      use rotate_winds_module
+      use storage_module
+      use scan_input
+      use mpas_mesh
+      use constants_module
+
+      implicit none
+
+      integer :: k
+      integer :: istatus
+      integer, pointer, dimension(:) :: theta_levels => null()
+      integer, pointer, dimension(:) :: pressure_levels => null()
+      real, pointer, dimension(:,:) :: exner => null()
+      type (fg_input) :: theta_field
+      type (fg_input) :: pressure_field
+
+      !
+      ! Derive TT from theta and pressure
+      !
+      theta_field%header%time_dependent = .true.
+      theta_field%header%constant_field = .false.
+      theta_field%header%field = 'TT'
+      theta_field%header%vertical_level = 0
+      nullify(theta_field%r_arr)
+      nullify(theta_field%valid_mask)
+      nullify(theta_field%modified_mask)
+
+      pressure_field%header%time_dependent = .true.
+      pressure_field%header%constant_field = .false.
+      pressure_field%header%field = 'PRESSURE'
+      pressure_field%header%vertical_level = 0
+      nullify(pressure_field%r_arr)
+      nullify(pressure_field%valid_mask)
+      nullify(pressure_field%modified_mask)
+
+      call storage_get_levels(theta_field, theta_levels)
+      call storage_get_levels(pressure_field, pressure_levels)
+
+      if (associated(theta_levels) .and. associated(pressure_levels)) then
+         call mprintf(.true.,LOGFILE, 'Computing MPAS TT field from theta and pressure...')
+
+         if (size(theta_levels) == size(pressure_levels)) then
+            do k = 1, size(theta_levels)
+               call mprintf(.true.,LOGFILE, 'Computing TT at level %i for MPAS dataset', i1=theta_levels(k))
+               theta_field % header % vertical_level = theta_levels(k)
+               call storage_get_field(theta_field, istatus)
+               if (istatus /= 0) then
+                  call mprintf(.true.,ERROR, 'Could not get MPAS theta field at level %i', i1=theta_levels(k))
+                  return
+               end if
+
+               pressure_field % header % vertical_level = pressure_levels(k)
+               call storage_get_field(pressure_field, istatus)
+               if (istatus /= 0) then
+                  call mprintf(.true.,ERROR, 'Could not get MPAS pressure field at level %i', i1=theta_levels(k))
+                  return
+               end if
+
+               ! Compute temperature
+               if (.not. associated(exner)) then
+                  allocate(exner(size(theta_field % r_arr, 1), size(theta_field % r_arr, 2)))
+               end if
+               exner(:,:) = (pressure_field % r_arr(:,:) / P0)**(RD/CP)
+               theta_field % r_arr(:,:) = theta_field % r_arr(:,:) * exner(:,:)
+
+               call storage_put_field(theta_field)
+            end do
+         else
+            call mprintf(.true.,ERROR, 'The MPAS theta and pressure fields do not have the same number of levels!')
+         end if
+
+         deallocate(theta_levels)
+         deallocate(pressure_levels)
+         if (associated(exner)) then
+            deallocate(exner)
+         end if
+      end if
+
+   end subroutine derive_mpas_fields
 
 
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
