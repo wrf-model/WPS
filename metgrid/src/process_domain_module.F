@@ -1512,6 +1512,7 @@ integer, parameter :: BDR_WIDTH = 3
       real, parameter :: deg2rad = asin(1.0) / 90.0
 
       integer :: i, j, k
+      integer :: idx
       integer :: istat
       integer :: strlen
       character (len=MAX_FILENAME_LEN) :: mpas_filename
@@ -1654,6 +1655,13 @@ integer, parameter :: BDR_WIDTH = 3
                mpas_field % name = 'qv'
             else if (trim(mpas_field % name) == 't2m') then
                mpas_field % name = 'theta'
+            end if
+
+            ! Mark this MPAS field as "gotten" for any later checks
+            ! on mandatory fields
+            idx = mpas_name_to_idx(trim(mpas_field % name))
+            if (idx > 0) then
+               got_this_field(idx) = .true.
             end if
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
