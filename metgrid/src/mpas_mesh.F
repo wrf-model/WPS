@@ -8,6 +8,7 @@ module mpas_mesh
         integer :: nVertices = 0
         integer :: nEdges = 0
         integer :: maxEdges = 0
+        integer, dimension(:), pointer :: landmask => null()
         integer, dimension(:), pointer :: nEdgesOnCell => null()
         integer, dimension(:,:), pointer :: cellsOnCell => null()
         integer, dimension(:,:), pointer :: verticesOnCell => null()
@@ -59,6 +60,19 @@ module mpas_mesh
         allocate(mesh % nEdgesOnCell(mesh % nCells))
         mesh % nEdgesOnCell(:) = field % array1i(:)
         stat = scan_input_free_field(field)
+
+        !
+        ! landmask
+        !
+        if (scan_input_for_field(handle, 'landmask', field) == 0) then
+            stat = scan_input_read_field(field)
+            allocate(mesh % landmask(mesh % nCells))
+            mesh % landmask(:) = field % array1i(:)
+            stat = scan_input_free_field(field)
+        else     ! no landmask available
+            allocate(mesh % landmask(mesh % nCells))
+            mesh % landmask(:) = 1
+        end if
 
         !
         ! cellsOnCell
@@ -251,6 +265,9 @@ module mpas_mesh
         mesh % nEdges = 0
         mesh % maxEdges = 0
 
+        if (associated(mesh % landmask)) then
+            deallocate(mesh % landmask)
+        end if
         if (associated(mesh % nEdgesOnCell)) then
             deallocate(mesh % nEdgesOnCell)
         end if

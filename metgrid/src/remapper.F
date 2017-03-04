@@ -4,6 +4,17 @@ module remapper
     use scan_input, only : input_field_type, FIELD_TYPE_REAL, FIELD_TYPE_DOUBLE, FIELD_TYPE_INTEGER
     use target_mesh
 
+    integer, parameter :: max_queue_length    = 2700    ! should be at least (earth circumference / minimum grid distance)
+    integer, parameter :: max_dictionary_size = 82000   ! should be at least (nCells/32)
+
+    integer :: queue_head = 0
+    integer :: queue_tail = 0
+    integer :: queue_size = 0
+    integer, dimension(0:max_queue_length-1) :: queue_array
+
+    integer :: int_size = 32
+    integer, dimension(max_dictionary_size) :: dictionary_array
+
 
     type remap_info_type
         integer :: method = -1
@@ -22,6 +33,10 @@ module remapper
         integer, dimension(:,:,:), pointer :: sourceCells => null()
         integer, dimension(:,:,:), pointer :: sourceVertices => null()
         integer, dimension(:,:,:), pointer :: sourceEdges => null()
+
+        ! For masked interpolation
+        real, dimension(:,:,:), pointer :: cellMaskedWeights => null()
+        integer, dimension(:,:,:), pointer :: sourceMaskedCells => null()
     end type remap_info_type
 
 
@@ -78,6 +93,7 @@ module remapper
         integer :: nn
         integer :: ix, iy
         integer :: irank
+        real :: sumWeights
         real, dimension(:,:), allocatable :: vertCoords
         real, dimension(3) :: pointInterp
 
@@ -216,6 +232,57 @@ module remapper
 
         deallocate(vertCoords)
 
+
+        !
+        ! For masked interpolation
+        !
+        allocate(vertCoords(3,3))
+
+        allocate(remap_info % cellMaskedWeights(3, dst_mesh % nlon, dst_mesh % nlat))
+        allocate(remap_info % sourceMaskedCells(3, dst_mesh % nlon, dst_mesh % nlat))
+
+        idx = 1
+        do iy=1,dst_mesh % nlat
+        do ix=1,dst_mesh % nlon
+            idx = nearest_vertex(dst_mesh % lats(index2d(irank,ix),iy), dst_mesh % lons(ix,index2d(irank,iy)), idx, &
+                                 src_mesh % nCells, src_mesh % nVertices, src_mesh % maxEdges, 3, &
+                                 src_mesh % nEdgesOnCell, src_mesh % verticesOnCell, &
+                                 src_mesh % cellsOnVertex, src_mesh % latCell, src_mesh % lonCell, &
+                                 src_mesh % latVertex, src_mesh % lonVertex )
+            remap_info % sourceMaskedCells(:,ix,iy) = src_mesh % cellsOnVertex(:,idx)
+            pointInterp(:) = convert_lx(dst_mesh % lats(index2d(irank,ix),iy), dst_mesh % lons(ix,index2d(irank,iy)), 6371229.0)
+            do j=1,3
+                vertCoords(:,j) = convert_lx(src_mesh % latCell(src_mesh % cellsOnVertex(j,idx)), &
+                                             src_mesh % lonCell(src_mesh % cellsOnVertex(j,idx)), &
+                                             6371229.0)
+            end do
+            remap_info % cellMaskedWeights(:,ix,iy) = mpas_wachspress_coordinates(3, vertCoords, pointInterp)
+            sumWeights = 0.0
+            do j=1,3
+                if (src_mesh % landmask(remap_info % sourceMaskedCells(j,ix,iy)) == 1) then
+                   sumWeights = sumWeights + remap_info % cellMaskedWeights(j,ix,iy)
+                else
+                   remap_info % cellMaskedWeights(j,ix,iy) = 0.0
+                end if
+            end do
+            if (sumWeights > 0.0) then
+                remap_info % cellMaskedWeights(:,ix,iy) = remap_info % cellMaskedWeights(:,ix,iy) / sumWeights
+            else
+                idx = nearest_cell(dst_mesh % lats(index2d(irank,ix),iy), dst_mesh % lons(ix,index2d(irank,iy)), &
+                                   remap_info % sourceMaskedCells(1,ix,iy), &
+                                   src_mesh % nCells, src_mesh % maxEdges, &
+                                   src_mesh % nEdgesOnCell, src_mesh % cellsOnCell, src_mesh % latCell, src_mesh % lonCell)
+                call search_for_cells(src_mesh % nCells, src_mesh % maxEdges, src_mesh % nEdgesOnCell, src_mesh % cellsOnCell, &
+                                      src_mesh % landmask, dst_mesh % lats(index2d(irank,ix),iy), &
+                                      dst_mesh % lons(ix,index2d(irank,iy)), &
+                                      src_mesh % latCell, src_mesh % lonCell, idx, remap_info % sourceMaskedCells(:,ix,iy), &
+                                      remap_info % cellMaskedWeights(:,ix,iy))
+            end if
+        end do
+        end do
+
+        deallocate(vertCoords)
+
     end function remap_info_setup
 
 
@@ -258,6 +325,12 @@ module remapper
         end if
         if (associated(remap_info % sourceEdges)) then
             deallocate(remap_info % sourceEdges)
+        end if
+        if (associated(remap_info % cellMaskedWeights)) then
+            deallocate(remap_info % cellMaskedWeights)
+        end if
+        if (associated(remap_info % sourceMaskedCells)) then
+            deallocate(remap_info % sourceMaskedCells)
         end if
 
     end function remap_info_free
@@ -341,18 +414,20 @@ module remapper
     end function remap_field_dryrun
 
 
-    integer function remap_field(remap_info, src_field, dst_field) result(stat)
+    integer function remap_field(remap_info, src_field, dst_field, masked) result(stat)
 
         implicit none
 
         type (remap_info_type), intent(in) :: remap_info
         type (input_field_type), intent(in) :: src_field
         type (target_field_type), intent(out) :: dst_field
+        logical, intent(in), optional :: masked
 
         integer :: decompDim
         integer :: idim
         integer :: j
         integer :: iy, ix
+        logical :: local_masked
         integer, dimension(:,:), pointer :: nearestIndex
         integer, dimension(:,:,:), pointer :: sourceNodes
         real, dimension(:,:,:), pointer :: nodeWeights
@@ -364,10 +439,20 @@ module remapper
             decompDim = decompDim - 1
         end if
 
+        local_masked = .false.
+        if (present(masked)) then
+            local_masked = masked
+        end if
+
         if (trim(src_field % dimnames(decompDim)) == 'nCells') then
             nearestIndex => remap_info % nearestCell
-            sourceNodes => remap_info % sourceCells
-            nodeWeights => remap_info % cellWeights
+            if (local_masked) then
+                sourceNodes => remap_info % sourceMaskedCells
+                nodeWeights => remap_info % cellMaskedWeights
+            else
+                sourceNodes => remap_info % sourceCells
+                nodeWeights => remap_info % cellWeights
+            end if
         else if (trim(src_field % dimnames(decompDim)) == 'nVertices') then
             nearestIndex => remap_info % nearestVertex
             sourceNodes => remap_info % sourceVertices
@@ -408,13 +493,13 @@ module remapper
             if (dst_field % ndims == 2) then
                 allocate(dst_field % array2r(dst_field % dimlens(1), &
                                              dst_field % dimlens(2)))
-#if NEAREST_NEIGHBOR
+#ifdef NEAREST_NEIGHBOR
                 do iy=1,size(nearestIndex, dim=2)
                 do ix=1,size(nearestIndex, dim=1)
                     dst_field % array2r(ix,iy) = src_field % array1r(nearestIndex(ix,iy))
                 end do
                 end do
-#endif
+#else
                 do iy=1,size(nearestIndex, dim=2)
                 do ix=1,size(nearestIndex, dim=1)
                     dst_field % array2r(ix,iy) = 0.0
@@ -425,33 +510,35 @@ module remapper
                     end do
                 end do
                 end do
+#endif
             else if (dst_field % ndims == 3) then
                 allocate(dst_field % array3r(dst_field % dimlens(1), &
                                              dst_field % dimlens(2), &
                                              dst_field % dimlens(3)))
-#if NEAREST_NEIGHBOR
+#ifdef NEAREST_NEIGHBOR
                 do iy=1,size(nearestIndex, dim=2)
                 do ix=1,size(nearestIndex, dim=1)
                     dst_field % array3r(:,ix,iy) = src_field % array2r(:,nearestIndex(ix,iy))
                 end do
                 end do
-#endif
+#else
                 do iy=1,size(nearestIndex, dim=2)
                 do ix=1,size(nearestIndex, dim=1)
                     dst_field % array3r(:,ix,iy) = 0.0
                     do j=1,3
                         dst_field % array3r(:,ix,iy) = dst_field % array3r(:,ix,iy) + &
-                                                        remap_info % cellWeights(j,ix,iy) &
-                                                        * src_field % array2r(:,remap_info % sourceCells(j,ix,iy))
+                                                        nodeWeights(j,ix,iy) &
+                                                        * src_field % array2r(:,sourceNodes(j,ix,iy))
                     end do
                 end do
                 end do
+#endif
             else if (dst_field % ndims == 4) then
                 allocate(dst_field % array4r(dst_field % dimlens(1), &
                                              dst_field % dimlens(2), &
                                              dst_field % dimlens(3), &
                                              dst_field % dimlens(4)))
-#if NEAREST_NEIGHBOR
+#ifdef NEAREST_NEIGHBOR
                 do iy=1,size(nearestIndex, dim=2)
                 do ix=1,size(nearestIndex, dim=1)
                     dst_field % array4r(:,:,ix,iy) = src_field % array3r(:,:,nearestIndex(ix,iy))
@@ -475,7 +562,7 @@ module remapper
             if (dst_field % ndims == 2) then
                 allocate(dst_field % array2d(dst_field % dimlens(1), &
                                              dst_field % dimlens(2)))
-#if NEAREST_NEIGHBOR
+#ifdef NEAREST_NEIGHBOR
                 do iy=1,size(nearestIndex, dim=2)
                 do ix=1,size(nearestIndex, dim=1)
                     dst_field % array2d(ix,iy) = src_field % array1d(nearestIndex(ix,iy))
@@ -496,7 +583,7 @@ module remapper
                 allocate(dst_field % array3d(dst_field % dimlens(1), &
                                              dst_field % dimlens(2), &
                                              dst_field % dimlens(3)))
-#if NEAREST_NEIGHBOR
+#ifdef NEAREST_NEIGHBOR
                 do iy=1,size(nearestIndex, dim=2)
                 do ix=1,size(nearestIndex, dim=1)
                     dst_field % array3d(:,ix,iy) = src_field % array2d(:,nearestIndex(ix,iy))
@@ -518,7 +605,7 @@ module remapper
                                              dst_field % dimlens(2), &
                                              dst_field % dimlens(3), &
                                              dst_field % dimlens(4)))
-#if NEAREST_NEIGHBOR
+#ifdef NEAREST_NEIGHBOR
                 do iy=1,size(nearestIndex, dim=2)
                 do ix=1,size(nearestIndex, dim=1)
                     dst_field % array4d(:,:,ix,iy) = src_field % array3d(:,:,nearestIndex(ix,iy))
@@ -1032,6 +1119,211 @@ module remapper
         vec(3) = radius * sin(lat)
 
     end function convert_lx
+
+
+    subroutine search_for_cells(nCells, maxEdges, nEdgesOnCell, cellsOnCell, cellMask, &
+                                targetLat, targetLon, latCell, lonCell, &
+                                startIdx, sourceMaskedCells, cellMaskedWeights)
+
+        implicit none
+
+        integer, intent(in) :: nCells
+        integer, intent(in) :: maxEdges
+        integer, dimension(nCells), intent(in) :: nEdgesOnCell
+        integer, dimension(maxEdges,nCells), intent(in) :: cellsOnCell
+        integer, dimension(nCells), intent(in) :: cellMask
+        real, intent(in) :: targetLat
+        real, intent(in) :: targetLon
+        real, dimension(nCells), intent(in) :: latCell
+        real, dimension(nCells), intent(in) :: lonCell
+        integer, intent(in) :: startIdx
+        integer, dimension(3), intent(inout) :: sourceMaskedCells
+        real, dimension(3), intent(inout) :: cellMaskedWeights
+
+        integer :: i
+        integer :: scan_cell
+        integer :: neighbor
+        integer :: unscanned
+        logical :: no_more_queueing
+        real :: d, d_min
+
+        !
+        ! Reset data structures
+        !
+        call queue_reset()
+        call dictionary_reset()
+
+        no_more_queueing = .false.
+        unscanned = 0
+
+        d_min = 1000.0
+
+        sourceMaskedCells(:) = 1
+        cellMaskedWeights(:) = 0.0
+
+        !
+        ! Insert the origin cell into the queue for processing
+        !
+        call queue_insert(startIdx)
+        call dictionary_insert(startIdx)
+
+        do while (queue_size > 0)
+            scan_cell = queue_remove()
+
+            !
+            ! Each cell index removed from the queue represents a unique grid cell
+            !    that falls within the specified radius of the origin point
+            ! Here, we can do any processing we like for these cells
+            !
+            if (cellMask(scan_cell) == 1) then
+               d = sphere_distance(targetLat, targetLon, latCell(scan_cell), lonCell(scan_cell), 1.0)
+               if (d < d_min) then
+                   d_min = d
+                   sourceMaskedCells(1) = scan_cell
+                   cellMaskedWeights(1) = 1.0
+                   if (.not. no_more_queueing) then
+                      unscanned = queue_size
+                   end if
+                   no_more_queueing = .true.
+               end if
+            end if
+            
+            !
+            ! Add any neighbors of scan_cell within specified radius to the queue for processing
+            !
+            if (.not. no_more_queueing .or. unscanned > 0) then
+                do i=1,nEdgesOnCell(scan_cell)
+                    neighbor = cellsOnCell(i,scan_cell)
+                    if (.not. dictionary_search(neighbor)) then
+                        call queue_insert(neighbor)
+                        call dictionary_insert(neighbor)
+                    end if
+                end do
+            end if
+
+            if (no_more_queueing) then
+               unscanned = unscanned - 1
+            end if
+           
+        end do
+
+    end subroutine search_for_cells
+
+
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    ! Insert a new integer into the queue
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    subroutine queue_insert(i)
+
+        implicit none
+
+        integer, intent(in) :: i
+
+        if (queue_size == max_queue_length) then
+            write(0,*) 'Error: queue overrun'
+            return
+        end if
+        queue_size = queue_size + 1
+        queue_array(queue_head) = i 
+        queue_head = mod(queue_head + 1, max_queue_length)
+
+    end subroutine queue_insert
+
+
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    ! Remove the oldest integer from the queue
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    integer function queue_remove()
+
+        implicit none
+
+        if (queue_size <= 0) then
+            write(0,*) 'Error: queue underrun'
+            queue_remove = -1
+            return
+        end if
+        queue_size = queue_size - 1
+        queue_remove = queue_array(queue_tail)
+        queue_tail = mod(queue_tail + 1, max_queue_length)
+
+    end function queue_remove
+
+
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    ! Reset the queue to an empty state
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    subroutine queue_reset()
+
+        implicit none
+
+        queue_head = 0
+        queue_tail = 0
+        queue_size = 0
+
+    end subroutine queue_reset
+
+
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    ! Insert an integer into the dictionary
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    subroutine dictionary_insert(i)
+
+        implicit none
+
+        integer, intent(in) :: i
+
+        integer :: n_integer
+        integer :: n_bit
+
+        n_integer = ((i-1) / int_size) + 1
+        n_bit = mod((i-1), int_size)
+
+        if (n_integer > max_dictionary_size) then
+            write(0,*) 'Error: dictionary insert out of bounds'
+            return
+        end if
+     
+        dictionary_array(n_integer) = ibset(dictionary_array(n_integer), n_bit)
+
+    end subroutine dictionary_insert
+
+
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    ! Search for an integer in the dictionary
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    logical function dictionary_search(i)
+
+        implicit none
+
+        integer, intent(in) :: i
+
+        integer :: n_integer
+        integer :: n_bit
+
+        n_integer = ((i-1) / int_size) + 1
+        n_bit = mod((i-1), int_size)
+
+        if (n_integer > max_dictionary_size) then
+            write(0,*) 'Error: dictionary search out of bounds'
+            dictionary_search = .false.
+            return
+        end if
+     
+        dictionary_search = btest(dictionary_array(n_integer), n_bit)
+     
+    end function dictionary_search
+
+
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    ! Reset the dictionary to an empty state
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    subroutine dictionary_reset()
+
+        implicit none
+
+        dictionary_array(:) = 0
+
+    end subroutine dictionary_reset
 
 
     function index2d(irank, idx) result(i)
