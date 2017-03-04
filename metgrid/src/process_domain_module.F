@@ -1682,7 +1682,15 @@ integer, parameter :: BDR_WIDTH = 3
                field_to_store%header%dim1(2) = we_mem_e
                field_to_store%header%dim2(1) = sn_mem_s
                field_to_store%header%dim2(2) = sn_mem_e
-               istat = remap_field(remap_info_m, mpas_field, wrf_field)
+               if (idx > 0) then
+                  if (masked(idx) == MASKED_WATER) then
+                     istat = remap_field(remap_info_m, mpas_field, wrf_field, masked=.true.)
+                  else
+                     istat = remap_field(remap_info_m, mpas_field, wrf_field, masked=.false.)
+                  end if
+               else
+                  istat = remap_field(remap_info_m, mpas_field, wrf_field, masked=.false.)
+               end if
             else if (field_to_store%map%stagger == U) then
                field_to_store%header%dim1(1) = we_mem_stag_s
                field_to_store%header%dim1(2) = we_mem_stag_e
@@ -1822,6 +1830,12 @@ integer, parameter :: BDR_WIDTH = 3
                         field_to_store % r_arr(:,:) = wrf_field % array3d(k,:,:)
                      end if
 
+                     if (idx > 0) then
+                        if (masked(idx) == MASKED_WATER) then
+                           where (landmask(:,:) == 0) field_to_store % r_arr(:,:) = fill_missing(idx)
+                        end if
+                     end if
+
                      call storage_put_field(field_to_store)
                   end do
                else if (trim(mpas_field % name) == 'smois') then
@@ -1853,6 +1867,12 @@ integer, parameter :: BDR_WIDTH = 3
                         field_to_store % r_arr(:,:) = wrf_field % array3d(k,:,:)
                      end if
 
+                     if (idx > 0) then
+                        if (masked(idx) == MASKED_WATER) then
+                           where (landmask(:,:) == 0) field_to_store % r_arr(:,:) = fill_missing(idx)
+                        end if
+                     end if
+
                      call storage_put_field(field_to_store)
                   end do
                else
@@ -1882,6 +1902,12 @@ integer, parameter :: BDR_WIDTH = 3
                   field_to_store % r_arr(:,:) = wrf_field % array2r(:,:)
                else if (wrf_field % xtype == FIELD_TYPE_DOUBLE) then
                   field_to_store % r_arr(:,:) = wrf_field % array2d(:,:)
+               end if
+
+               if (idx > 0) then
+                  if (masked(idx) == MASKED_WATER) then
+                     where (landmask(:,:) == 0) field_to_store % r_arr(:,:) = fill_missing(idx)
+                  end if
                end if
 
                call storage_put_field(field_to_store)
