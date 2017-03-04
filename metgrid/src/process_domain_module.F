@@ -1798,6 +1798,39 @@ integer, parameter :: BDR_WIDTH = 3
                   call storage_put_field(field_to_store)
                end do
 
+               ! Special case: zgrid field also provides SOILHGT
+               if (trim(mpas_field % name) == 'zgrid') then
+                  field_to_store % header % field = 'SOILHGT'
+
+                  allocate(field_to_store % r_arr(wrf_field % dimlens(2), wrf_field % dimlens(3)))
+                  allocate(field_to_store % valid_mask)
+                  call bitarray_create(field_to_store % valid_mask, wrf_field % dimlens(2), wrf_field % dimlens(3))
+                  do j=1,wrf_field % dimlens(3)
+                  do i=1,wrf_field % dimlens(2)
+                     call bitarray_set(field_to_store % valid_mask, i, j)
+                  end do
+                  end do
+                  field_to_store % header % vertical_level = 200100.0
+
+                  if (wrf_field % xtype == FIELD_TYPE_REAL) then
+                     field_to_store % r_arr(:,:) = wrf_field % array3r(1,:,:)
+                  else if (wrf_field % xtype == FIELD_TYPE_DOUBLE) then
+                     field_to_store % r_arr(:,:) = wrf_field % array3d(1,:,:)
+                  end if
+
+                  call storage_put_field(field_to_store)
+
+                  do idx=1,num_entries
+                     if (trim(fieldname(idx)) == 'SOILHGT') then
+                        got_this_field(idx) = .true.
+                        if (output_this_field(idx) .and. flag_in_output(idx) /= ' ') then
+                           output_flags(idx) = flag_in_output(idx)
+                        end if
+                        exit
+                     end if
+                  end do
+               end if
+
             else if (wrf_field % ndims == 3 .and. trim(wrf_field % dimnames(1)) == 'nSoilLevels') then   ! 3-d MPAS soil field
 
                field_to_store % header % vertical_coord = 'none'
