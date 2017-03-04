@@ -1662,6 +1662,9 @@ integer, parameter :: BDR_WIDTH = 3
             idx = mpas_name_to_idx(trim(mpas_field % name))
             if (idx > 0) then
                got_this_field(idx) = .true.
+               if (output_this_field(idx) .and. flag_in_output(idx) /= ' ') then
+                  output_flags(idx) = flag_in_output(idx)
+               end if
             end if
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
