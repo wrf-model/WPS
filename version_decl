@@ -1,0 +1,5 @@
+  ! This file declares the version for this build of WPS
+  ! This is used by the compile script for the purpose of
+  ! printing the version at the top of the compile log 
+
+  CHARACTER (LEN=10) :: release_version = 'V3.8.1    '
