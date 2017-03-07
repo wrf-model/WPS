@@ -193,10 +193,8 @@ module process_domain_module
    
       call storage_delete_all()
 
-write(0,*) 'Freeing source mesh'
       istatus = mpas_mesh_free(mpas_source_mesh)
 
-write(0,*) 'Freeing target mesh'
       if (allocated(xlat_rad)) deallocate(xlat_rad)
       if (allocated(xlon_rad)) deallocate(xlon_rad)
       if (allocated(xlat_u_rad)) deallocate(xlat_u_rad)
@@ -207,7 +205,6 @@ write(0,*) 'Freeing target mesh'
       istatus = target_mesh_free(wrf_target_mesh_u)
       istatus = target_mesh_free(wrf_target_mesh_v)
 
-write(0,*) 'Freeing remapping weights'
       istatus = remap_info_free(remap_info_m)
       istatus = remap_info_free(remap_info_u)
       istatus = remap_info_free(remap_info_v)
@@ -1642,7 +1639,6 @@ integer, parameter :: BDR_WIDTH = 3
       do while (scan_input_next_field(mpas_handle, mpas_field) == 0) 
 
          if (can_remap_field(mpas_field)) then
-            write(0,*) 'Found '//trim(mpas_field % name)
 
             ! Here, rename a few MPAS fields that would be difficult to treat
             ! with METGRID.TBL options; principally, these are surface fields
@@ -1666,16 +1662,9 @@ integer, parameter :: BDR_WIDTH = 3
                   output_flags(idx) = flag_in_output(idx)
                end if
             end if
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-! Maybe we need some routine to match up MPAS field names to WPS field names,
-! which could also be used to tell us whether we should remap a field
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     
             istat = scan_input_read_field(mpas_field, frame=1)
  
-            ! should depend on output staggering...
-            write(0,*) 'Remapping '//trim(mpas_field % name)
             field_to_store%map%stagger = mpas_output_stagger(mpas_field % name)
             if (field_to_store%map%stagger == M) then
                field_to_store%header%dim1(1) = we_mem_s
