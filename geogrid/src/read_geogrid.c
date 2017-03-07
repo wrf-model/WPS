@@ -36,7 +36,8 @@ int read_geogrid(
       int * wordsize,          /* number of bytes to use for each array element */
       int * status)
 {
-   int i, ival, cnt, narray;
+   size_t i, cnt, narray;
+   int ival;
    int A2, B2;
    int A3, B3, C3;
    int A4, B4, C4, D4;
@@ -46,7 +47,7 @@ int read_geogrid(
 
    *status = 0;
 
-   narray = (*nx) * (*ny) * (*nz);
+   narray = (size_t)(*nx) * (size_t)(*ny) * (size_t)(*nz);
 
    /* Make a null-terminated local copy of the filename */
    strncpy(local_fname,fname,*len);
@@ -61,7 +62,7 @@ int read_geogrid(
 
    /* Allocate memory to hold bytes from file and read data */ 
    c = (unsigned char *)malloc(sizeof(unsigned char)*(*wordsize) * narray);
-   cnt = fread((void *)c, sizeof(unsigned char), narray*(*wordsize), bfile);
+   cnt = fread((void *)c, sizeof(unsigned char), narray*(size_t)(*wordsize), bfile);
  
    fclose(bfile);
 
