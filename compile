@@ -109,6 +109,28 @@ else
         exit(1)
 endif
 
+# Print out WPS version, system info, and compiler/version
+echo "============================================================================================== "
+  echo " "
+  echo Version 3.9 
+  echo " "
+  uname -a
+  echo " "
+  set comp = ( `grep "^SFC" configure.wps | cut -d"=" -f2-` )
+  if      ( "$comp[1]" == "gfortran" ) then
+    gfortran --version
+  else if ( "$comp[1]" == "pgf90" ) then
+    pgf90 --version
+  else if ( "$comp[1]" == "ifort" ) then
+    ifort -V
+  else
+    echo "Not sure how to figure out the version of this compiler: $comp[1]"
+  endif
+  echo " "
+  echo "============================================================================================== "
+  echo " "
+
+
 echo " "
 if ( ${#argv} == 0 ) then
 	echo "**** Compiling WPS and all utilities ****"
