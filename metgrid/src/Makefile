@@ -1,6 +1,6 @@
 include ../../configure.wps
 
-OBJS = cio.o wrf_debug.o bitarray_module.o constants_module.o datatype_module.o module_stringutil.o gridinfo_module.o metgrid.o input_module.o interp_module.o interp_option_module.o list_module.o llxy_module.o met_data_module.o minheap_module.o misc_definitions_module.o module_date_pack.o module_debug.o module_map_utils.o module_mergesort.o output_module.o parallel_module.o process_domain_module.o queue_module.o read_met_module.o rotate_winds_module.o storage_module.o write_met_module.o
+OBJS = cio.o wrf_debug.o bitarray_module.o constants_module.o datatype_module.o module_stringutil.o gridinfo_module.o metgrid.o input_module.o interp_module.o interp_option_module.o list_module.o llxy_module.o met_data_module.o minheap_module.o misc_definitions_module.o module_date_pack.o module_debug.o module_map_utils.o module_mergesort.o output_module.o parallel_module.o process_domain_module.o queue_module.o read_met_module.o rotate_winds_module.o storage_module.o write_met_module.o scan_input.o mpas_mesh.o target_mesh.o remapper.o
 
 all: 
 	clear ;
@@ -60,7 +60,7 @@ output_module.o: gridinfo_module.o misc_definitions_module.o module_debug.o para
 
 parallel_module.o:
 
-process_domain_module.o: module_date_pack.o bitarray_module.o gridinfo_module.o input_module.o interp_module.o interp_option_module.o list_module.o llxy_module.o misc_definitions_module.o module_debug.o module_mergesort.o output_module.o parallel_module.o read_met_module.o rotate_winds_module.o storage_module.o
+process_domain_module.o: module_date_pack.o bitarray_module.o gridinfo_module.o input_module.o interp_module.o interp_option_module.o list_module.o llxy_module.o misc_definitions_module.o module_debug.o module_mergesort.o output_module.o parallel_module.o read_met_module.o rotate_winds_module.o storage_module.o scan_input.o mpas_mesh.o target_mesh.o remapper.o
 
 queue_module.o: module_debug.o
 
@@ -73,6 +73,14 @@ storage_module.o: datatype_module.o minheap_module.o misc_definitions_module.o m
 wrf_debug.o: gridinfo_module.o cio.o
 
 write_met_module.o: misc_definitions_module.o module_debug.o met_data_module.o
+
+scan_input.o:
+
+mpas_mesh.o: scan_input.o
+
+target_mesh.o:
+
+remapper.o: scan_input.o mpas_mesh.o target_mesh.o
 
 clean:
 	$(RM) $(OBJS) *.f90 *.mod

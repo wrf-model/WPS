@@ -1,5 +1,14 @@
 module process_domain_module
 
+   use mpas_mesh
+   use target_mesh
+   use remapper
+
+   type (mpas_mesh_type) :: mpas_source_mesh
+   type (target_mesh_type) :: wrf_target_mesh_m, wrf_target_mesh_u, wrf_target_mesh_v
+   type (remap_info_type) :: remap_info_m, remap_info_u, remap_info_v
+   real, dimension(:,:), allocatable, target :: xlat_rad, xlon_rad, xlat_u_rad, xlon_u_rad, xlat_v_rad, xlon_v_rad
+
    contains
 
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -23,6 +32,7 @@ module process_domain_module
       logical, intent(in) :: extra_row, extra_col
    
       ! Local variables
+      integer :: istatus
       integer :: i, t, dyn_opt, &
                  we_dom_s, we_dom_e, sn_dom_s, sn_dom_e, &
                  we_patch_s, we_patch_e, we_patch_stag_s, we_patch_stag_e, &
@@ -182,6 +192,22 @@ module process_domain_module
       if (associated(geogrid_flags)) deallocate(geogrid_flags)
    
       call storage_delete_all()
+
+      istatus = mpas_mesh_free(mpas_source_mesh)
+
+      if (allocated(xlat_rad)) deallocate(xlat_rad)
+      if (allocated(xlon_rad)) deallocate(xlon_rad)
+      if (allocated(xlat_u_rad)) deallocate(xlat_u_rad)
+      if (allocated(xlon_u_rad)) deallocate(xlon_u_rad)
+      if (allocated(xlat_v_rad)) deallocate(xlat_v_rad)
+      if (allocated(xlon_v_rad)) deallocate(xlon_v_rad)
+      istatus = target_mesh_free(wrf_target_mesh_m)
+      istatus = target_mesh_free(wrf_target_mesh_u)
+      istatus = target_mesh_free(wrf_target_mesh_v)
+
+      istatus = remap_info_free(remap_info_m)
+      istatus = remap_info_free(remap_info_u)
+      istatus = remap_info_free(remap_info_v)
    
    end subroutine process_domain
 
@@ -697,19 +723,16 @@ module process_domain_module
 integer, parameter :: BDR_WIDTH = 3
    
       ! Local variables
-      integer :: istatus, iqstatus, fg_idx, idx, idxt, i, j, bottom_top_dim, &
+      integer :: istatus, fg_idx, idx, idxt, i, j, bottom_top_dim, &
                  sm1, em1, sm2, em2, sm3, em3, &
                  sp1, ep1, sp2, ep2, sp3, ep3, &
                  sd1, ed1, sd2, ed2, sd3, ed3, &
-                 u_idx, bdr_wdth
+                 u_idx
       integer :: nmet_flags
       integer :: num_metgrid_soil_levs
       integer, pointer, dimension(:) :: soil_levels
       real :: rx, ry
-      real :: threshold
-      logical :: do_gcell_interp
       integer, pointer, dimension(:) :: u_levels, v_levels
-      real, pointer, dimension(:,:) :: halo_slab
       real, pointer, dimension(:,:,:) :: real_array
       character (len=19) :: output_date
       character (len=128) :: cname, title
@@ -722,7 +745,6 @@ integer, parameter :: BDR_WIDTH = 3
       nullify(soil_levels)
       nullify(u_levels)
       nullify(v_levels)
-      nullify(halo_slab)
       nullify(real_array)
 
 
@@ -739,395 +761,30 @@ integer, parameter :: BDR_WIDTH = 3
          call mprintf(.true.,STDOUT, '    %s', s1=input_name)
          call mprintf(.true.,LOGFILE, 'Getting input fields from %s', s1=input_name)
 
-         ! Do a first pass through this fg source to get all mask fields used
-         !   during interpolation
-         call get_interp_masks(trim(input_name), do_const_processing, temp_date)
-   
-         istatus = 0
-
-         ! Initialize the module for reading in the met fields
-         call read_met_init(trim(input_name), do_const_processing, temp_date, istatus)
-
-         if (istatus == 0) then
-   
-            ! Process all fields and levels from the current file; read_next_met_field()
-            !   will return a non-zero status when there are no more fields to be read.
-            do while (istatus == 0) 
-      
-               call read_next_met_field(fg_data, istatus)
-      
-               if (istatus == 0) then
-      
-                  ! Find index into fieldname, interp_method, masked, and fill_missing
-                  !   of the current field
-                  idxt = num_entries + 1
-                  do idx=1,num_entries
-                     if ((index(fieldname(idx), trim(fg_data%field)) /= 0) .and. &
-                         (len_trim(fieldname(idx)) == len_trim(fg_data%field))) then
-
-                        got_this_field(idx) = .true.
-
-                        if (index(input_name,trim(from_input(idx))) /= 0 .or. &
-                           (from_input(idx) == '*' .and. idxt == num_entries + 1)) then
-                           idxt = idx
-                        end if
-
-                     end if
-                  end do
-                  idx = idxt
-                  if (idx > num_entries) idx = num_entries ! The last entry is a default
-
-                  ! Do we need to rename this field?
-                  if (output_name(idx) /= ' ') then
-                     fg_data%field = output_name(idx)(1:9)
-
-                     idxt = num_entries + 1
-                     do idx=1,num_entries
-                        if ((index(fieldname(idx), trim(fg_data%field)) /= 0) .and. &
-                            (len_trim(fieldname(idx)) == len_trim(fg_data%field))) then
-   
-                           got_this_field(idx) = .true.
-   
-                           if (index(input_name,trim(from_input(idx))) /= 0 .or. &
-                              (from_input(idx) == '*' .and. idxt == num_entries + 1)) then
-                              idxt = idx
-                           end if
-   
-                        end if
-                     end do
-                     idx = idxt
-                     if (idx > num_entries) idx = num_entries ! The last entry is a default
-                  end if
-
-                  ! Do a simple check to see whether this is a global dataset
-                  ! Note that we do not currently support regional Gaussian grids
-                  if ((fg_data%iproj == PROJ_LATLON .and. abs(fg_data%nx * fg_data%deltalon - 360.) < 0.0001) &
-                       .or. (fg_data%iproj == PROJ_GAUSS)) then
-                     bdr_wdth = BDR_WIDTH
-                     allocate(halo_slab(1-BDR_WIDTH:fg_data%nx+BDR_WIDTH,1:fg_data%ny))
-
-                     halo_slab(1:fg_data%nx,                      1:fg_data%ny) = &
-                               fg_data%slab(1:fg_data%nx,              1:fg_data%ny)
-
-                     halo_slab(1-BDR_WIDTH:0,                     1:fg_data%ny) = &
-                               fg_data%slab(fg_data%nx-BDR_WIDTH+1:fg_data%nx, 1:fg_data%ny)
-
-                     halo_slab(fg_data%nx+1:fg_data%nx+BDR_WIDTH, 1:fg_data%ny) = &
-                               fg_data%slab(1:BDR_WIDTH,       1:fg_data%ny)
-
-                     deallocate(fg_data%slab)
-                  else
-                     bdr_wdth = 0
-                     halo_slab => fg_data%slab
-                     nullify(fg_data%slab)
-                  end if
-
-                  call mprintf(.true.,LOGFILE,'Processing %s at level %f.',s1=fg_data%field,f1=fg_data%xlvl)               
-   
-                  call push_source_projection(fg_data%iproj, fg_data%xlonc, fg_data%truelat1, &
-                                              fg_data%truelat2, fg_data%dx, fg_data%dy, fg_data%deltalat, &
-                                              fg_data%deltalon, fg_data%starti, fg_data%startj, &
-                                              fg_data%startlat, fg_data%startlon,  & 
-                                              fg_data%pole_lat, fg_data%pole_lon,        &  
-                                              fg_data%centerlat, fg_data%centerlon,      &  
-                                              real(fg_data%nx+1)/2., real(fg_data%ny+1)/2.,  &  
-                                              earth_radius=fg_data%earth_radius*1000.)
-      
-                  ! Initialize fg_input structure to store the field
-                  field%header%version = 1
-                  field%header%date = fg_data%hdate//'        '
-                  if (do_const_processing) then
-                     field%header%time_dependent = .false.
-                     field%header%constant_field = .true.
-                  else
-                     field%header%time_dependent = .true.
-                     field%header%constant_field = .false.
-                  end if
-                  field%header%forecast_hour = fg_data%xfcst 
-                  field%header%fg_source = 'FG'
-                  field%header%field = ' '
-                  field%header%field(1:9) = fg_data%field
-                  field%header%units = ' '
-                  field%header%units(1:25) = fg_data%units
-                  field%header%description = ' '
-                  field%header%description(1:46) = fg_data%desc
-                  call get_z_dim_name(fg_data%field,field%header%vertical_coord)
-                  field%header%vertical_level = nint(fg_data%xlvl) 
-                  field%header%sr_x = 1
-                  field%header%sr_y = 1
-                  field%header%array_order = 'XY ' 
-                  field%header%is_wind_grid_rel = fg_data%is_wind_grid_rel 
-                  field%header%array_has_missing_values = .false.
-                  nullify(field%r_arr)
-                  nullify(field%valid_mask)
-                  nullify(field%modified_mask)
-
-                  if (output_this_field(idx) .and. flag_in_output(idx) /= ' ') then
-                     output_flags(idx) = flag_in_output(idx)
-                  end if
-
-                  ! If we should not output this field, just list it as a mask field
-                  if (output_this_field(idx)) then
-                     field%header%mask_field = .false.
-                  else
-                     field%header%mask_field = .true.
-                  end if
-      
-                  !
-                  ! Before actually doing any interpolation to the model grid, we must check
-                  !    whether we will be using the average_gcell interpolator that averages all 
-                  !    source points in each model grid cell
-                  !
-                  do_gcell_interp = .false.
-                  if (index(interp_method(idx),'average_gcell') /= 0) then
-      
-                     call get_gcell_threshold(interp_method(idx), threshold, istatus)
-                     if (istatus == 0) then
-                        if (fg_data%dx == 0. .and. fg_data%dy == 0. .and. &
-                            fg_data%deltalat /= 0. .and. fg_data%deltalon /= 0.) then
-                           fg_data%dx = abs(fg_data%deltalon)
-                           fg_data%dy = abs(fg_data%deltalat)
-                        else
-! BUG: Need to more correctly handle dx/dy in meters.
-                           fg_data%dx = fg_data%dx / 111000.  ! Convert meters to approximate degrees
-                           fg_data%dy = fg_data%dy / 111000.
-                        end if
-                        if (gridtype == 'C') then
-                           if (threshold*max(fg_data%dx,fg_data%dy)*111. <= max(dom_dx,dom_dy)/1000.) &
-                              do_gcell_interp = .true. 
-                        else if (gridtype == 'E') then
-                           if (threshold*max(fg_data%dx,fg_data%dy) <= max(dom_dx,dom_dy)) &
-                              do_gcell_interp = .true. 
-                        end if
-                     end if
-                  end if
-      
-                  ! Interpolate to U staggering
-                  if (output_stagger(idx) == U) then
-   
-                     call storage_query_field(field, iqstatus)
-                     if (iqstatus == 0) then
-                        call storage_get_field(field, iqstatus)
-                        call mprintf((iqstatus /= 0),ERROR,'Queried field %s at level %i and found it,'// &
-                                     ' but could not get data.',s1=fg_data%field,i1=nint(fg_data%xlvl))
-                        if (associated(field%modified_mask)) then
-                           call bitarray_destroy(field%modified_mask)
-                           nullify(field%modified_mask)
-                        end if
-                     else
-                        allocate(field%valid_mask)
-                        call bitarray_create(field%valid_mask, we_mem_stag_e-we_mem_stag_s+1, sn_mem_e-sn_mem_s+1)
-                     end if
-      
-                     ! Save a copy of the fg_input structure for the U field so that we can find it later
-                     if (is_u_field(idx)) call dup(field, u_field)
-   
-                     allocate(field%modified_mask)
-                     call bitarray_create(field%modified_mask, we_mem_stag_e-we_mem_stag_s+1, sn_mem_e-sn_mem_s+1)
-   
-                     if (do_const_processing .or. field%header%time_dependent) then
-                        call interp_met_field(input_name, fg_data%field, U, M, &
-                                     field, xlat_u, xlon_u, we_mem_stag_s, we_mem_stag_e, sn_mem_s, sn_mem_e, &
+         if (index(input_name, 'mpas:') == 1) then
+            call process_mpas_fields(input_name, do_const_processing, temp_date, fg_data, got_this_field, &
+                                     landmask, process_bdy_width, &
+                                     u_field, v_field, &
+                                     dom_dx, dom_dy, &
+                                     xlat, xlon, xlat_u, xlon_u, xlat_v, xlon_v, &
+                                     output_flags, west_east_dim, south_north_dim, &
                                      we_domain_s, we_domain_e, sn_domain_s, sn_domain_e, &
-                                     halo_slab, 1-bdr_wdth, fg_data%nx+bdr_wdth, 1, fg_data%ny, bdr_wdth, do_gcell_interp, &
-                                     field%modified_mask, process_bdy_width)
-                     else
-                        call mprintf(.true.,INFORM,' - already processed this field from constant file.')
-                     end if
-   
-                  ! Interpolate to V staggering
-                  else if (output_stagger(idx) == V) then
-   
-                     call storage_query_field(field, iqstatus)
-                     if (iqstatus == 0) then
-                        call storage_get_field(field, iqstatus)
-                        call mprintf((iqstatus /= 0),ERROR,'Queried field %s at level %i and found it,'// &
-                                     ' but could not get data.',s1=fg_data%field,i1=nint(fg_data%xlvl))
-                        if (associated(field%modified_mask)) then
-                           call bitarray_destroy(field%modified_mask)
-                           nullify(field%modified_mask)
-                        end if
-                     else
-                        allocate(field%valid_mask)
-                        call bitarray_create(field%valid_mask, we_mem_e-we_mem_s+1, sn_mem_stag_e-sn_mem_stag_s+1)
-                     end if
-      
-                     ! Save a copy of the fg_input structure for the V field so that we can find it later
-                     if (is_v_field(idx)) call dup(field, v_field)
-   
-                     allocate(field%modified_mask)
-                     call bitarray_create(field%modified_mask, we_mem_e-we_mem_s+1, sn_mem_stag_e-sn_mem_stag_s+1)
-   
-                     if (do_const_processing .or. field%header%time_dependent) then
-                        call interp_met_field(input_name, fg_data%field, V, M, &
-                                     field, xlat_v, xlon_v, we_mem_s, we_mem_e, sn_mem_stag_s, sn_mem_stag_e, &
-                                     we_domain_s, we_domain_e, sn_domain_s, sn_domain_e, &
-                                     halo_slab, 1-bdr_wdth, fg_data%nx+bdr_wdth, 1, fg_data%ny, bdr_wdth, do_gcell_interp, &
-                                     field%modified_mask, process_bdy_width)
-                     else
-                        call mprintf(.true.,INFORM,' - already processed this field from constant file.')
-                     end if
-             
-                  ! Interpolate to VV staggering
-                  else if (output_stagger(idx) == VV) then
-   
-                     call storage_query_field(field, iqstatus)
-                     if (iqstatus == 0) then
-                        call storage_get_field(field, iqstatus)
-                        call mprintf((iqstatus /= 0),ERROR,'Queried field %s at level %i and found it,'// &
-                                     ' but could not get data.',s1=fg_data%field,i1=nint(fg_data%xlvl))
-                        if (associated(field%modified_mask)) then
-                           call bitarray_destroy(field%modified_mask)
-                           nullify(field%modified_mask)
-                        end if
-                     else
-                        allocate(field%valid_mask)
-                        call bitarray_create(field%valid_mask, we_mem_e-we_mem_s+1, sn_mem_e-sn_mem_s+1)
-                     end if
-      
-                     ! Save a copy of the fg_input structure for the U field so that we can find it later
-                     if (is_u_field(idx)) call dup(field, u_field)
-
-                     ! Save a copy of the fg_input structure for the V field so that we can find it later
-                     if (is_v_field(idx)) call dup(field, v_field)
-   
-                     allocate(field%modified_mask)
-                     call bitarray_create(field%modified_mask, we_mem_e-we_mem_s+1, sn_mem_e-sn_mem_s+1)
-   
-                     if (do_const_processing .or. field%header%time_dependent) then
-                        call interp_met_field(input_name, fg_data%field, VV, M, &
-                                     field, xlat_v, xlon_v, we_mem_s, we_mem_e, sn_mem_s, sn_mem_e, &
-                                     we_domain_s, we_domain_e, sn_domain_s, sn_domain_e, &
-                                     halo_slab, 1-bdr_wdth, fg_data%nx+bdr_wdth, 1, fg_data%ny, bdr_wdth, do_gcell_interp, &
-                                     field%modified_mask, process_bdy_width)
-                     else
-                        call mprintf(.true.,INFORM,' - already processed this field from constant file.')
-                     end if
-   
-                  ! All other fields interpolated to M staggering for C grid, H staggering for E grid
-                  else
-   
-                     call storage_query_field(field, iqstatus)
-                     if (iqstatus == 0) then
-                        call storage_get_field(field, iqstatus)
-                        call mprintf((iqstatus /= 0),ERROR,'Queried field %s at level %i and found it,'// &
-                                     ' but could not get data.',s1=fg_data%field,i1=nint(fg_data%xlvl))
-                        if (associated(field%modified_mask)) then
-                           call bitarray_destroy(field%modified_mask)
-                           nullify(field%modified_mask)
-                        end if
-                     else
-                        allocate(field%valid_mask)
-                        call bitarray_create(field%valid_mask, we_mem_e-we_mem_s+1, sn_mem_e-sn_mem_s+1)
-                     end if
-   
-                     allocate(field%modified_mask)
-                     call bitarray_create(field%modified_mask, we_mem_e-we_mem_s+1, sn_mem_e-sn_mem_s+1)
-   
-                     if (do_const_processing .or. field%header%time_dependent) then
-                        if (gridtype == 'C') then
-                           call interp_met_field(input_name, fg_data%field, M, M, &
-                                        field, xlat, xlon, we_mem_s, we_mem_e, sn_mem_s, sn_mem_e, &
-                                        we_domain_s, we_domain_e, sn_domain_s, sn_domain_e, &
-                                        halo_slab, 1-bdr_wdth, fg_data%nx+bdr_wdth, 1, fg_data%ny, bdr_wdth, do_gcell_interp, &
-                                        field%modified_mask, process_bdy_width, landmask)
-      
-                        else if (gridtype == 'E') then
-                           call interp_met_field(input_name, fg_data%field, HH, M, &
-                                        field, xlat, xlon, we_mem_s, we_mem_e, sn_mem_s, sn_mem_e, &
-                                        we_domain_s, we_domain_e, sn_domain_s, sn_domain_e, &
-                                        halo_slab, 1-bdr_wdth, fg_data%nx+bdr_wdth, 1, fg_data%ny, bdr_wdth, do_gcell_interp, &
-                                        field%modified_mask, process_bdy_width, landmask)
-                        end if
-                     else
-                        call mprintf(.true.,INFORM,' - already processed this field from constant file.')
-                     end if
-   
-                  end if
-   
-                  call bitarray_merge(field%valid_mask, field%modified_mask)
-
-                  deallocate(halo_slab)
-                               
-                  ! Store the interpolated field
-                  call storage_put_field(field)
-   
-                  call pop_source_projection()
-   
-               end if
-            end do
-      
-            call read_met_close()
-
-            call push_source_projection(fg_data%iproj, fg_data%xlonc, fg_data%truelat1, &
-                                        fg_data%truelat2, fg_data%dx, fg_data%dy, fg_data%deltalat, &
-                                        fg_data%deltalon, fg_data%starti, fg_data%startj, &
-                                        fg_data%startlat, fg_data%startlon,  & 
-                                        fg_data%pole_lat, fg_data%pole_lon,        &  
-                                        fg_data%centerlat, fg_data%centerlon,      &  
-                                        real(fg_data%nx+1)/2., real(fg_data%ny+1)/2.,  &  
-                                        earth_radius=fg_data%earth_radius*1000.)
-      
-      
-            !
-            ! If necessary, rotate winds to earth-relative for this fg source
-            !
-      
-            call storage_get_levels(u_field, u_levels)
-            call storage_get_levels(v_field, v_levels)
-      
-            if (associated(u_levels) .and. associated(v_levels)) then 
-               u_idx = 1
-               do u_idx = 1, size(u_levels)
-                  u_field%header%vertical_level = u_levels(u_idx)
-                  call storage_get_field(u_field, istatus)
-                  v_field%header%vertical_level = v_levels(u_idx)
-                  call storage_get_field(v_field, istatus)
-   
-                  if (associated(u_field%modified_mask) .and. &
-                      associated(v_field%modified_mask)) then
-     
-                     if (u_field%header%is_wind_grid_rel) then
-                        if (gridtype == 'C') then
-                           call map_to_met(u_field%r_arr, u_field%modified_mask, &
-                                           v_field%r_arr, v_field%modified_mask, &
-                                           we_mem_stag_s, sn_mem_s, &
-                                           we_mem_stag_e, sn_mem_e, &
-                                           we_mem_s, sn_mem_stag_s, &
-                                           we_mem_e, sn_mem_stag_e, &
-                                           xlon_u, xlon_v, xlat_u, xlat_v)
-                        else if (gridtype == 'E') then
-                           call map_to_met_nmm(u_field%r_arr, u_field%modified_mask, &
-                                               v_field%r_arr, v_field%modified_mask, &
-                                               we_mem_s, sn_mem_s, &
-                                               we_mem_e, sn_mem_e, &
-                                               xlat_v, xlon_v)
-                        end if
-                     end if
-   
-                     call bitarray_destroy(u_field%modified_mask)
-                     call bitarray_destroy(v_field%modified_mask)
-                     nullify(u_field%modified_mask)
-                     nullify(v_field%modified_mask)
-                     call storage_put_field(u_field)
-                     call storage_put_field(v_field)
-                  end if
-   
-               end do
-   
-               deallocate(u_levels)
-               deallocate(v_levels)
-   
-            end if
-   
-            call pop_source_projection()
-         
+                                     we_patch_s, we_patch_e, we_patch_stag_s, we_patch_stag_e, &
+                                     sn_patch_s, sn_patch_e, sn_patch_stag_s, sn_patch_stag_e, &
+                                     we_mem_s, we_mem_e, we_mem_stag_s, we_mem_stag_e, &
+                                     sn_mem_s, sn_mem_e, sn_mem_stag_s, sn_mem_stag_e )
          else
-            if (do_const_processing) then
-               call mprintf(.true.,WARN,'Couldn''t open file %s for input.',s1=input_name)
-            else
-               call mprintf(.true.,WARN,'Couldn''t open file %s for input.',s1=trim(input_name)//':'//trim(temp_date))
-            end if
+            call process_intermediate_fields(input_name, do_const_processing, temp_date, fg_data, got_this_field, &
+                                             landmask, process_bdy_width, &
+                                             u_field, v_field, &
+                                             dom_dx, dom_dy, &
+                                             xlat, xlon, xlat_u, xlon_u, xlat_v, xlon_v, &
+                                             output_flags, west_east_dim, south_north_dim, &
+                                             we_domain_s, we_domain_e, sn_domain_s, sn_domain_e, &
+                                             we_patch_s, we_patch_e, we_patch_stag_s, we_patch_stag_e, &
+                                             sn_patch_s, sn_patch_e, sn_patch_stag_s, sn_patch_stag_e, &
+                                             we_mem_s, we_mem_e, we_mem_stag_s, we_mem_stag_e, &
+                                             sn_mem_s, sn_mem_e, sn_mem_stag_s, sn_mem_stag_e )
          end if
    
          fg_idx = fg_idx + 1
@@ -1137,7 +794,7 @@ integer, parameter :: BDR_WIDTH = 3
             input_name = fg_name(fg_idx)
          end if
       end do ! while (input_name /= '*')
-   
+
       !
       ! Rotate winds from earth-relative to grid-relative
       !
@@ -1190,6 +847,13 @@ integer, parameter :: BDR_WIDTH = 3
                                  we_mem_s, we_mem_e, sn_mem_s, sn_mem_e, &
                                  we_mem_stag_s, we_mem_stag_e, sn_mem_stag_s, sn_mem_stag_e, &
                                  got_this_field, output_flags)
+
+      !
+      ! Derive some MPAS fields from others, e.g., TT from theta and pressure
+      !
+      if (.not. do_const_processing) then
+         call derive_mpas_fields()
+      end if
 
       !
       ! Check that every mandatory field was found in input data
@@ -1327,6 +991,1059 @@ integer, parameter :: BDR_WIDTH = 3
       call storage_delete_all_td()
    
    end subroutine process_single_met_time
+
+
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   ! Name: process_intermediate_fields
+   !
+   ! Purpose:
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   subroutine process_intermediate_fields(input_name, do_const_processing, temp_date, fg_data, got_this_field, &
+                                          landmask, process_bdy_width, &
+                                          u_field, v_field, &
+                                          dom_dx, dom_dy, &
+                                          xlat, xlon, xlat_u, xlon_u, xlat_v, xlon_v, &
+                                          output_flags, west_east_dim, south_north_dim, &
+                                          we_domain_s, we_domain_e, sn_domain_s, sn_domain_e, &
+                                          we_patch_s, we_patch_e, we_patch_stag_s, we_patch_stag_e, &
+                                          sn_patch_s, sn_patch_e, sn_patch_stag_s, sn_patch_stag_e, &
+                                          we_mem_s, we_mem_e, we_mem_stag_s, we_mem_stag_e, &
+                                          sn_mem_s, sn_mem_e, sn_mem_stag_s, sn_mem_stag_e )
+
+      use bitarray_module
+      use gridinfo_module
+      use interp_module
+      use interp_option_module
+      use llxy_module
+      use misc_definitions_module
+      use module_debug
+      use output_module
+      use parallel_module
+      use read_met_module
+      use rotate_winds_module
+      use storage_module
+
+      implicit none
+
+! BUG: Move this constant to misc_definitions_module?
+integer, parameter :: BDR_WIDTH = 3
+
+      character (len=*), intent(inout) :: input_name
+      logical, intent(in) :: do_const_processing
+      character (len=*), intent(in) :: temp_date
+      type (met_data), intent(inout) :: fg_data
+      logical, dimension(:), intent(inout) :: got_this_field
+      real, pointer, dimension(:,:) :: landmask
+      integer, intent(in) :: process_bdy_width
+      type (fg_input), intent(inout) :: u_field, v_field
+      character (len=128), dimension(:), intent(inout) :: output_flags
+      real, intent(in) :: dom_dx, dom_dy
+      real, pointer, dimension(:,:) :: xlat, xlon, xlat_u, xlon_u, xlat_v, xlon_v
+      integer, intent(in) :: west_east_dim, south_north_dim, &
+                 we_domain_s, we_domain_e, sn_domain_s, sn_domain_e, &
+                 we_patch_s, we_patch_e, we_patch_stag_s, we_patch_stag_e, &
+                 sn_patch_s, sn_patch_e, sn_patch_stag_s, sn_patch_stag_e, &
+                 we_mem_s, we_mem_e, we_mem_stag_s, we_mem_stag_e, &
+                 sn_mem_s, sn_mem_e, sn_mem_stag_s, sn_mem_stag_e
+
+      integer :: istatus
+      integer :: idx, idxt, u_idx
+      integer :: iqstatus
+      real :: threshold
+      real, pointer, dimension(:,:) :: halo_slab => null()
+      integer, pointer, dimension(:) :: u_levels => null()
+      integer, pointer, dimension(:) :: v_levels => null()
+      integer :: bdr_wdth
+      logical :: do_gcell_interp
+      type (fg_input) :: field
+
+
+      ! Do a first pass through this fg source to get all mask fields used
+      !   during interpolation
+      call get_interp_masks(trim(input_name), do_const_processing, temp_date)
+
+      istatus = 0
+
+      ! Initialize the module for reading in the met fields
+      call read_met_init(trim(input_name), do_const_processing, temp_date, istatus)
+
+      if (istatus == 0) then
+
+         ! Process all fields and levels from the current file; read_next_met_field()
+         !   will return a non-zero status when there are no more fields to be read.
+         do while (istatus == 0) 
+   
+            call read_next_met_field(fg_data, istatus)
+   
+            if (istatus == 0) then
+   
+               ! Find index into fieldname, interp_method, masked, and fill_missing
+               !   of the current field
+               idxt = num_entries + 1
+               do idx=1,num_entries
+                  if ((index(fieldname(idx), trim(fg_data%field)) /= 0) .and. &
+                      (len_trim(fieldname(idx)) == len_trim(fg_data%field))) then
+
+                     got_this_field(idx) = .true.
+
+                     if (index(input_name,trim(from_input(idx))) /= 0 .or. &
+                        (from_input(idx) == '*' .and. idxt == num_entries + 1)) then
+                        idxt = idx
+                     end if
+
+                  end if
+               end do
+               idx = idxt
+               if (idx > num_entries) idx = num_entries ! The last entry is a default
+
+               ! Do we need to rename this field?
+               if (output_name(idx) /= ' ') then
+                  fg_data%field = output_name(idx)(1:9)
+
+                  idxt = num_entries + 1
+                  do idx=1,num_entries
+                     if ((index(fieldname(idx), trim(fg_data%field)) /= 0) .and. &
+                         (len_trim(fieldname(idx)) == len_trim(fg_data%field))) then
+
+                        got_this_field(idx) = .true.
+
+                        if (index(input_name,trim(from_input(idx))) /= 0 .or. &
+                           (from_input(idx) == '*' .and. idxt == num_entries + 1)) then
+                           idxt = idx
+                        end if
+
+                     end if
+                  end do
+                  idx = idxt
+                  if (idx > num_entries) idx = num_entries ! The last entry is a default
+               end if
+
+               ! Do a simple check to see whether this is a global dataset
+               ! Note that we do not currently support regional Gaussian grids
+               if ((fg_data%iproj == PROJ_LATLON .and. abs(fg_data%nx * fg_data%deltalon - 360.) < 0.0001) &
+                    .or. (fg_data%iproj == PROJ_GAUSS)) then
+                  bdr_wdth = BDR_WIDTH
+                  allocate(halo_slab(1-BDR_WIDTH:fg_data%nx+BDR_WIDTH,1:fg_data%ny))
+
+                  halo_slab(1:fg_data%nx,                      1:fg_data%ny) = &
+                            fg_data%slab(1:fg_data%nx,              1:fg_data%ny)
+
+                  halo_slab(1-BDR_WIDTH:0,                     1:fg_data%ny) = &
+                            fg_data%slab(fg_data%nx-BDR_WIDTH+1:fg_data%nx, 1:fg_data%ny)
+
+                  halo_slab(fg_data%nx+1:fg_data%nx+BDR_WIDTH, 1:fg_data%ny) = &
+                            fg_data%slab(1:BDR_WIDTH,       1:fg_data%ny)
+
+                  deallocate(fg_data%slab)
+               else
+                  bdr_wdth = 0
+                  halo_slab => fg_data%slab
+                  nullify(fg_data%slab)
+               end if
+
+               call mprintf(.true.,LOGFILE,'Processing %s at level %f.',s1=fg_data%field,f1=fg_data%xlvl)               
+
+               call push_source_projection(fg_data%iproj, fg_data%xlonc, fg_data%truelat1, &
+                                           fg_data%truelat2, fg_data%dx, fg_data%dy, fg_data%deltalat, &
+                                           fg_data%deltalon, fg_data%starti, fg_data%startj, &
+                                           fg_data%startlat, fg_data%startlon,  & 
+                                           fg_data%pole_lat, fg_data%pole_lon,        &  
+                                           fg_data%centerlat, fg_data%centerlon,      &  
+                                           real(fg_data%nx+1)/2., real(fg_data%ny+1)/2.,  &  
+                                           earth_radius=fg_data%earth_radius*1000.)
+   
+               ! Initialize fg_input structure to store the field
+               field%header%version = 1
+               field%header%date = fg_data%hdate//'        '
+               if (do_const_processing) then
+                  field%header%time_dependent = .false.
+                  field%header%constant_field = .true.
+               else
+                  field%header%time_dependent = .true.
+                  field%header%constant_field = .false.
+               end if
+               field%header%forecast_hour = fg_data%xfcst 
+               field%header%fg_source = 'FG'
+               field%header%field = ' '
+               field%header%field(1:9) = fg_data%field
+               field%header%units = ' '
+               field%header%units(1:25) = fg_data%units
+               field%header%description = ' '
+               field%header%description(1:46) = fg_data%desc
+               call get_z_dim_name(fg_data%field,field%header%vertical_coord)
+               field%header%vertical_level = nint(fg_data%xlvl) 
+               field%header%sr_x = 1
+               field%header%sr_y = 1
+               field%header%array_order = 'XY ' 
+               field%header%is_wind_grid_rel = fg_data%is_wind_grid_rel 
+               field%header%array_has_missing_values = .false.
+               nullify(field%r_arr)
+               nullify(field%valid_mask)
+               nullify(field%modified_mask)
+
+               if (output_this_field(idx) .and. flag_in_output(idx) /= ' ') then
+                  output_flags(idx) = flag_in_output(idx)
+               end if
+
+               ! If we should not output this field, just list it as a mask field
+               if (output_this_field(idx)) then
+                  field%header%mask_field = .false.
+               else
+                  field%header%mask_field = .true.
+               end if
+   
+               !
+               ! Before actually doing any interpolation to the model grid, we must check
+               !    whether we will be using the average_gcell interpolator that averages all 
+               !    source points in each model grid cell
+               !
+               do_gcell_interp = .false.
+               if (index(interp_method(idx),'average_gcell') /= 0) then
+   
+                  call get_gcell_threshold(interp_method(idx), threshold, istatus)
+                  if (istatus == 0) then
+                     if (fg_data%dx == 0. .and. fg_data%dy == 0. .and. &
+                         fg_data%deltalat /= 0. .and. fg_data%deltalon /= 0.) then
+                        fg_data%dx = abs(fg_data%deltalon)
+                        fg_data%dy = abs(fg_data%deltalat)
+                     else
+! BUG: Need to more correctly handle dx/dy in meters.
+                        fg_data%dx = fg_data%dx / 111000.  ! Convert meters to approximate degrees
+                        fg_data%dy = fg_data%dy / 111000.
+                     end if
+                     if (gridtype == 'C') then
+                        if (threshold*max(fg_data%dx,fg_data%dy)*111. <= max(dom_dx,dom_dy)/1000.) &
+                           do_gcell_interp = .true. 
+                     else if (gridtype == 'E') then
+                        if (threshold*max(fg_data%dx,fg_data%dy) <= max(dom_dx,dom_dy)) &
+                           do_gcell_interp = .true. 
+                     end if
+                  end if
+               end if
+   
+               ! Interpolate to U staggering
+               if (output_stagger(idx) == U) then
+
+                  call storage_query_field(field, iqstatus)
+                  if (iqstatus == 0) then
+                     call storage_get_field(field, iqstatus)
+                     call mprintf((iqstatus /= 0),ERROR,'Queried field %s at level %i and found it,'// &
+                                  ' but could not get data.',s1=fg_data%field,i1=nint(fg_data%xlvl))
+                     if (associated(field%modified_mask)) then
+                        call bitarray_destroy(field%modified_mask)
+                        nullify(field%modified_mask)
+                     end if
+                  else
+                     allocate(field%valid_mask)
+                     call bitarray_create(field%valid_mask, we_mem_stag_e-we_mem_stag_s+1, sn_mem_e-sn_mem_s+1)
+                  end if
+   
+                  ! Save a copy of the fg_input structure for the U field so that we can find it later
+                  if (is_u_field(idx)) call dup(field, u_field)
+
+                  allocate(field%modified_mask)
+                  call bitarray_create(field%modified_mask, we_mem_stag_e-we_mem_stag_s+1, sn_mem_e-sn_mem_s+1)
+
+                  if (do_const_processing .or. field%header%time_dependent) then
+                     call interp_met_field(input_name, fg_data%field, U, M, &
+                                  field, xlat_u, xlon_u, we_mem_stag_s, we_mem_stag_e, sn_mem_s, sn_mem_e, &
+                                  we_domain_s, we_domain_e, sn_domain_s, sn_domain_e, &
+                                  halo_slab, 1-bdr_wdth, fg_data%nx+bdr_wdth, 1, fg_data%ny, bdr_wdth, do_gcell_interp, &
+                                  field%modified_mask, process_bdy_width)
+                  else
+                     call mprintf(.true.,INFORM,' - already processed this field from constant file.')
+                  end if
+
+               ! Interpolate to V staggering
+               else if (output_stagger(idx) == V) then
+
+                  call storage_query_field(field, iqstatus)
+                  if (iqstatus == 0) then
+                     call storage_get_field(field, iqstatus)
+                     call mprintf((iqstatus /= 0),ERROR,'Queried field %s at level %i and found it,'// &
+                                  ' but could not get data.',s1=fg_data%field,i1=nint(fg_data%xlvl))
+                     if (associated(field%modified_mask)) then
+                        call bitarray_destroy(field%modified_mask)
+                        nullify(field%modified_mask)
+                     end if
+                  else
+                     allocate(field%valid_mask)
+                     call bitarray_create(field%valid_mask, we_mem_e-we_mem_s+1, sn_mem_stag_e-sn_mem_stag_s+1)
+                  end if
+   
+                  ! Save a copy of the fg_input structure for the V field so that we can find it later
+                  if (is_v_field(idx)) call dup(field, v_field)
+
+                  allocate(field%modified_mask)
+                  call bitarray_create(field%modified_mask, we_mem_e-we_mem_s+1, sn_mem_stag_e-sn_mem_stag_s+1)
+
+                  if (do_const_processing .or. field%header%time_dependent) then
+                     call interp_met_field(input_name, fg_data%field, V, M, &
+                                  field, xlat_v, xlon_v, we_mem_s, we_mem_e, sn_mem_stag_s, sn_mem_stag_e, &
+                                  we_domain_s, we_domain_e, sn_domain_s, sn_domain_e, &
+                                  halo_slab, 1-bdr_wdth, fg_data%nx+bdr_wdth, 1, fg_data%ny, bdr_wdth, do_gcell_interp, &
+                                  field%modified_mask, process_bdy_width)
+                  else
+                     call mprintf(.true.,INFORM,' - already processed this field from constant file.')
+                  end if
+          
+               ! Interpolate to VV staggering
+               else if (output_stagger(idx) == VV) then
+
+                  call storage_query_field(field, iqstatus)
+                  if (iqstatus == 0) then
+                     call storage_get_field(field, iqstatus)
+                     call mprintf((iqstatus /= 0),ERROR,'Queried field %s at level %i and found it,'// &
+                                  ' but could not get data.',s1=fg_data%field,i1=nint(fg_data%xlvl))
+                     if (associated(field%modified_mask)) then
+                        call bitarray_destroy(field%modified_mask)
+                        nullify(field%modified_mask)
+                     end if
+                  else
+                     allocate(field%valid_mask)
+                     call bitarray_create(field%valid_mask, we_mem_e-we_mem_s+1, sn_mem_e-sn_mem_s+1)
+                  end if
+   
+                  ! Save a copy of the fg_input structure for the U field so that we can find it later
+                  if (is_u_field(idx)) call dup(field, u_field)
+
+                  ! Save a copy of the fg_input structure for the V field so that we can find it later
+                  if (is_v_field(idx)) call dup(field, v_field)
+
+                  allocate(field%modified_mask)
+                  call bitarray_create(field%modified_mask, we_mem_e-we_mem_s+1, sn_mem_e-sn_mem_s+1)
+
+                  if (do_const_processing .or. field%header%time_dependent) then
+                     call interp_met_field(input_name, fg_data%field, VV, M, &
+                                  field, xlat_v, xlon_v, we_mem_s, we_mem_e, sn_mem_s, sn_mem_e, &
+                                  we_domain_s, we_domain_e, sn_domain_s, sn_domain_e, &
+                                  halo_slab, 1-bdr_wdth, fg_data%nx+bdr_wdth, 1, fg_data%ny, bdr_wdth, do_gcell_interp, &
+                                  field%modified_mask, process_bdy_width)
+                  else
+                     call mprintf(.true.,INFORM,' - already processed this field from constant file.')
+                  end if
+
+               ! All other fields interpolated to M staggering for C grid, H staggering for E grid
+               else
+
+                  call storage_query_field(field, iqstatus)
+                  if (iqstatus == 0) then
+                     call storage_get_field(field, iqstatus)
+                     call mprintf((iqstatus /= 0),ERROR,'Queried field %s at level %i and found it,'// &
+                                  ' but could not get data.',s1=fg_data%field,i1=nint(fg_data%xlvl))
+                     if (associated(field%modified_mask)) then
+                        call bitarray_destroy(field%modified_mask)
+                        nullify(field%modified_mask)
+                     end if
+                  else
+                     allocate(field%valid_mask)
+                     call bitarray_create(field%valid_mask, we_mem_e-we_mem_s+1, sn_mem_e-sn_mem_s+1)
+                  end if
+
+                  allocate(field%modified_mask)
+                  call bitarray_create(field%modified_mask, we_mem_e-we_mem_s+1, sn_mem_e-sn_mem_s+1)
+
+                  if (do_const_processing .or. field%header%time_dependent) then
+                     if (gridtype == 'C') then
+                        call interp_met_field(input_name, fg_data%field, M, M, &
+                                     field, xlat, xlon, we_mem_s, we_mem_e, sn_mem_s, sn_mem_e, &
+                                     we_domain_s, we_domain_e, sn_domain_s, sn_domain_e, &
+                                     halo_slab, 1-bdr_wdth, fg_data%nx+bdr_wdth, 1, fg_data%ny, bdr_wdth, do_gcell_interp, &
+                                     field%modified_mask, process_bdy_width, landmask)
+   
+                     else if (gridtype == 'E') then
+                        call interp_met_field(input_name, fg_data%field, HH, M, &
+                                     field, xlat, xlon, we_mem_s, we_mem_e, sn_mem_s, sn_mem_e, &
+                                     we_domain_s, we_domain_e, sn_domain_s, sn_domain_e, &
+                                     halo_slab, 1-bdr_wdth, fg_data%nx+bdr_wdth, 1, fg_data%ny, bdr_wdth, do_gcell_interp, &
+                                     field%modified_mask, process_bdy_width, landmask)
+                     end if
+                  else
+                     call mprintf(.true.,INFORM,' - already processed this field from constant file.')
+                  end if
+
+               end if
+
+               call bitarray_merge(field%valid_mask, field%modified_mask)
+
+               deallocate(halo_slab)
+                            
+               ! Store the interpolated field
+               call storage_put_field(field)
+
+               call pop_source_projection()
+
+            end if
+         end do
+   
+         call read_met_close()
+
+         call push_source_projection(fg_data%iproj, fg_data%xlonc, fg_data%truelat1, &
+                                     fg_data%truelat2, fg_data%dx, fg_data%dy, fg_data%deltalat, &
+                                     fg_data%deltalon, fg_data%starti, fg_data%startj, &
+                                     fg_data%startlat, fg_data%startlon,  & 
+                                     fg_data%pole_lat, fg_data%pole_lon,        &  
+                                     fg_data%centerlat, fg_data%centerlon,      &  
+                                     real(fg_data%nx+1)/2., real(fg_data%ny+1)/2.,  &  
+                                     earth_radius=fg_data%earth_radius*1000.)
+   
+         !
+         ! If necessary, rotate winds to earth-relative for this fg source
+         !
+   
+         call storage_get_levels(u_field, u_levels)
+         call storage_get_levels(v_field, v_levels)
+   
+         if (associated(u_levels) .and. associated(v_levels)) then 
+            u_idx = 1
+            do u_idx = 1, size(u_levels)
+               u_field%header%vertical_level = u_levels(u_idx)
+               call storage_get_field(u_field, istatus)
+               v_field%header%vertical_level = v_levels(u_idx)
+               call storage_get_field(v_field, istatus)
+
+               if (associated(u_field%modified_mask) .and. &
+                   associated(v_field%modified_mask)) then
+  
+                  if (u_field%header%is_wind_grid_rel) then
+                     if (gridtype == 'C') then
+                        call map_to_met(u_field%r_arr, u_field%modified_mask, &
+                                        v_field%r_arr, v_field%modified_mask, &
+                                        we_mem_stag_s, sn_mem_s, &
+                                        we_mem_stag_e, sn_mem_e, &
+                                        we_mem_s, sn_mem_stag_s, &
+                                        we_mem_e, sn_mem_stag_e, &
+                                        xlon_u, xlon_v, xlat_u, xlat_v)
+                     else if (gridtype == 'E') then
+                        call map_to_met_nmm(u_field%r_arr, u_field%modified_mask, &
+                                            v_field%r_arr, v_field%modified_mask, &
+                                            we_mem_s, sn_mem_s, &
+                                            we_mem_e, sn_mem_e, &
+                                            xlat_v, xlon_v)
+                     end if
+                  end if
+
+                  call bitarray_destroy(u_field%modified_mask)
+                  call bitarray_destroy(v_field%modified_mask)
+                  nullify(u_field%modified_mask)
+                  nullify(v_field%modified_mask)
+                  call storage_put_field(u_field)
+                  call storage_put_field(v_field)
+               end if
+
+            end do
+
+            deallocate(u_levels)
+            deallocate(v_levels)
+
+         end if
+
+         call pop_source_projection()
+      
+      else
+         if (do_const_processing) then
+            call mprintf(.true.,WARN,'Couldn''t open file %s for input.',s1=input_name)
+         else
+            call mprintf(.true.,WARN,'Couldn''t open file %s for input.',s1=trim(input_name)//':'//trim(temp_date))
+         end if
+      end if
+
+   end subroutine process_intermediate_fields
+
+
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   ! Name: process_mpas_fields
+   !
+   ! Purpose:
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   subroutine process_mpas_fields(input_name, do_const_processing, temp_date, fg_data, got_this_field, &
+                                          landmask, process_bdy_width, &
+                                          u_field, v_field, &
+                                          dom_dx, dom_dy, &
+                                          xlat, xlon, xlat_u, xlon_u, xlat_v, xlon_v, &
+                                          output_flags, west_east_dim, south_north_dim, &
+                                          we_domain_s, we_domain_e, sn_domain_s, sn_domain_e, &
+                                          we_patch_s, we_patch_e, we_patch_stag_s, we_patch_stag_e, &
+                                          sn_patch_s, sn_patch_e, sn_patch_stag_s, sn_patch_stag_e, &
+                                          we_mem_s, we_mem_e, we_mem_stag_s, we_mem_stag_e, &
+                                          sn_mem_s, sn_mem_e, sn_mem_stag_s, sn_mem_stag_e )
+
+      use bitarray_module
+      use gridinfo_module
+      use interp_module
+      use interp_option_module
+      use read_met_module
+      use llxy_module
+      use misc_definitions_module
+      use module_debug
+      use output_module
+      use parallel_module
+      use rotate_winds_module
+      use storage_module
+      use scan_input
+      use mpas_mesh
+
+      implicit none
+
+! BUG: Move this constant to misc_definitions_module?
+integer, parameter :: BDR_WIDTH = 3
+
+      character (len=*), intent(inout) :: input_name
+      logical, intent(in) :: do_const_processing
+      character (len=*), intent(in) :: temp_date
+      type (met_data), intent(inout) :: fg_data
+      logical, dimension(:), intent(inout) :: got_this_field
+      real, pointer, dimension(:,:) :: landmask
+      integer, intent(in) :: process_bdy_width
+      type (fg_input), intent(inout) :: u_field, v_field
+      character (len=128), dimension(:), intent(inout) :: output_flags
+      real, intent(in) :: dom_dx, dom_dy
+      real, pointer, dimension(:,:) :: xlat, xlon, xlat_u, xlon_u, xlat_v, xlon_v
+      integer, intent(in) :: west_east_dim, south_north_dim, &
+                 we_domain_s, we_domain_e, sn_domain_s, sn_domain_e, &
+                 we_patch_s, we_patch_e, we_patch_stag_s, we_patch_stag_e, &
+                 sn_patch_s, sn_patch_e, sn_patch_stag_s, sn_patch_stag_e, &
+                 we_mem_s, we_mem_e, we_mem_stag_s, we_mem_stag_e, &
+                 sn_mem_s, sn_mem_e, sn_mem_stag_s, sn_mem_stag_e
+
+      real, parameter :: deg2rad = asin(1.0) / 90.0
+
+      integer :: i, j, k
+      integer :: idx
+      integer :: istat
+      integer :: strlen
+      character (len=MAX_FILENAME_LEN) :: mpas_filename
+      integer :: nRecords
+      type (input_handle_type) :: mpas_handle
+      type (input_field_type) :: mpas_field
+      type (target_field_type) :: wrf_field
+      type (fg_input) :: field_to_store
+
+      strlen = len_trim(input_name)
+      if (do_const_processing) then
+         write(mpas_filename,'(a)') input_name(6:strlen)
+      else
+         write(mpas_filename,'(a)') input_name(6:strlen)//'.'//trim(temp_date)//'.nc'
+      end if
+      call mprintf(.true.,LOGFILE,'Processing MPAS fields from file %s',s1=mpas_filename)
+
+      !
+      ! If we do not already have mesh information, get that now...
+      !
+      if (.not. mpas_source_mesh % valid) then
+         if (mpas_mesh_setup(mpas_filename, mpas_source_mesh) /= 0) then
+            call mprintf(.true.,ERROR, 'Error setting up MPAS mesh %s with scan_input_open', s1=mpas_filename)
+         end if
+      end if
+
+      !
+      ! If we have not already defined the WRF grid, do that now...
+      !
+      if (.not. wrf_target_mesh_m % valid) then
+         allocate(xlat_rad(size(xlat,1), size(xlat,2)))
+         allocate(xlon_rad(size(xlat,1), size(xlat,2)))
+         xlat_rad(:,:) = xlat(:,:) * deg2rad
+         xlon_rad(:,:) = xlon(:,:) * deg2rad
+         call mprintf(.true.,LOGFILE,'Need to set up WRF target mass-grid')
+         if (target_mesh_setup(wrf_target_mesh_m, lat2d=xlat_rad, lon2d=xlon_rad) /= 0) then
+            call mprintf(.true.,ERROR, 'Error setting up WRF target grid')
+         end if
+
+         call mprintf(.true.,LOGFILE,'Also computing remapping weights...')
+         if (remap_info_setup(mpas_source_mesh, wrf_target_mesh_m, remap_info_m) /= 0) then
+            call mprintf(.true.,ERROR, 'Error computing remapping weights from MPAS to WRF grid')
+         end if
+      else
+         call mprintf(.true.,LOGFILE,'Already set up WRF target mass-grid')
+      end if
+
+      if (.not. wrf_target_mesh_u % valid) then
+         allocate(xlat_u_rad(size(xlat_u,1), size(xlat_u,2)))
+         allocate(xlon_u_rad(size(xlat_u,1), size(xlat_u,2)))
+         xlat_u_rad(:,:) = xlat_u(:,:) * deg2rad
+         xlon_u_rad(:,:) = xlon_u(:,:) * deg2rad
+         call mprintf(.true.,LOGFILE,'Need to set up WRF target U-grid')
+         if (target_mesh_setup(wrf_target_mesh_u, lat2d=xlat_u_rad, lon2d=xlon_u_rad) /= 0) then
+            call mprintf(.true.,ERROR, 'Error setting up WRF target grid')
+         end if
+
+         call mprintf(.true.,LOGFILE,'Also computing remapping weights...')
+         if (remap_info_setup(mpas_source_mesh, wrf_target_mesh_u, remap_info_u) /= 0) then
+            call mprintf(.true.,ERROR, 'Error computing remapping weights from MPAS to WRF grid')
+         end if
+      else
+         call mprintf(.true.,LOGFILE,'Already set up WRF target U-grid')
+      end if
+
+      if (.not. wrf_target_mesh_v % valid) then
+         allocate(xlat_v_rad(size(xlat_v,1), size(xlat_v,2)))
+         allocate(xlon_v_rad(size(xlat_v,1), size(xlat_v,2)))
+         xlat_v_rad(:,:) = xlat_v(:,:) * deg2rad
+         xlon_v_rad(:,:) = xlon_v(:,:) * deg2rad
+         call mprintf(.true.,LOGFILE,'Need to set up WRF target V-grid')
+         if (target_mesh_setup(wrf_target_mesh_v, lat2d=xlat_v_rad, lon2d=xlon_v_rad) /= 0) then
+            call mprintf(.true.,ERROR, 'Error setting up WRF target grid')
+         end if
+
+         call mprintf(.true.,LOGFILE,'Also computing remapping weights...')
+         if (remap_info_setup(mpas_source_mesh, wrf_target_mesh_v, remap_info_v) /= 0) then
+            call mprintf(.true.,ERROR, 'Error computing remapping weights from MPAS to WRF grid')
+         end if
+      else
+         call mprintf(.true.,LOGFILE,'Already set up WRF target V-grid')
+      end if
+
+
+      if (scan_input_open(mpas_filename, mpas_handle, nRecords) /= 0) then
+         call mprintf(.true.,ERROR, 'Error opening %s with scan_input_open', s1=mpas_filename)
+      end if
+
+
+      ! Initialize fg_input structure to store the field
+      field_to_store%header%version = 1
+      field_to_store%header%date = '?'
+      if (do_const_processing) then
+         field_to_store%header%time_dependent = .false.
+         field_to_store%header%constant_field = .true.
+      else
+         field_to_store%header%time_dependent = .true.
+         field_to_store%header%constant_field = .false.
+      end if
+      field_to_store%header%forecast_hour = 0.0
+      field_to_store%header%fg_source = 'FG'
+      field_to_store%header%field = ' '
+      field_to_store%header%field(1:9) = '?'
+      field_to_store%header%units = ' '
+      field_to_store%header%units(1:25) = '?'
+      field_to_store%header%description = ' '
+      field_to_store%header%description(1:46) = '?'
+      field_to_store%header%vertical_coord = 'z_dim_name'
+      field_to_store%header%vertical_level = 0
+      field_to_store%header%sr_x = 1
+      field_to_store%header%sr_y = 1
+      field_to_store%header%array_order = 'XY ' 
+      field_to_store%header%is_wind_grid_rel = .false.
+      field_to_store%header%array_has_missing_values = .false.
+      nullify(field_to_store%r_arr)
+      nullify(field_to_store%valid_mask)
+      nullify(field_to_store%modified_mask)
+
+      ! If we should not output this field, just list it as a mask field
+!???      if (output_this_field(idx)) then
+         field_to_store%header%mask_field = .false.
+!???      else
+!???         field%header%mask_field = .true.
+!???      end if
+
+
+      do while (scan_input_next_field(mpas_handle, mpas_field) == 0) 
+
+         if (can_remap_field(mpas_field)) then
+
+            ! Here, rename a few MPAS fields that would be difficult to treat
+            ! with METGRID.TBL options; principally, these are surface fields
+            ! that have different names from their upper-air counterparts.
+            if (trim(mpas_field % name) == 'u10') then
+               mpas_field % name = 'uReconstructZonal'
+            else if (trim(mpas_field % name) == 'v10') then
+               mpas_field % name = 'uReconstructMeridional'
+            else if (trim(mpas_field % name) == 'q2') then
+               mpas_field % name = 'qv'
+            else if (trim(mpas_field % name) == 't2m') then
+               mpas_field % name = 'theta'
+            end if
+
+            ! Mark this MPAS field as "gotten" for any later checks
+            ! on mandatory fields
+            idx = mpas_name_to_idx(trim(mpas_field % name))
+            if (idx > 0) then
+               got_this_field(idx) = .true.
+               if (output_this_field(idx) .and. flag_in_output(idx) /= ' ') then
+                  output_flags(idx) = flag_in_output(idx)
+               end if
+            end if
+    
+            istat = scan_input_read_field(mpas_field, frame=1)
+ 
+            field_to_store%map%stagger = mpas_output_stagger(mpas_field % name)
+            if (field_to_store%map%stagger == M) then
+               field_to_store%header%dim1(1) = we_mem_s
+               field_to_store%header%dim1(2) = we_mem_e
+               field_to_store%header%dim2(1) = sn_mem_s
+               field_to_store%header%dim2(2) = sn_mem_e
+               if (idx > 0) then
+                  if (masked(idx) == MASKED_WATER) then
+                     istat = remap_field(remap_info_m, mpas_field, wrf_field, masked=.true.)
+                  else
+                     istat = remap_field(remap_info_m, mpas_field, wrf_field, masked=.false.)
+                  end if
+               else
+                  istat = remap_field(remap_info_m, mpas_field, wrf_field, masked=.false.)
+               end if
+            else if (field_to_store%map%stagger == U) then
+               field_to_store%header%dim1(1) = we_mem_stag_s
+               field_to_store%header%dim1(2) = we_mem_stag_e
+               field_to_store%header%dim2(1) = sn_mem_s
+               field_to_store%header%dim2(2) = sn_mem_e
+               istat = remap_field(remap_info_u, mpas_field, wrf_field)
+            else if (field_to_store%map%stagger == V) then
+               field_to_store%header%dim1(1) = we_mem_s
+               field_to_store%header%dim1(2) = we_mem_e
+               field_to_store%header%dim2(1) = sn_mem_stag_s
+               field_to_store%header%dim2(2) = sn_mem_stag_e
+               istat = remap_field(remap_info_v, mpas_field, wrf_field)
+            else
+               call mprintf(.true.,ERROR, 'Cannot handle requested output stagger %i for MPAS field %s ...', &
+                            i1=field_to_store%map%stagger, s1=trim(mpas_field % name))
+            end if
+
+            if (wrf_field % ndims == 3 .and. trim(wrf_field % dimnames(1)) == 'nVertLevels') then   ! 3-d MPAS atmosphere field
+               field_to_store % header % field = mpas_to_intermediate_name(mpas_field % name)
+
+               ! If no match in the METGRID.TBL was found for this MPAS field, just use the MPAS name
+               if (len_trim(field_to_store % header % field) == 0) then
+                  field_to_store % header % field = trim(mpas_field % name)
+               end if
+
+               field_to_store % header % vertical_coord = 'num_mpas_levels'
+               do k=1,wrf_field % dimlens(1)
+                  allocate(field_to_store % r_arr(wrf_field % dimlens(2), wrf_field % dimlens(3)))
+                  allocate(field_to_store % valid_mask)
+                  call bitarray_create(field_to_store % valid_mask, wrf_field % dimlens(2), wrf_field % dimlens(3))
+                  do j=1,wrf_field % dimlens(3)
+                  do i=1,wrf_field % dimlens(2)
+                     call bitarray_set(field_to_store % valid_mask, i, j)
+                  end do
+                  end do
+                  field_to_store % header % vertical_level = k
+
+                  if (wrf_field % xtype == FIELD_TYPE_REAL) then
+                     field_to_store % r_arr(:,:) = wrf_field % array3r(k,:,:)
+                  else if (wrf_field % xtype == FIELD_TYPE_DOUBLE) then
+                     field_to_store % r_arr(:,:) = wrf_field % array3d(k,:,:)
+                  end if
+
+                  ! The u_field and v_field are used later by calling code to
+                  ! determine which fields represent the x- and y-components of
+                  ! horizonal wind velocity for the purposes of wind rotation
+                  if (trim(mpas_field % name) == 'uReconstructZonal') then
+                     call dup(field_to_store, u_field)
+                  end if
+                  if (trim(mpas_field % name) == 'uReconstructMeridional') then
+                     call dup(field_to_store, v_field)
+                  end if
+
+                  call storage_put_field(field_to_store)
+               end do
+
+            else if (wrf_field % ndims == 3 .and. trim(wrf_field % dimnames(1)) == 'nVertLevelsP1') then   ! 3-d MPAS atmosphere field
+               field_to_store % header % field = mpas_to_intermediate_name(mpas_field % name)
+
+               ! If no match in the METGRID.TBL was found for this MPAS field, just use the MPAS name
+               if (len_trim(field_to_store % header % field) == 0) then
+                  field_to_store % header % field = trim(mpas_field % name)
+               end if
+
+               ! Handle surface level
+               field_to_store % header % vertical_coord = 'none'
+               allocate(field_to_store % r_arr(wrf_field % dimlens(2), wrf_field % dimlens(3)))
+               allocate(field_to_store % valid_mask)
+               call bitarray_create(field_to_store % valid_mask, wrf_field % dimlens(2), wrf_field % dimlens(3))
+               do j=1,wrf_field % dimlens(3)
+               do i=1,wrf_field % dimlens(2)
+                  call bitarray_set(field_to_store % valid_mask, i, j)
+               end do
+               end do
+               field_to_store % header % vertical_level = 200100.0
+
+               if (wrf_field % xtype == FIELD_TYPE_REAL) then
+                  field_to_store % r_arr(:,:) = wrf_field % array3r(1,:,:)
+               else if (wrf_field % xtype == FIELD_TYPE_DOUBLE) then
+                  field_to_store % r_arr(:,:) = wrf_field % array3d(1,:,:)
+               end if
+
+               call storage_put_field(field_to_store)
+
+               ! Handle all other layers
+               field_to_store % header % vertical_coord = 'num_mpas_levels'
+               do k=1,wrf_field % dimlens(1) - 1
+                  allocate(field_to_store % r_arr(wrf_field % dimlens(2), wrf_field % dimlens(3)))
+                  allocate(field_to_store % valid_mask)
+                  call bitarray_create(field_to_store % valid_mask, wrf_field % dimlens(2), wrf_field % dimlens(3))
+                  do j=1,wrf_field % dimlens(3)
+                  do i=1,wrf_field % dimlens(2)
+                     call bitarray_set(field_to_store % valid_mask, i, j)
+                  end do
+                  end do
+                  field_to_store % header % vertical_level = k
+
+                  ! Average to layer midpoint
+                  if (wrf_field % xtype == FIELD_TYPE_REAL) then
+                     field_to_store % r_arr(:,:) = 0.5 * (wrf_field % array3r(k,:,:) + wrf_field % array3r(k+1,:,:))
+                  else if (wrf_field % xtype == FIELD_TYPE_DOUBLE) then
+                     field_to_store % r_arr(:,:) = 0.5 * (wrf_field % array3d(k,:,:) + wrf_field % array3d(k+1,:,:))
+                  end if
+
+                  call storage_put_field(field_to_store)
+               end do
+
+               ! Special case: zgrid field also provides SOILHGT
+               if (trim(mpas_field % name) == 'zgrid') then
+                  field_to_store % header % field = 'SOILHGT'
+
+                  allocate(field_to_store % r_arr(wrf_field % dimlens(2), wrf_field % dimlens(3)))
+                  allocate(field_to_store % valid_mask)
+                  call bitarray_create(field_to_store % valid_mask, wrf_field % dimlens(2), wrf_field % dimlens(3))
+                  do j=1,wrf_field % dimlens(3)
+                  do i=1,wrf_field % dimlens(2)
+                     call bitarray_set(field_to_store % valid_mask, i, j)
+                  end do
+                  end do
+                  field_to_store % header % vertical_level = 200100.0
+
+                  if (wrf_field % xtype == FIELD_TYPE_REAL) then
+                     field_to_store % r_arr(:,:) = wrf_field % array3r(1,:,:)
+                  else if (wrf_field % xtype == FIELD_TYPE_DOUBLE) then
+                     field_to_store % r_arr(:,:) = wrf_field % array3d(1,:,:)
+                  end if
+
+                  call storage_put_field(field_to_store)
+
+                  do idx=1,num_entries
+                     if (trim(fieldname(idx)) == 'SOILHGT') then
+                        got_this_field(idx) = .true.
+                        if (output_this_field(idx) .and. flag_in_output(idx) /= ' ') then
+                           output_flags(idx) = flag_in_output(idx)
+                        end if
+                        exit
+                     end if
+                  end do
+               end if
+
+            else if (wrf_field % ndims == 3 .and. trim(wrf_field % dimnames(1)) == 'nSoilLevels') then   ! 3-d MPAS soil field
+
+               field_to_store % header % vertical_coord = 'none'
+               if (trim(mpas_field % name) == 'tslb') then
+                  do k=1,wrf_field % dimlens(1)
+                     if (k == 1) then
+                        field_to_store % header % field = 'ST000010'
+                     else if (k == 2) then
+                        field_to_store % header % field = 'ST010040'
+                     else if (k == 3) then
+                        field_to_store % header % field = 'ST040100'
+                     else if (k == 4) then
+                        field_to_store % header % field = 'ST100200'
+                     else
+                        call mprintf(.true.,ERROR, 'Too many soil layers in MPAS soil field %s ...', s1=trim(mpas_field % name))
+                     end if
+                     allocate(field_to_store % r_arr(wrf_field % dimlens(2), wrf_field % dimlens(3)))
+                     allocate(field_to_store % valid_mask)
+                     call bitarray_create(field_to_store % valid_mask, wrf_field % dimlens(2), wrf_field % dimlens(3))
+                     do j=1,wrf_field % dimlens(3)
+                     do i=1,wrf_field % dimlens(2)
+                        call bitarray_set(field_to_store % valid_mask, i, j)
+                     end do
+                     end do
+                     field_to_store % header % vertical_level = 200100.0
+
+                     if (wrf_field % xtype == FIELD_TYPE_REAL) then
+                        field_to_store % r_arr(:,:) = wrf_field % array3r(k,:,:)
+                     else if (wrf_field % xtype == FIELD_TYPE_DOUBLE) then
+                        field_to_store % r_arr(:,:) = wrf_field % array3d(k,:,:)
+                     end if
+
+                     if (idx > 0) then
+                        if (masked(idx) == MASKED_WATER) then
+                           where (landmask(:,:) == 0) field_to_store % r_arr(:,:) = fill_missing(idx)
+                        end if
+                     end if
+
+                     call storage_put_field(field_to_store)
+                  end do
+               else if (trim(mpas_field % name) == 'smois') then
+                  do k=1,wrf_field % dimlens(1)
+                     if (k == 1) then
+                        field_to_store % header % field = 'SM000010'
+                     else if (k == 2) then
+                        field_to_store % header % field = 'SM010040'
+                     else if (k == 3) then
+                        field_to_store % header % field = 'SM040100'
+                     else if (k == 4) then
+                        field_to_store % header % field = 'SM100200'
+                     else
+                        call mprintf(.true.,ERROR, 'Too many soil layers in MPAS soil field %s ...', s1=trim(mpas_field % name))
+                     end if
+                     allocate(field_to_store % r_arr(wrf_field % dimlens(2), wrf_field % dimlens(3)))
+                     allocate(field_to_store % valid_mask)
+                     call bitarray_create(field_to_store % valid_mask, wrf_field % dimlens(2), wrf_field % dimlens(3))
+                     do j=1,wrf_field % dimlens(3)
+                     do i=1,wrf_field % dimlens(2)
+                        call bitarray_set(field_to_store % valid_mask, i, j)
+                     end do
+                     end do
+                     field_to_store % header % vertical_level = 200100.0
+
+                     if (wrf_field % xtype == FIELD_TYPE_REAL) then
+                        field_to_store % r_arr(:,:) = wrf_field % array3r(k,:,:)
+                     else if (wrf_field % xtype == FIELD_TYPE_DOUBLE) then
+                        field_to_store % r_arr(:,:) = wrf_field % array3d(k,:,:)
+                     end if
+
+                     if (idx > 0) then
+                        if (masked(idx) == MASKED_WATER) then
+                           where (landmask(:,:) == 0) field_to_store % r_arr(:,:) = fill_missing(idx)
+                        end if
+                     end if
+
+                     call storage_put_field(field_to_store)
+                  end do
+               else
+                  call mprintf(.true.,WARN, 'Skipping unknown MPAS soil field %s ...', s1=trim(mpas_field % name))
+               end if
+
+            else if (wrf_field % ndims == 2) then   ! 2-d MPAS field
+               field_to_store % header % field = mpas_to_intermediate_name(mpas_field % name)
+
+               ! If no match in the METGRID.TBL was found for this MPAS field, just use the MPAS name
+               if (len_trim(field_to_store % header % field) == 0) then
+                  field_to_store % header % field = trim(mpas_field % name)
+               end if
+
+               field_to_store % header % vertical_coord = 'none'
+               allocate(field_to_store % r_arr(wrf_field % dimlens(1), wrf_field % dimlens(2)))
+               allocate(field_to_store % valid_mask)
+               call bitarray_create(field_to_store % valid_mask, wrf_field % dimlens(1), wrf_field % dimlens(2))
+               do j=1,wrf_field % dimlens(2)
+               do i=1,wrf_field % dimlens(1)
+                  call bitarray_set(field_to_store % valid_mask, i, j)
+               end do
+               end do
+               field_to_store % header % vertical_level = 200100.0
+
+               if (wrf_field % xtype == FIELD_TYPE_REAL) then
+                  field_to_store % r_arr(:,:) = wrf_field % array2r(:,:)
+               else if (wrf_field % xtype == FIELD_TYPE_DOUBLE) then
+                  field_to_store % r_arr(:,:) = wrf_field % array2d(:,:)
+               end if
+
+               if (idx > 0) then
+                  if (masked(idx) == MASKED_WATER) then
+                     where (landmask(:,:) == 0) field_to_store % r_arr(:,:) = fill_missing(idx)
+                  end if
+               end if
+
+               call storage_put_field(field_to_store)
+            end if
+    
+            istat = free_target_field(wrf_field)
+         end if
+
+         istat = scan_input_free_field(mpas_field)
+      end do
+      
+      if (scan_input_close(mpas_handle) /= 0) then
+         call mprintf(.true.,ERROR, 'Error closing %s with scan_input_close', s1=mpas_filename)
+      end if
+
+   end subroutine process_mpas_fields
+
+
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   ! Name: derive_mpas_fields
+   !
+   ! Purpose:
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   subroutine derive_mpas_fields()
+
+      use bitarray_module
+      use gridinfo_module
+      use interp_module
+      use interp_option_module
+      use read_met_module
+      use llxy_module
+      use misc_definitions_module
+      use module_debug
+      use output_module
+      use parallel_module
+      use rotate_winds_module
+      use storage_module
+      use scan_input
+      use mpas_mesh
+      use constants_module
+
+      implicit none
+
+      integer :: k
+      integer :: istatus
+      integer, pointer, dimension(:) :: theta_levels => null()
+      integer, pointer, dimension(:) :: pressure_levels => null()
+      real, pointer, dimension(:,:) :: exner => null()
+      type (fg_input) :: theta_field
+      type (fg_input) :: pressure_field
+
+      !
+      ! Derive TT from theta and pressure
+      !
+      theta_field%header%time_dependent = .true.
+      theta_field%header%constant_field = .false.
+      theta_field%header%field = 'TT'
+      theta_field%header%vertical_level = 0
+      nullify(theta_field%r_arr)
+      nullify(theta_field%valid_mask)
+      nullify(theta_field%modified_mask)
+
+      pressure_field%header%time_dependent = .true.
+      pressure_field%header%constant_field = .false.
+      pressure_field%header%field = 'PRESSURE'
+      pressure_field%header%vertical_level = 0
+      nullify(pressure_field%r_arr)
+      nullify(pressure_field%valid_mask)
+      nullify(pressure_field%modified_mask)
+
+      call storage_get_levels(theta_field, theta_levels)
+      call storage_get_levels(pressure_field, pressure_levels)
+
+      if (associated(theta_levels) .and. associated(pressure_levels)) then
+         call mprintf(.true.,LOGFILE, 'Computing MPAS TT field from theta and pressure...')
+
+         if (size(theta_levels) == size(pressure_levels)) then
+            do k = 1, size(theta_levels)
+               call mprintf(.true.,LOGFILE, 'Computing TT at level %i for MPAS dataset', i1=theta_levels(k))
+               theta_field % header % vertical_level = theta_levels(k)
+               call storage_get_field(theta_field, istatus)
+               if (istatus /= 0) then
+                  call mprintf(.true.,ERROR, 'Could not get MPAS theta field at level %i', i1=theta_levels(k))
+                  return
+               end if
+
+               pressure_field % header % vertical_level = pressure_levels(k)
+               call storage_get_field(pressure_field, istatus)
+               if (istatus /= 0) then
+                  call mprintf(.true.,ERROR, 'Could not get MPAS pressure field at level %i', i1=theta_levels(k))
+                  return
+               end if
+
+               ! Compute temperature
+               if (.not. associated(exner)) then
+                  allocate(exner(size(theta_field % r_arr, 1), size(theta_field % r_arr, 2)))
+               end if
+               exner(:,:) = (pressure_field % r_arr(:,:) / P0)**(RD/CP)
+               theta_field % r_arr(:,:) = theta_field % r_arr(:,:) * exner(:,:)
+
+               call storage_put_field(theta_field)
+            end do
+         else
+            call mprintf(.true.,ERROR, 'The MPAS theta and pressure fields do not have the same number of levels!')
+         end if
+
+         deallocate(theta_levels)
+         deallocate(pressure_levels)
+         if (associated(exner)) then
+            deallocate(exner)
+         end if
+      end if
+
+   end subroutine derive_mpas_fields
 
 
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

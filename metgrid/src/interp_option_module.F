@@ -15,7 +15,8 @@ module interp_option_module
    logical, pointer, dimension(:) :: output_this_field, is_u_field, is_v_field, is_derived_field, is_mandatory
    character (len=128), pointer, dimension(:) :: fieldname, interp_method, v_interp_method, &
                     interp_mask, interp_land_mask, interp_water_mask, &
-                    flag_in_output, output_name, from_input, z_dim_name, level_template
+                    flag_in_output, output_name, from_input, z_dim_name, level_template, &
+                    mpas_name
    character (len=1), pointer, dimension(:) :: interp_mask_relational, interp_land_mask_relational, interp_water_mask_relational
    type (list), pointer, dimension(:) :: fill_lev_list
    type (list) :: flag_in_output_list
@@ -79,6 +80,7 @@ module interp_option_module
       num_entries = num_entries + 1
    
       allocate(fieldname(num_entries))
+      allocate(mpas_name(num_entries))
       allocate(interp_method(num_entries))
       allocate(v_interp_method(num_entries))
       allocate(masked(num_entries))
@@ -111,6 +113,7 @@ module interp_option_module
       !
       do i=1,num_entries
          fieldname(i) = ' '
+         mpas_name(i) = ' '
          flag_in_output(i) = ' '
          output_name(i) = ' '
          from_input(i) = '*'
@@ -199,6 +202,15 @@ module interp_option_module
                         end do
                         fieldname(i) = ' '
                         fieldname(i)(1:ispace-idx) = buffer(idx+1:ispace-1)
+
+                     else if (index('mpas_name',trim(buffer(1:idx-1))) /= 0 .and. &
+                         len_trim('mpas_name') == len_trim(buffer(1:idx-1))) then
+                        ispace = idx+1
+                        do while ((ispace < eos) .and. (buffer(ispace:ispace) /= ' '))
+                           ispace = ispace + 1
+                        end do
+                        mpas_name(i) = ' '
+                        mpas_name(i)(1:ispace-idx) = buffer(idx+1:ispace-1)
 
                      else if (index('from_input',trim(buffer(1:idx-1))) /= 0 .and. &
                          len_trim('from_input') == len_trim(buffer(1:idx-1))) then
@@ -583,6 +595,93 @@ module interp_option_module
       end do
 
    end subroutine get_z_dim_name
+
+
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   ! Name: mpas_name_to_idx
+   !
+   ! Pupose:
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   function mpas_name_to_idx(mpasname) result(idx)
+  
+      implicit none
+ 
+      ! Arguments
+      character (len=*), intent(in) :: mpasname
+
+      ! Return value
+      integer :: idx
+
+      ! Local variables
+      integer :: i
+
+      idx = 0
+      do i=1,num_entries
+         if (trim(mpasname) == trim(mpas_name(i))) then
+            idx = i
+            exit
+         end if
+      end do
+
+   end function mpas_name_to_idx
+
+
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   ! Name: mpas_to_intermediate_name
+   !
+   ! Pupose:
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   function mpas_to_intermediate_name(mpasname) result(intermediate_name)
+  
+      implicit none
+ 
+      ! Arguments
+      character (len=*), intent(in) :: mpasname
+
+      ! Return value
+      character (len=128) :: intermediate_name
+
+      ! Local variables
+      integer :: i
+
+      intermediate_name = fieldname(num_entries)
+      do i=1,num_entries
+         if (trim(mpasname) == trim(mpas_name(i))) then
+            intermediate_name = fieldname(i)
+            exit
+         end if
+      end do
+
+   end function mpas_to_intermediate_name
+
+
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   ! Name: mpas_output_stagger
+   !
+   ! Pupose:
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   function mpas_output_stagger(mpasname) result(istagger)
+  
+      implicit none
+ 
+      ! Arguments
+      character (len=*), intent(in) :: mpasname
+
+      ! Return value
+      integer :: istagger
+
+      ! Local variables
+      integer :: i
+
+      istagger = M
+      do i=1,num_entries
+         if (trim(mpasname) == trim(mpas_name(i))) then
+            istagger = output_stagger(i)
+            exit
+         end if
+      end do
+
+   end function mpas_output_stagger
 
 
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

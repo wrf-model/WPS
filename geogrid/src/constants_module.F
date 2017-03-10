@@ -25,4 +25,8 @@ module constants_module
    real, parameter :: EARTH_RADIUS_M = 6370000.   ! same as MM5 system
    real, parameter :: EARTH_CIRC_M = 2.*PI*EARTH_RADIUS_M
 
+   real, parameter :: P0 = 1.0e5  ! Reference surface pressure, Pa
+   real, parameter :: RD = 287.0  ! Gas constant for dry air
+   real, parameter :: CP = 1004.0 ! Heat capacity for dry air at const. pressure
+
 end module constants_module

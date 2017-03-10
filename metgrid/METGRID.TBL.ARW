@@ -133,6 +133,7 @@ name=SNOW
         flag_in_output=FLAG_SNOW
 ========================================
 name=SKINTEMP
+mpas_name=skintemp
         interp_option=sixteen_pt+four_pt+wt_average_4pt+wt_average_16pt+search
         masked=both
         interp_land_mask  = LANDSEA(1)
@@ -140,6 +141,7 @@ name=SKINTEMP
         fill_missing=0.
 ========================================
 name=PSFC
+mpas_name=surface_pressure
         interp_option=four_pt+average_4pt
         fill_lev=200100:const(200100.)
         flag_in_output=FLAG_PSFC
@@ -560,6 +562,7 @@ name=SOILT050
         flag_in_output=FLAG_SOILT050
 ========================================
 name=PMSL
+mpas_name=mslp
         interp_option=sixteen_pt+four_pt+average_4pt
         flag_in_output=FLAG_SLP
 ========================================
@@ -599,6 +602,7 @@ name=T ; output_name=TT  # If we get T, use entry from TT and
                          #   write the field out as TT
 ========================================
 name=TT
+mpas_name=theta
         mandatory=yes    # MUST HAVE THIS FIELD
         interp_option=sixteen_pt+four_pt+average_4pt
         fill_missing=0.
@@ -608,6 +612,7 @@ name=U ; output_name=UU  # If we get U, use entry from UU and
                          #   write the field out as UU
 ========================================
 name=UU
+mpas_name=uReconstructZonal
         mandatory=yes    # MUST HAVE THIS FIELD
         interp_option=sixteen_pt+four_pt+average_4pt
         is_u_field=yes
@@ -619,6 +624,7 @@ name=V ; output_name=VV  # If we get V, use entry from VV and
                          #   write the field out as VV
 ========================================
 name=VV
+mpas_name=uReconstructMeridional
         mandatory=yes    # MUST HAVE THIS FIELD
         interp_option=sixteen_pt+four_pt+average_4pt
         is_v_field=yes
@@ -633,42 +639,49 @@ name=SST
         flag_in_output=FLAG_SST
 ========================================
 name=QV
+mpas_name=qv
         interp_option=four_pt+average_4pt
         fill_missing=0.
         fill_lev=200100:const(0.)
         flag_in_output=FLAG_QV
 ========================================
 name=QR
+mpas_name=qr
         interp_option=four_pt+average_4pt
         fill_missing=0.
         fill_lev=200100:const(0.)
         flag_in_output=FLAG_QR
 ========================================
 name=QC
+mpas_name=qc
         interp_option=four_pt+average_4pt
         fill_missing=0.
         fill_lev=200100:const(0.)
         flag_in_output=FLAG_QC
 ========================================
 name=QI
+mpas_name=qi
         interp_option=four_pt+average_4pt
         fill_missing=0.
         fill_lev=200100:const(0.)
         flag_in_output=FLAG_QI
 ========================================
 name=QS
+mpas_name=qs
         interp_option=four_pt+average_4pt
         fill_missing=0.
         fill_lev=200100:const(0.)
         flag_in_output=FLAG_QS
 ========================================
 name=QG
+mpas_name=qg
         interp_option=four_pt+average_4pt
         fill_missing=0.
         fill_lev=200100:const(0.)
         flag_in_output=FLAG_QG
 ========================================
 name=QNI
+mpas_name=ni
         interp_option=four_pt+average_4pt
         fill_missing=0.
         fill_lev=200100:const(0.)
@@ -682,6 +695,7 @@ name=QNC
         flag_in_output=FLAG_QNC
 ========================================
 name=QNR
+mpas_name=nr
         interp_option=four_pt+average_4pt
         fill_missing=0.
         fill_lev=200100:const(0.)
@@ -693,6 +707,7 @@ name=VPTMP
         fill_lev=200100:const(0.)
 ========================================
 name=PRESSURE
+mpas_name=pressure
         interp_option=sixteen_pt+four_pt+average_4pt
         fill_missing=0.
         fill_lev=200100:PSFC(200100)
@@ -704,6 +719,7 @@ name=PRHO
         flag_in_output=FLAG_PRHO
 ========================================
 name=GHT
+mpas_name=zgrid
         interp_option=sixteen_pt+four_pt+average_4pt
         fill_missing=0.
         fill_lev=200100:SOILHGT(200100)
@@ -1001,4 +1017,18 @@ name=QNWFA
 name=QNIFA
         z_dim_name=num_qnwfa_levels
         interp_option=four_pt+average_4pt
+========================================
+# This entry is only used for MPAS data
+name=smois
+mpas_name=smois
+        output=no
+        masked=water
+        fill_missing=1.
+========================================
+# This entry is only used for MPAS data
+name=tslb
+mpas_name=tslb
+        output=no
+        masked=water
+        fill_missing=1.
 ========================================
