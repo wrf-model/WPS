@@ -681,6 +681,7 @@ mpas_name=qg
         flag_in_output=FLAG_QG
 ========================================
 name=QNI
+mpas_name=ni
         interp_option=four_pt+average_4pt
         fill_missing=0.
         fill_lev=200100:const(0.)
@@ -694,6 +695,7 @@ name=QNC
         flag_in_output=FLAG_QNI
 ========================================
 name=QNR
+mpas_name=nr
         interp_option=four_pt+average_4pt
         fill_missing=0.
         fill_lev=200100:const(0.)
