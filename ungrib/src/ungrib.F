@@ -59,10 +59,12 @@ program ungrib
 
   integer :: debug_level
 
-  integer , parameter :: maxlvl = 150
+  integer , parameter :: maxlvl = 250
 
-  real , dimension(maxlvl) :: plvl
+  real , dimension(maxlvl) :: plvl, new_plvl
   integer :: iplvl
+  logical :: add_lvls
+  integer :: interp_type
 
   integer :: nlvl
 
@@ -93,7 +95,8 @@ program ungrib
 ! Read the namelist, and return the information we want:
 
   call read_namelist(hstart, hend, interval, ntimes, &
-       ordered_by_date, debug_level, out_format, prefix)
+       ordered_by_date, debug_level, out_format, prefix, &
+       add_lvls, new_plvl, interp_type)
 
   call mprintf(.true.,INFORM,"Interval value: %i seconds or  %f hours", &
                i1=interval, f1=float(interval)/3600.)
@@ -306,9 +309,9 @@ program ungrib
 
         if ((hsave(1:4).ne.'0000').and.(hsave.le.hend)) then
            if (debug_level .gt. 100) then
-	     print*, 'Calling output: '//hsave(1:13)
-	     call mprintf(.true.,DEBUG,"Calling output: %s ",s1=hsave(1:13))
-	   endif
+             print*, 'Calling output: '//hsave(1:13)
+             call mprintf(.true.,DEBUG,"Calling output: %s ",s1=hsave(1:13))
+           endif
            call output(hsave, nlvl, maxlvl, plvl, interval, 1, out_format, prefix, debug_level)
            hsave=hdate
 
@@ -343,7 +346,9 @@ program ungrib
 
   call mprintf(.true.,INFORM,"First pass done, doing a reprocess")
 
-  call rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_level, out_format, prefix)
+  call rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, &
+            add_lvls, new_plvl, interp_type, &
+            debug_level, out_format, prefix)
 
 ! Make sure the filedates are in order, with an inefficient sort:
 
