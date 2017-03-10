@@ -679,13 +679,13 @@ name=QNC
         interp_option=four_pt+average_4pt
         fill_missing=0.
         fill_lev=200100:const(0.)
-        flag_in_output=FLAG_QNI
+        flag_in_output=FLAG_QNC
 ========================================
 name=QNR
         interp_option=four_pt+average_4pt
         fill_missing=0.
         fill_lev=200100:const(0.)
-        flag_in_output=FLAG_QNI
+        flag_in_output=FLAG_QNR
 ========================================
 name=VPTMP
         interp_option=sixteen_pt+four_pt+average_4pt
