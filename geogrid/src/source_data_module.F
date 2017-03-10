@@ -787,9 +787,21 @@ module source_data_module
                call mprintf(.true., INFORM, 'Using default interpolator sequence for %s.', &
                             s1=trim(source_fieldname(idx)))
             else
-               call mprintf(.true., ERROR, 'Could not find interpolator sequence for requested resolution for %s.'// &
-                            ' The sources specified in namelist.wps is not listed in GEOGRID.TBL.', &
-                            s1=trim(source_fieldname(idx)))
+               if (is_optional(idx)) then
+                  is_not_found(idx) = .true.
+                  call mprintf(.true., INFORM, 'Could not find interpolator sequence for requested resolution '// &
+                               'for this entry of %s in GEOGRID.TBL and no default interpolator was specified.',&
+                               s1=trim(source_fieldname(idx)))
+                  call mprintf(.true., INFORM, 'This entry in GEOGRID.TBL of %s is optional and will not be '// &
+                               'processed.  However, there may be other entries for %s in GEOGRID.TBL and ' // &
+                               'thus this field may yet be processed.', s1=trim(source_fieldname(idx)), &
+                               s2=trim(source_fieldname(idx)))
+                  cycle ENTRY_LOOP
+               else 
+                  call mprintf(.true., ERROR, 'Could not find interpolator sequence for requested resolution for %s.'// &
+                               ' The sources specified in namelist.wps is not listed in GEOGRID.TBL.', &
+                               s1=trim(source_fieldname(idx)))
+               end if
             end if
          else
             call mprintf(.true., INFORM, 'Using %s interpolator sequence for %s.', &
