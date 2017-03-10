@@ -56,6 +56,7 @@ module scan_input
         type (input_handle_type), intent(out) :: handle
         integer, intent(out), optional :: nRecords
 
+        integer :: i
  
         stat = 0
 
@@ -73,11 +74,22 @@ module scan_input
 
         allocate(handle % varids(handle % num_vars))
 
+#ifdef HAVE_NF90_INQ_VARIDS
         stat = nf90_inq_varids(handle % ncid, handle % num_vars, handle % varids)
         if (stat /= NF90_NOERR) then
             stat = 1
             return
         end if
+#else
+        ! Newer versions of the netCDF4 library (perhaps newer than 4.2.0?)
+        ! provide a function to return a list of all variable IDs in a file; if
+        ! we are using an older version of the netCDF library, we can apparently
+        ! assume that the variable IDs are numbered 1 through nVars.
+        ! See http://www.unidata.ucar.edu/software/netcdf/docs/tutorial_ncids.html
+        do i=1,handle % num_vars
+            handle % varids(i) = i
+        end do
+#endif
 
         stat = nf90_inquire(handle % ncid, unlimitedDimId=handle % unlimited_dimid)
         if (stat /= NF90_NOERR) then
