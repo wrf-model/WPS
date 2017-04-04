@@ -4,9 +4,9 @@ module process_domain_module
    use target_mesh
    use remapper
 
-   type (mpas_mesh_type) :: mpas_source_mesh
-   type (target_mesh_type) :: wrf_target_mesh_m, wrf_target_mesh_u, wrf_target_mesh_v
-   type (remap_info_type) :: remap_info_m, remap_info_u, remap_info_v
+   type (mpas_mesh_type), save :: mpas_source_mesh
+   type (target_mesh_type), save :: wrf_target_mesh_m, wrf_target_mesh_u, wrf_target_mesh_v
+   type (remap_info_type), save :: remap_info_m, remap_info_u, remap_info_v
    real, dimension(:,:), allocatable, target :: xlat_rad, xlon_rad, xlat_u_rad, xlon_u_rad, xlat_v_rad, xlon_v_rad
 
    contains
