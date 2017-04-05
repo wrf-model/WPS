@@ -63,7 +63,7 @@ if ( "$1" == '-a' ) then
 		endif
 	end
 	if ( -e configure.wps ) then
-		/bin/cp configure.wps configure.wps.backup
+		/bin/cp -p configure.wps configure.wps.backup
 		/bin/rm -f configure.wps
 	endif
 endif
