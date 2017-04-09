@@ -2002,14 +2002,12 @@ integer, parameter :: BDR_WIDTH = 3
       call storage_get_levels(pressure_field, pressure_levels)
 
       if (associated(theta_levels) .and. associated(pressure_levels)) then
-         call mprintf(.true.,LOGFILE, 'Computing MPAS TT field from theta and pressure...')
+!         call mprintf(.true.,LOGFILE, 'Computing MPAS TT field from theta and pressure...')
 
          if (size(theta_levels) == size(pressure_levels)) then
             do k = 1, size(theta_levels)
-               call mprintf(.true.,LOGFILE, 'Computing TT at level %i for MPAS dataset', i1=theta_levels(k))
                theta_field % header % vertical_level = theta_levels(k)
                call storage_get_field(theta_field, istatus)
-               call mprintf(.true.,INFORM, 'This TT field is from %s', s1=trim(theta_field % header % fg_source))
                if (trim(theta_field % header % fg_source) /= 'MPAS') then
                   cycle
                end if
@@ -2020,7 +2018,6 @@ integer, parameter :: BDR_WIDTH = 3
 
                pressure_field % header % vertical_level = pressure_levels(k)
                call storage_get_field(pressure_field, istatus)
-               call mprintf(.true.,INFORM, 'This PRESSURE field is from %s', s1=trim(pressure_field % header % fg_source))
                if (trim(pressure_field % header % fg_source) /= 'MPAS') then
                   cycle
                end if
@@ -2030,6 +2027,7 @@ integer, parameter :: BDR_WIDTH = 3
                end if
 
                ! Compute temperature
+               call mprintf(.true.,LOGFILE, 'Computing TT at level %i for MPAS dataset', i1=theta_levels(k))
                if (.not. associated(exner)) then
                   allocate(exner(size(theta_field % r_arr, 1), size(theta_field % r_arr, 2)))
                end if
@@ -2038,8 +2036,8 @@ integer, parameter :: BDR_WIDTH = 3
 
                call storage_put_field(theta_field)
             end do
-         else
-            call mprintf(.true.,ERROR, 'The MPAS theta and pressure fields do not have the same number of levels!')
+!         else
+!            call mprintf(.true.,ERROR, 'The MPAS theta and pressure fields do not have the same number of levels!')
          end if
 
          deallocate(theta_levels)
