@@ -851,9 +851,7 @@ integer, parameter :: BDR_WIDTH = 3
       !
       ! Derive some MPAS fields from others, e.g., TT from theta and pressure
       !
-      if (.not. do_const_processing) then
-         call derive_mpas_fields()
-      end if
+      call derive_mpas_fields()
 
       !
       ! Check that every mandatory field was found in input data
@@ -1610,7 +1608,7 @@ integer, parameter :: BDR_WIDTH = 3
          field_to_store%header%constant_field = .false.
       end if
       field_to_store%header%forecast_hour = 0.0
-      field_to_store%header%fg_source = 'FG'
+      field_to_store%header%fg_source = 'MPAS'
       field_to_store%header%field = ' '
       field_to_store%header%field(1:9) = '?'
       field_to_store%header%units = ' '
@@ -2011,6 +2009,10 @@ integer, parameter :: BDR_WIDTH = 3
                call mprintf(.true.,LOGFILE, 'Computing TT at level %i for MPAS dataset', i1=theta_levels(k))
                theta_field % header % vertical_level = theta_levels(k)
                call storage_get_field(theta_field, istatus)
+               call mprintf(.true.,INFORM, 'This TT field is from %s', s1=trim(theta_field % header % fg_source))
+               if (trim(theta_field % header % fg_source) /= 'MPAS') then
+                  cycle
+               end if
                if (istatus /= 0) then
                   call mprintf(.true.,ERROR, 'Could not get MPAS theta field at level %i', i1=theta_levels(k))
                   return
@@ -2018,6 +2020,10 @@ integer, parameter :: BDR_WIDTH = 3
 
                pressure_field % header % vertical_level = pressure_levels(k)
                call storage_get_field(pressure_field, istatus)
+               call mprintf(.true.,INFORM, 'This PRESSURE field is from %s', s1=trim(pressure_field % header % fg_source))
+               if (trim(pressure_field % header % fg_source) /= 'MPAS') then
+                  cycle
+               end if
                if (istatus /= 0) then
                   call mprintf(.true.,ERROR, 'Could not get MPAS pressure field at level %i', i1=theta_levels(k))
                   return
