@@ -851,9 +851,7 @@ integer, parameter :: BDR_WIDTH = 3
       !
       ! Derive some MPAS fields from others, e.g., TT from theta and pressure
       !
-      if (.not. do_const_processing) then
-         call derive_mpas_fields()
-      end if
+      call derive_mpas_fields()
 
       !
       ! Check that every mandatory field was found in input data
@@ -1610,7 +1608,7 @@ integer, parameter :: BDR_WIDTH = 3
          field_to_store%header%constant_field = .false.
       end if
       field_to_store%header%forecast_hour = 0.0
-      field_to_store%header%fg_source = 'FG'
+      field_to_store%header%fg_source = 'MPAS'
       field_to_store%header%field = ' '
       field_to_store%header%field(1:9) = '?'
       field_to_store%header%units = ' '
@@ -2004,13 +2002,15 @@ integer, parameter :: BDR_WIDTH = 3
       call storage_get_levels(pressure_field, pressure_levels)
 
       if (associated(theta_levels) .and. associated(pressure_levels)) then
-         call mprintf(.true.,LOGFILE, 'Computing MPAS TT field from theta and pressure...')
+!         call mprintf(.true.,LOGFILE, 'Computing MPAS TT field from theta and pressure...')
 
          if (size(theta_levels) == size(pressure_levels)) then
             do k = 1, size(theta_levels)
-               call mprintf(.true.,LOGFILE, 'Computing TT at level %i for MPAS dataset', i1=theta_levels(k))
                theta_field % header % vertical_level = theta_levels(k)
                call storage_get_field(theta_field, istatus)
+               if (trim(theta_field % header % fg_source) /= 'MPAS') then
+                  cycle
+               end if
                if (istatus /= 0) then
                   call mprintf(.true.,ERROR, 'Could not get MPAS theta field at level %i', i1=theta_levels(k))
                   return
@@ -2018,12 +2018,16 @@ integer, parameter :: BDR_WIDTH = 3
 
                pressure_field % header % vertical_level = pressure_levels(k)
                call storage_get_field(pressure_field, istatus)
+               if (trim(pressure_field % header % fg_source) /= 'MPAS') then
+                  cycle
+               end if
                if (istatus /= 0) then
                   call mprintf(.true.,ERROR, 'Could not get MPAS pressure field at level %i', i1=theta_levels(k))
                   return
                end if
 
                ! Compute temperature
+               call mprintf(.true.,LOGFILE, 'Computing TT at level %i for MPAS dataset', i1=theta_levels(k))
                if (.not. associated(exner)) then
                   allocate(exner(size(theta_field % r_arr, 1), size(theta_field % r_arr, 2)))
                end if
@@ -2032,8 +2036,8 @@ integer, parameter :: BDR_WIDTH = 3
 
                call storage_put_field(theta_field)
             end do
-         else
-            call mprintf(.true.,ERROR, 'The MPAS theta and pressure fields do not have the same number of levels!')
+!         else
+!            call mprintf(.true.,ERROR, 'The MPAS theta and pressure fields do not have the same number of levels!')
          end if
 
          deallocate(theta_levels)
