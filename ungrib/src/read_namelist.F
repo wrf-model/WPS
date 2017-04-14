@@ -1,6 +1,6 @@
 subroutine read_namelist(hstart, hend, delta_time, ntimes,&
      ordered_by_date, debug_level, out_format, prefix,    &
-     add_lvls, new_plvl, interp_type)
+     add_lvls, new_plvl_in, interp_type)
 
   use misc_definitions_module
   use module_debug
@@ -13,7 +13,7 @@ subroutine read_namelist(hstart, hend, delta_time, ntimes,&
   integer :: ntimes
   logical :: ordered_by_date
   integer :: debug_level
-  real, dimension(:) :: new_plvl
+  real, dimension(:) :: new_plvl_in
   logical :: add_lvls
   integer :: interp_type
 
@@ -53,6 +53,8 @@ subroutine read_namelist(hstart, hend, delta_time, ntimes,&
   real :: target_end, incr
   integer :: il
 
+  real, dimension(:), allocatable :: new_plvl
+
   namelist /share/ wrf_core, max_dom, &
        start_year, start_month, start_day, start_hour, &
        start_minute, start_second, &
@@ -68,6 +70,8 @@ subroutine read_namelist(hstart, hend, delta_time, ntimes,&
   namelist /ungrib/ out_format, &
        ordered_by_date, prefix, &
        add_lvls, new_plvl, interp_type
+
+  allocate(new_plvl(size(new_plvl_in)))
 
   start_year = 0
   start_month = 0
@@ -288,5 +292,8 @@ subroutine read_namelist(hstart, hend, delta_time, ntimes,&
 ! Close the namelist file:
 
   close(10)
+
+  new_plvl_in(:) = new_plvl(:)
+  deallocate(new_plvl)
   
 end subroutine read_namelist
