@@ -322,6 +322,9 @@ module source_data_module
       is_optional=.false.
       is_not_found=.false.
 
+      ! This is the default value of source_mminlu
+      ! If this default is changed then you must also modify the variable
+      ! default_mminlu in get_source_params
       write(source_mminlu,'(a4)') 'USGS'
       source_iswater = 16
       source_islake = -1
@@ -728,9 +731,16 @@ module source_data_module
       character (len=256) :: test_fname
       character (len=BUFSIZE) :: buffer
       logical :: have_specification, is_used
+      logical :: landusef_already_found
+      character (len=128) :: cur_mminlu, previous_mminlu 
+      character (len=128), parameter :: default_mminlu = 'USGS' 
+      logical :: mminlu_found_in_this_entry
+      landusef_already_found = .FALSE.
+      previous_mminlu = 'NOT_YET_SET'
 
       ! For each entry in the GEOGRID.TBL file
       ENTRY_LOOP: do idx=1,num_entries
+         mminlu_found_in_this_entry = .FALSE.
 
          ! Initialize metadata
          is_wordsize(idx)  = .false.
@@ -973,6 +983,7 @@ module source_data_module
                      if (buffer(i+1:i+1) == '"' .or. buffer(i+1:i+1) == '''') i = i + 1
                      if (buffer(ispace-1:ispace-1) == '"' .or. buffer(ispace-1:ispace-1) == '''') ispace = ispace - 1
                      source_mminlu(1:ispace-i) = buffer(i+1:ispace-1)
+                     mminlu_found_in_this_entry = .TRUE.
         
                   else if (index('iswater',trim(buffer(1:i-1))) /= 0) then
                      read(buffer(i+1:eos-1),*) source_iswater
@@ -1109,6 +1120,52 @@ module source_data_module
          go to 30
     
     40 close(funit)
+ 
+       !Make sure we do not use two sources of land use data that use different
+       !categories (e.g., USGS categories for some and NLCD2006 for others)
+       if( trim(source_fieldname(idx)) .eq. 'LANDUSEF' ) then
+        !If mminlu was defined for the current LANDUSEF entry then store that as the
+        !current value, otherwise use the default value
+        if( mminlu_found_in_this_entry ) then
+         cur_mminlu = source_mminlu
+        else
+         cur_mminlu = default_mminlu
+        end if
+        !If a previous entry in GEOGRID.TBL already read in LANDUSEF 
+        if ( landusef_already_found ) then
+         !Check mminlu string found for previous LANDUSEF entry to see if it matches the current entry
+         if ( previous_mminlu .ne. cur_mminlu ) then
+          if( mminlu_found_in_this_entry ) then !Current entry DID have an MMINLU setting
+           !Previous LANDUSEF entry used default mminlu (either explicitly specified mminlu that is the
+           !default or did not specify anything and defaulted to this value)
+           if ( previous_mminlu .ne. default_mminlu ) then 
+            call mprintf(.true., ERROR, 'MMINLU values differ among input fields.  Based on reading '// &
+                         '%s using entry %i from GEOGRID.TBL mminlu = %s but a previous GEOGRID.TBL ' // &
+                         'entry resulted in mminlu being set to to %s', &
+                         s1=trim(source_fieldname(idx)),i1=idx,s2=trim(cur_mminlu), &
+                         s3=trim(previous_mminlu))
+           !Previous LANDUSEF entry did NOT use default mminlu
+           else
+            call mprintf(.true., ERROR, 'MMINLU values differ among input fields.  Based on reading '// &
+                         '%s using entry %i from GEOGRID.TBL mminlu = %s but a previous GEOGRID.TBL '// &
+                         'entry resulted in mminlu being set to (or defaulting to) %s.', &
+                         s1=trim(source_fieldname(idx)),i1=idx, &
+                         s2=trim(cur_mminlu), s3=trim(previous_mminlu))
+           end if !If previous LANDUSEF entry used default MMINLU
+          !Current entry did not have an MMINLU setting
+          else 
+            call mprintf(.true., ERROR, 'MMINLU values differ among input fields.  Reading %s using ' // &
+                         'entry %i from GEOGRID.TBL did not set mminlu, and thus the default value ' // &
+                         'of %s is assumed.  However, mminlu was previously set to %s', &
+                         s1=trim(source_fieldname(idx)),i1=idx,s2=trim(cur_mminlu), &
+                         s3=trim(previous_mminlu))
+          end if !If the current entry explicitly set MMINLU
+         end if !If MMINLU associated with previous LANDUSEF entry matches current LANDUSEF entry
+        end if !If previous GEOGRID.TBL entry already read in LANDUSEF
+
+        landusef_already_found = .TRUE.
+        previous_mminlu = cur_mminlu
+       end if
 
       end do ENTRY_LOOP
 
