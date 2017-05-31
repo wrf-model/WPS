@@ -184,6 +184,7 @@ end program g2print
       character(len=13) :: pstring = ',t50,":",i14)'
       character(len=15) :: rstring = ',t50,":",f14.5)'
       character(len=13) :: astring = ',t50,":",a14)'
+      character(len=15) :: estring = ',t50,":",e14.5)'
 
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 !  SET ARGUMENTS
@@ -871,10 +872,20 @@ end program g2print
 
          write(*,'(/,"GRIB2 SECTION 7 - DATA SECTION:")')
 
-         write(*,'(5x,"Minimum Data Value "'//rstring)&
+	 if ( fldmax .lt. -1.e10 ) then
+           write(*,'(5x,"Minimum Data Value "'//estring)&
             fldmin
-         write(*,'(5x,"Maximum Data Value "'//rstring)&
+	 else
+           write(*,'(5x,"Minimum Data Value "'//rstring)&
+            fldmin
+	 endif
+	 if ( fldmax .gt. 1.e10 ) then
+           write(*,'(5x,"Maximum Data Value "'//estring)&
             fldmax
+	 else
+           write(*,'(5x,"Maximum Data Value "'//rstring)&
+            fldmax
+	 endif
 !          print *,'G2 Data Values:'
 !          write(*,fmt='("G2 MIN=",f21.8," AVE=",f21.8,    &
 !               " MAX=",f21.8)') fldmin,sum/gfld%ndpts,fldmax
