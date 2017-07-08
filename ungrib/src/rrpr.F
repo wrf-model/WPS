@@ -754,6 +754,14 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, &
           endif
         endif
 
+! Modify the 2017 GFS masked fields
+        if (index(map%source,'NCEP GFS') .ne. 0 ) then
+          call mprintf(.true.,DEBUG, &
+             "RRPR:   Adjusting GFS masked fields ")
+             call get_dims(200100, 'ST000010')
+             call fix_gfs_miss (map%nx, map%ny, 200100.)
+        endif
+
 ! Add residual soil moisture to SOILM* if initialized from the GSD RUC model or from NCEP RUC
       if (index(map%source,'NOAA GSD') .ne. 0 .or.    &
           index(map%source,'NCEP RUC Model') .ne. 0) then
@@ -1208,6 +1216,87 @@ subroutine vntrp(plvl, maxlvl, k, k2, interp_type, name, ix, jx)
 
 end subroutine vntrp
 
+
+subroutine fix_gfs_miss (ix, jx, plvl)
+! This routine replaces July 2017 GFS missing values with the WPS one.
+! Earlier GFS files are unmodified.
+! As of 2017, NCEP changed 'ocean' values for masked fields (ST, SM, SNOWH, etc.) 
+! from 0 to something other than missing. We will assume any large value 
+! (greater than 10^^18) is a missing code.
+! We reset it to the WPS missing value (as set in METGRID.TBL)
+! Changes described in http://www.nws.noaa.gov/os/notification/scn17-67gfsupgradeaaa.htm
+! plvl must always be 200100.
+! While, technically, any 3-d field could have a missing value in it we only deal with 
+! the surface fields which are known to have missing values. 
+!
+  use storage_module
+  implicit none
+  integer :: ix, jx, i, j, k
+  real :: plvl
+  real, allocatable, dimension(:,:) :: f, sea
+  integer, parameter :: nvar = 10
+  character, dimension(nvar) :: flist*8
+  data flist/'ST000010','ST010040','ST040100','ST100200','ST010200', &
+             'SM000010','SM010040','SM040100','SM100200','SM010200' /
+  write(0,*) 'begin fix_gfs_miss   plvl = ',plvl
+  allocate(sea(ix,jx))
+  allocate(f(ix,jx))
+! If LANDN is present (July 2017 and later GFS output), use it for LANDSEA
+  if ( is_there(200100, 'LANDN') ) then
+    call get_storage(200100, 'LANDN', sea, ix, jx)
+    call put_storage(200100, 'LANDSEA', sea, ix, jx)
+  endif
+  do k = 1, nvar
+    if (is_there(200100, flist(k) )) then
+      call get_storage(nint(plvl), flist(k), f, ix, jx)
+      do j = 1, jx
+      do i = 1, ix
+	if (abs(f(i,j)) .gt. 1.e18) then
+	  f(i,j) = -1.e30
+	endif
+      enddo
+      enddo
+! Limit soil moisture to .468 (should only occur for permanent land ice points
+! according to NCEP documentation.)
+      if (flist(k)(1:2) .eq. 'SM' ) then
+	do j = 1, jx
+	do i = 1, ix
+	  if ((f(i,j)) .gt. 0.468) then
+	    f(i,j) = -1.e30
+	  endif
+	enddo
+	enddo
+      endif
+      call put_storage(200100, flist(k), f, ix, jx)
+    endif
+  enddo
+! Snow fields have a different WPS missing value and must be adjusted 
+! separately from the soil fields (unless we want to have an array of missing values,too).
+  if (is_there(200100, 'SNOW' )) then
+    call get_storage(200100, 'SNOW', f, ix, jx)
+    do j = 1, jx
+    do i = 1, ix
+	if (abs(f(i,j)) .gt. 1.e18) then
+	  f(i,j) = 0
+	endif
+    enddo
+    enddo
+    call put_storage(200100, 'SNOW', f, ix, jx)
+  endif
+  if (is_there(200100, 'SNOWH' )) then
+    call get_storage(200100, 'SNOWH', f, ix, jx)
+    do j = 1, jx
+    do i = 1, ix
+	if (abs(f(i,j)) .gt. 1.e18) then
+	  f(i,j) = 0
+	endif
+    enddo
+    enddo
+    call put_storage(200100, 'SNOWH', f, ix, jx)
+  endif
+  deallocate (f)
+  deallocate (sea)
+end subroutine fix_gfs_miss
 
 subroutine fix_gfs_rh (ix, jx, plvl)
 ! This routine replaces GFS RH (wrt ice) with RH wrt liquid (which is what is assumed in real.exe).
