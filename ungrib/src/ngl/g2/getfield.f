@@ -297,6 +297,12 @@
             ieee=idrstmpl(5)
             call rdieee(ieee,fld(1),1)
             have7=.true.
+          elseif (idrsnum.eq.40 .OR. idrsnum.eq.40000) then
+            call jpcunpack(cgrib(ipos+5),lensec-5,idrstmpl,ndpts,fld)
+            have7=.true.
+          elseif (idrsnum.eq.41 .OR. idrsnum.eq.40010) then
+            call pngunpack(cgrib(ipos+5),lensec-5,idrstmpl,ndpts,fld)
+            have7=.true.
           else
             print *,'getfield: Data Representation Template ',idrsnum,
      &              ' not yet implemented.'

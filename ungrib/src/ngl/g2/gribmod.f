@@ -158,6 +158,8 @@
 !                       -  Added Templates (ICAO WAFS) 4.15
 ! 2013-05-07  Vuong     -  Initialized all pointers to null()
 ! 2013-08-29  Vuong     -  Changed version number 2.5.0     )
+! 2015-11-01  Vuong     -  Changed version number 2.6.0
+! 2017-18-01  Vuong     -  Changed version number 3.1.0
 !
 ! USAGE:    use grib_mod
 !
@@ -167,7 +169,7 @@
 !
 !$$$
 
-      character(len=12) :: G2_VERSION="g2lib-2.5.0"
+      character(len=12) :: G2_VERSION="g2lib-3.1.0"
 
       type gribfield
           integer :: version,discipline

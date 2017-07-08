@@ -81,14 +81,18 @@
 !
 !  Check to see if beginning of GRIB message exists
 !
-      ctemp=cgrib(1)//cgrib(2)//cgrib(3)//cgrib(4)
-      if ( ctemp.ne.grib ) then
-        print *,'addgrid: GRIB not found in given message.'
-        print *,'addgrid: Call to routine gribcreate required',
-     &          ' to initialize GRIB messge.'
-        ierr=1
-        return
-      endif
+      do i=1,4
+         if(cgrib(i)/=grib(i:i)) then
+            print *,'addgrid: GRIB not found in given message.'
+            print *,'addgrid: Call to routine gribcreate required',
+     &           ' to initialize GRIB messge.'
+ 10         format('"',4A1,'" /= "GRIB"')
+            print 10,cgrib(1:4)
+            ierr=1
+            stop 1
+            return
+         endif
+      enddo
 !
 !  Get current length of GRIB message
 !  
