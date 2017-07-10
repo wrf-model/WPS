@@ -1238,7 +1238,6 @@ subroutine fix_gfs_miss (ix, jx, plvl)
   character, dimension(nvar) :: flist*8
   data flist/'ST000010','ST010040','ST040100','ST100200','ST010200', &
              'SM000010','SM010040','SM040100','SM100200','SM010200' /
-  write(0,*) 'begin fix_gfs_miss   plvl = ',plvl
   allocate(sea(ix,jx))
   allocate(f(ix,jx))
 ! If LANDN is present (July 2017 and later GFS output), use it for LANDSEA
