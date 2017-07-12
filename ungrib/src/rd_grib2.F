@@ -754,6 +754,7 @@ C  SET ARGUMENTS
               elseif(gfld%ipdtmpl(10).eq.103) then
 	         ! Height above ground (m)
 		 if (gfld%ipdtmpl(12) .eq. 2. .or. 
+     &               gfld%ipdtmpl(12) .eq. 1000. .or.     ! temp fix for hrrr maxref
      &               gfld%ipdtmpl(12) .eq. 10. ) then
                    level=200100.
 		 else
@@ -763,6 +764,7 @@ C  SET ARGUMENTS
      &               gfld%ipdtmpl(10).le.234) .or.
      &              (gfld%ipdtmpl(10).ge.242 .and.     
      &               gfld%ipdtmpl(10).le.254) .or.
+     &              (gfld%ipdtmpl(10).eq.200) .or.
      &              (gfld%ipdtmpl(10).eq.10) ) then
                  ! NCEP cloud layers used for plotting
                    level=200100.
