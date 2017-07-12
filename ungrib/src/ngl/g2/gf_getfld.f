@@ -23,6 +23,7 @@
 !                        having many different arguments.
 ! 2004-05-20  Gilbert  - Added check to see if previous a bit-map is specified,
 !                        but none was found.
+! 2015-10-29  Vuong    - Initial all pointers in derive type gribfield
 !
 ! USAGE:    CALL gf_getfld(cgrib,lcgrib,ifldnum,unpack,expand,gfld,ierr)
 !   INPUT ARGUMENT LIST:

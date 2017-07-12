@@ -26,9 +26,8 @@ C v1.1
 C
       character*1 in(*)
       integer iout(*)
-      integer ones(8), tbit, bitcnt
-      save ones
-      data ones/1,3,7,15,31,63,127,255/
+      integer tbit, bitcnt
+      integer, parameter :: ones(8) = (/ 1,3,7,15,31,63,127,255 /)
 
 c     nbit is the start position of the field in bits
       nbit = iskip
@@ -77,9 +76,8 @@ C            N     = number of iterations
 C v1.1
 C
       character*1 out(*)
-      integer in(N), bitcnt, ones(8), tbit
-      save ones
-      data ones/    1,  3,  7, 15, 31, 63,127,255/
+      integer in(N), bitcnt, tbit
+      integer, parameter :: ones(8)=(/ 1,  3,  7, 15, 31, 63,127,255/)
 
 c     number bits from zero to ...
 c     nbit is the last bit of the field to be filled

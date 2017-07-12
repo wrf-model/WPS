@@ -9,6 +9,8 @@
 !
 ! PROGRAM HISTORY LOG:
 ! 2000-05-26  Gilbert
+! 2012-12-11 Vuong     Initialize an undefine pointers
+! 2015-10-29 Vuong     Deallocate pointers in derived type gribfield
 !
 ! USAGE:    CALL gf_free(gfld)
 !   INPUT ARGUMENT LIST:

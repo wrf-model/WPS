@@ -16,7 +16,10 @@ C
 C PROGRAM HISTORY LOG:
 C 2005-03-15  GILBERT
 C 2009-07-09  VUONG      Fixed bug for checking (LUGB) unit index file
-C 2013-08-02  VUONG      Removed SAVE and initial index buffer
+C 2016-03-29  VUONG      Restore original getidx.f from version 1.2.3
+C                        Modified GETIDEX to allow to open range of unit file number up to 9999
+C                        Added new parameters and new Product Definition Template
+C                        numbers: 4.60, 4.61
 C
 C USAGE:    CALL GETIDX(LUGB,LUGI,CINDEX,NLEN,NNUM,IRET)
 C
@@ -48,7 +51,8 @@ C   GETG2I          READ INDEX FILE
 C   GETG2IR         READ INDEX BUFFER FROM GRIB FILE
 C
 C REMARKS: 
-C
+C        -  Allow file unit numbers in range 0 - 9999
+C           the grib index will automatically generate the index file.
 C
 C ATTRIBUTES:
 C   LANGUAGE: FORTRAN 90
@@ -59,7 +63,7 @@ C$$$
       INTEGER,INTENT(OUT) :: NLEN,NNUM,IRET
       CHARACTER(LEN=1),POINTER,DIMENSION(:) :: CINDEX
 
-      INTEGER,PARAMETER :: MAXIDX=100
+      INTEGER,PARAMETER :: MAXIDX=10000
       INTEGER,PARAMETER :: MSK1=32000,MSK2=4000
  
       TYPE GINDEX
@@ -68,8 +72,7 @@ C$$$
          character(len=1),pointer,dimension(:) :: cbuf
       END TYPE GINDEX
      
-C     TYPE(GINDEX),SAVE :: IDXLIST(100)
-      TYPE(GINDEX) :: IDXLIST(100)
+      TYPE(GINDEX),SAVE :: IDXLIST(10000)
 
       DATA LUX/0/
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -92,7 +95,11 @@ C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 C  DETERMINE WHETHER INDEX BUFFER NEEDS TO BE INITIALIZED
       LUX=0
       IRET=0
-      IF ( LUGB.LE.0 .OR. LUGB.GT.100 ) THEN
+      IF ( LUGB.LE.0 .OR. LUGB.GT.9999 ) THEN
+         PRINT*,' '
+         PRINT *,' FILE UNIT NUMBER OUT OF RANGE'
+         PRINT *,' USE UNIT NUMBERS IN RANGE: 0 - 9999 '
+         PRINT*,' '
          IRET=90
          RETURN
       ENDIF
@@ -104,10 +111,6 @@ C  DETERMINE WHETHER INDEX BUFFER NEEDS TO BE INITIALIZED
          IDXLIST(LUGB)%NNUM=0
          LUX=0
       ENDIF
-
-      IF ( ASSOCIATED( IDXLIST(LUGB)%CBUF ) )
-     &                  DEALLOCATE(IDXLIST(LUGB)%CBUF)
-
       IF (LUGI.LT.0) THEN      ! Force re-read of index from indexfile
                                ! associated with unit abs(lugi)
          IF ( ASSOCIATED( IDXLIST(LUGB)%CBUF ) ) 
@@ -141,6 +144,9 @@ C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       ELSE
          NLEN = 0
          NNUM = 0
+         PRINT*,' '
+         PRINT *,' ERROR READING INDEX FILE '
+         PRINT*,' '
          IRET=96
          RETURN
       ENDIF
