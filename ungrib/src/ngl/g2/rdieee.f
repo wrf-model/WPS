@@ -32,8 +32,11 @@
 
       integer(4) :: ieee
 
-      real,parameter :: two23=scale(1.0,-23)
-      real,parameter :: two126=scale(1.0,-126)
+      real :: two23
+      real :: two126
+
+      two23=scale(1.0,-23)
+      two126=scale(1.0,-126)
 
       do j=1,num
 !
