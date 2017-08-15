@@ -1261,7 +1261,7 @@ subroutine fix_gfs_miss (ix, jx, plvl)
 	do j = 1, jx
 	do i = 1, ix
 	  if ((f(i,j)) .gt. 0.468) then
-	    f(i,j) = -1.e30
+	    f(i,j) = 0.468
 	  endif
 	enddo
 	enddo
