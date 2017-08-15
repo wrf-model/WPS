@@ -32,6 +32,11 @@
 
       integer(4) :: ieee 
 
+! Recent versions of the PGI compilers apparently still do not fully support
+! the use of all intrinsics in parameter statements, though this is part of
+! the F2003 standard.
+!      real, parameter :: two23=scale(1.0,23)
+!      real, parameter :: two126=scale(1.0,126)
       real :: two23
       real :: two126
 
