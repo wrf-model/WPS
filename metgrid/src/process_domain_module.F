@@ -1659,6 +1659,9 @@ integer, parameter :: BDR_WIDTH = 3
                if (output_this_field(idx) .and. flag_in_output(idx) /= ' ') then
                   output_flags(idx) = flag_in_output(idx)
                end if
+            else
+               istat = scan_input_free_field(mpas_field)
+               cycle
             end if
     
             istat = scan_input_read_field(mpas_field, frame=1)
