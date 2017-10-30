@@ -204,6 +204,11 @@ C$$$
       igds=(/0,0,0,0,0/)
       coordlist=0.0
       ilistopt=0
+
+      listsec0=(/0,2/)
+      igds=(/0,0,0,0,0/)
+      coordlist=0.0
+      ilistopt=0
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 C  ALLOCATE ARRAY FOR GRIB2 FIELD
       lcgrib=gfld%ngrdpts*4

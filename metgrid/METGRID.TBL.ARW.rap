@@ -11,7 +11,7 @@ name=ST
         fill_lev =  10 : ST000010(200100)
         fill_lev =  35 : ST010035(200100)
         fill_lev = 100 : ST035100(200100)
-        fill_lev = 255 : ST100255(200100)
+        fill_lev = 289 : ST100289(200100)
 # ELSE IF
         fill_lev =  10 : ST000010(200100)
         fill_lev = 200 : ST010200(200100)
@@ -19,7 +19,7 @@ name=ST
         fill_lev =   7 : ST000007(200100)
         fill_lev =  28 : ST007028(200100)
         fill_lev = 100 : ST028100(200100)
-        fill_lev = 255 : ST100255(200100)
+        fill_lev = 289 : ST100289(200100)
 ========================================
 name=SM
         z_dim_name=num_sm_layers
@@ -33,7 +33,7 @@ name=SM
         fill_lev =  10 : SM000010(200100)
         fill_lev =  35 : SM010035(200100)
         fill_lev = 100 : SM035100(200100)
-        fill_lev = 255 : SM100255(200100)
+        fill_lev = 289 : SM100289(200100)
 # ELSE IF
         fill_lev =  10: SM000010(200100)
         fill_lev = 200 : SM010200(200100)
@@ -41,7 +41,7 @@ name=SM
         fill_lev =   7 : SM000007(200100)
         fill_lev =  28 : SM007028(200100)
         fill_lev = 100 : SM028100(200100)
-        fill_lev = 255 : SM100255(200100)
+        fill_lev = 289 : SM100289(200100)
 ========================================
 name=SW
         z_dim_name=num_sw_layers
@@ -64,6 +64,17 @@ name=SOIL_LAYERS
 name=SOILM
         z_dim_name=num_soilm_levels
         derived=yes
+# IF
+        fill_lev =   0 : SOILM000(200100)
+        fill_lev =   1 : SOILM001(200100)
+        fill_lev =   4 : SOILM004(200100)
+        fill_lev =  10 : SOILM010(200100)
+        fill_lev =  30 : SOILM030(200100)
+        fill_lev =  60 : SOILM060(200100)
+        fill_lev = 100 : SOILM100(200100)
+        fill_lev = 160 : SOILM160(200100)
+        fill_lev = 300 : SOILM300(200100)
+# ELSE IF
         fill_lev =   0 : SOILM000(200100)      
         fill_lev =   5 : SOILM005(200100)      
         fill_lev =  20 : SOILM020(200100)      
@@ -74,6 +85,17 @@ name=SOILM
 name=SOILT
         z_dim_name=num_soilt_levels
         derived=yes
+# IF
+        fill_lev =   0 : SOILT000(200100)
+        fill_lev =   1 : SOILT001(200100)
+        fill_lev =   4 : SOILT004(200100)
+        fill_lev =  10 : SOILT010(200100)
+        fill_lev =  30 : SOILT030(200100)
+        fill_lev =  60 : SOILT060(200100)
+        fill_lev = 100 : SOILT100(200100)
+        fill_lev = 160 : SOILT160(200100)
+        fill_lev = 300 : SOILT300(200100)
+# ELSE IF
         fill_lev =   0 : SOILT000(200100)      
         fill_lev =   5 : SOILT005(200100)      
         fill_lev =  20 : SOILT020(200100)      
@@ -329,13 +351,13 @@ name=SM028100
         fill_missing=1.
         flag_in_output=FLAG_SM028100
 ========================================
-name=SM100255
+name=SM100289
         interp_option=sixteen_pt+four_pt+average_4pt+search
         masked=water
         interp_mask=LANDSEA(0)
         missing_value=-1.E30
         fill_missing=1.
-        flag_in_output=FLAG_SM100255
+        flag_in_output=FLAG_SM100289
 ========================================
 name=ST000007
         interp_option=sixteen_pt+four_pt+average_4pt+search
@@ -358,13 +380,13 @@ name=ST028100
         fill_missing=285.
         flag_in_output=FLAG_ST028100
 ========================================
-name=ST100255
+name=ST100289
         interp_option=sixteen_pt+four_pt+average_4pt+search
         masked=water
         interp_mask=LANDSEA(0)
         missing_value=-1.E30
         fill_missing=285.
-        flag_in_output=FLAG_ST100255
+        flag_in_output=FLAG_ST100289
 ========================================
 name=SOILM000
         interp_option=four_pt+average_4pt+search
@@ -373,6 +395,48 @@ name=SOILM000
         missing_value=1.
         fill_missing=1.
         flag_in_output=FLAG_SOILM000
+========================================
+name=SOILM001
+        interp_option=sixteen_pt+four_pt+wt_average_4pt+wt_average_16pt+search
+        masked=water
+        interp_mask=LANDSEA(0)
+        fill_missing=1.
+        flag_in_output=FLAG_SOILM001
+========================================
+name=SOILM004
+        interp_option=sixteen_pt+four_pt+wt_average_4pt+wt_average_16pt+search
+        masked=water
+        interp_mask=LANDSEA(0)
+        fill_missing=1.
+        flag_in_output=FLAG_SOILM004
+=======================================
+name=SOILM010
+        interp_option=sixteen_pt+four_pt+wt_average_4pt+wt_average_16pt+search
+        masked=water
+        interp_mask=LANDSEA(0)
+        fill_missing=1.
+        flag_in_output=FLAG_SOILM010
+========================================
+name=SOILM030
+        interp_option=sixteen_pt+four_pt+wt_average_4pt+wt_average_16pt+search
+        masked=water
+        interp_mask=LANDSEA(0)
+        fill_missing=1.
+        flag_in_output=FLAG_SOILM030
+========================================
+name=SOILM060
+        interp_option=sixteen_pt+four_pt+wt_average_4pt+wt_average_16pt+search
+        masked=water
+        interp_mask=LANDSEA(0)
+        fill_missing=1.
+        flag_in_output=FLAG_SOILM060
+========================================
+name=SOILM100
+        interp_option=sixteen_pt+four_pt+wt_average_4pt+wt_average_16pt+search
+        masked=water
+        interp_mask=LANDSEA(0)
+        fill_missing=1.
+        flag_in_output=FLAG_SOILM100
 ========================================
 name=SOILM005
         interp_option=four_pt+average_4pt+search
@@ -415,6 +479,48 @@ name=SOILT000
         interp_mask=SOILM000(1)
         fill_missing=285.
         flag_in_output=FLAG_SOILT000
+========================================
+name=SOILT001
+        interp_option=sixteen_pt+four_pt+wt_average_4pt+wt_average_16pt+search
+        masked=water
+        interp_mask=LANDSEA(0)
+        fill_missing=285.
+        flag_in_output=FLAG_SOILT001
+========================================
+name=SOILT004
+        interp_option=sixteen_pt+four_pt+wt_average_4pt+wt_average_16pt+search
+        masked=water
+        interp_mask=LANDSEA(0)
+        fill_missing=285.
+        flag_in_output=FLAG_SOILT004
+========================================
+name=SOILT010
+        interp_option=sixteen_pt+four_pt+wt_average_4pt+wt_average_16pt+search
+        masked=water
+        interp_mask=LANDSEA(0)
+        fill_missing=285.
+        flag_in_output=FLAG_SOILT010
+========================================
+name=SOILT030
+        interp_option=sixteen_pt+four_pt+wt_average_4pt+wt_average_16pt+search
+        masked=water
+        interp_mask=LANDSEA(0)
+        fill_missing=285.
+        flag_in_output=FLAG_SOILT030
+========================================
+name=SOILT060
+        interp_option=sixteen_pt+four_pt+wt_average_4pt+wt_average_16pt+search
+        masked=water
+        interp_mask=LANDSEA(0)
+        fill_missing=285.
+        flag_in_output=FLAG_SOILT060
+========================================
+name=SOILT100
+        interp_option=sixteen_pt+four_pt+wt_average_4pt+wt_average_16pt+search
+        masked=water
+        interp_mask=LANDSEA(0)
+        fill_missing=285.
+        flag_in_output=FLAG_SOILT100
 ========================================
 name=SOILT005
         interp_option=sixteen_pt+four_pt+average_4pt+search

@@ -1,9 +1,10 @@
 include ../../configure.wps
 
 OBJS	=	plotgrids.o avg_tsfc.o calc_ecmwf_p.o elev_angle.o plotfmt.o rd_intermediate.o \
-		mod_levs.o height_ukmo.o \
+		int2nc.o mod_levs.o height_ukmo.o \
 		cio.o gridinfo_module.o misc_definitions_module.o module_debug.o module_stringutil.o \
-		read_met_module.o write_met_module.o module_date_pack.o met_data_module.o constants_module.o
+		read_met_module.o write_met_module.o module_date_pack.o met_data_module.o constants_module.o \
+		module_map_utils.o
 
 all:
 		clear ;

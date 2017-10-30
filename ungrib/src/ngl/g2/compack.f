@@ -230,7 +230,7 @@
         simplealg: if ( simple_alg ) then
            !  set group length to 10 :  calculate number of groups
            !  and length of last group
-           print *,'G2: use simple algorithm'
+!          print *,'G2: use simple algorithm'
            ngroups=ndpts/10
            glen(1:ngroups)=10
            itemp=mod(ndpts,10)

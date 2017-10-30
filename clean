@@ -62,8 +62,8 @@ if ( "$1" == '-a' ) then
 			/bin/rm -f ${dir}.exe
 		endif
 	end
-	if ( -e configure.wps ) then
-		/bin/cp configure.wps configure.wps.backup
+	if ( ( -e configure.wps ) && ( $TOUCH != TOUCH ) ) then
+		/bin/cp -p configure.wps configure.wps.backup
 		/bin/rm -f configure.wps
 	endif
 endif

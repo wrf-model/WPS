@@ -400,3 +400,76 @@ name=CANFRA
         fill_missing=0.
         rel_path = default:nlcd2011_can_ll_9s/
 ===============================
+name=CROPTYPE
+        priority=1
+        optional=yes
+        dest_type=continuous
+        interp_option=default:average_gcell(4.0)+four_pt+average_4pt+average_16pt+search
+        z_dim_name=crop
+        masked = water
+        fill_missing = 0.
+        rel_path=default:crop/croptype/
+===============================
+name=SEASON_GDD
+        priority=1
+        optional=yes
+        dest_type=continuous
+        interp_option=default:average_gcell(4.0)+four_pt+average_4pt+average_16pt+search
+        masked = water
+        fill_missing = 1605.
+        rel_path=default:crop/crop_gdd/
+===============================
+name=PLANTING
+        priority=1
+        optional=yes
+        dest_type=continuous
+        interp_option=default:nearest_neighbor
+        masked = water
+        fill_missing = 126.
+        rel_path=default:crop/crop_planting/
+===============================
+name=HARVEST
+        priority=1
+        optional=yes
+        dest_type=continuous
+        interp_option=default:nearest_neighbor
+        masked = water
+        fill_missing = 290.
+        rel_path=default:crop/crop_harvest/
+===============================
+name=FDEPTH
+        priority=1
+        optional=yes
+        dest_type=continuous
+        interp_option=default:average_gcell(1.0)+average_4pt+search
+        masked = water
+        fill_missing = 100.
+        rel_path=default:groundwater/f/
+===============================
+name=RECHCLIM
+        priority=1
+        optional=yes
+        dest_type=continuous
+        interp_option=default:average_gcell(1.0)+average_4pt+search
+        fill_missing = -1.
+        masked = water
+        rel_path=default:groundwater/recharge/
+===============================
+name=EQZWT
+        priority=1
+        optional=yes
+        dest_type=continuous
+        interp_option=default:average_gcell(1.0)+average_4pt+search
+        masked = water
+        fill_missing = 0.
+        rel_path=default:groundwater/wtd/
+===============================
+name=RIVERBED
+        priority=1
+        optional=yes
+        dest_type=continuous
+        interp_option=default:average_gcell(1.0)+average_4pt+search
+        masked = water
+        fill_missing = 0.
+        rel_path=default:groundwater/riverbed/
+===============================

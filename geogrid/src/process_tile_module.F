@@ -300,7 +300,7 @@ module process_tile_module
       end if
 
       ! Initialize the output module now that we have the corner point lats/lons
-      call output_init(which_domain, 'OUTPUT FROM GEOGRID V3.8', '0000-00-00_00:00:00', grid_type, dynopt, &
+      call output_init(which_domain, 'OUTPUT FROM GEOGRID V3.9.1', '0000-00-00_00:00:00', grid_type, dynopt, &
                        corner_lats, corner_lons, &
                        start_dom_i,   end_dom_i,   start_dom_j,   end_dom_j, &
                        start_patch_i, end_patch_i, start_patch_j, end_patch_j, &
@@ -408,6 +408,7 @@ module process_tile_module
       if (grid_type == 'C') then
          call mprintf(.true.,STDOUT,'  Processing ROTANG')
     
+         ! Mass-staggered points
          allocate(sina_array(start_mem_i:end_mem_i, start_mem_j:end_mem_j))
          allocate(cosa_array(start_mem_i:end_mem_i, start_mem_j:end_mem_j))
     
@@ -417,6 +418,36 @@ module process_tile_module
          call write_field(start_mem_i, end_mem_i, start_mem_j, end_mem_j, 1, 1, 'SINALPHA', &
                           datestr, real_array = sina_array)
          call write_field(start_mem_i, end_mem_i, start_mem_j, end_mem_j, 1, 1, 'COSALPHA', &
+                          datestr, real_array = cosa_array)
+    
+         if (associated(sina_array)) deallocate(sina_array)
+         if (associated(cosa_array)) deallocate(cosa_array)
+
+         ! U-staggered points
+         allocate(sina_array(start_mem_i:end_mem_stag_i, start_mem_j:end_mem_j))
+         allocate(cosa_array(start_mem_i:end_mem_stag_i, start_mem_j:end_mem_j))
+    
+         call get_rotang(xlat_array_u, xlon_array_u, cosa_array, sina_array, &
+                         start_mem_i, start_mem_j, end_mem_stag_i, end_mem_j)
+    
+         call write_field(start_mem_i, end_mem_stag_i, start_mem_j, end_mem_j, 1, 1, 'SINALPHA_U', &
+                          datestr, real_array = sina_array)
+         call write_field(start_mem_i, end_mem_stag_i, start_mem_j, end_mem_j, 1, 1, 'COSALPHA_U', &
+                          datestr, real_array = cosa_array)
+    
+         if (associated(sina_array)) deallocate(sina_array)
+         if (associated(cosa_array)) deallocate(cosa_array)
+    
+         ! V-staggered points
+         allocate(sina_array(start_mem_i:end_mem_i, start_mem_j:end_mem_stag_j))
+         allocate(cosa_array(start_mem_i:end_mem_i, start_mem_j:end_mem_stag_j))
+    
+         call get_rotang(xlat_array_v, xlon_array_v, cosa_array, sina_array, &
+                         start_mem_i, start_mem_j, end_mem_i, end_mem_stag_j)
+    
+         call write_field(start_mem_i, end_mem_i, start_mem_j, end_mem_stag_j, 1, 1, 'SINALPHA_V', &
+                          datestr, real_array = sina_array)
+         call write_field(start_mem_i, end_mem_i, start_mem_j, end_mem_stag_j, 1, 1, 'COSALPHA_V', &
                           datestr, real_array = cosa_array)
     
          if (associated(sina_array)) deallocate(sina_array)

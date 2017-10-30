@@ -16,7 +16,8 @@
 SHELL           	=       /bin/sh
 
 NCARG_LIBS		=	-L$(NCARG_ROOT)/lib -lncarg -lncarg_gks -lncarg_c \
-				-L/usr/X11R6/lib -lX11
+				-lX11 -lXext -lpng -lz -lcairo -lfontconfig -lpixman-1 \
+				-lfreetype -lexpat -lpthread -lbz2 -lXrender -lgfortran -lgcc
 
 NCARG_LIBS2		=	# May be overridden by architecture specific value below
 

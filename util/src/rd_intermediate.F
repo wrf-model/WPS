@@ -78,6 +78,17 @@ PROGRAM rd_intermediate
                CALL mprintf(.true.,STDOUT,'  STAND_LON = %f', f1=fg_data%xlonc)
                CALL mprintf(.true.,STDOUT,'  TRUELAT1 = %f', f1=fg_data%truelat1)
                CALL mprintf(.true.,STDOUT,'  EARTH_RADIUS = %f', f1=fg_data%earth_radius)
+            CASE (PROJ_CASSINI)
+               CALL mprintf(.true.,STDOUT, 'IPROJ = %i   PROJECTION = %s', i1=6, s1='PROJ_CASSINI') 
+               CALL mprintf(.true.,STDOUT,'  REF_X, REF_Y = %f, %f', f1=fg_data%starti, f2=fg_data%startj)
+               CALL mprintf(.true.,STDOUT,'  REF_LAT, REF_LON = %f, %f', f1=fg_data%startlat, f2=fg_data%startlon)
+               CALL mprintf(.true.,STDOUT,'  DX, DY = %f, %f', f1=fg_data%dx, f2=fg_data%dy)
+               CALL mprintf(.true.,STDOUT,'  STAND_LON = %f', f1=fg_data%xlonc)
+               CALL mprintf(.true.,STDOUT,'  POLE_LAT = %f', f1=fg_data%pole_lat)
+               CALL mprintf(.true.,STDOUT,'  POLE_LON = %f', f1=fg_data%pole_lon)
+               CALL mprintf(.true.,STDOUT,'  CENTER_LAT = %f', f1=fg_data%centerlat)
+               CALL mprintf(.true.,STDOUT,'  CENTER_LON = %f', f1=fg_data%centerlon)
+               CALL mprintf(.true.,STDOUT,'  EARTH_RADIUS = %f', f1=fg_data%earth_radius)
             CASE default
                CALL mprintf(.true.,ERROR, '  Unknown iproj %i for version %i', i1=fg_data%iproj, i2=fg_data%version)
          END SELECT

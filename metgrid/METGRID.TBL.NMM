@@ -93,6 +93,7 @@ name=H0ML
 name=SNOW
         interp_option=four_pt+average_4pt
         masked=water 
+        interp_mask=LANDSEA(0)
         fill_missing=0.
 ========================================
 name=SKINTEMP
@@ -477,6 +478,7 @@ name=WEASD
 name=SNOWH
         interp_option=four_pt+average_4pt
         masked=water 
+        interp_mask=LANDSEA(0)
         fill_missing=0.
         flag_in_output=FLAG_SNOWH
 ========================================

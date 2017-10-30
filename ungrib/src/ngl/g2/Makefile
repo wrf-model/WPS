@@ -40,7 +40,7 @@ LIB	=	libg2_4.a
 #ARFLAGS=
 #--------------------------------------
 
-OBJS	=	gridtemplates.o pdstemplates.o drstemplates.o gribmod.o realloc.o addfield.o  \
+OBJS	=	gridtemplates.o pdstemplates.o drstemplates.o gribmod.o realloc.o intmath.o addfield.o  \
 		addgrid.o addlocal.o getfield.o gb_info.o gf_getfld.o gf_free.o gf_unpack1.o  \
 		gf_unpack2.o gf_unpack3.o gf_unpack4.o gf_unpack5.o gf_unpack6.o gf_unpack7.o \
 		gettemplates.o getlocal.o getdim.o getpoly.o gribcreate.o gribend.o gribinfo.o \

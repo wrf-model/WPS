@@ -321,11 +321,5 @@
 
       if ( allocated(ifld) ) deallocate(ifld)
 
-      !open(10,form='unformatted',recl=24180,access='direct') 
-      !read(10,rec=1) (fldo(k),k=1,6045)
-      !do i =1,6045
-      !  print *,i,fldo(i),fld(i),fldo(i)-fld(i)
-      !enddo
-
       return
       end

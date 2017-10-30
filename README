@@ -1,11 +1,11 @@
-WRF Pre-Processing System Version 3.8 (8 April 2016, revision 933)
+WRF Pre-Processing System Version 3.9.1 (17 August 2017)
 
 http://www2.mmm.ucar.edu/wrf/users/
 
 The WRF Pre-Processing System (WPS) is a collection
 of Fortran and C programs that provides data used as
 input to the real.exe and real_nmm.exe programs. There 
-are three main programs and a number of auxillary 
+are three main programs and a number of auxiliary 
 programs that are part of WPS.  Both the ARW and NMM 
 dynamical cores in WRF are supported by WPS.
 
@@ -228,8 +228,8 @@ from http://www2.mmm.ucar.edu/wrf/users/download/get_source.html.
 Meteorological Input Data
 
 The meteorological input data for WPS is the GRIB
-Edition 1 GFS data from NCEP.  A test
-data set (Jan 2000, 24/12Z to 25/12Z) is available from
+Edition 1 GFS data from NCEP.  A test data set 
+(Jan 2000, 24/12Z to 25/12Z) is available from
 http://www2.mmm.ucar.edu/wrf/users/download/get_source.html.
 
 

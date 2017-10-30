@@ -1,5 +1,6 @@
 subroutine read_namelist(hstart, hend, delta_time, ntimes,&
-     ordered_by_date, debug_level, out_format, prefix)
+     ordered_by_date, debug_level, out_format, prefix,    &
+     add_lvls, new_plvl_in, interp_type)
 
   use misc_definitions_module
   use module_debug
@@ -12,6 +13,9 @@ subroutine read_namelist(hstart, hend, delta_time, ntimes,&
   integer :: ntimes
   logical :: ordered_by_date
   integer :: debug_level
+  real, dimension(:) :: new_plvl_in
+  logical :: add_lvls
+  integer :: interp_type
 
   integer :: ierr
   integer :: idts
@@ -46,6 +50,11 @@ subroutine read_namelist(hstart, hend, delta_time, ntimes,&
   character(len=MAX_FILENAME_LEN) :: prefix
   logical :: nocolons
 
+  real :: target_end, incr
+  integer :: il
+
+  real, dimension(:), allocatable :: new_plvl
+
   namelist /share/ wrf_core, max_dom, &
        start_year, start_month, start_day, start_hour, &
        start_minute, start_second, &
@@ -59,7 +68,10 @@ subroutine read_namelist(hstart, hend, delta_time, ntimes,&
        nocolons
 
   namelist /ungrib/ out_format, &
-       ordered_by_date, prefix
+       ordered_by_date, prefix, &
+       add_lvls, new_plvl, interp_type
+
+  allocate(new_plvl(size(new_plvl_in)))
 
   start_year = 0
   start_month = 0
@@ -81,6 +93,10 @@ subroutine read_namelist(hstart, hend, delta_time, ntimes,&
   wrf_core = 'ARW'
   debug_level = 0
   nocolons = .false.
+
+  add_lvls = .false.
+  new_plvl = -99999.
+  interp_type = 0
 
 ! Start routine:
 
@@ -249,8 +265,35 @@ subroutine read_namelist(hstart, hend, delta_time, ntimes,&
  'read_namelist: I do not recognize the output format, %s , stopping.',s1=out_format)
    endif
 
+! Check to see if I should create my own set of new_plvl's
+  if ( add_lvls .AND. new_plvl(2) > -99999. .AND. new_plvl(2) < 0.0 ) then
+    target_end = abs(new_plvl(2))
+    incr = new_plvl(3)
+    il = 2
+    make_plvl : do
+      if(il.gt.size(new_plvl)) then
+       call mprintf(.true.,ERROR,&
+        'Too many new levels specified via new_plvl. Increase maxlvl in ungrib.F')
+      end if
+      new_plvl(il) = new_plvl(il-1) - incr
+      ! If we are past the end of the range of pressures over which new levels
+      ! are to be created, then discard the pressure we just calculated. 
+      ! This occurs when the user-chosen increment did not evenly divide
+      ! the range of pressures over which new pressures were to be added.  
+      if ( new_plvl(il) < target_end ) then 
+        new_plvl(il) = -99999.
+        exit make_plvl
+      end if 
+      if ( new_plvl(il) == target_end ) exit make_plvl
+      il = il + 1
+    end do make_plvl
+  endif
+
 ! Close the namelist file:
 
   close(10)
+
+  new_plvl_in(:) = new_plvl(:)
+  deallocate(new_plvl)
   
 end subroutine read_namelist

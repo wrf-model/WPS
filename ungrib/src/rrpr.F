@@ -1,4 +1,6 @@
-subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_level, out_format, prefix)
+subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, &
+                add_lvls, new_plvl, interp_type, &
+                debug_level, out_format, prefix)
 !                                                                             !
 ! In case you are wondering, RRPR stands for "Read, ReProcess, and wRite"     !
 !                                                                             !
@@ -36,6 +38,20 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_level, out_f
 ! PLVL:  Array of pressure levels (Pa) in the dataset
   real , dimension(maxlvl) :: plvl
 
+! NEW_PLVL: Array of the additional pressure levels (Pa) to interpolate to
+  real , dimension(maxlvl) :: new_plvl
+
+! TLVL: Array combining pressure levels (Pa) in PLVL and NEW_PLVL 
+  real , dimension(maxlvl) :: tlvl
+
+! ADD_LVLS: Should we add levels via interpolation?
+  logical :: add_lvls
+
+! INTERP_TYPE: vertical Interpolation type 
+!  (1=log in pressure, anything else=linear in pressure)
+  integer :: interp_type
+
+
 ! DEBUG_LEVEL:  Integer level of debug printing (from namelist)
   integer :: debug_level
 
@@ -47,6 +63,7 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_level, out_f
   real, pointer, dimension(:,:) :: ptr2d
 
   integer :: k, kk, mm, n, ierr, ifv
+  integer :: itest, nn, nl, lvls, tvls
   integer :: iunit=13
 
   character(LEN=19) :: hdate, hend
@@ -57,6 +74,11 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_level, out_f
   character(LEN=9) :: field
 
   integer :: ntime, idts
+
+  logical :: found_level
+  real, dimension(maxlvl) :: new_plvl_to_sort
+  integer :: largest_number_loc
+  integer :: new_plvl_counter
 
 ! DATELEN:  length of date strings to use for our output file names.
   integer :: datelen
@@ -134,6 +156,9 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_level, out_f
           case (1)
            read (iunit) map%startloc, map%lat1, map%lon1, map%dy, map%dx, &
                 map%truelat1, map%r_earth
+          case (6)
+           read (iunit) map%startloc, map%lat1, map%lon1, map%dy, map%dx, &
+                map%lat0,map%lon0, map%r_earth
           case default
              call mprintf(.true.,ERROR, &
                 "Unrecognized map%%igrid: %i in RRPR 1",i1=map%igrid)
@@ -202,6 +227,47 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_level, out_f
 ! Retrieve the number of levels in storage:
 !
      call get_plvls(plvl, maxlvl, nlvl)
+
+! Merge list of pressure levels in data with requested pressure levels
+     if ( add_lvls ) then
+       ! The merging code expects the user-defined pressure levels to be in
+       ! order from highest pressure to lowest pressure.  
+       ! Sort the user-defined pressure levels accordingly
+       new_plvl_to_sort = new_plvl
+       ! Set array containing pressure levels to add to the default value set in read_namelist.F
+       new_plvl = -99999
+       DO new_plvl_counter = 1,maxlvl
+        largest_number_loc = MAXLOC(new_plvl_to_sort, DIM=1)
+        new_plvl(new_plvl_counter)=new_plvl_to_sort(largest_number_loc)
+        new_plvl_to_sort(largest_number_loc)=-99999.
+       END DO
+
+       tvls = 1
+       lvls = 1
+       loop_nvls : do nn=1,maxlvl
+       loop_lvls : do nl=lvls,maxlvl
+         if ( tvls > maxlvl ) then
+          call mprintf(.true.,ERROR, "Adding user-defined pressure levels resulted in too &
+           &many total pressure levels.  Please increase maxlvl in ungrib.F")
+         endif
+         if ( plvl(nn) > 0.0 .AND. plvl(nn) >= new_plvl(nl) ) then
+           tlvl(tvls) = plvl(nn)
+           tvls = tvls + 1
+           if ( plvl(nn) == new_plvl(nl) ) lvls = lvls + 1
+           exit loop_lvls
+         endif
+         if ( plvl(nn) > 0.0 .AND. plvl(nn) < new_plvl(nl) ) then
+           tlvl(tvls) = new_plvl(nl)
+           tvls = tvls + 1
+           lvls = lvls + 1
+         endif
+         if ( plvl(nn) < 0.0 ) exit loop_nvls
+       enddo loop_lvls
+       enddo loop_nvls
+       plvl = tlvl
+       nlvl = tvls - 1
+     end if
+
 !
 ! Fill the surface level (code 200100) from higher 200100s, as necessary
 !
@@ -234,34 +300,57 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_level, out_f
 
 !
 ! If upper-air U is missing, see if we can interpolate from surrounding levels.
-! This is a simple vertical interpolation, linear in pressure.
-! Currently, this simply fills in one missing level between two present levels. 
+! This is a simple vertical interpolation, linear or log in pressure.
+! Currently, this simply fills in missing levels between two present levels.
 !
 
         do k = 2, nlvl-1, 1
            if (plvl(k-1) .lt. 200000.) then
               if ( (.not. is_there(nint(plvl(k)),'UU')) .and. &
-                   ( is_there(nint(plvl(k-1)), 'UU')) .and.&
-                   ( is_there(nint(plvl(k+1)), 'UU')) ) then
-                 call get_dims(nint(plvl(k+1)), 'UU')
-                 call vntrp(plvl, maxlvl, k, "UU      ", map%nx, map%ny)
+                   ( is_there(nint(plvl(k-1)), 'UU')) ) then
+                 found_level = .false.
+                 uu_loop : do itest = k+1,nlvl,1
+                   if ( ( is_there(nint(plvl(itest)), 'UU')) )  then
+                    found_level = .true.
+                    exit uu_loop
+                   endif
+                 enddo uu_loop
+                 if( found_level ) then
+                  call get_dims(nint(plvl(itest)), 'UU')
+                  call vntrp(plvl, maxlvl, k, itest, interp_type, "UU      ", map%nx, map%ny)
+                 else
+                  PRINT *,'WARNING: Could not interpolate UU to level k=',k,' p=',plvl(k),&
+                          'because could not find any level above this level.'
+                 endif
               endif
            endif
         enddo
 
 !
 ! If upper-air V is missing, see if we can interpolate from surrounding levels.
-! This is a simple vertical interpolation, linear in pressure.
-! Currently, this simply fills in one missing level between two present levels. 
+! This is a simple vertical interpolation, linear or log in pressure.
+! Currently, this simply fills in missing levels between two present levels.
 !
+
 
         do k = 2, nlvl-1, 1
            if (plvl(k-1) .lt. 200000.) then
               if ( (.not. is_there(nint(plvl(k)),'VV')) .and. &
-                   ( is_there(nint(plvl(k-1)), 'VV')) .and.&
-                   ( is_there(nint(plvl(k+1)), 'VV')) ) then
-                 call get_dims(nint(plvl(k+1)), 'VV')
-                 call vntrp(plvl, maxlvl, k, "VV      ", map%nx, map%ny)
+                   ( is_there(nint(plvl(k-1)), 'VV')) ) then
+                 found_level = .false.
+                 VV_loop : do itest = k+1,nlvl,1
+                   if ( ( is_there(nint(plvl(itest)), 'VV')) )  then
+                    found_level = .true.
+                    exit VV_loop
+                   endif
+                 enddo VV_loop
+                 if( found_level ) then
+                  call get_dims(nint(plvl(itest)), 'VV')
+                  call vntrp(plvl, maxlvl, k, itest, interp_type, "VV      ", map%nx, map%ny)
+                 else
+                  PRINT *,'WARNING: Could not interpolate VV to level k=',k,' p=',plvl(k),&
+                          'because could not find any level above this level.'
+                 endif
               endif
            endif
         enddo
@@ -296,24 +385,156 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_level, out_f
 !!!
 !
 ! If upper-air T is missing, see if we can interpolate from surrounding levels.
-! This is a simple vertical interpolation, linear in pressure.
-! Currently, this simply fills in one missing level between two present levels. 
+! This is a simple vertical interpolation, linear or log in pressure.
+! Currently, this simply fills in missing levels between two present levels.
 !
 
         do k = 2, nlvl-1, 1
            if (plvl(k-1) .lt. 200000.) then
               if ( (.not. is_there(nint(plvl(k)),'TT')) .and. &
-                   ( is_there(nint(plvl(k-1)), 'TT')) .and.&
-                   ( is_there(nint(plvl(k+1)), 'TT')) ) then
-                 call get_dims(nint(plvl(k+1)), 'TT')
-                 call vntrp(plvl, maxlvl, k, "TT      ", map%nx, map%ny)
+                   ( is_there(nint(plvl(k-1)), 'TT')) ) then
+                 found_level = .false.
+                 TT_loop : do itest = k+1,nlvl,1
+                   if ( ( is_there(nint(plvl(itest)), 'TT')) )  then
+                    found_level = .true.
+                    exit TT_loop
+                   endif
+                 enddo TT_loop
+                 if( found_level ) then
+                  call get_dims(nint(plvl(itest)), 'TT')
+                  call vntrp(plvl, maxlvl, k, itest, interp_type, "TT      ", map%nx, map%ny)
+                 else
+                  PRINT *,'WARNING: Could not interpolate TT to level k=',k,' p=',plvl(k),&
+                          'because could not find any level above this level.'
+                 endif
               endif
            endif
         enddo
 
+! Vertically interpolate to fill in other moisture variables
+! It seems that ultimately this should be wrapped in a function and probably loop over 
+! all variables that can be vertically interpolated
+
+! QC
+        do k = 2, nlvl-1, 1
+           if (plvl(k-1) .lt. 200000.) then
+              if ( (.not. is_there(nint(plvl(k)),'QC')) .and. &
+                   ( is_there(nint(plvl(k-1)), 'QC')) ) then
+                 found_level = .false.
+                 QC_loop : do itest = k+1,nlvl,1
+                   if ( ( is_there(nint(plvl(itest)), 'QC')) )  then
+                    found_level = .true.
+                    exit QC_loop
+                   endif
+                 enddo QC_loop
+                 if( found_level ) then
+                  call get_dims(nint(plvl(itest)), 'QC')
+                  call vntrp(plvl, maxlvl, k, itest, interp_type, "QC      ", map%nx, map%ny)
+                 else
+                  PRINT *,'WARNING: Could not interpolate QC to level k=',k,' p=',plvl(k),&
+                          'because could not find any level above this level.'
+                 endif
+              endif
+           endif
+        enddo
+
+! QR
+        do k = 2, nlvl-1, 1
+           if (plvl(k-1) .lt. 200000.) then
+              if ( (.not. is_there(nint(plvl(k)),'QR')) .and. &
+                   ( is_there(nint(plvl(k-1)), 'QR')) ) then
+                 found_level = .false.
+                 QR_loop : do itest = k+1,nlvl,1
+                   if ( ( is_there(nint(plvl(itest)), 'QR')) )  then
+                    found_level = .true.
+                    exit QR_loop
+                   endif
+                 enddo QR_loop
+                 if( found_level ) then
+                  call get_dims(nint(plvl(itest)), 'QR')
+                  call vntrp(plvl, maxlvl, k, itest, interp_type, "QR      ", map%nx, map%ny)
+                 else
+                  PRINT *,'WARNING: Could not interpolate QR to level k=',k,' p=',plvl(k),&
+                          'because could not find any level above this level.'
+                 endif
+              endif
+           endif
+        enddo
+
+! QS
+        do k = 2, nlvl-1, 1
+           if (plvl(k-1) .lt. 200000.) then
+              if ( (.not. is_there(nint(plvl(k)),'QS')) .and. &
+                   ( is_there(nint(plvl(k-1)), 'QS')) ) then
+                 found_level = .false.
+                 QS_loop : do itest = k+1,nlvl,1
+                   if ( ( is_there(nint(plvl(itest)), 'QS')) )  then
+                    found_level = .true.
+                    exit QS_loop
+                   endif
+                 enddo QS_loop
+                 if( found_level ) then
+                  call get_dims(nint(plvl(itest)), 'QS')
+                  call vntrp(plvl, maxlvl, k, itest, interp_type, "QS      ", map%nx, map%ny)
+                 else
+                  PRINT *,'WARNING: Could not interpolate QS to level k=',k,' p=',plvl(k),&
+                          'because could not find any level above this level.'
+                 endif
+              endif
+           endif
+        enddo
+
+! QG
+        do k = 2, nlvl-1, 1
+           if (plvl(k-1) .lt. 200000.) then
+              if ( (.not. is_there(nint(plvl(k)),'QG')) .and. &
+                   ( is_there(nint(plvl(k-1)), 'QG')) ) then
+                 found_level = .false.
+                 QG_loop : do itest = k+1,nlvl,1
+                   if ( ( is_there(nint(plvl(itest)), 'QG')) )  then
+                    found_level = .true.
+                    exit QG_loop
+                   endif
+                 enddo QG_loop
+                 if( found_level ) then
+                  call get_dims(nint(plvl(itest)), 'QG')
+                  call vntrp(plvl, maxlvl, k, itest, interp_type, "QG      ", map%nx, map%ny)
+                 else
+                  PRINT *,'WARNING: Could not interpolate QG to level k=',k,' p=',plvl(k),&
+                          'because could not find any level above this level.'
+                 endif
+              endif
+           endif
+        enddo
+
+
 !
 ! Check to see if we need to fill HGT from GEOPT.
 !
+!   First make sure no GEOPT is missing
+
+        do k = 2, nlvl-1, 1
+           if (plvl(k-1) .lt. 200000.) then
+              if ( (.not. is_there(nint(plvl(k)),'GEOPT')) .and. &
+                   ( is_there(nint(plvl(k-1)), 'GEOPT')) ) then
+                 found_level = .false.
+                 gg_loop : do itest = k+1,nlvl,1
+                   if ( ( is_there(nint(plvl(itest)), 'GEOPT')) )  then
+                    found_level = .true.
+                    exit gg_loop
+                   endif
+                 enddo gg_loop
+                 if( found_level ) then
+                  call get_dims(nint(plvl(itest)), 'GEOPT')
+                  call vntrp(plvl, maxlvl, k, itest, interp_type, "GEOPT      ", map%nx, map%ny)
+                 else
+                  PRINT *,'WARNING: Could not interpolate GEOPT to level k=',k,' p=',plvl(k),&
+                          'because could not find any level above this level.'
+                 endif
+              endif
+           endif
+        enddo
+
         do k = 1, nlvl
            if (plvl(k).lt.200000.) then
               if (.not. is_there(nint(plvl(k)), 'HGT').and. &
@@ -323,13 +544,32 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_level, out_f
                  call get_storage(nint(plvl(k)), 'GEOPT', scr2d, map%nx, map%ny)
                  scr2d = scr2d / 9.81
                  call put_storage(nint(plvl(k)), 'HGT',   scr2d, map%nx, map%ny)
+                 call mprintf(.true.,DEBUG, &
+                   "RRPR:   Computing GHT from GEOPT ")
                  deallocate(scr2d)
+              endif
+              if ( (.not. is_there(nint(plvl(k)),'HGT')) .and. &
+                   ( is_there(nint(plvl(k-1)), 'HGT')) ) then
+                 found_level = .false.
+                 hg_loop : do itest = k+1,nlvl,1
+                   if ( ( is_there(nint(plvl(itest)), 'HGT')) )  THEN
+                    found_level = .true.
+                    exit hg_loop
+                   ENDIF
+                 enddo hg_loop
+                 if( found_level ) then
+                  call get_dims(nint(plvl(itest)), 'HGT')
+                  call vntrp(plvl, maxlvl, k, itest, interp_type, "HGT      ", map%nx, map%ny)
+                 else
+                  PRINT *,'WARNING: Could not interpolate HGT to level k=',k,' p=',plvl(k),&
+                          'because could not find any level above this level.'
+                 endif
               endif
            endif
         enddo
 
 !
-! If this is GFS data, we might have data at the level of max wind speed, 
+! If this is GFS data, we might have data at the level of max wind speed,
 ! or the level of the tropopause.  If so, we want to replicate the pressures
 ! at those levels (new names).  The replicated names are to allow the
 ! metgrid program to interpolate the 2d pressure array with both a nearest
@@ -401,19 +641,29 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_level, out_f
         enddo
 !
 ! If upper-air RH is missing, see if we can interpolate from surrounding levels.
-! This is a simple vertical interpolation, linear in pressure.
-! Currently, this simply fills in one missing level between two present levels. 
-! May expand this in the future to fill in additional levels.  May also expand 
-! this in the future to vertically interpolate other variables.
+! This is a simple vertical interpolation, linear or log in pressure.
+! Currently, this simply fills in missing levels between two present levels.
+
 !
 
         do k = 2, nlvl-1, 1
            if (plvl(k-1) .lt. 200000.) then
               if ( (.not. is_there(nint(plvl(k)),'RH')) .and. &
-                   ( is_there(nint(plvl(k-1)), 'RH')) .and.&
-                   ( is_there(nint(plvl(k+1)), 'RH')) ) then
-                 call get_dims(nint(plvl(k+1)), 'RH')
-                 call vntrp(plvl, maxlvl, k, "RH      ", map%nx, map%ny)
+                   ( is_there(nint(plvl(k-1)), 'RH')) ) then
+                 found_level = .false.
+                 RH_loop : do itest = k+1,nlvl,1
+                   if ( ( is_there(nint(plvl(itest)), 'RH')) )  then
+                    found_level = .true.
+                    exit RH_loop
+                   endif
+                 enddo RH_loop
+                 if( found_level ) then
+                  call get_dims(nint(plvl(itest)), 'RH')
+                  call vntrp(plvl, maxlvl, k, itest, interp_type, "RH      ", map%nx, map%ny)
+                 else
+                  PRINT *,'WARNING: Could not interpolate RH to level k=',k,' p=',plvl(k),&
+                          'because could not find any level above this level.'
+                 endif
               endif
            endif
         enddo
@@ -504,6 +754,14 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_level, out_f
           endif
         endif
 
+! Modify the 2017 GFS masked fields
+        if (index(map%source,'NCEP GFS') .ne. 0 ) then
+          call mprintf(.true.,DEBUG, &
+             "RRPR:   Adjusting GFS masked fields ")
+             call get_dims(200100, 'ST000010')
+             call fix_gfs_miss (map%nx, map%ny, 200100.)
+        endif
+
 ! Add residual soil moisture to SOILM* if initialized from the GSD RUC model or from NCEP RUC
       if (index(map%source,'NOAA GSD') .ne. 0 .or.    &
           index(map%source,'NCEP RUC Model') .ne. 0) then
@@ -528,6 +786,8 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, debug_level, out_f
            call get_storage(200100, 'SOILGEO', scr2d, map%nx, map%ny)
            scr2d = scr2d / 9.81
            call put_storage(200100, 'SOILHGT', scr2d, map%nx, map%ny)
+           call mprintf(.true.,DEBUG, &
+             "RRPR:   Computing SOILGHT from SOILGEO ")
            deallocate(scr2d)
         endif
 
@@ -923,27 +1183,119 @@ subroutine gfs_trop_maxw_pressures(ix,jx)
 
 end subroutine gfs_trop_maxw_pressures
 
-subroutine vntrp(plvl, maxlvl, k, name, ix, jx)
+subroutine vntrp(plvl, maxlvl, k, k2, interp_type, name, ix, jx)
   use storage_module
+  use module_debug
   implicit none
-  integer :: ix, jx, k, maxlvl
+  integer :: ix, jx, k, k2, maxlvl
   real, dimension(maxlvl) :: plvl
   character(len=8) :: name
   real, dimension(ix,jx) :: a, b, c
   real :: frc
+  integer :: interp_type
 
-  write(*,'("Interpolating to fill in ", A, " at level ", I8)') trim(name), nint(plvl(k))
+  write(*,'("Interpolating to fill in ", A, " at level ", F8.2, " hPa using levels ", F8.2," hPa and ", &
+            F8.2," hPa")') trim(name), plvl(k)/100.0,plvl(k-1)/100.0, plvl(k2)/100.0
+  call mprintf(.true.,INFORM, &
+    "RRPR: Interpolating to fill in %s at %i Pa using levels %i Pa and %i Pa",&
+    s1=trim(name), i1=int(plvl(k)), i2=int(plvl(k-1)), i3=int(plvl(k2)))
 
   call  get_storage(nint(plvl(k-1)), name, a, ix, jx)
-  call  get_storage(nint(plvl(k+1)), name, c, ix, jx)
+  call  get_storage(nint(plvl(k2)), name, c, ix, jx)
 
-  frc = (plvl(k) - plvl(k+1)) / ( plvl(k-1)-plvl(k+1))
+  if ( interp_type == 1 ) then
+    frc = log(plvl(k)/plvl(k2)) / log(plvl(k-1)/plvl(k2))
+  else
+    frc = (plvl(k) - plvl(k2)) / (plvl(k-1)-plvl(k2))
+  endif
 
   b = (1.-frc)*c + frc*a
+  
 !KWM  b = 0.5 * (a + c)
   call  put_storage(nint(plvl(k)), name, b, ix, jx)
 
 end subroutine vntrp
+
+
+subroutine fix_gfs_miss (ix, jx, plvl)
+! This routine replaces July 2017 GFS missing values with the WPS one.
+! Earlier GFS files are unmodified.
+! As of 2017, NCEP changed 'ocean' values for masked fields (ST, SM, SNOWH, etc.) 
+! from 0 to something other than missing. We will assume any large value 
+! (greater than 10^^18) is a missing code.
+! We reset it to the WPS missing value (as set in METGRID.TBL)
+! Changes described in http://www.nws.noaa.gov/os/notification/scn17-67gfsupgradeaaa.htm
+! plvl must always be 200100.
+! While, technically, any 3-d field could have a missing value in it we only deal with 
+! the surface fields which are known to have missing values. 
+!
+  use storage_module
+  implicit none
+  integer :: ix, jx, i, j, k
+  real :: plvl
+  real, allocatable, dimension(:,:) :: f, sea
+  integer, parameter :: nvar = 10
+  character, dimension(nvar) :: flist*8
+  data flist/'ST000010','ST010040','ST040100','ST100200','ST010200', &
+             'SM000010','SM010040','SM040100','SM100200','SM010200' /
+  allocate(sea(ix,jx))
+  allocate(f(ix,jx))
+! If LANDN is present (July 2017 and later GFS output), use it for LANDSEA
+  if ( is_there(200100, 'LANDN') ) then
+    call get_storage(200100, 'LANDN', sea, ix, jx)
+    call put_storage(200100, 'LANDSEA', sea, ix, jx)
+  endif
+  do k = 1, nvar
+    if (is_there(200100, flist(k) )) then
+      call get_storage(nint(plvl), flist(k), f, ix, jx)
+      do j = 1, jx
+      do i = 1, ix
+	if (abs(f(i,j)) .gt. 1.e18) then
+	  f(i,j) = -1.e30
+	endif
+      enddo
+      enddo
+! Limit soil moisture to .468 (should only occur for permanent land ice points
+! according to NCEP documentation.)
+      if (flist(k)(1:2) .eq. 'SM' ) then
+	do j = 1, jx
+	do i = 1, ix
+	  if ((f(i,j)) .gt. 0.468) then
+	    f(i,j) = 0.468
+	  endif
+	enddo
+	enddo
+      endif
+      call put_storage(200100, flist(k), f, ix, jx)
+    endif
+  enddo
+! Snow fields have a different WPS missing value and must be adjusted 
+! separately from the soil fields (unless we want to have an array of missing values,too).
+  if (is_there(200100, 'SNOW' )) then
+    call get_storage(200100, 'SNOW', f, ix, jx)
+    do j = 1, jx
+    do i = 1, ix
+	if (abs(f(i,j)) .gt. 1.e18) then
+	  f(i,j) = 0
+	endif
+    enddo
+    enddo
+    call put_storage(200100, 'SNOW', f, ix, jx)
+  endif
+  if (is_there(200100, 'SNOWH' )) then
+    call get_storage(200100, 'SNOWH', f, ix, jx)
+    do j = 1, jx
+    do i = 1, ix
+	if (abs(f(i,j)) .gt. 1.e18) then
+	  f(i,j) = 0
+	endif
+    enddo
+    enddo
+    call put_storage(200100, 'SNOWH', f, ix, jx)
+  endif
+  deallocate (f)
+  deallocate (sea)
+end subroutine fix_gfs_miss
 
 subroutine fix_gfs_rh (ix, jx, plvl)
 ! This routine replaces GFS RH (wrt ice) with RH wrt liquid (which is what is assumed in real.exe).
