@@ -66,7 +66,7 @@ queue_module.o: module_debug.o
 
 read_met_module.o: constants_module.o misc_definitions_module.o module_debug.o met_data_module.o
 
-rotate_winds_module.o: bitarray_module.o constants_module.o llxy_module.o misc_definitions_module.o module_debug.o
+rotate_winds_module.o: bitarray_module.o constants_module.o llxy_module.o misc_definitions_module.o module_debug.o module_map_utils.o
 
 storage_module.o: datatype_module.o minheap_module.o misc_definitions_module.o module_debug.o parallel_module.o module_stringutil.o
 
