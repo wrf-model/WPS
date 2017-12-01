@@ -173,11 +173,11 @@ module rotate_winds_module
                   if (proj_stack(current_nest_number)%code == PROJ_LC) then
                      alpha = diff * proj_stack(current_nest_number)%cone * rad_per_deg * proj_stack(current_nest_number)%hemi 
                   else if (proj_stack(current_nest_number)%code == PROJ_CASSINI) then
-                     call latlon_to_ij ( proj_stack(current_nest_number)%code , &
+                     call latlon_to_ij ( proj_stack(SOURCE_PROJ) , &
                                          xlat_u(i,j), xlon_u(i,j), x_u, y_u )
-                     call ij_to_latlon ( proj_stack(current_nest_number)%code , &
+                     call ij_to_latlon ( proj_stack(SOURCE_PROJ) , &
                                          x_u, y_u + 0.1 , xlat_u_p1 , xlon_u_p1 )
-                     call ij_to_latlon ( proj_stack(current_nest_number)%code , &
+                     call ij_to_latlon ( proj_stack(SOURCE_PROJ) , &
                                          x_u, y_u - 0.1 , xlat_u_m1 , xlon_u_m1 )
                      diff_lon = xlon_u_p1-xlon_u_m1
                      if (diff_lon > 180.) then
@@ -248,11 +248,11 @@ module rotate_winds_module
                   if (proj_stack(current_nest_number)%code == PROJ_LC) then
                      alpha = diff * proj_stack(current_nest_number)%cone * rad_per_deg * proj_stack(current_nest_number)%hemi 
                   else if (proj_stack(current_nest_number)%code == PROJ_CASSINI) then
-                     call latlon_to_ij ( proj_stack(current_nest_number)%code , &
+                     call latlon_to_ij ( proj_stack(SOURCE_PROJ) , &
                                          xlat_v(i,j), xlon_v(i,j), x_v, y_v )
-                     call ij_to_latlon ( proj_stack(current_nest_number)%code , &
+                     call ij_to_latlon ( proj_stack(SOURCE_PROJ) , &
                                          x_v, y_v + 0.1 , xlat_v_p1 , xlon_v_p1 )
-                     call ij_to_latlon ( proj_stack(current_nest_number)%code , &
+                     call ij_to_latlon ( proj_stack(SOURCE_PROJ) , &
                                          x_v, y_v - 0.1 , xlat_v_m1 , xlon_v_m1 )
                      diff_lon = xlon_v_p1-xlon_v_m1
                      if (diff_lon > 180.) then
