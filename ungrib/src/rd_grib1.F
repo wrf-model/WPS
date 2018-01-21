@@ -60,7 +60,7 @@
 !                                                                             !
 !*****************************************************************************!
 SUBROUTINE rd_grib1(IUNIT, gribflnm, level, field, hdate,  &
-     ierr, iuarr, debug_level)
+     ierr, iuarr, debug_level, ec_rec_len)
   use table
   use gridinfo
   use datarray
@@ -68,7 +68,7 @@ SUBROUTINE rd_grib1(IUNIT, gribflnm, level, field, hdate,  &
 
   implicit none
 
-  integer :: debug_level
+  integer :: debug_level, ec_rec_len
   integer :: iunit ! Array number in IUARR assigned to the C read pointer.
   integer, dimension(100) :: KSEC1
   integer, dimension(10) :: KSEC2 
@@ -124,7 +124,7 @@ SUBROUTINE rd_grib1(IUNIT, gribflnm, level, field, hdate,  &
 
 ! Read a single GRIB record, but do no unpacking now:
 
-  call gribget(iuarr(iunit), ierr)
+  call gribget(iuarr(iunit), ierr, ec_rec_len)
 
   if (ierr.ne.0) then
      call mprintf(.true.,DEBUG,"RD_GRIB1 gribget read error, ierr = %i",i1=ierr)
@@ -134,7 +134,7 @@ SUBROUTINE rd_grib1(IUNIT, gribflnm, level, field, hdate,  &
 !
 ! Unpack the header information:
 !
-  call gribheader(debug_level,igherr)
+  call gribheader(debug_level,igherr,ec_rec_len)
   if (igherr /= 0) then
      field = "NULL"
      call deallogrib

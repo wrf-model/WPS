@@ -14,11 +14,11 @@
 !                                                                             !
 ! The main user interfaces are:                                               !
 !                                                                             !
-!  SUBROUTINE GRIBGET(NUNIT, IERR)                                            !
+!  SUBROUTINE GRIBGET(NUNIT, IERR, ec_rec_len)                                !
 !      Read a single GRIB record from UNIX file-descriptor NUNIT into array   !
 !      GREC. No unpacking of any header or data values is performed.          !
 !                                                                             !
-!  SUBROUTINE GRIBREAD(NUNIT, DATA, NDATA, IERR)                              !
+!  SUBROUTINE GRIBREAD(NUNIT, DATA, NDATA, IERR, ec_rec_len)                  !
 !      Read a single GRIB record from UNIX file-descriptor NUNIT, and unpack  !
 !      all header and data values into the appropriate arrays.                !
 !                                                                             !
@@ -251,7 +251,7 @@ contains
 !=============================================================================!
 !=============================================================================!
 !
-  integer function gribsize(trec, ilen, ierr)
+  integer function gribsize(trec, ilen, ierr, ec_rec_len)
 !-----------------------------------------------------------------------------!
 ! Return the size of a single GRIB record.                                    !
 !                                                                             !
@@ -272,7 +272,7 @@ contains
 !                                                                             !
 !-----------------------------------------------------------------------------!
     implicit none
-    integer :: ilen
+    integer :: ilen, ec_rec_len
     integer, dimension(ilen) :: trec
     integer :: isz0 = 32
     integer :: isz1 = 0
@@ -295,7 +295,11 @@ contains
     if (ied.eq.1) then
        ! Grib1
        ! Find the size of the whole GRIB record
-       call gbyte_g1(trec, gribsize, 32, 24)
+       if ( ec_rec_len .ne. 0 ) then
+         gribsize = ec_rec_len
+       else
+         call gbyte_g1(trec, gribsize, 32, 24)
+       endif
 
 ! GRIB Edition 0 does not include the total size, so we have to sum up        !
 ! the sizes of the individual sections                                        !
@@ -350,7 +354,7 @@ contains
 !=============================================================================!
 !=============================================================================!
 !
-  subroutine findgrib(nunit, isize, ierr)
+  subroutine findgrib(nunit, isize, ierr, ec_rec_len)
 
 !-----------------------------------------------------------------------------!
 !                                                                             !
@@ -382,7 +386,7 @@ contains
 !                                                                             !
 !-----------------------------------------------------------------------------!
     implicit none
-    integer, intent(in) :: nunit
+    integer, intent(in) :: nunit, ec_rec_len
     integer, intent(out) :: isize
     integer, intent(out) :: ierr
 
@@ -446,7 +450,7 @@ contains
 #ifdef BYTESWAP
       call swap4(trec, isz)
 #endif
-    isize = gribsize(trec, isz, ierr)
+    isize = gribsize(trec, isz, ierr, ec_rec_len)
 
   end subroutine findgrib
 !
@@ -763,7 +767,7 @@ end module module_grib
 !=============================================================================!
 !=============================================================================!
 !
-subroutine gribget(nunit, ierr)
+subroutine gribget(nunit, ierr, ec_rec_len)
   use module_grib
 !-----------------------------------------------------------------------------!
 !                                                                             !
@@ -790,12 +794,12 @@ subroutine gribget(nunit, ierr)
 
   implicit none
 
-  integer :: nunit
+  integer :: nunit, ec_rec_len
   integer :: ierr
   integer :: isz, isize
 
 ! Position the file pointer at the beginning of the GRIB record.
-  call findgrib(nunit, isize, ierr)
+  call findgrib(nunit, isize, ierr, ec_rec_len)
   if (ierr.ne.0) return
 
 ! Allocate the GREC array to be able to hold the data
@@ -821,7 +825,7 @@ end subroutine gribget
 !=============================================================================!
 !=============================================================================!
 !
-subroutine gribread(nunit, data, ndata, debug_level, ierr)
+subroutine gribread(nunit, data, ndata, debug_level, ierr, ec_rec_len)
 !-----------------------------------------------------------------------------!
 ! Read one grib record, unpack the header and data information.               !
 !                                                                             !
@@ -852,7 +856,7 @@ subroutine gribread(nunit, data, ndata, debug_level, ierr)
 
   implicit none
 
-  integer :: nunit
+  integer :: nunit, ec_rec_len
   integer :: debug_level
   integer :: ierr
   real, allocatable, dimension(:) :: datarray
@@ -863,12 +867,12 @@ subroutine gribread(nunit, data, ndata, debug_level, ierr)
 
   ierr = 0
 
-  call gribget(nunit, ierr)
+  call gribget(nunit, ierr, ec_rec_len)
   if (ierr.ne.0) return
 
 ! Unpack the header information
 
-  call gribheader(debug_level,ierr)
+  call gribheader(debug_level,ierr, ec_rec_len)
 
 ! Determine the size of the data array from the information in the header, 
 ! and allocate the array DATARRAY to hold that data.
@@ -1250,14 +1254,14 @@ end subroutine glccone
 !=============================================================================!
 !=============================================================================!
 !
-subroutine gribheader(debug_level,ierr)
+subroutine gribheader(debug_level,ierr, ec_rec_len)
 !
 ! IERR non-zero means there was a problem unpacking the grib header.
 !
   use module_grib
   implicit none
   integer :: debug_level
-  integer :: ierr
+  integer :: ierr, ec_rec_len
 
   integer, parameter :: nsec1 = 24
 
@@ -1284,10 +1288,14 @@ subroutine gribheader(debug_level,ierr)
 ! Section 0:
   sec0(2) = ied
   if (ied.eq.1) then
-     call gbyte_g1(grec, sec0(1), 32, 24)
+     if ( ec_rec_len .ne. 0 ) then
+       sec0(1) = ec_rec_len
+     else
+       call gbyte_g1(grec, sec0(1), 32, 24)
+     endif
      iskip = 64
   elseif (ied.eq.0) then
-     sec0(1) = gribsize(grec,200, ierr)
+     sec0(1) = gribsize(grec,200, ierr, 0)
      iskip = 32
   endif
 
