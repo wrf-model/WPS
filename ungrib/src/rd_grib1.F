@@ -399,7 +399,7 @@ SUBROUTINE rd_grib1(IUNIT, gribflnm, level, field, hdate,  &
      map%lon1 = ginfo(4)
      !  If this is global data, then the dx and dy are more accurately
      !  computed by the number of points than the 3 digits grib permits.
-     if ( ABS(map%nx * map%dx - 360.) .lt. 1 ) then
+     if ( ABS(map%nx * map%dx - 360.) .lt. 2. ) then         ! Check if it's a global grid
         if ( ABS ( map%dx - (360./real(map%nx)) ) .gt. 0.00001 ) then
            !print *,'old dx = ',ginfo(8)
            map%dx = 360./real(map%nx)
@@ -473,7 +473,7 @@ SUBROUTINE rd_grib1(IUNIT, gribflnm, level, field, hdate,  &
      if (tmp8(5:5) .eq. '0') map%grid_wind = .false.
 !  If this is global data, then the dx and dy are more accurately
 !  computed by the number of points than the 3 digits grib permits.
-     if ( ABS(map%nx * map%dx - 360.) .lt. 1. ) then
+     if ( ABS(map%nx * map%dx - 360.) .lt. 2. ) then         ! Check if it's a global grid
         if ( ABS ( map%dx - (360./real(map%nx)) ) .gt. 0.00001 ) then
          ! print *,'old dx = ',ginfo(8)
            map%dx = 360./real(map%nx)
