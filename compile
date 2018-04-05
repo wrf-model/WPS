@@ -112,7 +112,7 @@ endif
 # Print out WPS version, system info, and compiler/version
 echo "============================================================================================== "
   echo " "
-  echo Version 3.9 
+  echo Version 4.0 
   echo " "
   uname -a
   echo " "
