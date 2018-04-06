@@ -297,7 +297,9 @@ name=ALBEDO12M
         z_dim_name=month
         masked = water
         fill_missing = 8.
+        interp_option=albedo_modis:four_pt+average_4pt+average_16pt+search
         interp_option=default:four_pt+average_4pt+average_16pt+search
+        rel_path=albedo_modis:albedo_modis/
         rel_path=default:albedo_ncep/
 ===============================
 name=GREENFRAC
@@ -328,9 +330,11 @@ name=LAI12M
 name=SNOALB
         priority=1
         dest_type=continuous
+        interp_option=maxsnowalb_modis:four_pt+average_4pt+average_16pt+search
         interp_option=default:four_pt+average_4pt+average_16pt+search
         masked = water
         fill_missing = 0.
+        rel_path=maxsnowalb_modis:maxsnowalb_modis/
         rel_path=default:maxsnowalb/
 ===============================
 name=SLOPECAT
