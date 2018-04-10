@@ -409,6 +409,7 @@ name = EROD
         fill_missing=0.
         interp_option = default:average_4pt
         rel_path = default:erod/
+        flag_in_output=FLAG_EROD
 ===============================
 name = CLAYFRAC
         priority = 1
@@ -418,6 +419,7 @@ name = CLAYFRAC
         fill_missing=0.
         interp_option = default:four_pt+average_4pt+average_16pt+search
         rel_path = default:clayfrac_5m/
+        flag_in_output=FLAG_CLAYFRAC
 ===============================
 name = SANDFRAC
         priority = 1
@@ -427,4 +429,5 @@ name = SANDFRAC
         fill_missing=0.
         interp_option = default:four_pt+average_4pt+average_16pt+search
         rel_path = default:sandfrac_5m/
+        flag_in_output=FLAG_SANDFRAC
 ===============================
