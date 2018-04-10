@@ -404,3 +404,34 @@ name=CANFRA
         fill_missing=0.
         rel_path = default:nlcd2011_can_ll_9s/
 ===============================
+name = EROD
+        priority = 1
+        optional=yes
+        dest_type = continuous
+        masked=water
+        z_dim_name=dust_erosion_dimension
+        fill_missing=0.
+        interp_option = default:average_4pt
+        rel_path = default:erod/
+        flag_in_output=FLAG_EROD
+===============================
+name = CLAYFRAC
+        priority = 1
+        optional=yes
+        dest_type = continuous
+        masked=water
+        fill_missing=0.
+        interp_option = default:four_pt+average_4pt+average_16pt+search
+        rel_path = default:clayfrac_5m/
+        flag_in_output=FLAG_CLAYFRAC
+===============================
+name = SANDFRAC
+        priority = 1
+        optional=yes
+        dest_type = continuous
+        masked=water
+        fill_missing=0.
+        interp_option = default:four_pt+average_4pt+average_16pt+search
+        rel_path = default:sandfrac_5m/
+        flag_in_output=FLAG_SANDFRAC
+===============================
