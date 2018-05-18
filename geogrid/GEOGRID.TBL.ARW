@@ -124,9 +124,11 @@ name=ALBEDO12M
         masked = water
         fill_missing = 8.
         interp_option=albedo_modis:four_pt+average_4pt+average_16pt+search
+        interp_option=albedo_ncep:four_pt+average_4pt+average_16pt+search
         interp_option=default:four_pt+average_4pt+average_16pt+search
         rel_path=albedo_modis:albedo_modis/
-        rel_path=default:albedo_ncep/
+        rel_path=albedo_ncep:albedo_ncep/
+        rel_path=default:albedo_modis/
 ===============================
 name=GREENFRAC
         priority=1
@@ -157,11 +159,13 @@ name=SNOALB
         priority=1
         dest_type=continuous
         interp_option=maxsnowalb_modis:four_pt+average_4pt+average_16pt+search
+        interp_option=maxsnowalb_ncep:four_pt+average_4pt+average_16pt+search
         interp_option=default:four_pt+average_4pt+average_16pt+search
         masked = water
         fill_missing = 0.
         rel_path=maxsnowalb_modis:maxsnowalb_modis/
-        rel_path=default:maxsnowalb/
+        rel_path=maxsnowalb_ncep:maxsnowalb/
+        rel_path=default:maxsnowalb_modis/
 ===============================
 name=SLOPECAT
         priority=1
