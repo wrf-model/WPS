@@ -167,16 +167,6 @@ name=SNOALB
         rel_path=maxsnowalb_ncep:maxsnowalb/
         rel_path=default:maxsnowalb_modis/
 ===============================
-name=SLOPECAT
-        priority=1
-        dominant_only=SLOPECAT
-        dest_type=categorical
-        z_dim_name=slope_cat
-        masked = water
-        fill_missing = 0.
-        interp_option=default:nearest_neighbor+average_16pt+search
-        rel_path=default:islope/
-===============================
 name = CON
         priority = 1
         dest_type = continuous
