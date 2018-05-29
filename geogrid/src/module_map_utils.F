@@ -781,7 +781,7 @@ MODULE map_utils
       REAL                                :: reflon
       REAL                                :: scale_top
       REAL                                :: xx,yy
-      REAL                                :: gi2, r2
+      REAL(KIND=HIGH)                     :: gi2, r2
       REAL                                :: arccos
   
       ! Begin Code
