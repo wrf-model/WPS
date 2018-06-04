@@ -349,6 +349,7 @@ name = OL4
 ===============================
 name = VAR_SSO 
         priority = 1
+        optional=yes
         dest_type = continuous
         fill_missing=0.
         interp_option =   30s:average_gcell(4.0)+four_pt+average_4pt
@@ -364,6 +365,7 @@ name = VAR_SSO
 ===============================
 name = LAKE_DEPTH
         priority=1
+        optional=yes
         dest_type = continuous
         fill_missing = 10.
         masked=land
