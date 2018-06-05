@@ -18,6 +18,7 @@
 !                 stored.                                                     !
 !       gribflnm     : File name to open, if it is not already open.          !
 !       debug_level  : Integer for various amounts of printout.               !
+!       pmin         : Minimum pressure level (Pa) to process.                !
 !                                                                             !
 !    Output:                                                                  !
 !                                                                             !
@@ -35,7 +36,7 @@
 !*****************************************************************************!
       
       SUBROUTINE rd_grib2(junit, gribflnm, hdate, 
-     &  grib_edition, ireaderr, debug_level)
+     &  grib_edition, ireaderr, debug_level, pmin)
 
       use grib_mod
       use params
@@ -75,6 +76,7 @@
       integer , dimension(maxlvl) :: level_array
       real :: glevel1, glevel2
       logical :: first = .true.
+      real :: pmin
 
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 C  SET ARGUMENTS
@@ -327,6 +329,18 @@ C  SET ARGUMENTS
            else
              map%source = 'unknown model and orig center'
            end if
+           if (icenter.eq.7) then
+             if (iprocess.eq.81 .or. iprocess.eq.82 .or.
+     &           iprocess.eq.96) then
+!  pmin should not be 15 or 40 hPa for gfs files. Use the next highest level.
+               if (pmin .eq. 1500.) then
+                 pmin = 1000.
+               else if (pmin .eq. 4000.) then
+                 pmin = 3000.
+               endif
+             endif
+           endif
+
            call mprintf(.true.,DEBUG,"G2 source is = %s ",
      &                  newline=.true., s1=map%source)
 
@@ -741,6 +755,7 @@ C  SET ARGUMENTS
                  ! Pressure level (range from 1000mb to 0mb)
                  level=gfld%ipdtmpl(12) *
      &                           (10. ** (-1. * gfld%ipdtmpl(11)))
+		 if ( level .lt. pmin ) cycle MATCH_LOOP
               elseif((gfld%ipdtmpl(10).eq.105).or.
      &               (gfld%ipdtmpl(10).eq.118))then
                  ! Hybrid level (range from 1 to N)

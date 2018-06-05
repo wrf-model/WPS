@@ -57,7 +57,7 @@ program ungrib
   interface
    subroutine read_namelist(hstart, hend, delta_time, ntimes,&
     ordered_by_date, debug_level, out_format, prefix,    &
-    add_lvls, new_plvl, interp_type, ec_rec_len)
+    add_lvls, new_plvl, interp_type, ec_rec_len, pmin)
   
     use misc_definitions_module
 
@@ -71,6 +71,7 @@ program ungrib
     logical :: add_lvls
     real, dimension(:) :: new_plvl
     integer :: interp_type, ec_rec_len
+    real :: pmin
    end subroutine read_namelist
   end interface 
 
@@ -85,6 +86,7 @@ program ungrib
   integer :: iplvl
   logical :: add_lvls
   integer :: interp_type, ec_rec_len
+  real :: pmin
 
   integer :: nlvl
 
@@ -116,7 +118,7 @@ program ungrib
 
   call read_namelist(hstart, hend, interval, ntimes, &
        ordered_by_date, debug_level, out_format, prefix, &
-       add_lvls, new_plvl, interp_type, ec_rec_len)
+       add_lvls, new_plvl, interp_type, ec_rec_len, pmin)
 
   call mprintf(.true.,INFORM,"Interval value: %i seconds or  %f hours", &
                i1=interval, f1=float(interval)/3600.)
@@ -232,13 +234,13 @@ program ungrib
 		     "flnm = %s",s1=gribflnm)
                  ! Read one record at a time from GRIB1 (and older Editions) 
                  call rd_grib1(nunit1, gribflnm, level, field, &
-                      hdate, ierr, iuarr, debug_level, ec_rec_len)
+                      hdate, ierr, iuarr, debug_level, ec_rec_len, pmin)
               else 
 
                  ! Read one file of records from GRIB2.
                  call mprintf(.true.,DEBUG,"Calling rd_grib2")
                  call rd_grib2(nunit1, gribflnm, hdate, &
-                      grib_version, ierr, debug_level)
+                      grib_version, ierr, debug_level, pmin)
                  FIELD='NULL'
 
               endif

@@ -22,6 +22,8 @@
 !                 file GRIBFLNM must be opened, and the value of IUARR(IUNIT) !
 !                 becomes the UNIX File descriptor to read from.              !
 !       DEBUG_LEVEL Integer for various amounts of printout.                    !
+!       EC_REC_LEN :  Record length for EC ds113.0 files.                     !
+!       PMIN    : Minimum pressure level (Pa) to process.                     !
 !                                                                             !
 !    Output:                                                                  !
 !       LEVEL    : The pressure-level (Pa) of the field to process.           !
@@ -60,7 +62,7 @@
 !                                                                             !
 !*****************************************************************************!
 SUBROUTINE rd_grib1(IUNIT, gribflnm, level, field, hdate,  &
-     ierr, iuarr, debug_level, ec_rec_len)
+     ierr, iuarr, debug_level, ec_rec_len, pmin)
   use table
   use gridinfo
   use datarray
@@ -91,6 +93,7 @@ SUBROUTINE rd_grib1(IUNIT, gribflnm, level, field, hdate,  &
   integer :: i, lvl2, lvl1
   character(LEN=19) :: hdate
   integer :: igherr
+  real :: pmin
 
 ! Variables for thinned grids:
   logical :: lthinned = .FALSE.
@@ -296,6 +299,7 @@ SUBROUTINE rd_grib1(IUNIT, gribflnm, level, field, hdate,  &
                  level = -999.
                  if (ktype.eq.100) then ! Pressure-level
                     level=lvl1
+		    if ( level .lt. pmin ) field = 'NULL'
                  elseif (ktype.eq.102) then
                     level=201300.
                  elseif ((ktype.eq.116.and.lvl1.le.50.and.lvl2.eq.0) .or. &
