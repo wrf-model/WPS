@@ -68,6 +68,8 @@
 &ungrib
  out_format = 'WPS',
  prefix     = 'FILE',
+ ec_rec_len = 26214508,
+ pmin = 100.
 /
 
 &metgrid
