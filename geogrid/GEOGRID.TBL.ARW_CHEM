@@ -376,6 +376,7 @@ name = VAR_SSO
         rel_path =        5m:varsso_5m/
         rel_path =        10m:varsso_10m/
         rel_path =        default:varsso_10m/
+        flag_in_output=FLAG_VAR_SSO
 ===============================
 name = LAKE_DEPTH
         priority=1
@@ -395,6 +396,7 @@ name=URB_PARAM
         z_dim_name=num_urb_params
         interp_option=default:nearest_neighbor
         rel_path=default:NUDAPT44_1km/
+        flag_in_output=FLAG_URB_PARAM
 ===============================
 name=FRC_URB2D
         priority=1
