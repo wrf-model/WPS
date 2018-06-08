@@ -403,6 +403,7 @@ name = VAR_SSO
         rel_path =        10m:varsso_10m/
         rel_path =        lowres:varsso_10m/
         rel_path =        default:varsso_10m/
+        flag_in_output=FLAG_VAR_SSO
 ===============================
 name = LAKE_DEPTH
         priority=1
@@ -422,6 +423,7 @@ name=URB_PARAM
         z_dim_name=num_urb_params
         interp_option=default:nearest_neighbor
         rel_path=default:NUDAPT44_1km/
+        flag_in_output=FLAG_URB_PARAM
 ===============================
 name=FRC_URB2D
         priority=1
@@ -440,6 +442,7 @@ name=IMPERV
         masked=water
         fill_missing=0.
         rel_path = default:nlcd2011_imp_ll_9s/
+        flag_in_output=FLAG_IMPERV
 ===============================
 name=CANFRA
         priority=1
@@ -449,6 +452,7 @@ name=CANFRA
         masked=water
         fill_missing=0.
         rel_path = default:nlcd2011_can_ll_9s/
+        flag_in_output=FLAG_CANFRA
 ===============================
 name = EROD
         priority = 1
