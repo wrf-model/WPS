@@ -15,7 +15,7 @@ subroutine datint(fuldates, nful, hstart, ntimes, interval, out_format, prefix)
   implicit none
   integer :: nful
   integer :: interval
-  character(len=*), dimension(nful) :: fuldates
+  character(len=*), dimension(nful+1) :: fuldates
   character(len=*) :: hstart
   integer :: ntimes
 
