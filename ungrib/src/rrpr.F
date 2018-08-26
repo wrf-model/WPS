@@ -758,8 +758,10 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, &
         if (index(map%source,'NCEP GFS') .ne. 0 ) then
           call mprintf(.true.,DEBUG, &
              "RRPR:   Adjusting GFS masked fields ")
-             call get_dims(200100, 'ST000010')
-             call fix_gfs_miss (map%nx, map%ny, 200100.)
+	     if ( is_there(200100, 'ST000010')) then
+               call get_dims(200100, 'ST000010')
+               call fix_gfs_miss (map%nx, map%ny, 200100.)
+	     endif
         endif
 
 ! Add residual soil moisture to SOILM* if initialized from the GSD RUC model or from NCEP RUC

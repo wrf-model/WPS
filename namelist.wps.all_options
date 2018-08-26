@@ -37,16 +37,14 @@
  e_sn              =  61,  97,
  !
  !!!!!!!!!!!!!!!!!!!!!!!!!!!! IMPORTANT NOTE !!!!!!!!!!!!!!!!!!!!!!!!!!!!
- ! The default datasets used to produce the HGT_M, GREENFRAC,
- ! and LU_INDEX/LANDUSEF fields have changed in WPS v3.8. The HGT_M field
- ! is now interpolated from 30-arc-second USGS GMTED2010, the GREENFRAC
- ! field is interpolated from MODIS FPAR, and the LU_INDEX/LANDUSEF fields
- ! are interpolated from 21-class MODIS.
+ ! The default datasets used to produce the MAXSNOALB and ALBEDO12M
+ ! fields have changed in WPS v4.0. These fields are now interpolated
+ ! from MODIS-based datasets.
  !
- ! To match the output given by the default namelist.wps.all_options 
- ! in WPS v3.7.1, the following setting for geog_data_res may be used:
+ ! To match the output given by the default namelist.wps in WPS v3.9.1,
+ ! the following setting for geog_data_res may be used:
  !
- ! geog_data_res = 'gtopo_10m+usgs_10m+nesdis_greenfrac+10m','gtopo_2m+usgs_2m+nesdis_greenfrac+2m',
+ ! geog_data_res = 'maxsnowalb_ncep+albedo_ncep+default', 'maxsnowalb_ncep+albedo_ncep+default',
  !
  !!!!!!!!!!!!!!!!!!!!!!!!!!!! IMPORTANT NOTE !!!!!!!!!!!!!!!!!!!!!!!!!!!!
  !
@@ -70,6 +68,8 @@
 &ungrib
  out_format = 'WPS',
  prefix     = 'FILE',
+ ec_rec_len = 26214508,
+ pmin = 100.
 /
 
 &metgrid

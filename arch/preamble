@@ -32,7 +32,15 @@ PERL			=	perl
 
 RANLIB			=	echo
 
-WRF_DIR			=	../WRFV3
+#
+# Set path to compiled WRF code, which is assumed to be ../WRF for v4.x, or ../WRFV3 for v3.x
+# To override the path to the compiled WRF code, just set the WRF_DIR variable after the "endif" below
+#
+ifneq ($(wildcard $(DEV_TOP)/../WRF), ) # Check for WRF v4.x directory
+	WRF_DIR		=	../WRF
+else
+	WRF_DIR		=	../WRFV3
+endif
 
 WRF_INCLUDE     =       -I$(WRF_DIR)/external/io_netcdf \
                         -I$(WRF_DIR)/external/io_grib_share \

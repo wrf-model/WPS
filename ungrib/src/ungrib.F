@@ -57,7 +57,7 @@ program ungrib
   interface
    subroutine read_namelist(hstart, hend, delta_time, ntimes,&
     ordered_by_date, debug_level, out_format, prefix,    &
-    add_lvls, new_plvl, interp_type)
+    add_lvls, new_plvl, interp_type, ec_rec_len, pmin)
   
     use misc_definitions_module
 
@@ -70,7 +70,8 @@ program ungrib
     character(len=MAX_FILENAME_LEN) :: prefix
     logical :: add_lvls
     real, dimension(:) :: new_plvl
-    integer :: interp_type
+    integer :: interp_type, ec_rec_len
+    real :: pmin
    end subroutine read_namelist
   end interface 
 
@@ -84,7 +85,8 @@ program ungrib
   real , dimension(maxlvl) :: plvl, new_plvl
   integer :: iplvl
   logical :: add_lvls
-  integer :: interp_type
+  integer :: interp_type, ec_rec_len
+  real :: pmin
 
   integer :: nlvl
 
@@ -116,7 +118,7 @@ program ungrib
 
   call read_namelist(hstart, hend, interval, ntimes, &
        ordered_by_date, debug_level, out_format, prefix, &
-       add_lvls, new_plvl, interp_type)
+       add_lvls, new_plvl, interp_type, ec_rec_len, pmin)
 
   call mprintf(.true.,INFORM,"Interval value: %i seconds or  %f hours", &
                i1=interval, f1=float(interval)/3600.)
@@ -127,8 +129,14 @@ program ungrib
 ! -----------------
 ! Determine GRIB Edition number
   grib_version=0
-  call edition_num(nunit1, gribflnm, grib_version, ierr)
-  call mprintf((ierr.eq.3),ERROR,"GRIB file problem")
+!   NCAR/RDA's EC 113 data are grib1 with a non-standard record length
+  if ( ec_rec_len .eq. 0 ) then
+    call edition_num(nunit1, gribflnm, grib_version, ierr)
+    call mprintf((ierr.eq.3),ERROR,"GRIB file problem")
+  else
+    grib_version=1
+    ierr=0
+  endif
   if (grib_version.eq.2) then
      vtable_columns=12 
 #if defined (USE_PNG) && (USE_JPEG2000)
@@ -226,13 +234,13 @@ program ungrib
 		     "flnm = %s",s1=gribflnm)
                  ! Read one record at a time from GRIB1 (and older Editions) 
                  call rd_grib1(nunit1, gribflnm, level, field, &
-                      hdate, ierr, iuarr, debug_level)
+                      hdate, ierr, iuarr, debug_level, ec_rec_len, pmin)
               else 
 
                  ! Read one file of records from GRIB2.
                  call mprintf(.true.,DEBUG,"Calling rd_grib2")
                  call rd_grib2(nunit1, gribflnm, hdate, &
-                      grib_version, ierr, debug_level)
+                      grib_version, ierr, debug_level, pmin)
                  FIELD='NULL'
 
               endif

@@ -116,7 +116,9 @@ name=ALBEDO12M
         z_dim_name=month
         masked = water
         fill_missing = 8.
+        interp_option=albedo_modis:four_pt+average_4pt+average_16pt+search
         interp_option=default:four_pt+average_4pt+average_16pt+search
+        rel_path=albedo_modis:albedo_modis/
         rel_path=default:albedo_ncep/
 ===============================
 name=GREENFRAC
@@ -147,20 +149,12 @@ name=LAI12M
 name=SNOALB
         priority=1
         dest_type=continuous
+        interp_option=maxsnowalb_modis:four_pt+average_4pt+average_16pt+search
         interp_option=default:four_pt+average_4pt+average_16pt+search
         masked = water
         fill_missing = 0.
+        rel_path=maxsnowalb_modis:maxsnowalb_modis/
         rel_path=default:maxsnowalb/
-===============================
-name=SLOPECAT
-        priority=1
-        dominant_only=SLOPECAT
-        dest_type=categorical
-        z_dim_name=slope_cat
-        masked = water
-        fill_missing = 0.
-        interp_option=default:nearest_neighbor+average_16pt+search
-        rel_path=default:islope/
 ===============================
 name = CON
         priority = 1
@@ -369,6 +363,7 @@ name = SANDFRAC
 ===============================
 name = VAR_SSO 
         priority = 1
+        optional=yes
         dest_type = continuous
         fill_missing=0.
         interp_option =   30s:average_gcell(4.0)+four_pt+average_4pt
@@ -381,9 +376,11 @@ name = VAR_SSO
         rel_path =        5m:varsso_5m/
         rel_path =        10m:varsso_10m/
         rel_path =        default:varsso_10m/
+        flag_in_output=FLAG_VAR_SSO
 ===============================
 name = LAKE_DEPTH
         priority=1
+        optional=yes
         dest_type = continuous
         fill_missing = 10.
         masked=land
@@ -399,4 +396,14 @@ name=URB_PARAM
         z_dim_name=num_urb_params
         interp_option=default:nearest_neighbor
         rel_path=default:NUDAPT44_1km/
+        flag_in_output=FLAG_URB_PARAM
+===============================
+name=FRC_URB2D
+        priority=1
+        optional=yes
+        dest_type=continuous
+        fill_missing = 0.
+        interp_option=default: average_gcell(2.0)+four_pt
+        rel_path=default:urbfrac_nlcd2011/
+        flag_in_output=FLAG_FRC_URB2D
 ===============================
