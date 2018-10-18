@@ -254,7 +254,7 @@
      &                  kbit,novref,lbitref,ier)
            if(ier/=0) then
               ! Dr. Glahn's algorithm failed; use simple packing method instead.
- 1099         format('G2: fall back to simple algorithm (glahn ier=',I0,&
+ 1099         format('G2: fall back to simple algorithm (glahn ier=',I0,
      &               ')')
               print 1099,ier
               ngroups=ndpts/10
