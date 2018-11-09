@@ -44,9 +44,9 @@ OBJS	=	gridtemplates.o pdstemplates.o drstemplates.o gribmod.o realloc.o intmath
 		addgrid.o addlocal.o getfield.o gb_info.o gf_getfld.o gf_free.o gf_unpack1.o  \
 		gf_unpack2.o gf_unpack3.o gf_unpack4.o gf_unpack5.o gf_unpack6.o gf_unpack7.o \
 		gettemplates.o getlocal.o getdim.o getpoly.o gribcreate.o gribend.o gribinfo.o \
-		mkieee.o rdieee.o simpack.o simunpack.o cmplxpack.o compack.o misspack.o pack_gp.o \
-		reduce.o comunpack.o specpack.o specunpack.o jpcpack.o jpcunpack.o enc_jpeg2000.o \
-		dec_jpeg2000.o pngpack.o pngunpack.o enc_png.o dec_png.o gbytesc.o skgb.o ixgb2.o \
+		mkieee.o rdieee.o simunpack.o \
+		reduce.o comunpack.o specunpack.o jpcunpack.o \
+		dec_jpeg2000.o pngunpack.o dec_png.o gbytesc.o skgb.o ixgb2.o \
 		getidx.o getg2i.o getg2ir.o getgb2s.o getgb2r.o getgb2l.o getgb2.o getgb2p.o getgb2rp.o \
 		putgb2.o g2grids.o gdt2gds.o params.o params_ecmwf.o mova2i.o
 
