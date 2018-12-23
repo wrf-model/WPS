@@ -11,7 +11,7 @@ Param| Type |Level1|Level2| Name     | Units   | Description                    
   33 | 105  |  10  |      | UU       | m s-1   | U                 at 10 m               |  0  |  2  |  2  | 103 |
   34 | 105  |  10  |      | VV       | m s-1   | V                 at 10 m               |  0  |  2  |  3  | 103 |
    1 |   1  |   0  |      | PSFC     | Pa      | Surface Pressure                        |  0  |  3  |  0  |   1 |
-   2 | 102  |   0  |      | PMSL     | Pa      | Sea-level Pressure                      |  0  |  3  |  1  | 101 |
+ 130 | 102  |   0  |      | PMSL     | Pa      | Sea-level Pressure                      |  0  |  3  | 192 | 101 |
  144 | 112  |   0  |  10  | SM000010 | fraction| Soil Moist 0-10 cm below grn layer (Up) |  2  |  0  | 192 | 106 |
  144 | 112  |  10  |  40  | SM010040 | fraction| Soil Moist 10-40 cm below grn layer     |  2  |  0  | 192 | 106 |
  144 | 112  |  40  | 100  | SM040100 | fraction| Soil Moist 40-100 cm below grn layer    |  2  |  0  | 192 | 106 |
@@ -68,3 +68,9 @@ Param| Type |Level1|Level2| Name     | Units   | Description                    
 #
 #  As of mid-2017 the GFS provides two land mask fields in the pressure-level output. WPS uses LANDN if available
 #  and renames it LANDSEA.
+#
+#  As of WPS V4.0.3 the default PMSL is changed to MSLET. MSLET is an unsmoothed sea level pressure.
+#  NCEP included MSLET in their GFS files beginning 12z on 10 May 2011 and in their GDAS files at 12z 14 January 2015.
+#  The smoother PRMSL is in all GFS/GDAS pressure files.
+#  For GFS files prior to those dates use PRMSL as shown in the folliwing line:
+#  2 | 102  |   0  |      | PMSL     | Pa      | Sea-level Pressure                      |  0  |  3  |  1  | 101 |
