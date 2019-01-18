@@ -427,7 +427,9 @@ module input_module
 #endif
      
          call ext_get_dom_ti_char          ('TITLE', title)
-         if (index(title,'GEOGRID V4.0.1') /= 0) then
+         if (index(title,'GEOGRID V4.0.2') /= 0) then
+            wps_version = 4.02
+         else if (index(title,'GEOGRID V4.0.2') /= 0) then
             wps_version = 4.01
          else if (index(title,'GEOGRID V4.0') /= 0) then
             wps_version = 4.0

@@ -1196,8 +1196,8 @@ subroutine vntrp(plvl, maxlvl, k, k2, interp_type, name, ix, jx)
   real :: frc
   integer :: interp_type
 
-  write(*,'("Interpolating to fill in ", A, " at level ", F8.2, " hPa using levels ", F8.2," hPa and ", &
-            F8.2," hPa")') trim(name), plvl(k)/100.0,plvl(k-1)/100.0, plvl(k2)/100.0
+  write(*,'("Interpolating to fill in ", A, " at level ", F8.2, " hPa using levels ", F8.2," hPa and ",& 
+     & F8.2," hPa")') trim(name), plvl(k)/100.0,plvl(k-1)/100.0, plvl(k2)/100.0
   call mprintf(.true.,INFORM, &
     "RRPR: Interpolating to fill in %s at %i Pa using levels %i Pa and %i Pa",&
     s1=trim(name), i1=int(plvl(k)), i2=int(plvl(k-1)), i3=int(plvl(k2)))
