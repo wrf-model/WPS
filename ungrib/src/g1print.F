@@ -3,6 +3,7 @@
 !  Usage: "g1print [-v] [-V] filename"
 !
 !  Originally from gribscan.
+!  January 2019: Length of field changed from 5 to 7.
 ! 
 program g1print
   use module_grib
@@ -24,14 +25,14 @@ program g1print
   integer :: ierr, igherr
   integer :: cc
   character(len=100) :: fmt = '(I4,1X, &
-       & I3,1x, A5,1x, &
+       & I3,1x, A7,1x, &
        & I4, &
        & 2(1x,I4),2x,I4.4,2("-",I2.2),"_",I2.2,":",&
        & I2.2, 1x, "+", i3.2)'
   logical :: ivb = .FALSE.
   logical :: idb = .FALSE.
   integer :: year
-  character(len=5) :: field
+  character(len=7) :: field
   integer :: ec_rec_len
 
   ec_rec_len = 0
@@ -270,12 +271,12 @@ end subroutine parse_args
 !  procid - process id
 !  param - parameter number
 !  subc - sub center
-!  field - 5-character field name (returned)
+!  field - 7-character field name (returned)
 
     integer, intent(in) :: ptv, centerid, procid, param, subc
     logical :: first=.true.
-    character (len=5), intent(out) :: field
-    character(len=5) :: table2(255), table129(255), afwa(255), ecmwf(255), &
+    character (len=7), intent(out) :: field
+    character(len=7) :: table2(255), table129(255), afwa(255), ecmwf(255), &
       table130(255), table131(255), table132(255)
     common /paramids/ table2, table129, table130, table131, table132, afwa, ecmwf
 
@@ -311,7 +312,7 @@ end subroutine parse_args
 end subroutine fieldname 
 !
      subroutine init_tables
-    character(len=5) :: table2(255), table129(255), afwa(255), ecmwf(255), &
+    character(len=7) :: table2(255), table129(255), afwa(255), ecmwf(255), &
       table130(255), table131(255),  table132(255)
     common /paramids/ table2, table129, table130, table131, table132, afwa, ecmwf
 
@@ -499,11 +500,13 @@ end subroutine fieldname
          ecmwf(238) = 'TSN  '
          ecmwf(239) = 'CSF  '
          ecmwf(240) = 'LSF  '
+         ecmwf(246) = 'CLWC '
+         ecmwf(247) = 'CIWC '
          ecmwf(248) = 'CC   '
 end subroutine init_tables
 
     block data  ptables
-    character(len=5) :: table2(255), table129(255), afwa(255), ecmwf(255), &
+    character(len=7) :: table2(255), table129(255), afwa(255), ecmwf(255), &
       table130(255), table131(255), table132(255)
     common /paramids/ table2, table129, table130, table131, table132, afwa, ecmwf
 
