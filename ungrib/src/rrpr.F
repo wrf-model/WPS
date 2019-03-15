@@ -588,6 +588,7 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, &
 
 ! Repair GFS and ECMWF pressure-level RH
         if (index(map%source,'NCEP GFS') .ne. 0 .or.  &
+            index(map%source,'NCEP GEFS') .ne. 0 .or. &
             index(map%source,'NCEP CDAS CFSV2') .ne. 0 .or.  &
             index(map%source,'ECMWF') .ne. 0 ) then
           call mprintf(.true.,DEBUG, &
