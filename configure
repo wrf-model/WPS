@@ -180,7 +180,7 @@ else
    wrf_dir=$WRF_DIR
 fi
 
-if [ $wrf_dir == "none" ]; then
+if [ $wrf_dir = "none" ]; then
    echo ""
    echo "Error: No compiled WRF code found. Please check that the WRF model has been compiled"
    echo "       one directory level up (i.e., ../) in a directory named 'WRF', 'WRF-4.0.3', 'WRF-4.0.2', etc.,"
