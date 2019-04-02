@@ -169,6 +169,8 @@
       ilog2_2=0
       i=i_in
       if(i<=0) return
+! WPS modification for the XL compiler
+!      if(iand(i,i-1)/=0) then
       if(iand(i,i-1_2)/=0) then
          !write(0,*) 'iand i-1'
          ilog2_2=1
@@ -204,6 +206,8 @@
       ilog2_1=0
       i=i_in
       if(i<=0) return
+! WPS modification for the XL compiler
+!      if(iand(i,i-1)/=0) then
       if(iand(i,i-1_1)/=0) then
          !write(0,*) 'iand i-1'
          ilog2_1=1
