@@ -689,7 +689,6 @@ mpas_name=ni
         flag_in_output=FLAG_QNI
 ========================================
 name=QNC
-        output=no
         interp_option=four_pt+average_4pt
         fill_missing=0.
         fill_lev=200100:const(0.)
