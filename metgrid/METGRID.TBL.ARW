@@ -1016,7 +1016,7 @@ name=QNWFA
         interp_option=four_pt+average_4pt
         fill_missing=100.E6
         fill_lev=200100:const(100.E6)
-        flag_in_output=FLAG_QNIFA
+        flag_in_output=FLAG_QNWFA
 ========================================
 name=QNIFA
         interp_option=four_pt+average_4pt
