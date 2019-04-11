@@ -1013,12 +1013,16 @@ name=HGTMAXW
         flag_in_output=FLAG_HGTMAXW
 ========================================
 name=QNWFA
-        z_dim_name=num_qnwfa_levels
         interp_option=four_pt+average_4pt
+        fill_missing=100.E6
+        fill_lev=200100:const(100.E6)
+        flag_in_output=FLAG_QNIFA
 ========================================
 name=QNIFA
-        z_dim_name=num_qnwfa_levels
         interp_option=four_pt+average_4pt
+        fill_missing=1.E6
+        fill_lev=200100:const(1.E6)
+        flag_in_output=FLAG_QNIFA
 ========================================
 # This entry is only used for MPAS data
 name=smois
