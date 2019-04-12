@@ -40,7 +40,7 @@
 !
 !$$$
 
-      integer,parameter :: MAXPARAM=791
+      integer,parameter :: MAXPARAM=801
 
       type gribparam
           integer :: g1tblver
@@ -185,7 +185,7 @@
 !  Added 8/07/2003
 !
       data paramlist(128) /gribparam(2,229,0,0,192,'SNOHF')/
-      data paramlist(129) /gribparam(2,153,0,1,22,'CLWMR')/
+      data paramlist(129) /gribparam(2,153,0,1,22,'CLMR')/
       data paramlist(130) /gribparam(2,140,0,1,192,'CRAIN')/
       data paramlist(131) /gribparam(2,141,0,1,193,'CFRZR')/
       data paramlist(132) /gribparam(2,142,0,1,194,'CICEP')/
@@ -667,7 +667,7 @@
        data paramlist(604) /gribparam(131,150,2,0,211,'SSTOR')/
        data paramlist(605) /gribparam(131,151,2,0,212,'LSOIL')/
        data paramlist(606) /gribparam(131,152,2,0,213,'EWATR')/
-       data paramlist(607) /gribparam(131,153,0,1,22,'CLWMR')/
+       data paramlist(607) /gribparam(131,153,0,1,22,'CLMR')/
        data paramlist(608) /gribparam(131,155,2,0,193,'GFLUX')/
        data paramlist(609) /gribparam(131,156,0,7,7,'CIN')/
        data paramlist(610) /gribparam(131,157,0,7,6,'CAPE')/
@@ -856,6 +856,18 @@
        data paramlist(789) /gribparam(2,143,0,1,36,'CSNOW')/
        data paramlist(790) /gribparam(2,238,0,1,42,'SNOWC')/
        data paramlist(791) /gribparam(2,204,0,4,7,'DSWRF')/
+! Added 04/6/19 for HRRR fields.
+! table version, grib1 value, grib2 desc, grib2 category, grib2num, abbreviation
+       data paramlist(792) /gribparam(2,255,0,1,31,'HAIL')/
+       data paramlist(793) /gribparam(2,255,0,1,82,'CIMIXR')/
+       data paramlist(794) /gribparam(2,253,0,2,30,'FRICV')/
+       data paramlist(795) /gribparam(2,211,0,4,8,'USWRF')/
+       data paramlist(796) /gribparam(2,205,0,5,3,'DLWRF')/
+       data paramlist(797) /gribparam(2,255,0,7,200,'MNUPHL')/
+       data paramlist(798) /gribparam(2,223,2,0,13,'CNWAT')/
+       data paramlist(799) /gribparam(2,155,2,0,10,'GFLUX')/
+       data paramlist(800) /gribparam(2,235,1,0,6,'SSRUN')/
+       data paramlist(801) /gribparam(2,234,1,0,5,'BGRUN')/
 
       contains
 

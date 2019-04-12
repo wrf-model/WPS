@@ -689,7 +689,6 @@ mpas_name=ni
         flag_in_output=FLAG_QNI
 ========================================
 name=QNC
-        output=no
         interp_option=four_pt+average_4pt
         fill_missing=0.
         fill_lev=200100:const(0.)
@@ -1033,4 +1032,10 @@ mpas_name=tslb
         output=no
         masked=water
         fill_missing=1.
+========================================
+# Typically from ECMWF model-level data and used by calc_ecmwf_p.exe
+# Not needed by WRF
+name=LOGSFP
+        output=no
+        interp_option=four_pt
 ========================================
