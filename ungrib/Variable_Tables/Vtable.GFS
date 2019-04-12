@@ -11,7 +11,7 @@ Param| Type |Level1|Level2| Name     | Units   | Description                    
   33 | 105  |  10  |      | UU       | m s-1   | U                 at 10 m               |  0  |  2  |  2  | 103 |
   34 | 105  |  10  |      | VV       | m s-1   | V                 at 10 m               |  0  |  2  |  3  | 103 |
    1 |   1  |   0  |      | PSFC     | Pa      | Surface Pressure                        |  0  |  3  |  0  |   1 |
-   2 | 102  |   0  |      | PMSL     | Pa      | Sea-level Pressure                      |  0  |  3  |  1  | 101 |
+ 130 | 102  |   0  |      | PMSL     | Pa      | Sea-level Pressure                      |  0  |  3  | 192 | 101 |
  144 | 112  |   0  |  10  | SM000010 | fraction| Soil Moist 0-10 cm below grn layer (Up) |  2  |  0  | 192 | 106 |
  144 | 112  |  10  |  40  | SM010040 | fraction| Soil Moist 10-40 cm below grn layer     |  2  |  0  | 192 | 106 |
  144 | 112  |  40  | 100  | SM040100 | fraction| Soil Moist 40-100 cm below grn layer    |  2  |  0  | 192 | 106 |
@@ -68,3 +68,27 @@ Param| Type |Level1|Level2| Name     | Units   | Description                    
 #
 #  As of mid-2017 the GFS provides two land mask fields in the pressure-level output. WPS uses LANDN if available
 #  and renames it LANDSEA.
+#
+#  As of WPS V4.1 (April 2019) the default PMSL is changed to MSLET. MSLET is an unsmoothed sea level pressure.
+#  NCEP included MSLET in their GFS files beginning 12z on 10 May 2011 and in their GDAS files at 12z 14 January 2015.
+#  The smoother PRMSL is in all GFS/GDAS pressure files.
+#  For GFS files prior to those dates use PRMSL as shown in the following line:
+#  2 | 102  |   0  |      | PMSL     | Pa      | Sea-level Pressure                      |  0  |  3  |  1  | 101 |
+#
+#
+#   Abbreviated history of GFS changes (all starting at 12 UTC)
+#
+# Sometime 2019     - Update to FV3 (requires WPS V4.0 or later)
+# 19 July 2017      - Change to land mask and other terrestrial variables (requires WPS V3.9.1.1)
+#                   - Change missing value, removal of grid 211 (80km conus). Flag value of .468 in soil moisture.
+# 11 May 2016       - Assimilate AMSU-A radiances, AVHRR winds, CRTMv2.2.1, 4d hybrid das.
+#                   - Add 5 stratospheric levels to ouput. UPP V7.0. Land surface and GWD upates.
+# 14 January 2015   - Add MSLET to GDAS. Change from T574 (27km) to T1534 (13km). Fcst length to 240 h.
+#                   - semi-lagrangian, uses rtgsst, Z0 dependent on vegetation type, CRTMv2.1.3, 0.25 deg output
+# 10 May 2011       - Add MSLET to output. New thermal roughness length. Elevation of buoys to 10m.
+#                   - Improved GSI, update CRTM. Recomputed BE.
+# 27 July 2010      - T382 (35km) to T574 (27km). new pbl, gravity wave drag, updated deep convective scheme
+# 13 May 2008       - RRTM radiation, aerosol, cloud overlap, windsat sfc winds, flow dependent bev.
+# 25 September 2007 - Implement UPP.
+# 31 May 2005       - T254L64 to T382L64. Change in soil output to 3 levels.
+# 29 October 2002   - Change from T170L42  to T254L64. Model top changed from 2 hPA to .2 hPa
