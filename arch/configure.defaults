@@ -1,4 +1,26 @@
 ########################################################################################################################
+#ARCH   Linux ppc64le POWER Linux, XL compiler # serial serial_NO_GRIB2 dmpar dmpar_NO_GRIB2
+#
+COMPRESSION_LIBS    = CONFIGURE_COMP_L
+COMPRESSION_INC     = CONFIGURE_COMP_I
+FDEFS               = CONFIGURE_FDEFS
+NCARG_LIBS          =
+NCARG_LIBS2         =
+FC                  = mpifort
+SFC                 = xlf2003_r
+CC                  = mpicc
+SCC                 = xlc_r
+LD                  = $(FC)
+FFLAGS              = -qfree=f90
+F77FLAGS            = -qfixed
+FNGFLAGS            = $(FFLAGS)
+LDFLAGS             =
+CFLAGS              =
+CPP                 = cpp -P -traditional
+CPPFLAGS            = -Uvector -DBYTESWAP -DLINUX -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -DBIT32 CONFIGURE_MPI
+ARFLAGS             =
+
+########################################################################################################################
 #ARCH   Linux ppc64 BG bglxf compiler with blxlc  # dmpar
 #
 COMPRESSION_LIBS    = -L$(JASPERLIB) -ljasper -lpng -lz
