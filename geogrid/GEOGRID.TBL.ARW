@@ -488,3 +488,12 @@ name = SANDFRAC
         rel_path = default:sandfrac_5m/
         flag_in_output=FLAG_SANDFRAC
 ===============================
+name=IRRIGATION
+        priority=1
+        optional=yes
+        dest_type=continuous
+        interp_option=default:average_gcell(0.0)+average_4pt+nearest_neighbor
+        masked = water
+        fill_missing = 0.
+        rel_path=default:irrigation/fao/
+===============================
