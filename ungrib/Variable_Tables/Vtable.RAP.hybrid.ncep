@@ -61,7 +61,7 @@ Param| Type |Level1|Level2| Name     |  Units   | Description                   
 #  Vtable for the Rapid refresh (RAP) hybrid-vertical coordinate grib2 files on the ncep server.
 #  ftp://ftpprd.ncep.noaa.gov/pub/data/nccf/com/rap/prod/rap.ccyymmdd/
 #
-#  rap.txxz.awp130bgrbfhh.grib2   13km conus     15.5 MB (approximate size)
+#  rap.txxz.awp130bgrbfhh.grib2   13km conus     31 MB (approximate size)
 #
 #  As of 20 April, 2020
 #  hourly to 21 hours
