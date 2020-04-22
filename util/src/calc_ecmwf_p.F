@@ -235,6 +235,7 @@ program calc_ecmwf_p
 
                      if (.not. allocated(tt)) then
                         allocate(tt(ecmwf_data%nx,ecmwf_data%ny,n_levels+1))  ! Extra level is for surface
+                        tt(:,:,:) = 0.0
                      end if
 
                      if (nint(ecmwf_data%xlvl) >= 1 .and. &
@@ -249,6 +250,7 @@ program calc_ecmwf_p
 
                      if (.not. allocated(qv)) then
                         allocate(qv(ecmwf_data%nx,ecmwf_data%ny,n_levels+1))  ! Extra level is for surface
+                        qv(:,:,:) = 0.0
                      end if
 
                      if (nint(ecmwf_data%xlvl) >= 1 .and. &
