@@ -805,7 +805,7 @@ MODULE map_utils
       ELSE
          gi2 = (proj%rebydx * scale_top)**2.
          lat = deg_per_rad * proj%hemi * ASIN((gi2-r2)/(gi2+r2))
-         arccos = ACOS(MIN(MAX(xx/SQRT(r2),-1.0),1.0))
+         arccos = ACOS(MIN(MAX(xx/SQRT(r2),-1.0_HIGH),1.0_HIGH))
          IF (yy .GT. 0) THEN
             lon = reflon + deg_per_rad * arccos
          ELSE
