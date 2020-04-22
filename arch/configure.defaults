@@ -11,8 +11,8 @@ SFC                 = xlf2003_r
 CC                  = mpicc
 SCC                 = xlc_r
 LD                  = $(FC)
-FFLAGS              = -qfree=f90
-F77FLAGS            = -qfixed
+FFLAGS              = -qfree=f90 -qufmt=be
+F77FLAGS            = -qfixed -qufmt=be
 FNGFLAGS            = $(FFLAGS)
 LDFLAGS             =
 CFLAGS              =
