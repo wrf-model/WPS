@@ -562,7 +562,7 @@ end program g2print
               endif
 
               ! Scale lat/lon values to 0-180, default range is 1e6.
-              if (map%lat1.ge.scale_factor) then 
+              if (abs(map%lat1).ge.scale_factor) then 
                  map%lat1 = map%lat1/scale_factor
               endif
               if (map%lon1.ge.scale_factor) then 
