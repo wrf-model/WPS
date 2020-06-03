@@ -11,13 +11,34 @@ SFC                 = xlf2003_r
 CC                  = mpicc
 SCC                 = xlc_r
 LD                  = $(FC)
-FFLAGS              = -qfree=f90
-F77FLAGS            = -qfixed
+FFLAGS              = -qfree=f90 -qufmt=be
+F77FLAGS            = -qfixed -qufmt=be
 FNGFLAGS            = $(FFLAGS)
 LDFLAGS             =
 CFLAGS              =
 CPP                 = cpp -P -traditional
 CPPFLAGS            = -Uvector -DBYTESWAP -DLINUX -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -DBIT32 CONFIGURE_MPI
+ARFLAGS             =
+########################################################################################################################
+#ARCH   Linux ppc64le POWER Linux, PGI compiler # serial serial_NO_GRIB2 dmpar dmpar_NO_GRIB2
+#
+COMPRESSION_LIBS    = CONFIGURE_COMP_L
+COMPRESSION_INC     = CONFIGURE_COMP_I
+FDEFS               = CONFIGURE_FDEFS
+NCARG_LIBS          =
+NCARG_LIBS2         =
+FC                  = mpifort
+SFC                 = pgfortran
+CC                  = mpicc
+SCC                 = pgcc
+LD                  = $(FC)
+FFLAGS              = -Mfree -byteswapio
+F77FLAGS            = -Mfixed -byteswapio
+FNGFLAGS            = $(FFLAGS)
+LDFLAGS             =
+CFLAGS              =
+CPP                 = cpp -P -traditional
+CPPFLAGS            = -Uvector -D_UNDERSCORE -DBYTESWAP -DLINUX -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -DBIT32 CONFIGURE_MPI
 ARFLAGS             =
 
 ########################################################################################################################
