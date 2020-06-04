@@ -67,7 +67,8 @@ module process_tile_module
                                        sina_array, cosa_array
       real, pointer, dimension(:,:) :: xlat_ptr, xlon_ptr, mapfac_ptr_x, mapfac_ptr_y, landmask, dominant_field
       real, pointer, dimension(:,:,:) :: field, slp_field
-      logical :: is_water_mask, only_save_dominant, halt_on_missing
+      logical :: is_water_mask, only_save_dominant, halt_on_missing, &
+                 is_subgrid_var, sub_status
       character (len=19) :: datestr
       character (len=128) :: fieldname, gradname, domname, landmask_name
       character (len=256) :: temp_string
@@ -747,17 +748,17 @@ module process_tile_module
             temp_string(1:128) = fieldname
 
             call get_source_opt_status(fieldname, 0, opt_status)
-      
+            call get_output_stagger(fieldname, istagger, istatus)
+            dimnames(:) = 'null'
+            call get_subgrid_dim_name(which_domain, fieldname, dimnames, &
+                                      sub_x, sub_y, is_subgrid_var, istatus)
+            sub_status = (.not. is_subgrid_var .or. (sub_x > 0 .or. sub_y > 0))
+             
             ! If this field is still to be processed
-            if (.not. hash_search(processed_fieldnames, temp_string) .and. opt_status == 0) then
+            if (.not. hash_search(processed_fieldnames, temp_string) .and. opt_status == 0 .and. sub_status) then
      
                call hash_insert(processed_fieldnames, temp_string)
                call mprintf(.true.,STDOUT,'  Processing %s', s1=trim(fieldname))
-       
-               call get_output_stagger(fieldname, istagger, istatus)
-               dimnames(:) = 'null'
-               call get_subgrid_dim_name(which_domain, fieldname, dimnames, &
-                                         sub_x, sub_y, istatus)
        
                if (istagger == M .or. (sub_x > 1) .or. (sub_y > 1)) then
                   sm1 = start_mem_i
