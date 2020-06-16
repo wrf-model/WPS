@@ -23,19 +23,19 @@
 
       if (hlen.eq.19) then
          write(hdate,19) iyr, imo, idy, ihr, imi, isc
- 19      format(i4,'-',i2.2,'-',i2.2,'_',i2.2,':',i2.2,':',i2.2)
+ 19      format(i4.4,'-',i2.2,'-',i2.2,'_',i2.2,':',i2.2,':',i2.2)
 
       elseif (hlen.eq.16) then
          write(hdate,16) iyr, imo, idy, ihr, imi
- 16      format(i4,'-',i2.2,'-',i2.2,'_',i2.2,':',i2.2)
+ 16      format(i4.4,'-',i2.2,'-',i2.2,'_',i2.2,':',i2.2)
 
       elseif (hlen.eq.13) then
          write(hdate,13) iyr, imo, idy, ihr
- 13      format(i4,'-',i2.2,'-',i2.2,'_',i2.2)
+ 13      format(i4.4,'-',i2.2,'-',i2.2,'_',i2.2)
 
       elseif (hlen.eq.10) then
          write(hdate,10) iyr, imo, idy
- 10      format(i4,'-',i2.2,'-',i2.2)
+ 10      format(i4.4,'-',i2.2,'-',i2.2)
       endif
 
       return
