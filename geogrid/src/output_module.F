@@ -1511,26 +1511,31 @@ module output_module
       character (len=*), intent(in) :: var_name
 
       ! Local variables
+      real, dimension(1) :: var_arr
       integer :: istatus
+
+      ! subroutines expect array, not real, causing problems with double
+      ! precision
+      var_arr(1) = var_value
 
 #ifdef IO_BINARY
       if (io_form_output == BINARY) then
          call ext_int_put_dom_ti_real(handle, trim(var_name), &
-                                         var_value, &
+                                         var_arr, &
                                          1, istatus)
       end if
 #endif
 #ifdef IO_NETCDF
       if (io_form_output == NETCDF) then
          call ext_ncd_put_dom_ti_real(handle, trim(var_name), &
-                                         var_value, &
+                                         var_arr, &
                                          1, istatus)
       end if
 #endif
 #ifdef IO_GRIB1
       if (io_form_output == GRIB1) then
          call ext_gr1_put_dom_ti_real(handle, trim(var_name), &
-                                         var_value, &
+                                         var_arr, &
                                          1, istatus)
       end if
 #endif
