@@ -778,6 +778,15 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, &
             endif
        endif
 
+! Convert soil moisture in ICON input from kg m-2 to m3 m-3      
+        if (is_there(200100, 'SOILM162')) then
+           call get_dims(200100, 'SOILM162')
+              print *,'Adjusting ICON soil moisture'
+           call mprintf(.true.,DEBUG, &
+              "RRPR:   Adjusting ICON soil moisture ")
+           call fix_icon_soilm (map%nx, map%ny)           
+        endif
+       
 !
 ! Check to see if we need to fill SOILHGT from SOILGEO.
 ! (From Wei Wang, 2007 June 21)
@@ -1399,4 +1408,45 @@ subroutine fix_ruc_soilm (ix, jx)
 
 end subroutine fix_ruc_soilm
  
+subroutine fix_icon_soilm (ix, jx)
+  use storage_module
+  implicit none
+  integer :: ix, jx
+  real, allocatable, dimension(:,:) :: soilm001, soilm002, soilm006, &
+                     soilm018, soilm054, soilm162
+  allocate(soilm001(ix,jx))
+  allocate(soilm002(ix,jx))
+  allocate(soilm006(ix,jx))
+  allocate(soilm018(ix,jx))
+  allocate(soilm054(ix,jx))
+  allocate(soilm162(ix,jx))
+  call get_storage(200100, 'SOILM001', soilm001, ix, jx)
+  call get_storage(200100, 'SOILM002', soilm002, ix, jx)
+  call get_storage(200100, 'SOILM006', soilm006, ix, jx)
+  call get_storage(200100, 'SOILM018', soilm018, ix, jx)
+  call get_storage(200100, 'SOILM054', soilm054, ix, jx)
+  call get_storage(200100, 'SOILM162', soilm162, ix, jx)
+    !convert kg m-2 to m3 m-3
+    soilm001 = soilm001 / 0.01 / 1000.
+    soilm002 = soilm002 / 0.02 / 1000.
+    soilm006 = soilm006 / 0.06 / 1000.
+    soilm018 = soilm018 / 0.18 / 1000.
+    soilm054 = soilm054 / 0.54 / 1000.
+    soilm162 = soilm162 / 1.62 / 1000.
+  call put_storage(200100, 'SOILM001', soilm001, ix, jx)
+  call put_storage(200100, 'SOILM002', soilm002, ix, jx)
+  call put_storage(200100, 'SOILM006', soilm006, ix, jx)
+  call put_storage(200100, 'SOILM018', soilm018, ix, jx)
+  call put_storage(200100, 'SOILM054', soilm054, ix, jx)
+  call put_storage(200100, 'SOILM162', soilm162, ix, jx)
+  
+ print *,'fix_icon_soilm is done!'
 
+  deallocate(soilm001)
+  deallocate(soilm002)
+  deallocate(soilm006)
+  deallocate(soilm018)
+  deallocate(soilm054)
+  deallocate(soilm162)
+  
+end subroutine fix_icon_soilm

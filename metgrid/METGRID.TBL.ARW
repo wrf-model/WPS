@@ -35,7 +35,7 @@ name=SM
         fill_lev = 100 : SM035100(200100)
         fill_lev = 300 : SM100300(200100)
 # ELSE IF
-        fill_lev =  10: SM000010(200100)
+        fill_lev =  10 : SM000010(200100)
         fill_lev = 200 : SM010200(200100)
 # ELSE
         fill_lev =   7 : SM000007(200100)
@@ -76,7 +76,13 @@ name=SOILM
         fill_lev =  10 : SOILM010(200100)      
         fill_lev =  30 : SOILM030(200100)      
         fill_lev =  60 : SOILM060(200100)      
-        fill_lev = 100 : SOILM100(200100)      
+        fill_lev = 100 : SOILM100(200100)
+#ICON
+        fill_lev =   2 : SOILM002(200100)
+        fill_lev =   6 : SOILM006(200100)
+        fill_lev =  18 : SOILM018(200100)
+        fill_lev =  54 : SOILM054(200100)
+        fill_lev = 162 : SOILM162(200100) 
 ========================================
 name=SOILT
         z_dim_name=num_soilt_levels
@@ -95,7 +101,13 @@ name=SOILT
         fill_lev =  10 : SOILT010(200100)      
         fill_lev =  30 : SOILT030(200100)      
         fill_lev =  60 : SOILT060(200100)      
-        fill_lev = 100 : SOILT100(200100)      
+        fill_lev = 100 : SOILT100(200100)
+#ICON
+        fill_lev =   2 : SOILT002(200100)
+        fill_lev =   6 : SOILT006(200100)
+        fill_lev =  18 : SOILT018(200100)
+        fill_lev =  54 : SOILT054(200100)
+        fill_lev = 162 : SOILT162(200100)       
 ========================================
 name=SOIL_LEVELS
         derived=yes
@@ -401,6 +413,13 @@ name=SOILM001
         fill_missing=1.
         flag_in_output=FLAG_SOILM001
 ========================================
+name=SOILM002
+        interp_option=sixteen_pt+four_pt+wt_average_4pt+wt_average_16pt+search
+        masked=water
+        interp_mask=LANDSEA(0)
+        fill_missing=1.
+        flag_in_output=FLAG_SOILM002
+========================================
 name=SOILM004
         interp_option=sixteen_pt+four_pt+wt_average_4pt+wt_average_16pt+search
         masked=water
@@ -415,12 +434,26 @@ name=SOILM005
         fill_missing=1.
         flag_in_output=FLAG_SOILM005
 ========================================
+name=SOILM006
+        interp_option=sixteen_pt+four_pt+wt_average_4pt+wt_average_16pt+search
+        masked=water
+        interp_mask=LANDSEA(0)
+        fill_missing=1.
+        flag_in_output=FLAG_SOILM006
+========================================
 name=SOILM010
         interp_option=sixteen_pt+four_pt+wt_average_4pt+wt_average_16pt+search
         masked=water
         interp_mask=LANDSEA(0)
         fill_missing=1.
         flag_in_output=FLAG_SOILM010
+========================================
+name=SOILM018
+        interp_option=sixteen_pt+four_pt+wt_average_4pt+wt_average_16pt+search
+        masked=water
+        interp_mask=LANDSEA(0)
+        fill_missing=1.
+        flag_in_output=FLAG_SOILM018
 ========================================
 name=SOILM020
         interp_option=sixteen_pt+four_pt+wt_average_4pt+wt_average_16pt+search
@@ -443,6 +476,13 @@ name=SOILM040
         fill_missing=1.
         flag_in_output=FLAG_SOILM040
 ========================================
+name=SOILM054
+        interp_option=sixteen_pt+four_pt+wt_average_4pt+wt_average_16pt+search
+        masked=water
+        interp_mask=LANDSEA(0)
+        fill_missing=1.
+        flag_in_output=FLAG_SOILM054
+========================================
 name=SOILM060
         interp_option=sixteen_pt+four_pt+wt_average_4pt+wt_average_16pt+search
         masked=water
@@ -463,6 +503,13 @@ name=SOILM160
         interp_mask=LANDSEA(0)
         fill_missing=1.
         flag_in_output=FLAG_SOILM160
+========================================
+name=SOILM162
+        interp_option=sixteen_pt+four_pt+wt_average_4pt+wt_average_16pt+search
+        masked=water
+        interp_mask=LANDSEA(0)
+        fill_missing=1.
+        flag_in_output=FLAG_SOILM162
 ========================================
 name=SOILM300
         interp_option=sixteen_pt+four_pt+wt_average_4pt+wt_average_16pt+search
@@ -485,6 +532,13 @@ name=SOILT001
         fill_missing=285.
         flag_in_output=FLAG_SOILT001
 ========================================
+name=SOILT002
+        interp_option=sixteen_pt+four_pt+wt_average_4pt+wt_average_16pt+search
+        masked=water
+        interp_mask=LANDSEA(0)
+        fill_missing=285.
+        flag_in_output=FLAG_SOILT002
+========================================
 name=SOILT004
         interp_option=sixteen_pt+four_pt+wt_average_4pt+wt_average_16pt+search
         masked=water
@@ -499,12 +553,26 @@ name=SOILT005
         fill_missing=285.
         flag_in_output=FLAG_SOILT005
 ========================================
+name=SOILT006
+        interp_option=sixteen_pt+four_pt+wt_average_4pt+wt_average_16pt+search
+        masked=water
+        interp_mask=LANDSEA(0)
+        fill_missing=285.
+        flag_in_output=FLAG_SOILT006
+========================================
 name=SOILT010
         interp_option=sixteen_pt+four_pt+wt_average_4pt+wt_average_16pt+search
         masked=water
         interp_mask=LANDSEA(0)
         fill_missing=285.
         flag_in_output=FLAG_SOILT010
+========================================
+name=SOILT018
+        interp_option=sixteen_pt+four_pt+wt_average_4pt+wt_average_16pt+search
+        masked=water
+        interp_mask=LANDSEA(0)
+        fill_missing=285.
+        flag_in_output=FLAG_SOILT018
 ========================================
 name=SOILT020
         interp_option=sixteen_pt+four_pt+wt_average_4pt+wt_average_16pt+search
@@ -527,6 +595,13 @@ name=SOILT040
         fill_missing=285.
         flag_in_output=FLAG_SOILT040
 ========================================
+name=SOILT054
+        interp_option=sixteen_pt+four_pt+wt_average_4pt+wt_average_16pt+search
+        masked=water
+        interp_mask=LANDSEA(0)
+        fill_missing=285.
+        flag_in_output=FLAG_SOILT054
+========================================
 name=SOILT060
         interp_option=sixteen_pt+four_pt+wt_average_4pt+wt_average_16pt+search
         masked=water
@@ -547,6 +622,13 @@ name=SOILT160
         interp_mask=LANDSEA(0)
         fill_missing=285.
         flag_in_output=FLAG_SOILT160
+========================================
+name=SOILT162
+        interp_option=sixteen_pt+four_pt+wt_average_4pt+wt_average_16pt+search
+        masked=water
+        interp_mask=LANDSEA(0)
+        fill_missing=285.
+        flag_in_output=FLAG_SOILT162
 ========================================
 name=SOILT300
         interp_option=sixteen_pt+four_pt+wt_average_4pt+wt_average_16pt+search

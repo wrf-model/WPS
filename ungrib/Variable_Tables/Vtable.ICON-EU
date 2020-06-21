@@ -1,0 +1,36 @@
+GRIB1| Level| From |  To  | metgrid  | metgrid | metgrid                                 |GRIB2|GRIB2|GRIB2|GRIB2|
+Param| Type |Level1|Level2| Name     | Units   | Description                             |Discp|Catgy|Param|Level|
+-----+------+------+------+----------+---------+-----------------------------------------+-----------------------+
+   8 | 109  |   *  |      | HGT      | m       | Height                                  |  0  |  3  |  6  | 150 |
+   1 | 109  |   *  |      | PRESSURE | Pa      | Pressure                                |  0  |  3  |  0  | 150 |
+  11 | 109  |   *  |      | TT       | K       | Temperature                             |  0  |  0  |  0  | 150 |
+  33 | 109  |   *  |      | UU       | m s-1   | U                                       |  0  |  2  |  2  | 150 |
+  34 | 109  |   *  |      | VV       | m s-1   | V                                       |  0  |  2  |  3  | 150 |
+  51 | 109  |   *  |      | SPECHUMD | kg kg-1 | Specific Humidity                       |  0  |  1  |  0  | 150 |
+  11 | 105  |   2  |      | TT       | K       | Temperature       at 2 m                |  0  |  0  |  0  | 103 |
+  51 | 105  |   2  |      | SPECHUMD | kg kg-1 | Specific Humidity at 2 m                |  0  |  1  |  0  | 103 |
+  33 | 105  |  10  |      | UU       | m s-1   | U                 at 10 m               |  0  |  2  |  2  | 103 |
+  34 | 105  |  10  |      | VV       | m s-1   | V                 at 10 m               |  0  |  2  |  3  | 103 |
+   1 |   1  |   0  |      | PSFC     | Pa      | Surface Pressure                        |  0  |  3  |  0  |   1 |
+   2 | 102  |   0  |      | PMSL     | Pa      | Sea-level Pressure                      |  0  |  3  |  1  | 101 |
+  81 |   1  |   0  |      | LANDSEA  | proprtn | Land/Sea flag (1=land, 0 or 2=sea)      |  2  |  0  |  0  |   1 |
+  11 |   1  |   0  |      | SKINTEMP | K       | Skin temperature                        |  0  |  0  |  0  |   1 |
+  65 |   1  |   0  |      | SNOW     | kg m-2  | Water equivalent snow depth             |  0  |  1  | 60  |   1 |
+  66 |   1  |   0  |      | SNOWH    | m       | Physical Snow Depth                     |  0  |  1  | 11  |   1 |
+  85 | 111  |   5  |      | SOILT001 | K       | Soil Temp  0.5 cm below ground          |  2  |  3  | 18  | 106 |
+  85 | 111  |   2  |      | SOILT002 | K       | Soil Temp    2 cm below ground          |  2  |  3  | 18  | 106 |
+  85 | 111  |   6  |      | SOILT006 | K       | Soil Temp    6 cm below ground          |  2  |  3  | 18  | 106 |
+  85 | 111  |  18  |      | SOILT018 | K       | Soil Temp   18 cm below ground          |  2  |  3  | 18  | 106 |
+  85 | 111  |  54  |      | SOILT054 | K       | Soil Temp   54 cm below ground          |  2  |  3  | 18  | 106 |
+  85 | 111  | 162  |      | SOILT162 | K       | Soil Temp  162 cm below ground          |  2  |  3  | 18  | 106 |
+  86 | 112  |   0  |   1  | SOILM001 | kg m-2  | Soil Moist     0-1 cm below grn layer   |  2  |  3  | 20  | 106 |
+  86 | 112  |   1  |   3  | SOILM002 | kg m-2  | Soil Moist     1-3 cm below grn layer   |  2  |  3  | 20  | 106 |
+  86 | 112  |   3  |   9  | SOILM006 | kg m-2  | Soil Moist     3-9 cm below grn layer   |  2  |  3  | 20  | 106 |
+  86 | 112  |   9  |  27  | SOILM018 | kg m-2  | Soil Moist    9-27 cm below grn layer   |  2  |  3  | 20  | 106 |
+  86 | 112  |  27  |  81  | SOILM054 | kg m-2  | Soil Moist   27-81 cm below grn layer   |  2  |  3  | 20  | 106 |
+  86 | 112  |  81  | 243  | SOILM162 | kg m-2  | Soil Moist  81-243 cm below grn layer   |  2  |  3  | 20  | 106 |
+-----+------+------+------+----------+---------+-----------------------------------------+-----------------------+
+#
+#  Vtable for ICON (EU-Nest) data on model levels
+#  https://opendata.dwd.de/weather/nwp/icon-eu/grib/
+#  
