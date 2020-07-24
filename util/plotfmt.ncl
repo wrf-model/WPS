@@ -164,6 +164,8 @@ begin
         res@mpLambertParallel1F = truelat1
         res@mpLambertParallel2F = truelat2
         res@mpLambertMeridianF = xlonc
+        res@pmTickMarkDisplayMode = "Always"
+        res@mpGridAndLimbOn = True
       end if
 
       if (iproj.eq.4) then        ;Gaussian
@@ -191,18 +193,22 @@ begin
       slab = wrf_wps_rddata_int(istatus,nx,ny)
 
       slab@_FillValue = -1e+30
-      slab!1 = "lon"
-      slab!0 = "lat"
-      slab&lon = lon
-      slab&lat = lat
+      if (iproj.ne.3) then ; NOT Lambert Conformal
+         slab!1 = "lon"
+         slab!0 = "lat"
+         slab&lon = lon
+         slab&lat = lat
+      end if
       slab@units = units
 
       slab@description = xlvl +"  "+ desc
 ;     printVarSummary(slab)
 
       map = gsn_csm_contour_map(wks,slab,res)
-      delete(lat)
-      delete(lon)
+      if (iproj.ne.3) then ; NOT Lambert Conformal
+         delete(lat)
+         delete(lon)
+      end if
       delete(slab)
 
       wrf_wps_rdhead_int(istatus,head_real,field,hdate, \
