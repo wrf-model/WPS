@@ -23,7 +23,7 @@ all:
 		FC="$(SFC)" \
 		CC="$(CC)" \
 		CPP="$(CPP)" \
-		FFLAGS="$(FFLAGS)" \
+		FFLAGS="$(FFLAGS) $(MORE_UNGRIB_FFLAGS)" \
 		CFLAGS="$(CFLAGS)" \
 		LDFLAGS="$(LDFLAGS)" \
 		CPPFLAGS="$(CPPFLAGS) -D_$(CPP_TARGET)" )

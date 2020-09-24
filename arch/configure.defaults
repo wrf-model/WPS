@@ -237,6 +237,7 @@ FC                  = CONFIGURE_FC
 CC                  = CONFIGURE_CC
 LD                  = $(FC)
 FFLAGS              = -FR -convert big_endian
+MORE_UNGRIB_FFLAGS  = -fp-model consistent
 F77FLAGS            = -FI -convert big_endian
 FCSUFFIX            = 
 FNGFLAGS            = $(FFLAGS)
