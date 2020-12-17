@@ -431,3 +431,8 @@ EOF
 
   fi
 fi
+
+# Fix the gomp linking for openmp and mpi
+if [ $FC = "gfortran" -a $os = "Linux" -a $mach = "x86_64" ]; then
+    sed -i 's/-lnetcdff -lnetcdf/-lnetcdff -lnetcdf -lgomp/g' configure.wps
+fi
