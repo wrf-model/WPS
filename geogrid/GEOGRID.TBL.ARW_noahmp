@@ -1,0 +1,121 @@
+# Append this file to the end of GEOGRID.TBL
+===============================
+name=CROPTYPE
+        priority=1
+        optional=yes
+        dest_type=continuous
+        interp_option=default:average_gcell(4.0)+four_pt+average_4pt+average_16pt+search
+        z_dim_name=crop
+        masked = water
+        fill_missing = 0.
+        rel_path=default:crop/croptype/
+===============================
+name=SEASON_GDD
+        priority=1
+        optional=yes
+        dest_type=continuous
+        interp_option=default:average_gcell(4.0)+four_pt+average_4pt+average_16pt+search
+        masked = water
+        fill_missing = 1605.
+        rel_path=default:crop/crop_gdd/
+===============================
+name=PLANTING
+        priority=1
+        optional=yes
+        dest_type=continuous
+        interp_option=default:nearest_neighbor
+        masked = water
+        fill_missing = 126.
+        rel_path=default:crop/crop_planting/
+===============================
+name=HARVEST
+        priority=1
+        optional=yes
+        dest_type=continuous
+        interp_option=default:nearest_neighbor
+        masked = water
+        fill_missing = 290.
+        rel_path=default:crop/crop_harvest/
+===============================
+name=FDEPTH
+        priority=1
+        optional=yes
+        dest_type=continuous
+        interp_option=default:average_gcell(1.0)+average_4pt+search
+        masked = water
+        fill_missing = 100.
+        rel_path=default:groundwater/f/
+===============================
+name=RECHCLIM
+        priority=1
+        optional=yes
+        dest_type=continuous
+        interp_option=default:average_gcell(1.0)+average_4pt+search
+        fill_missing = -1.
+        masked = water
+        rel_path=default:groundwater/recharge/
+===============================
+name=EQZWT
+        priority=1
+        optional=yes
+        dest_type=continuous
+        interp_option=default:average_gcell(1.0)+average_4pt+search
+        masked = water
+        fill_missing = 0.
+        rel_path=default:groundwater/wtd/
+===============================
+name=RIVERBED
+        priority=1
+        optional=yes
+        dest_type=continuous
+        interp_option=default:average_gcell(1.0)+average_4pt+search
+        masked = water
+        fill_missing = 0.
+        rel_path=default:groundwater/riverbed/
+===============================
+name=SOILCOMP
+        priority=1
+        optional=yes
+        dest_type=continuous
+        interp_option=soilgrids:average_gcell(0.0)+average_4pt+average_16pt
+        z_dim_name=soilcomp
+        masked = water
+        fill_missing = 0.
+        rel_path=soilgrids:soilgrids/soilcomp/
+===============================
+name=SOILCL1F
+        priority=1
+        optional=yes
+        dest_type=categorical
+        z_dim_name=soil_cat
+        dominant=SOILCL1
+        interp_option = soilgrids:nearest_neighbor
+        rel_path= soilgrids:soilgrids/texture_layer1/
+===============================
+name=SOILCL2F
+        priority=1
+        optional=yes
+        dest_type=categorical
+        z_dim_name=soil_cat
+        dominant=SOILCL2
+        interp_option = soilgrids:nearest_neighbor
+        rel_path= soilgrids:soilgrids/texture_layer2/
+===============================
+name=SOILCL3F
+        priority=1
+        optional=yes
+        dest_type=categorical
+        z_dim_name=soil_cat
+        dominant=SOILCL3
+        interp_option = soilgrids:nearest_neighbor
+        rel_path= soilgrids:soilgrids/texture_layer3/
+===============================
+name=SOILCL4F
+        priority=1
+        optional=yes
+        dest_type=categorical
+        z_dim_name=soil_cat
+        dominant=SOILCL4
+        interp_option = soilgrids:nearest_neighbor
+        rel_path= soilgrids:soilgrids/texture_layer4/
+===============================

@@ -1,0 +1,12 @@
+# Append this file to the end of GEOGRID.TBL
+name=NFUEL_CAT
+        priority=1
+        optional=yes
+	dest_type=categorical
+	dominant_only=NFUEL_CAT
+	z_dim_name=fuel_cat
+	fill_missing = 0.
+	interp_option=default:nearest_neighbor+average_16pt+search
+	rel_path=default:landfire_data/
+	subgrid=yes
+===============================
