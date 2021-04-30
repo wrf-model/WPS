@@ -49,25 +49,30 @@ Param| Type |Level1|Level2| Name     | Units   | Description                    
 #
 #  Vtable for GFS pressure-level data from the ncep server.
 #  This version includes fields from the Tropopause and Max Wind levels used by WRF V3.6.1 and later.
+#  NCEP has used multiple definitions for the landmask. From July 2017 to March 2021 LANDN is used by WPS
+#  if available. When LANDN is not present WPS uses LANDSEA for the landmask.
 #  NCEP has used multiple definitions of the soil temperature in their output and the Vtable attempts
 #  to account for these possibilities. (Definition changed 14 Jan 2015).
 #
-#  ftp://ftpprd.ncep.noaa.gov/pub/data/nccf/com/gfs/prod/gfs.ccyymmddhh/    (note hh at end)
+#  as of 17 March 2021:
+#  ftp://ftpprd.ncep.noaa.gov/pub/data/nccf/com/gfs/prod/gfs.ccyymmdd/hh/atmos/
 #
 #                          approx.    grid    hours      domain  dx       notes
 #                         file size   no.
 #
+#  gfs.t00z.pgrb2.0p25    550000 Kb   193  1-h to 120-h  global  0.25 deg  (41 p-levels plus sfc and trop, 1000 to .01 mb).
+#                                          3-h to 384h
+#  gfs.t12z.pgrb2.0p50    155000 Kb     4  3-h to 384-h  global  0.5  deg  (41 p-levels plus sfc and trop, 1000 to .01 mb).
+#
+#
+#  Prior to 12z 17 March 2021:
 #  gfs.t12z.pgrb2.0p25    220000 Kb   193  3-h to 240-h  global  0.25 deg  (26 p-levels plus sfc and trop, 1000 to 10 mb).
 #  gfs.t12z.pgrb2.0p50     68000 Kb     4  3-h to 240-h  global  0.5  deg  (26 p-levels plus sfc and trop, 1000 to 10 mb).
 #                                          
 #  Prior to 12z 14 January 2015:
-#
 #  gfs.t12z.pgrb2f00       56000 Kb     4  3-h to 192-h  global  0.5  deg  (26 p-levels plus sfc and trop, 1000 to 10 mb).
 #  gfs.t12z.pgrbf00.grib2  18000 Kb     3  3-h to 384-h  global  1.0  deg  (26 p-levels plus sfc and trop, 1000 to 10 mb).
 #
-#
-#  As of mid-2017 the GFS provides two land mask fields in the pressure-level output. WPS uses LANDN if available
-#  and renames it LANDSEA.
 #
 #  As of WPS V4.1 (April 2019) the default PMSL is changed to MSLET. MSLET is an unsmoothed sea level pressure.
 #  NCEP included MSLET in their GFS files beginning 12z on 10 May 2011 and in their GDAS files at 12z 14 January 2015.
@@ -78,15 +83,19 @@ Param| Type |Level1|Level2| Name     | Units   | Description                    
 #
 #   Abbreviated history of GFS changes (all starting at 12 UTC)
 #
-# Sometime 2019     - Update to FV3 (requires WPS V4.0 or later)
+# 17 March 2021     - Update to v16. Increase vertical levels from 64 to 127 and raise model top to 80km. Add new
+#                     non-stationary gravity wave scheme. New scale-aware edmf mixing scheme. Updated RRTMG. 
+#                     Offline Land GDAS. Switch to LETKF. 4D-IAU. Use SKEB for ensembles. Add new sat obs.
+#                     Remove LANDN from model output files.
+# June 2019         - Update to FV3 (requires WPS V4.0 or later)
 # 19 July 2017      - Change to land mask and other terrestrial variables (requires WPS V3.9.1.1)
-#                   - Change missing value, removal of grid 211 (80km conus). Flag value of .468 in soil moisture.
+#                     Change missing value, removal of grid 211 (80km conus). Flag value of .468 in soil moisture.
 # 11 May 2016       - Assimilate AMSU-A radiances, AVHRR winds, CRTMv2.2.1, 4d hybrid das.
-#                   - Add 5 stratospheric levels to ouput. UPP V7.0. Land surface and GWD upates.
+#                     Add 5 stratospheric levels to ouput. UPP V7.0. Land surface and GWD upates.
 # 14 January 2015   - Add MSLET to GDAS. Change from T574 (27km) to T1534 (13km). Fcst length to 240 h.
-#                   - semi-lagrangian, uses rtgsst, Z0 dependent on vegetation type, CRTMv2.1.3, 0.25 deg output
+#                     semi-lagrangian, uses rtgsst, Z0 dependent on vegetation type, CRTMv2.1.3, 0.25 deg output
 # 10 May 2011       - Add MSLET to output. New thermal roughness length. Elevation of buoys to 10m.
-#                   - Improved GSI, update CRTM. Recomputed BE.
+#                     Improved GSI, update CRTM. Recomputed BE.
 # 27 July 2010      - T382 (35km) to T574 (27km). new pbl, gravity wave drag, updated deep convective scheme
 # 13 May 2008       - RRTM radiation, aerosol, cloud overlap, windsat sfc winds, flow dependent bev.
 # 25 September 2007 - Implement UPP.
