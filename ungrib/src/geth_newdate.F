@@ -238,19 +238,19 @@
 
       if (nlen.ge.19) then
          write(ndate,19) yrnew, monew, dynew, hrnew, minew, scnew
- 19      format(I4,'-',I2.2,'-',I2.2,'_',I2.2,':',I2.2,':',I2.2)
+ 19      format(I4.4,'-',I2.2,'-',I2.2,'_',I2.2,':',I2.2,':',I2.2)
 
       else if (nlen.eq.16) then
          write(ndate,16) yrnew, monew, dynew, hrnew, minew
- 16      format(I4,'-',I2.2,'-',I2.2,'_',I2.2,':',I2.2)
+ 16      format(I4.4,'-',I2.2,'-',I2.2,'_',I2.2,':',I2.2)
 
       else if (nlen.eq.13) then
          write(ndate,13) yrnew, monew, dynew, hrnew
- 13      format(I4,'-',I2.2,'-',I2.2,'_',I2.2)
+ 13      format(I4.4,'-',I2.2,'-',I2.2,'_',I2.2)
 
       else if (nlen.eq.10) then
          write(ndate,10) yrnew, monew, dynew
- 10      format(I4,'-',I2.2,'-',I2.2)
+ 10      format(I4.4,'-',I2.2,'-',I2.2)
 
       endif
 
