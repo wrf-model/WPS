@@ -454,6 +454,42 @@ name=HARVEST
         fill_missing = 290.
         rel_path=default:crop/crop_harvest/
 ===============================
+name=IRFRACT
+        priority=1
+        optional=yes
+        dest_type=continuous
+        interp_option=default:average_gcell(4.0)+four_pt+average_4pt
+        masked = water
+        fill_missing = 0.
+        rel_path=default:crop/irrigation_map/
+===============================
+name=SIFRACT
+        priority=1
+        optional=yes
+        dest_type=continuous
+        interp_option=default:nearest_neighbor
+        masked = water
+        fill_missing = 0.
+        rel_path=default:crop/sprinkler_fra/
+===============================
+name=MIFRACT
+        priority=1
+        optional=yes
+        dest_type=continuous
+        interp_option=default:nearest_neighbor
+        masked = water
+        fill_missing = 0.
+        rel_path=default:crop/micro_fra/
+===============================
+name=FIFRACT
+        priority=1
+        optional=yes
+        dest_type=continuous
+        interp_option=default:nearest_neighbor
+        masked = water
+        fill_missing = 0.
+        rel_path=default:crop/flood_fra/
+===============================
 name=FDEPTH
         priority=1
         optional=yes
