@@ -1,6 +1,17 @@
 #!/bin/sh
 
-arg1=$1
+#
+# Check for command-line arguments
+# At present, the only supported argument is --nowrf, which disables checks to
+# find the path to the compiled WRF model.
+#
+nowrf=0
+for arg in $@; do
+  if [ "${arg}" = "--nowrf" ]; then
+    nowrf=1
+  fi
+done
+
 
 # Look for netcdf
 if test -z "$NETCDF" ; then
@@ -153,40 +164,56 @@ fi
 wrf_dir="none"
 standard_wrf_dirs="WRF WRF-4.0.3 WRF-4.0.2 WRF-4.0.1 WRF-4.0 WRFV3"
 
-#
-# If no WRF_DIR environment variable is set, try to locate a WRF build in one
-# of the expected directory names one directory level up; otherwise, try to use
-# the WRF I/O library from the code in $WRF_DIR
-#
-if [ -z "$WRF_DIR" ]; then
-#   for d in WRF WRF-4.0.3 WRF-4.0.2 WRF-4.0.1 WRF-4.0 WRFV3; do
-   for d in ${standard_wrf_dirs}; do
-      if [ -e ../${d}/external/io_netcdf/libwrfio_nf.a ]; then
-         echo "Found what looks like a valid WRF I/O library in ../${d}"
-         wrf_dir="../${d}"
-         break
+if [ ${nowrf} -eq 0 ]; then
+   #
+   # If no WRF_DIR environment variable is set, try to locate a WRF build in one
+   # of the expected directory names one directory level up; otherwise, try to use
+   # the WRF I/O library from the code in $WRF_DIR
+   #
+   if [ -z "$WRF_DIR" ]; then
+   #   for d in WRF WRF-4.0.3 WRF-4.0.2 WRF-4.0.1 WRF-4.0 WRFV3; do
+      for d in ${standard_wrf_dirs}; do
+         if [ -e ../${d}/external/io_netcdf/libwrfio_nf.a ]; then
+            echo "Found what looks like a valid WRF I/O library in ../${d}"
+            wrf_dir="../${d}"
+            break
+         fi
+      done
+   else
+      if [ ! -e ${WRF_DIR}/external/io_netcdf/libwrfio_nf.a ]; then
+         echo ""
+         echo "Error: The \$WRF_DIR environment variable was set, but the WRF code at"
+         echo "       ${WRF_DIR} doesn't appear to have been successfully compiled"
+         echo ""
+         exit
       fi
-   done
-else
-   if [ ! -e ${WRF_DIR}/external/io_netcdf/libwrfio_nf.a ]; then
+
+      echo "Using WRF I/O library in WRF build identified by \$WRF_DIR: ${WRF_DIR}"
+      wrf_dir=$WRF_DIR
+   fi
+
+   if [ $wrf_dir = "none" ]; then
       echo ""
-      echo "Error: The \$WRF_DIR environment variable was set, but the WRF code at"
-      echo "       ${WRF_DIR} doesn't appear to have been successfully compiled"
+      echo "Error: No compiled WRF code found. Please check that the WRF model has been compiled"
+      echo "       one directory level up (i.e., ../) in a directory named 'WRF', 'WRF-4.0.3', 'WRF-4.0.2', etc.,"
+      echo "       or specify the full path to the compiled WRF model with the environment variable \$WRF_DIR ."
+      echo ""
+      echo "Alternatively, if only WPS components that do no depend on WRF I/O libraries are needed, re-run"
+      echo "the configure script with the --nowrf option."
       echo ""
       exit
    fi
-
-   echo "Using WRF I/O library in WRF build identified by \$WRF_DIR: ${WRF_DIR}"
-   wrf_dir=$WRF_DIR
-fi
-
-if [ $wrf_dir = "none" ]; then
-   echo ""
-   echo "Error: No compiled WRF code found. Please check that the WRF model has been compiled"
-   echo "       one directory level up (i.e., ../) in a directory named 'WRF', 'WRF-4.0.3', 'WRF-4.0.2', etc.,"
-   echo "       or specify the full path to the compiled WRF model with the environment variable \$WRF_DIR ."
-   echo ""
-   exit
+else
+   cat << EOF
+********************************************************************************
+Configuring the WPS without a compiled WRF model.
+It will not be possible to build the following WPS components, which depend on
+the WRF I/O libraries:
+  - geogrid
+  - metgrid
+  - int2nc
+********************************************************************************
+EOF
 fi
 
 # Found perl, so proceed with configuration
