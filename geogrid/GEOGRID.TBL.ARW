@@ -932,7 +932,7 @@ name = OL3SS
         rel_path = 30m:orogwd3_30m/ol3ss/
         rel_path = 1deg:orogwd3_1deg/ol3ss/
         rel_path = 2deg:orogwd3_2deg/ol3ss/
-        rel_path = default:orogwd3_2.5m/ol3ss/
+        rel_path = default:orogwd3_10m/ol3ss/
 ===============================
 name = OL4SS
         priority = 1
