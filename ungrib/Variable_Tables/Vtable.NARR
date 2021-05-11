@@ -43,7 +43,7 @@ Code | Code |   1  |   2  | Name     |  Units   | Description                   
 #   http://www.cdc.noaa.gov/cdc/data.narr.html
 #
 #  The last 4 entries in the Vtable (LANDSEA, SOILHGT, SOILCAT, and VEGCAT) can be
-# obtained from the fixed files at http://wwwt.emc.ncep.noaa.gov/mmb/rreanl/index.html
+# obtained from the fixed files at http://www.emc.ncep.noaa.gov/mmb/rreanl/index.html
 # (or from the NCAR archive), then 1) Run ungrib on the .fixed file and an initial time
 # of 1979-11-08_00.  2) rename the output file (NARR.CONSTANTS is a good choice;
 # i.e. mv FILE:1979-11-08_00 NARR.CONSTANTS) 3) Run ungrib on the .flx, .3D, and .sfc files
