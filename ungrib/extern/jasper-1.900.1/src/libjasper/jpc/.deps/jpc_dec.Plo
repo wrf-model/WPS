@@ -1,0 +1,147 @@
+jpc_dec.lo: jpc_dec.c /usr/include/stdc-predef.h /usr/include/stdio.h \
+ /usr/include/features.h /usr/include/sys/cdefs.h \
+ /usr/include/bits/wordsize.h /usr/include/gnu/stubs.h \
+ /usr/include/gnu/stubs-64.h \
+ /users/mcurry/build-gnu-10.1.0/install-gnu-10.1.0/lib/gcc/x86_64-pc-linux-gnu/10.1.0/include/stddef.h \
+ /usr/include/bits/types.h /usr/include/bits/typesizes.h \
+ /usr/include/libio.h /usr/include/_G_config.h /usr/include/wchar.h \
+ /users/mcurry/build-gnu-10.1.0/install-gnu-10.1.0/lib/gcc/x86_64-pc-linux-gnu/10.1.0/include/stdarg.h \
+ /usr/include/bits/stdio_lim.h /usr/include/bits/sys_errlist.h \
+ /usr/include/bits/stdio.h /usr/include/stdlib.h \
+ /usr/include/bits/waitflags.h /usr/include/bits/waitstatus.h \
+ /usr/include/endian.h /usr/include/bits/endian.h \
+ /usr/include/bits/byteswap.h /usr/include/bits/byteswap-16.h \
+ /usr/include/sys/types.h /usr/include/time.h /usr/include/sys/select.h \
+ /usr/include/bits/select.h /usr/include/bits/sigset.h \
+ /usr/include/bits/time.h /usr/include/sys/sysmacros.h \
+ /usr/include/bits/pthreadtypes.h /usr/include/alloca.h \
+ /usr/include/bits/stdlib-float.h /usr/include/assert.h \
+ ../../../src/libjasper/include/jasper/jas_types.h \
+ ../../../src/libjasper/include/jasper/jas_config.h \
+ /users/mcurry/build-gnu-10.1.0/install-gnu-10.1.0/lib/gcc/x86_64-pc-linux-gnu/10.1.0/include/stdbool.h \
+ /users/mcurry/build-gnu-10.1.0/install-gnu-10.1.0/lib/gcc/x86_64-pc-linux-gnu/10.1.0/include/stdint.h \
+ /usr/include/stdint.h /usr/include/bits/wchar.h \
+ ../../../src/libjasper/include/jasper/jas_math.h /usr/include/string.h \
+ /usr/include/xlocale.h /usr/include/bits/string.h \
+ /usr/include/bits/string2.h \
+ ../../../src/libjasper/include/jasper/jas_tvp.h \
+ ../../../src/libjasper/include/jasper/jas_malloc.h \
+ ../../../src/libjasper/include/jasper/jas_debug.h jpc_fix.h \
+ ../../../src/libjasper/include/jasper/jas_fix.h /usr/include/math.h \
+ /usr/include/bits/huge_val.h /usr/include/bits/huge_valf.h \
+ /usr/include/bits/huge_vall.h /usr/include/bits/inf.h \
+ /usr/include/bits/nan.h /usr/include/bits/mathdef.h \
+ /usr/include/bits/mathcalls.h /usr/include/bits/mathinline.h jpc_dec.h \
+ ../../../src/libjasper/include/jasper/jas_stream.h /usr/include/fcntl.h \
+ /usr/include/bits/fcntl.h /usr/include/bits/fcntl-linux.h \
+ /usr/include/bits/stat.h /usr/include/unistd.h \
+ /usr/include/bits/posix_opt.h /usr/include/bits/environments.h \
+ /usr/include/bits/confname.h /usr/include/getopt.h jpc_tsfb.h \
+ ../../../src/libjasper/include/jasper/jas_seq.h jpc_qmfb.h jpc_bs.h \
+ jpc_tagtree.h \
+ /users/mcurry/build-gnu-10.1.0/install-gnu-10.1.0/lib/gcc/x86_64-pc-linux-gnu/10.1.0/include-fixed/limits.h \
+ /users/mcurry/build-gnu-10.1.0/install-gnu-10.1.0/lib/gcc/x86_64-pc-linux-gnu/10.1.0/include-fixed/syslimits.h \
+ /usr/include/limits.h /usr/include/bits/posix1_lim.h \
+ /usr/include/bits/local_lim.h /usr/include/linux/limits.h \
+ /usr/include/bits/posix2_lim.h jpc_cs.h \
+ ../../../src/libjasper/include/jasper/jas_image.h \
+ ../../../src/libjasper/include/jasper/jas_cm.h \
+ ../../../src/libjasper/include/jasper/jas_icc.h jpc_cod.h jpc_mqdec.h \
+ jpc_mqcod.h jpc_t2cod.h jpc_mct.h jpc_t2dec.h jpc_t1dec.h jpc_t1cod.h \
+ jpc_math.h
+/usr/include/stdc-predef.h:
+/usr/include/stdio.h:
+/usr/include/features.h:
+/usr/include/sys/cdefs.h:
+/usr/include/bits/wordsize.h:
+/usr/include/gnu/stubs.h:
+/usr/include/gnu/stubs-64.h:
+/users/mcurry/build-gnu-10.1.0/install-gnu-10.1.0/lib/gcc/x86_64-pc-linux-gnu/10.1.0/include/stddef.h:
+/usr/include/bits/types.h:
+/usr/include/bits/typesizes.h:
+/usr/include/libio.h:
+/usr/include/_G_config.h:
+/usr/include/wchar.h:
+/users/mcurry/build-gnu-10.1.0/install-gnu-10.1.0/lib/gcc/x86_64-pc-linux-gnu/10.1.0/include/stdarg.h:
+/usr/include/bits/stdio_lim.h:
+/usr/include/bits/sys_errlist.h:
+/usr/include/bits/stdio.h:
+/usr/include/stdlib.h:
+/usr/include/bits/waitflags.h:
+/usr/include/bits/waitstatus.h:
+/usr/include/endian.h:
+/usr/include/bits/endian.h:
+/usr/include/bits/byteswap.h:
+/usr/include/bits/byteswap-16.h:
+/usr/include/sys/types.h:
+/usr/include/time.h:
+/usr/include/sys/select.h:
+/usr/include/bits/select.h:
+/usr/include/bits/sigset.h:
+/usr/include/bits/time.h:
+/usr/include/sys/sysmacros.h:
+/usr/include/bits/pthreadtypes.h:
+/usr/include/alloca.h:
+/usr/include/bits/stdlib-float.h:
+/usr/include/assert.h:
+../../../src/libjasper/include/jasper/jas_types.h:
+../../../src/libjasper/include/jasper/jas_config.h:
+/users/mcurry/build-gnu-10.1.0/install-gnu-10.1.0/lib/gcc/x86_64-pc-linux-gnu/10.1.0/include/stdbool.h:
+/users/mcurry/build-gnu-10.1.0/install-gnu-10.1.0/lib/gcc/x86_64-pc-linux-gnu/10.1.0/include/stdint.h:
+/usr/include/stdint.h:
+/usr/include/bits/wchar.h:
+../../../src/libjasper/include/jasper/jas_math.h:
+/usr/include/string.h:
+/usr/include/xlocale.h:
+/usr/include/bits/string.h:
+/usr/include/bits/string2.h:
+../../../src/libjasper/include/jasper/jas_tvp.h:
+../../../src/libjasper/include/jasper/jas_malloc.h:
+../../../src/libjasper/include/jasper/jas_debug.h:
+jpc_fix.h:
+../../../src/libjasper/include/jasper/jas_fix.h:
+/usr/include/math.h:
+/usr/include/bits/huge_val.h:
+/usr/include/bits/huge_valf.h:
+/usr/include/bits/huge_vall.h:
+/usr/include/bits/inf.h:
+/usr/include/bits/nan.h:
+/usr/include/bits/mathdef.h:
+/usr/include/bits/mathcalls.h:
+/usr/include/bits/mathinline.h:
+jpc_dec.h:
+../../../src/libjasper/include/jasper/jas_stream.h:
+/usr/include/fcntl.h:
+/usr/include/bits/fcntl.h:
+/usr/include/bits/fcntl-linux.h:
+/usr/include/bits/stat.h:
+/usr/include/unistd.h:
+/usr/include/bits/posix_opt.h:
+/usr/include/bits/environments.h:
+/usr/include/bits/confname.h:
+/usr/include/getopt.h:
+jpc_tsfb.h:
+../../../src/libjasper/include/jasper/jas_seq.h:
+jpc_qmfb.h:
+jpc_bs.h:
+jpc_tagtree.h:
+/users/mcurry/build-gnu-10.1.0/install-gnu-10.1.0/lib/gcc/x86_64-pc-linux-gnu/10.1.0/include-fixed/limits.h:
+/users/mcurry/build-gnu-10.1.0/install-gnu-10.1.0/lib/gcc/x86_64-pc-linux-gnu/10.1.0/include-fixed/syslimits.h:
+/usr/include/limits.h:
+/usr/include/bits/posix1_lim.h:
+/usr/include/bits/local_lim.h:
+/usr/include/linux/limits.h:
+/usr/include/bits/posix2_lim.h:
+jpc_cs.h:
+../../../src/libjasper/include/jasper/jas_image.h:
+../../../src/libjasper/include/jasper/jas_cm.h:
+../../../src/libjasper/include/jasper/jas_icc.h:
+jpc_cod.h:
+jpc_mqdec.h:
+jpc_mqcod.h:
+jpc_t2cod.h:
+jpc_mct.h:
+jpc_t2dec.h:
+jpc_t1dec.h:
+jpc_t1cod.h:
+jpc_math.h:

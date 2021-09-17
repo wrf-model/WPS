@@ -1,0 +1,7280 @@
+--------------------
+./configure
+Fri Sep 17 16:16:58 UTC 2021
+
+=== ztest13347.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+mpicc -c -fallow-argument-mismatch ztest13347.c
+cc1: warning: command-line option ‘-fallow-argument-mismatch’ is valid for Fortran but not for C
+... using gcc
+
+Checking for shared library support...
+=== ztest13347.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+mpicc -w -c -fallow-argument-mismatch -fPIC ztest13347.c
+mpicc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map -fallow-argument-mismatch -fPIC -o ztest13347.so ztest13347.o
+/usr/bin/ld: skipping incompatible /users/mcurry/build-gnu-10.1.0/install-gnu-10.1.0/lib/libgcc_s.so.1 when searching for libgcc_s.so.1
+/usr/bin/ld: skipping incompatible /users/mcurry/build-gnu-10.1.0/install-gnu-10.1.0/lib/libgcc_s.so.1 when searching for libgcc_s.so.1
+Building shared library libz.so.1.2.7 with mpicc.
+
+
+=== ztest13347.c ===
+#include <sys/types.h>
+off64_t dummy = 0;
+===
+mpicc -c -fallow-argument-mismatch -D_LARGEFILE64_SOURCE=1 ztest13347.c
+cc1: warning: command-line option ‘-fallow-argument-mismatch’ is valid for Fortran but not for C
+Checking for off64_t... Yes.
+Checking for fseeko... Yes.
+
+=== ztest13347.c ===
+#include <string.h>
+#include <errno.h>
+int main() { return strlen(strerror(errno)); }
+===
+mpicc -fallow-argument-mismatch -D_LARGEFILE64_SOURCE=1 -o ztest13347 ztest13347.c
+cc1: warning: command-line option ‘-fallow-argument-mismatch’ is valid for Fortran but not for C
+/usr/bin/ld: skipping incompatible /users/mcurry/build-gnu-10.1.0/install-gnu-10.1.0/lib/libgcc_s.so.1 when searching for libgcc_s.so.1
+/usr/bin/ld: skipping incompatible /users/mcurry/build-gnu-10.1.0/install-gnu-10.1.0/lib/libgcc_s.so.1 when searching for libgcc_s.so.1
+Checking for strerror... Yes.
+
+=== ztest13347.c ===
+#include <unistd.h>
+int main() { return 0; }
+===
+mpicc -c -fallow-argument-mismatch -D_LARGEFILE64_SOURCE=1 ztest13347.c
+cc1: warning: command-line option ‘-fallow-argument-mismatch’ is valid for Fortran but not for C
+Checking for unistd.h... Yes.
+
+=== ztest13347.c ===
+#include <stdarg.h>
+int main() { return 0; }
+===
+mpicc -c -fallow-argument-mismatch -D_LARGEFILE64_SOURCE=1 ztest13347.c
+cc1: warning: command-line option ‘-fallow-argument-mismatch’ is valid for Fortran but not for C
+Checking for stdarg.h... Yes.
+
+=== ztest13347.c ===
+#include <stdio.h>
+#include <stdarg.h>
+#include "zconf.h"
+int main()
+{
+#ifndef STDC
+  choke me
+#endif
+  return 0;
+}
+===
+mpicc -c -fallow-argument-mismatch -D_LARGEFILE64_SOURCE=1 ztest13347.c
+cc1: warning: command-line option ‘-fallow-argument-mismatch’ is valid for Fortran but not for C
+Checking whether to use vs[n]printf() or s[n]printf()... using vs[n]printf().
+
+=== ztest13347.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return 0;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+mpicc -fallow-argument-mismatch -D_LARGEFILE64_SOURCE=1 -o ztest13347 ztest13347.c
+cc1: warning: command-line option ‘-fallow-argument-mismatch’ is valid for Fortran but not for C
+/usr/bin/ld: skipping incompatible /users/mcurry/build-gnu-10.1.0/install-gnu-10.1.0/lib/libgcc_s.so.1 when searching for libgcc_s.so.1
+/usr/bin/ld: skipping incompatible /users/mcurry/build-gnu-10.1.0/install-gnu-10.1.0/lib/libgcc_s.so.1 when searching for libgcc_s.so.1
+Checking for vsnprintf() in stdio.h... Yes.
+
+=== ztest13347.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  int n;
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  n = vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return n;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+mpicc -c -fallow-argument-mismatch -D_LARGEFILE64_SOURCE=1 ztest13347.c
+cc1: warning: command-line option ‘-fallow-argument-mismatch’ is valid for Fortran but not for C
+Checking for return value of vsnprintf()... Yes.
+
+=== ztest13347.c ===
+#define ZLIB_INTERNAL __attribute__((visibility ("hidden")))
+int ZLIB_INTERNAL foo;
+int main()
+{
+  return 0;
+}
+===
+mpicc -c -fallow-argument-mismatch -D_LARGEFILE64_SOURCE=1 ztest13347.c
+cc1: warning: command-line option ‘-fallow-argument-mismatch’ is valid for Fortran but not for CChecking for attribute(visibility) support... No.
+
+=== ztest13347.c ===
+#include <stdio.h>
+#define is32(n,t) for(n=1,k=0;n;n<<=1,k++);if(k==32){puts(t);return 0;}
+int main() {
+    int k;
+    unsigned i;
+    unsigned long l;
+    unsigned short s;
+    is32(i, "unsigned")
+    is32(l, "unsigned long")
+    is32(s, "unsigned short")
+    return 1;
+}
+===
+mpicc -fallow-argument-mismatch -D_LARGEFILE64_SOURCE=1 ztest13347.c -o ztest13347
+cc1: warning: command-line option ‘-fallow-argument-mismatch’ is valid for Fortran but not for C
+/usr/bin/ld: skipping incompatible /users/mcurry/build-gnu-10.1.0/install-gnu-10.1.0/lib/libgcc_s.so.1 when searching for libgcc_s.so.1
+/usr/bin/ld: skipping incompatible /users/mcurry/build-gnu-10.1.0/install-gnu-10.1.0/lib/libgcc_s.so.1 when searching for libgcc_s.so.1
+Looking for a four-byte integer type... Found.
+
+ALL = static shared all64
+AR = ar
+ARFLAGS = rc
+CC = mpicc
+CFLAGS = -fallow-argument-mismatch -D_LARGEFILE64_SOURCE=1
+CPP = /users/mcurry/build-gnu-10.1.0/install-gnu-10.1.0//bin/cpp
+EXE =
+LDCONFIG = ldconfig
+LDFLAGS = -L/users/mcurry/build-wps//lib
+LDSHARED = mpicc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map
+LDSHAREDLIBC = -lc
+OBJC = $(OBJZ) $(OBJG)
+PIC_OBJC = $(PIC_OBJZ) $(PIC_OBJG)
+RANLIB = ranlib
+SFLAGS = -fallow-argument-mismatch -fPIC -D_LARGEFILE64_SOURCE=1
+SHAREDLIB = libz.so
+SHAREDLIBM = libz.so.1
+SHAREDLIBV = libz.so.1.2.7
+STATICLIB = libz.a
+TEST = all teststatic testshared test64
+VER = 1.2.7
+Z_U4 = unsigned
+exec_prefix = ${prefix}
+includedir = ${prefix}/include
+libdir = ${exec_prefix}/lib
+mandir = ${prefix}/share/man
+prefix = /usr/local
+sharedlibdir = ${libdir}
+uname = Linux
+--------------------
+
+
+--------------------
+./configure -h
+Fri Sep 17 16:17:35 UTC 2021
+usage:
+  configure [--zprefix] [--prefix=PREFIX]  [--eprefix=EXPREFIX]
+    [--static] [--64] [--libdir=LIBDIR] [--sharedlibdir=LIBDIR]
+    [--includedir=INCLUDEDIR] [--archs="-arch i386 -arch x86_64"]
+--------------------
+./configure clean
+Fri Sep 17 16:17:37 UTC 2021
+./configure --help for help
+--------------------
+./configure --help
+Fri Sep 17 16:17:42 UTC 2021
+usage:
+  configure [--zprefix] [--prefix=PREFIX]  [--eprefix=EXPREFIX]
+    [--static] [--64] [--libdir=LIBDIR] [--sharedlibdir=LIBDIR]
+    [--includedir=INCLUDEDIR] [--archs="-arch i386 -arch x86_64"]
+--------------------
+./configure
+Fri Sep 17 16:26:51 UTC 2021
+
+=== ztest34212.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+mpicc -c -fallow-argument-mismatch ztest34212.c
+cc1: warning: command-line option ‘-fallow-argument-mismatch’ is valid for Fortran but not for C
+... using gcc
+
+Checking for shared library support...
+=== ztest34212.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+mpicc -w -c -fallow-argument-mismatch -fPIC ztest34212.c
+mpicc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map -fallow-argument-mismatch -fPIC -o ztest34212.so ztest34212.o
+/usr/bin/ld: skipping incompatible /users/mcurry/build-gnu-10.1.0/install-gnu-10.1.0/lib/libgcc_s.so.1 when searching for libgcc_s.so.1
+/usr/bin/ld: skipping incompatible /users/mcurry/build-gnu-10.1.0/install-gnu-10.1.0/lib/libgcc_s.so.1 when searching for libgcc_s.so.1
+Building shared library libz.so.1.2.7 with mpicc.
+
+
+=== ztest34212.c ===
+#include <sys/types.h>
+off64_t dummy = 0;
+===
+mpicc -c -fallow-argument-mismatch -D_LARGEFILE64_SOURCE=1 ztest34212.c
+cc1: warning: command-line option ‘-fallow-argument-mismatch’ is valid for Fortran but not for C
+Checking for off64_t... Yes.
+Checking for fseeko... Yes.
+
+=== ztest34212.c ===
+#include <string.h>
+#include <errno.h>
+int main() { return strlen(strerror(errno)); }
+===
+mpicc -fallow-argument-mismatch -D_LARGEFILE64_SOURCE=1 -o ztest34212 ztest34212.c
+cc1: warning: command-line option ‘-fallow-argument-mismatch’ is valid for Fortran but not for C
+/usr/bin/ld: skipping incompatible /users/mcurry/build-gnu-10.1.0/install-gnu-10.1.0/lib/libgcc_s.so.1 when searching for libgcc_s.so.1
+/usr/bin/ld: skipping incompatible /users/mcurry/build-gnu-10.1.0/install-gnu-10.1.0/lib/libgcc_s.so.1 when searching for libgcc_s.so.1
+Checking for strerror... Yes.
+
+=== ztest34212.c ===
+#include <unistd.h>
+int main() { return 0; }
+===
+mpicc -c -fallow-argument-mismatch -D_LARGEFILE64_SOURCE=1 ztest34212.c
+cc1: warning: command-line option ‘-fallow-argument-mismatch’ is valid for Fortran but not for C
+Checking for unistd.h... Yes.
+
+=== ztest34212.c ===
+#include <stdarg.h>
+int main() { return 0; }
+===
+mpicc -c -fallow-argument-mismatch -D_LARGEFILE64_SOURCE=1 ztest34212.c
+cc1: warning: command-line option ‘-fallow-argument-mismatch’ is valid for Fortran but not for C
+Checking for stdarg.h... Yes.
+
+=== ztest34212.c ===
+#include <stdio.h>
+#include <stdarg.h>
+#include "zconf.h"
+int main()
+{
+#ifndef STDC
+  choke me
+#endif
+  return 0;
+}
+===
+mpicc -c -fallow-argument-mismatch -D_LARGEFILE64_SOURCE=1 ztest34212.c
+cc1: warning: command-line option ‘-fallow-argument-mismatch’ is valid for Fortran but not for C
+Checking whether to use vs[n]printf() or s[n]printf()... using vs[n]printf().
+
+=== ztest34212.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return 0;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+mpicc -fallow-argument-mismatch -D_LARGEFILE64_SOURCE=1 -o ztest34212 ztest34212.c
+cc1: warning: command-line option ‘-fallow-argument-mismatch’ is valid for Fortran but not for C
+/usr/bin/ld: skipping incompatible /users/mcurry/build-gnu-10.1.0/install-gnu-10.1.0/lib/libgcc_s.so.1 when searching for libgcc_s.so.1
+/usr/bin/ld: skipping incompatible /users/mcurry/build-gnu-10.1.0/install-gnu-10.1.0/lib/libgcc_s.so.1 when searching for libgcc_s.so.1
+Checking for vsnprintf() in stdio.h... Yes.
+
+=== ztest34212.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  int n;
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  n = vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return n;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+mpicc -c -fallow-argument-mismatch -D_LARGEFILE64_SOURCE=1 ztest34212.c
+cc1: warning: command-line option ‘-fallow-argument-mismatch’ is valid for Fortran but not for C
+Checking for return value of vsnprintf()... Yes.
+
+=== ztest34212.c ===
+#define ZLIB_INTERNAL __attribute__((visibility ("hidden")))
+int ZLIB_INTERNAL foo;
+int main()
+{
+  return 0;
+}
+===
+mpicc -c -fallow-argument-mismatch -D_LARGEFILE64_SOURCE=1 ztest34212.c
+cc1: warning: command-line option ‘-fallow-argument-mismatch’ is valid for Fortran but not for CChecking for attribute(visibility) support... No.
+
+=== ztest34212.c ===
+#include <stdio.h>
+#define is32(n,t) for(n=1,k=0;n;n<<=1,k++);if(k==32){puts(t);return 0;}
+int main() {
+    int k;
+    unsigned i;
+    unsigned long l;
+    unsigned short s;
+    is32(i, "unsigned")
+    is32(l, "unsigned long")
+    is32(s, "unsigned short")
+    return 1;
+}
+===
+mpicc -fallow-argument-mismatch -D_LARGEFILE64_SOURCE=1 ztest34212.c -o ztest34212
+cc1: warning: command-line option ‘-fallow-argument-mismatch’ is valid for Fortran but not for C
+/usr/bin/ld: skipping incompatible /users/mcurry/build-gnu-10.1.0/install-gnu-10.1.0/lib/libgcc_s.so.1 when searching for libgcc_s.so.1
+/usr/bin/ld: skipping incompatible /users/mcurry/build-gnu-10.1.0/install-gnu-10.1.0/lib/libgcc_s.so.1 when searching for libgcc_s.so.1
+Looking for a four-byte integer type... Found.
+
+ALL = static shared all64
+AR = ar
+ARFLAGS = rc
+CC = mpicc
+CFLAGS = -fallow-argument-mismatch -D_LARGEFILE64_SOURCE=1
+CPP = /users/mcurry/build-gnu-10.1.0/install-gnu-10.1.0//bin/cpp
+EXE =
+LDCONFIG = ldconfig
+LDFLAGS = -L/users/mcurry/build-wps//lib
+LDSHARED = mpicc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map
+LDSHAREDLIBC = -lc
+OBJC = $(OBJZ) $(OBJG)
+PIC_OBJC = $(PIC_OBJZ) $(PIC_OBJG)
+RANLIB = ranlib
+SFLAGS = -fallow-argument-mismatch -fPIC -D_LARGEFILE64_SOURCE=1
+SHAREDLIB = libz.so
+SHAREDLIBM = libz.so.1
+SHAREDLIBV = libz.so.1.2.7
+STATICLIB = libz.a
+TEST = all teststatic testshared test64
+VER = 1.2.7
+Z_U4 = unsigned
+exec_prefix = ${prefix}
+includedir = ${prefix}/include
+libdir = ${exec_prefix}/lib
+mandir = ${prefix}/share/man
+prefix = /usr/local
+sharedlibdir = ${libdir}
+uname = Linux
+--------------------
+
+
+--------------------
+./configure
+Fri Sep 17 16:33:44 UTC 2021
+
+=== ztest37680.c ===
+extern int getchar();
+int hello() {return getchar();}
+--------------------
+./configure
+Fri Sep 17 16:34:43 UTC 2021
+
+=== ztest37986.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+mpicc -c -fallow-argument-mismatch ztest37986.c
+cc1: warning: command-line option ‘-fallow-argument-mismatch’ is valid for Fortran but not for C
+... using gcc
+
+Checking for shared library support...
+=== ztest37986.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+mpicc -w -c -fallow-argument-mismatch -fPIC ztest37986.c
+mpicc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map -fallow-argument-mismatch -fPIC -o ztest37986.so ztest37986.o
+/usr/bin/ld: skipping incompatible /users/mcurry/build-gnu-10.1.0/install-gnu-10.1.0/lib/libgcc_s.so.1 when searching for libgcc_s.so.1
+/usr/bin/ld: skipping incompatible /users/mcurry/build-gnu-10.1.0/install-gnu-10.1.0/lib/libgcc_s.so.1 when searching for libgcc_s.so.1
+Building shared library libz.so.1.2.7 with mpicc.
+
+
+=== ztest37986.c ===
+#include <sys/types.h>
+off64_t dummy = 0;
+===
+mpicc -c -fallow-argument-mismatch -D_LARGEFILE64_SOURCE=1 ztest37986.c
+cc1: warning: command-line option ‘-fallow-argument-mismatch’ is valid for Fortran but not for C
+Checking for off64_t... Yes.
+Checking for fseeko... Yes.
+
+=== ztest37986.c ===
+#include <string.h>
+#include <errno.h>
+int main() { return strlen(strerror(errno)); }
+===
+mpicc -fallow-argument-mismatch -D_LARGEFILE64_SOURCE=1 -o ztest37986 ztest37986.c
+cc1: warning: command-line option ‘-fallow-argument-mismatch’ is valid for Fortran but not for C
+/usr/bin/ld: skipping incompatible /users/mcurry/build-gnu-10.1.0/install-gnu-10.1.0/lib/libgcc_s.so.1 when searching for libgcc_s.so.1
+/usr/bin/ld: skipping incompatible /users/mcurry/build-gnu-10.1.0/install-gnu-10.1.0/lib/libgcc_s.so.1 when searching for libgcc_s.so.1
+Checking for strerror... Yes.
+
+=== ztest37986.c ===
+#include <unistd.h>
+int main() { return 0; }
+===
+mpicc -c -fallow-argument-mismatch -D_LARGEFILE64_SOURCE=1 ztest37986.c
+cc1: warning: command-line option ‘-fallow-argument-mismatch’ is valid for Fortran but not for C
+Checking for unistd.h... Yes.
+
+=== ztest37986.c ===
+#include <stdarg.h>
+int main() { return 0; }
+===
+mpicc -c -fallow-argument-mismatch -D_LARGEFILE64_SOURCE=1 ztest37986.c
+cc1: warning: command-line option ‘-fallow-argument-mismatch’ is valid for Fortran but not for C
+Checking for stdarg.h... Yes.
+
+=== ztest37986.c ===
+#include <stdio.h>
+#include <stdarg.h>
+#include "zconf.h"
+int main()
+{
+#ifndef STDC
+  choke me
+#endif
+  return 0;
+}
+===
+mpicc -c -fallow-argument-mismatch -D_LARGEFILE64_SOURCE=1 ztest37986.c
+cc1: warning: command-line option ‘-fallow-argument-mismatch’ is valid for Fortran but not for C
+Checking whether to use vs[n]printf() or s[n]printf()... using vs[n]printf().
+
+=== ztest37986.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return 0;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+mpicc -fallow-argument-mismatch -D_LARGEFILE64_SOURCE=1 -o ztest37986 ztest37986.c
+cc1: warning: command-line option ‘-fallow-argument-mismatch’ is valid for Fortran but not for C
+/usr/bin/ld: skipping incompatible /users/mcurry/build-gnu-10.1.0/install-gnu-10.1.0/lib/libgcc_s.so.1 when searching for libgcc_s.so.1
+/usr/bin/ld: skipping incompatible /users/mcurry/build-gnu-10.1.0/install-gnu-10.1.0/lib/libgcc_s.so.1 when searching for libgcc_s.so.1
+Checking for vsnprintf() in stdio.h... Yes.
+
+=== ztest37986.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  int n;
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  n = vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return n;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+mpicc -c -fallow-argument-mismatch -D_LARGEFILE64_SOURCE=1 ztest37986.c
+cc1: warning: command-line option ‘-fallow-argument-mismatch’ is valid for Fortran but not for C
+Checking for return value of vsnprintf()... Yes.
+
+=== ztest37986.c ===
+#define ZLIB_INTERNAL __attribute__((visibility ("hidden")))
+int ZLIB_INTERNAL foo;
+int main()
+{
+  return 0;
+}
+===
+mpicc -c -fallow-argument-mismatch -D_LARGEFILE64_SOURCE=1 ztest37986.c
+cc1: warning: command-line option ‘-fallow-argument-mismatch’ is valid for Fortran but not for CChecking for attribute(visibility) support... No.
+
+=== ztest37986.c ===
+#include <stdio.h>
+#define is32(n,t) for(n=1,k=0;n;n<<=1,k++);if(k==32){puts(t);return 0;}
+int main() {
+    int k;
+    unsigned i;
+    unsigned long l;
+    unsigned short s;
+    is32(i, "unsigned")
+    is32(l, "unsigned long")
+    is32(s, "unsigned short")
+    return 1;
+}
+===
+mpicc -fallow-argument-mismatch -D_LARGEFILE64_SOURCE=1 ztest37986.c -o ztest37986
+cc1: warning: command-line option ‘-fallow-argument-mismatch’ is valid for Fortran but not for C
+/usr/bin/ld: skipping incompatible /users/mcurry/build-gnu-10.1.0/install-gnu-10.1.0/lib/libgcc_s.so.1 when searching for libgcc_s.so.1
+/usr/bin/ld: skipping incompatible /users/mcurry/build-gnu-10.1.0/install-gnu-10.1.0/lib/libgcc_s.so.1 when searching for libgcc_s.so.1
+Looking for a four-byte integer type... Found.
+
+ALL = static shared all64
+AR = ar
+ARFLAGS = rc
+CC = mpicc
+CFLAGS = -fallow-argument-mismatch -D_LARGEFILE64_SOURCE=1
+CPP = /users/mcurry/build-gnu-10.1.0/install-gnu-10.1.0//bin/cpp
+EXE =
+LDCONFIG = ldconfig
+LDFLAGS = -L/users/mcurry/build-wps//lib
+LDSHARED = mpicc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map
+LDSHAREDLIBC = -lc
+OBJC = $(OBJZ) $(OBJG)
+PIC_OBJC = $(PIC_OBJZ) $(PIC_OBJG)
+RANLIB = ranlib
+SFLAGS = -fallow-argument-mismatch -fPIC -D_LARGEFILE64_SOURCE=1
+SHAREDLIB = libz.so
+SHAREDLIBM = libz.so.1
+SHAREDLIBV = libz.so.1.2.7
+STATICLIB = libz.a
+TEST = all teststatic testshared test64
+VER = 1.2.7
+Z_U4 = unsigned
+exec_prefix = ${prefix}
+includedir = ${prefix}/include
+libdir = ${exec_prefix}/lib
+mandir = ${prefix}/share/man
+prefix = /usr/local
+sharedlibdir = ${libdir}
+uname = Linux
+--------------------
+
+
+--------------------
+./configure
+Fri Sep 17 16:38:14 UTC 2021
+
+=== ztest6089.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+mpicc -c -fallow-argument-mismatch ztest6089.c
+cc1: warning: command-line option ‘-fallow-argument-mismatch’ is valid for Fortran but not for C
+... using gcc
+
+Checking for shared library support...
+=== ztest6089.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+mpicc -w -c -fallow-argument-mismatch -fPIC ztest6089.c
+mpicc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map -fallow-argument-mismatch -fPIC -o ztest6089.so ztest6089.o
+/usr/bin/ld: skipping incompatible /users/mcurry/build-gnu-10.1.0/install-gnu-10.1.0/lib/libgcc_s.so.1 when searching for libgcc_s.so.1
+/usr/bin/ld: skipping incompatible /users/mcurry/build-gnu-10.1.0/install-gnu-10.1.0/lib/libgcc_s.so.1 when searching for libgcc_s.so.1
+Building shared library libz.so.1.2.7 with mpicc.
+
+
+=== ztest6089.c ===
+#include <sys/types.h>
+off64_t dummy = 0;
+===
+mpicc -c -fallow-argument-mismatch -D_LARGEFILE64_SOURCE=1 ztest6089.c
+cc1: warning: command-line option ‘-fallow-argument-mismatch’ is valid for Fortran but not for C
+Checking for off64_t... Yes.
+Checking for fseeko... Yes.
+
+=== ztest6089.c ===
+#include <string.h>
+#include <errno.h>
+int main() { return strlen(strerror(errno)); }
+===
+mpicc -fallow-argument-mismatch -D_LARGEFILE64_SOURCE=1 -o ztest6089 ztest6089.c
+cc1: warning: command-line option ‘-fallow-argument-mismatch’ is valid for Fortran but not for C
+/usr/bin/ld: skipping incompatible /users/mcurry/build-gnu-10.1.0/install-gnu-10.1.0/lib/libgcc_s.so.1 when searching for libgcc_s.so.1
+/usr/bin/ld: skipping incompatible /users/mcurry/build-gnu-10.1.0/install-gnu-10.1.0/lib/libgcc_s.so.1 when searching for libgcc_s.so.1
+Checking for strerror... Yes.
+
+=== ztest6089.c ===
+#include <unistd.h>
+int main() { return 0; }
+===
+mpicc -c -fallow-argument-mismatch -D_LARGEFILE64_SOURCE=1 ztest6089.c
+cc1: warning: command-line option ‘-fallow-argument-mismatch’ is valid for Fortran but not for C
+Checking for unistd.h... Yes.
+
+=== ztest6089.c ===
+#include <stdarg.h>
+int main() { return 0; }
+===
+mpicc -c -fallow-argument-mismatch -D_LARGEFILE64_SOURCE=1 ztest6089.c
+cc1: warning: command-line option ‘-fallow-argument-mismatch’ is valid for Fortran but not for C
+Checking for stdarg.h... Yes.
+
+=== ztest6089.c ===
+#include <stdio.h>
+#include <stdarg.h>
+#include "zconf.h"
+int main()
+{
+#ifndef STDC
+  choke me
+#endif
+  return 0;
+}
+===
+mpicc -c -fallow-argument-mismatch -D_LARGEFILE64_SOURCE=1 ztest6089.c
+cc1: warning: command-line option ‘-fallow-argument-mismatch’ is valid for Fortran but not for C
+Checking whether to use vs[n]printf() or s[n]printf()... using vs[n]printf().
+
+=== ztest6089.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return 0;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+mpicc -fallow-argument-mismatch -D_LARGEFILE64_SOURCE=1 -o ztest6089 ztest6089.c
+cc1: warning: command-line option ‘-fallow-argument-mismatch’ is valid for Fortran but not for C
+/usr/bin/ld: skipping incompatible /users/mcurry/build-gnu-10.1.0/install-gnu-10.1.0/lib/libgcc_s.so.1 when searching for libgcc_s.so.1
+/usr/bin/ld: skipping incompatible /users/mcurry/build-gnu-10.1.0/install-gnu-10.1.0/lib/libgcc_s.so.1 when searching for libgcc_s.so.1
+Checking for vsnprintf() in stdio.h... Yes.
+
+=== ztest6089.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  int n;
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  n = vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return n;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+mpicc -c -fallow-argument-mismatch -D_LARGEFILE64_SOURCE=1 ztest6089.c
+cc1: warning: command-line option ‘-fallow-argument-mismatch’ is valid for Fortran but not for C
+Checking for return value of vsnprintf()... Yes.
+
+=== ztest6089.c ===
+#define ZLIB_INTERNAL __attribute__((visibility ("hidden")))
+int ZLIB_INTERNAL foo;
+int main()
+{
+  return 0;
+}
+===
+mpicc -c -fallow-argument-mismatch -D_LARGEFILE64_SOURCE=1 ztest6089.c
+cc1: warning: command-line option ‘-fallow-argument-mismatch’ is valid for Fortran but not for CChecking for attribute(visibility) support... No.
+
+=== ztest6089.c ===
+#include <stdio.h>
+#define is32(n,t) for(n=1,k=0;n;n<<=1,k++);if(k==32){puts(t);return 0;}
+int main() {
+    int k;
+    unsigned i;
+    unsigned long l;
+    unsigned short s;
+    is32(i, "unsigned")
+    is32(l, "unsigned long")
+    is32(s, "unsigned short")
+    return 1;
+}
+===
+mpicc -fallow-argument-mismatch -D_LARGEFILE64_SOURCE=1 ztest6089.c -o ztest6089
+cc1: warning: command-line option ‘-fallow-argument-mismatch’ is valid for Fortran but not for C
+/usr/bin/ld: skipping incompatible /users/mcurry/build-gnu-10.1.0/install-gnu-10.1.0/lib/libgcc_s.so.1 when searching for libgcc_s.so.1
+/usr/bin/ld: skipping incompatible /users/mcurry/build-gnu-10.1.0/install-gnu-10.1.0/lib/libgcc_s.so.1 when searching for libgcc_s.so.1
+Looking for a four-byte integer type... Found.
+
+ALL = static shared all64
+AR = ar
+ARFLAGS = rc
+CC = mpicc
+CFLAGS = -fallow-argument-mismatch -D_LARGEFILE64_SOURCE=1
+CPP = /users/mcurry/build-gnu-10.1.0/install-gnu-10.1.0//bin/cpp
+EXE =
+LDCONFIG = ldconfig
+LDFLAGS = -L/users/mcurry/build-wps//lib
+LDSHARED = mpicc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map
+LDSHAREDLIBC = -lc
+OBJC = $(OBJZ) $(OBJG)
+PIC_OBJC = $(PIC_OBJZ) $(PIC_OBJG)
+RANLIB = ranlib
+SFLAGS = -fallow-argument-mismatch -fPIC -D_LARGEFILE64_SOURCE=1
+SHAREDLIB = libz.so
+SHAREDLIBM = libz.so.1
+SHAREDLIBV = libz.so.1.2.7
+STATICLIB = libz.a
+TEST = all teststatic testshared test64
+VER = 1.2.7
+Z_U4 = unsigned
+exec_prefix = ${prefix}
+includedir = ${prefix}/include
+libdir = ${exec_prefix}/lib
+mandir = ${prefix}/share/man
+prefix = /usr/local
+sharedlibdir = ${libdir}
+uname = Linux
+--------------------
+
+
+--------------------
+./configure
+Fri Sep 17 16:40:50 UTC 2021
+
+=== ztest17472.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+mpicc -c -fallow-argument-mismatch ztest17472.c
+cc1: warning: command-line option ‘-fallow-argument-mismatch’ is valid for Fortran but not for C
+... using gcc
+
+Checking for shared library support...
+=== ztest17472.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+mpicc -w -c -fallow-argument-mismatch -fPIC ztest17472.c
+mpicc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map -fallow-argument-mismatch -fPIC -o ztest17472.so ztest17472.o
+/usr/bin/ld: skipping incompatible /users/mcurry/build-gnu-10.1.0/install-gnu-10.1.0/lib/libgcc_s.so.1 when searching for libgcc_s.so.1
+/usr/bin/ld: skipping incompatible /users/mcurry/build-gnu-10.1.0/install-gnu-10.1.0/lib/libgcc_s.so.1 when searching for libgcc_s.so.1
+Building shared library libz.so.1.2.7 with mpicc.
+
+
+=== ztest17472.c ===
+#include <sys/types.h>
+off64_t dummy = 0;
+===
+mpicc -c -fallow-argument-mismatch -D_LARGEFILE64_SOURCE=1 ztest17472.c
+cc1: warning: command-line option ‘-fallow-argument-mismatch’ is valid for Fortran but not for C
+Checking for off64_t... Yes.
+Checking for fseeko... Yes.
+
+=== ztest17472.c ===
+#include <string.h>
+#include <errno.h>
+int main() { return strlen(strerror(errno)); }
+===
+mpicc -fallow-argument-mismatch -D_LARGEFILE64_SOURCE=1 -o ztest17472 ztest17472.c
+cc1: warning: command-line option ‘-fallow-argument-mismatch’ is valid for Fortran but not for C
+/usr/bin/ld: skipping incompatible /users/mcurry/build-gnu-10.1.0/install-gnu-10.1.0/lib/libgcc_s.so.1 when searching for libgcc_s.so.1
+/usr/bin/ld: skipping incompatible /users/mcurry/build-gnu-10.1.0/install-gnu-10.1.0/lib/libgcc_s.so.1 when searching for libgcc_s.so.1
+Checking for strerror... Yes.
+
+=== ztest17472.c ===
+#include <unistd.h>
+int main() { return 0; }
+===
+mpicc -c -fallow-argument-mismatch -D_LARGEFILE64_SOURCE=1 ztest17472.c
+cc1: warning: command-line option ‘-fallow-argument-mismatch’ is valid for Fortran but not for C
+Checking for unistd.h... Yes.
+
+=== ztest17472.c ===
+#include <stdarg.h>
+int main() { return 0; }
+===
+mpicc -c -fallow-argument-mismatch -D_LARGEFILE64_SOURCE=1 ztest17472.c
+cc1: warning: command-line option ‘-fallow-argument-mismatch’ is valid for Fortran but not for C
+Checking for stdarg.h... Yes.
+
+=== ztest17472.c ===
+#include <stdio.h>
+#include <stdarg.h>
+#include "zconf.h"
+int main()
+{
+#ifndef STDC
+  choke me
+#endif
+  return 0;
+}
+===
+mpicc -c -fallow-argument-mismatch -D_LARGEFILE64_SOURCE=1 ztest17472.c
+cc1: warning: command-line option ‘-fallow-argument-mismatch’ is valid for Fortran but not for C
+Checking whether to use vs[n]printf() or s[n]printf()... using vs[n]printf().
+
+=== ztest17472.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return 0;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+mpicc -fallow-argument-mismatch -D_LARGEFILE64_SOURCE=1 -o ztest17472 ztest17472.c
+cc1: warning: command-line option ‘-fallow-argument-mismatch’ is valid for Fortran but not for C
+/usr/bin/ld: skipping incompatible /users/mcurry/build-gnu-10.1.0/install-gnu-10.1.0/lib/libgcc_s.so.1 when searching for libgcc_s.so.1
+/usr/bin/ld: skipping incompatible /users/mcurry/build-gnu-10.1.0/install-gnu-10.1.0/lib/libgcc_s.so.1 when searching for libgcc_s.so.1
+Checking for vsnprintf() in stdio.h... Yes.
+
+=== ztest17472.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  int n;
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  n = vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return n;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+mpicc -c -fallow-argument-mismatch -D_LARGEFILE64_SOURCE=1 ztest17472.c
+cc1: warning: command-line option ‘-fallow-argument-mismatch’ is valid for Fortran but not for C
+Checking for return value of vsnprintf()... Yes.
+
+=== ztest17472.c ===
+#define ZLIB_INTERNAL __attribute__((visibility ("hidden")))
+int ZLIB_INTERNAL foo;
+int main()
+{
+  return 0;
+}
+===
+mpicc -c -fallow-argument-mismatch -D_LARGEFILE64_SOURCE=1 ztest17472.c
+cc1: warning: command-line option ‘-fallow-argument-mismatch’ is valid for Fortran but not for CChecking for attribute(visibility) support... No.
+
+=== ztest17472.c ===
+#include <stdio.h>
+#define is32(n,t) for(n=1,k=0;n;n<<=1,k++);if(k==32){puts(t);return 0;}
+int main() {
+    int k;
+    unsigned i;
+    unsigned long l;
+    unsigned short s;
+    is32(i, "unsigned")
+    is32(l, "unsigned long")
+    is32(s, "unsigned short")
+    return 1;
+}
+===
+mpicc -fallow-argument-mismatch -D_LARGEFILE64_SOURCE=1 ztest17472.c -o ztest17472
+cc1: warning: command-line option ‘-fallow-argument-mismatch’ is valid for Fortran but not for C
+/usr/bin/ld: skipping incompatible /users/mcurry/build-gnu-10.1.0/install-gnu-10.1.0/lib/libgcc_s.so.1 when searching for libgcc_s.so.1
+/usr/bin/ld: skipping incompatible /users/mcurry/build-gnu-10.1.0/install-gnu-10.1.0/lib/libgcc_s.so.1 when searching for libgcc_s.so.1
+Looking for a four-byte integer type... Found.
+
+ALL = static shared all64
+AR = ar
+ARFLAGS = rc
+CC = mpicc
+CFLAGS = -fallow-argument-mismatch -D_LARGEFILE64_SOURCE=1
+CPP = /users/mcurry/build-gnu-10.1.0/install-gnu-10.1.0//bin/cpp
+EXE =
+LDCONFIG = ldconfig
+LDFLAGS = -L/users/mcurry/build-wps//lib
+LDSHARED = mpicc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map
+LDSHAREDLIBC = -lc
+OBJC = $(OBJZ) $(OBJG)
+PIC_OBJC = $(PIC_OBJZ) $(PIC_OBJG)
+RANLIB = ranlib
+SFLAGS = -fallow-argument-mismatch -fPIC -D_LARGEFILE64_SOURCE=1
+SHAREDLIB = libz.so
+SHAREDLIBM = libz.so.1
+SHAREDLIBV = libz.so.1.2.7
+STATICLIB = libz.a
+TEST = all teststatic testshared test64
+VER = 1.2.7
+Z_U4 = unsigned
+exec_prefix = ${prefix}
+includedir = ${prefix}/include
+libdir = ${exec_prefix}/lib
+mandir = ${prefix}/share/man
+prefix = /usr/local
+sharedlibdir = ${libdir}
+uname = Linux
+--------------------
+
+
+--------------------
+./configure
+Fri Sep 17 16:41:35 UTC 2021
+
+=== ztest19097.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+mpicc -c -fallow-argument-mismatch ztest19097.c
+cc1: warning: command-line option ‘-fallow-argument-mismatch’ is valid for Fortran but not for C
+... using gcc
+
+Checking for shared library support...
+=== ztest19097.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+mpicc -w -c -fallow-argument-mismatch -fPIC ztest19097.c
+mpicc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map -fallow-argument-mismatch -fPIC -o ztest19097.so ztest19097.o
+/usr/bin/ld: skipping incompatible /users/mcurry/build-gnu-10.1.0/install-gnu-10.1.0/lib/libgcc_s.so.1 when searching for libgcc_s.so.1
+/usr/bin/ld: skipping incompatible /users/mcurry/build-gnu-10.1.0/install-gnu-10.1.0/lib/libgcc_s.so.1 when searching for libgcc_s.so.1
+Building shared library libz.so.1.2.7 with mpicc.
+
+
+=== ztest19097.c ===
+#include <sys/types.h>
+off64_t dummy = 0;
+===
+mpicc -c -fallow-argument-mismatch -D_LARGEFILE64_SOURCE=1 ztest19097.c
+cc1: warning: command-line option ‘-fallow-argument-mismatch’ is valid for Fortran but not for C
+Checking for off64_t... Yes.
+Checking for fseeko... Yes.
+
+=== ztest19097.c ===
+#include <string.h>
+#include <errno.h>
+int main() { return strlen(strerror(errno)); }
+===
+mpicc -fallow-argument-mismatch -D_LARGEFILE64_SOURCE=1 -o ztest19097 ztest19097.c
+cc1: warning: command-line option ‘-fallow-argument-mismatch’ is valid for Fortran but not for C
+/usr/bin/ld: skipping incompatible /users/mcurry/build-gnu-10.1.0/install-gnu-10.1.0/lib/libgcc_s.so.1 when searching for libgcc_s.so.1
+/usr/bin/ld: skipping incompatible /users/mcurry/build-gnu-10.1.0/install-gnu-10.1.0/lib/libgcc_s.so.1 when searching for libgcc_s.so.1
+Checking for strerror... Yes.
+
+=== ztest19097.c ===
+#include <unistd.h>
+int main() { return 0; }
+===
+mpicc -c -fallow-argument-mismatch -D_LARGEFILE64_SOURCE=1 ztest19097.c
+cc1: warning: command-line option ‘-fallow-argument-mismatch’ is valid for Fortran but not for C
+Checking for unistd.h... Yes.
+
+=== ztest19097.c ===
+#include <stdarg.h>
+int main() { return 0; }
+===
+mpicc -c -fallow-argument-mismatch -D_LARGEFILE64_SOURCE=1 ztest19097.c
+cc1: warning: command-line option ‘-fallow-argument-mismatch’ is valid for Fortran but not for C
+Checking for stdarg.h... Yes.
+
+=== ztest19097.c ===
+#include <stdio.h>
+#include <stdarg.h>
+#include "zconf.h"
+int main()
+{
+#ifndef STDC
+  choke me
+#endif
+  return 0;
+}
+===
+mpicc -c -fallow-argument-mismatch -D_LARGEFILE64_SOURCE=1 ztest19097.c
+cc1: warning: command-line option ‘-fallow-argument-mismatch’ is valid for Fortran but not for C
+Checking whether to use vs[n]printf() or s[n]printf()... using vs[n]printf().
+
+=== ztest19097.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return 0;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+mpicc -fallow-argument-mismatch -D_LARGEFILE64_SOURCE=1 -o ztest19097 ztest19097.c
+cc1: warning: command-line option ‘-fallow-argument-mismatch’ is valid for Fortran but not for C
+/usr/bin/ld: skipping incompatible /users/mcurry/build-gnu-10.1.0/install-gnu-10.1.0/lib/libgcc_s.so.1 when searching for libgcc_s.so.1
+/usr/bin/ld: skipping incompatible /users/mcurry/build-gnu-10.1.0/install-gnu-10.1.0/lib/libgcc_s.so.1 when searching for libgcc_s.so.1
+Checking for vsnprintf() in stdio.h... Yes.
+
+=== ztest19097.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  int n;
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  n = vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return n;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+mpicc -c -fallow-argument-mismatch -D_LARGEFILE64_SOURCE=1 ztest19097.c
+cc1: warning: command-line option ‘-fallow-argument-mismatch’ is valid for Fortran but not for C
+Checking for return value of vsnprintf()... Yes.
+
+=== ztest19097.c ===
+#define ZLIB_INTERNAL __attribute__((visibility ("hidden")))
+int ZLIB_INTERNAL foo;
+int main()
+{
+  return 0;
+}
+===
+mpicc -c -fallow-argument-mismatch -D_LARGEFILE64_SOURCE=1 ztest19097.c
+cc1: warning: command-line option ‘-fallow-argument-mismatch’ is valid for Fortran but not for CChecking for attribute(visibility) support... No.
+
+=== ztest19097.c ===
+#include <stdio.h>
+#define is32(n,t) for(n=1,k=0;n;n<<=1,k++);if(k==32){puts(t);return 0;}
+int main() {
+    int k;
+    unsigned i;
+    unsigned long l;
+    unsigned short s;
+    is32(i, "unsigned")
+    is32(l, "unsigned long")
+    is32(s, "unsigned short")
+    return 1;
+}
+===
+mpicc -fallow-argument-mismatch -D_LARGEFILE64_SOURCE=1 ztest19097.c -o ztest19097
+cc1: warning: command-line option ‘-fallow-argument-mismatch’ is valid for Fortran but not for C
+/usr/bin/ld: skipping incompatible /users/mcurry/build-gnu-10.1.0/install-gnu-10.1.0/lib/libgcc_s.so.1 when searching for libgcc_s.so.1
+/usr/bin/ld: skipping incompatible /users/mcurry/build-gnu-10.1.0/install-gnu-10.1.0/lib/libgcc_s.so.1 when searching for libgcc_s.so.1
+Looking for a four-byte integer type... Found.
+
+ALL = static shared all64
+AR = ar
+ARFLAGS = rc
+CC = mpicc
+CFLAGS = -fallow-argument-mismatch -D_LARGEFILE64_SOURCE=1
+CPP = /users/mcurry/build-gnu-10.1.0/install-gnu-10.1.0//bin/cpp
+EXE =
+LDCONFIG = ldconfig
+LDFLAGS = -L/users/mcurry/build-wps//lib
+LDSHARED = mpicc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map
+LDSHAREDLIBC = -lc
+OBJC = $(OBJZ) $(OBJG)
+PIC_OBJC = $(PIC_OBJZ) $(PIC_OBJG)
+RANLIB = ranlib
+SFLAGS = -fallow-argument-mismatch -fPIC -D_LARGEFILE64_SOURCE=1
+SHAREDLIB = libz.so
+SHAREDLIBM = libz.so.1
+SHAREDLIBV = libz.so.1.2.7
+STATICLIB = libz.a
+TEST = all teststatic testshared test64
+VER = 1.2.7
+Z_U4 = unsigned
+exec_prefix = ${prefix}
+includedir = ${prefix}/include
+libdir = ${exec_prefix}/lib
+mandir = ${prefix}/share/man
+prefix = /usr/local
+sharedlibdir = ${libdir}
+uname = Linux
+--------------------
+
+
+--------------------
+./configure
+Fri Sep 17 16:57:51 UTC 2021
+
+=== ztest16841.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+gcc -c -O3 ztest16841.c
+... using gcc
+
+Checking for shared library support...
+=== ztest16841.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+gcc -w -c -O3 -fPIC ztest16841.c
+gcc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map -O3 -fPIC -o ztest16841.so ztest16841.o
+Building shared library libz.so.1.2.7 with gcc.
+
+
+=== ztest16841.c ===
+#include <sys/types.h>
+off64_t dummy = 0;
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest16841.c
+Checking for off64_t... Yes.
+Checking for fseeko... Yes.
+
+=== ztest16841.c ===
+#include <string.h>
+#include <errno.h>
+int main() { return strlen(strerror(errno)); }
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -o ztest16841 ztest16841.c
+Checking for strerror... Yes.
+
+=== ztest16841.c ===
+#include <unistd.h>
+int main() { return 0; }
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest16841.c
+Checking for unistd.h... Yes.
+
+=== ztest16841.c ===
+#include <stdarg.h>
+int main() { return 0; }
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest16841.c
+Checking for stdarg.h... Yes.
+
+=== ztest16841.c ===
+#include <stdio.h>
+#include <stdarg.h>
+#include "zconf.h"
+int main()
+{
+#ifndef STDC
+  choke me
+#endif
+  return 0;
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest16841.c
+Checking whether to use vs[n]printf() or s[n]printf()... using vs[n]printf().
+
+=== ztest16841.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return 0;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -o ztest16841 ztest16841.c
+Checking for vsnprintf() in stdio.h... Yes.
+
+=== ztest16841.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  int n;
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  n = vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return n;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest16841.c
+Checking for return value of vsnprintf()... Yes.
+
+=== ztest16841.c ===
+#define ZLIB_INTERNAL __attribute__((visibility ("hidden")))
+int ZLIB_INTERNAL foo;
+int main()
+{
+  return 0;
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest16841.c
+Checking for attribute(visibility) support... Yes.
+
+=== ztest16841.c ===
+#include <stdio.h>
+#define is32(n,t) for(n=1,k=0;n;n<<=1,k++);if(k==32){puts(t);return 0;}
+int main() {
+    int k;
+    unsigned i;
+    unsigned long l;
+    unsigned short s;
+    is32(i, "unsigned")
+    is32(l, "unsigned long")
+    is32(s, "unsigned short")
+    return 1;
+}
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN ztest16841.c -o ztest16841
+Looking for a four-byte integer type... Found.
+
+ALL = static shared all64
+AR = ar
+ARFLAGS = rc
+CC = gcc
+CFLAGS = -O3 -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN
+CPP = /usr/bin/cpp -P -traditional
+EXE =
+LDCONFIG = ldconfig
+LDFLAGS =
+LDSHARED = gcc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map
+LDSHAREDLIBC = -lc
+OBJC = $(OBJZ) $(OBJG)
+PIC_OBJC = $(PIC_OBJZ) $(PIC_OBJG)
+RANLIB = ranlib
+SFLAGS = -O3 -fPIC -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN
+SHAREDLIB = libz.so
+SHAREDLIBM = libz.so.1
+SHAREDLIBV = libz.so.1.2.7
+STATICLIB = libz.a
+TEST = all teststatic testshared test64
+VER = 1.2.7
+Z_U4 = unsigned
+exec_prefix = ${prefix}
+includedir = ${prefix}/include
+libdir = ${exec_prefix}/lib
+mandir = ${prefix}/share/man
+prefix = /usr/local
+sharedlibdir = ${libdir}
+uname = Linux
+--------------------
+
+
+--------------------
+./configure
+Fri Sep 17 17:02:30 UTC 2021
+
+=== ztest26043.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+gcc -c -O3 ztest26043.c
+... using gcc
+
+Checking for shared library support...
+=== ztest26043.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+gcc -w -c -O3 -fPIC ztest26043.c
+gcc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map -O3 -fPIC -o ztest26043.so ztest26043.o
+Building shared library libz.so.1.2.7 with gcc.
+
+
+=== ztest26043.c ===
+#include <sys/types.h>
+off64_t dummy = 0;
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest26043.c
+Checking for off64_t... Yes.
+Checking for fseeko... Yes.
+
+=== ztest26043.c ===
+#include <string.h>
+#include <errno.h>
+int main() { return strlen(strerror(errno)); }
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -o ztest26043 ztest26043.c
+Checking for strerror... Yes.
+
+=== ztest26043.c ===
+#include <unistd.h>
+int main() { return 0; }
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest26043.c
+Checking for unistd.h... Yes.
+
+=== ztest26043.c ===
+#include <stdarg.h>
+int main() { return 0; }
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest26043.c
+Checking for stdarg.h... Yes.
+
+=== ztest26043.c ===
+#include <stdio.h>
+#include <stdarg.h>
+#include "zconf.h"
+int main()
+{
+#ifndef STDC
+  choke me
+#endif
+  return 0;
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest26043.c
+Checking whether to use vs[n]printf() or s[n]printf()... using vs[n]printf().
+
+=== ztest26043.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return 0;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -o ztest26043 ztest26043.c
+Checking for vsnprintf() in stdio.h... Yes.
+
+=== ztest26043.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  int n;
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  n = vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return n;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest26043.c
+Checking for return value of vsnprintf()... Yes.
+
+=== ztest26043.c ===
+#define ZLIB_INTERNAL __attribute__((visibility ("hidden")))
+int ZLIB_INTERNAL foo;
+int main()
+{
+  return 0;
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest26043.c
+Checking for attribute(visibility) support... Yes.
+
+=== ztest26043.c ===
+#include <stdio.h>
+#define is32(n,t) for(n=1,k=0;n;n<<=1,k++);if(k==32){puts(t);return 0;}
+int main() {
+    int k;
+    unsigned i;
+    unsigned long l;
+    unsigned short s;
+    is32(i, "unsigned")
+    is32(l, "unsigned long")
+    is32(s, "unsigned short")
+    return 1;
+}
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN ztest26043.c -o ztest26043
+Looking for a four-byte integer type... Found.
+
+ALL = static shared all64
+AR = ar
+ARFLAGS = rc
+CC = gcc
+CFLAGS = -O3 -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN
+CPP = /usr/bin/cpp -P -traditional
+EXE =
+LDCONFIG = ldconfig
+LDFLAGS =
+LDSHARED = gcc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map
+LDSHAREDLIBC = -lc
+OBJC = $(OBJZ) $(OBJG)
+PIC_OBJC = $(PIC_OBJZ) $(PIC_OBJG)
+RANLIB = ranlib
+SFLAGS = -O3 -fPIC -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN
+SHAREDLIB = libz.so
+SHAREDLIBM = libz.so.1
+SHAREDLIBV = libz.so.1.2.7
+STATICLIB = libz.a
+TEST = all teststatic testshared test64
+VER = 1.2.7
+Z_U4 = unsigned
+exec_prefix = ${prefix}
+includedir = ${prefix}/include
+libdir = ${exec_prefix}/lib
+mandir = ${prefix}/share/man
+prefix = /usr/local
+sharedlibdir = ${libdir}
+uname = Linux
+--------------------
+
+
+--------------------
+./configure
+Fri Sep 17 17:04:57 UTC 2021
+
+=== ztest30543.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+gcc -c -O3 ztest30543.c
+... using gcc
+
+Checking for shared library support...
+=== ztest30543.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+gcc -w -c -O3 -fPIC ztest30543.c
+gcc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map -O3 -fPIC -o ztest30543.so ztest30543.o
+Building shared library libz.so.1.2.7 with gcc.
+
+
+=== ztest30543.c ===
+#include <sys/types.h>
+off64_t dummy = 0;
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest30543.c
+Checking for off64_t... Yes.
+Checking for fseeko... Yes.
+
+=== ztest30543.c ===
+#include <string.h>
+#include <errno.h>
+int main() { return strlen(strerror(errno)); }
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -o ztest30543 ztest30543.c
+Checking for strerror... Yes.
+
+=== ztest30543.c ===
+#include <unistd.h>
+int main() { return 0; }
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest30543.c
+Checking for unistd.h... Yes.
+
+=== ztest30543.c ===
+#include <stdarg.h>
+int main() { return 0; }
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest30543.c
+Checking for stdarg.h... Yes.
+
+=== ztest30543.c ===
+#include <stdio.h>
+#include <stdarg.h>
+#include "zconf.h"
+int main()
+{
+#ifndef STDC
+  choke me
+#endif
+  return 0;
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest30543.c
+Checking whether to use vs[n]printf() or s[n]printf()... using vs[n]printf().
+
+=== ztest30543.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return 0;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -o ztest30543 ztest30543.c
+Checking for vsnprintf() in stdio.h... Yes.
+
+=== ztest30543.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  int n;
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  n = vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return n;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest30543.c
+Checking for return value of vsnprintf()... Yes.
+
+=== ztest30543.c ===
+#define ZLIB_INTERNAL __attribute__((visibility ("hidden")))
+int ZLIB_INTERNAL foo;
+int main()
+{
+  return 0;
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest30543.c
+Checking for attribute(visibility) support... Yes.
+
+=== ztest30543.c ===
+#include <stdio.h>
+#define is32(n,t) for(n=1,k=0;n;n<<=1,k++);if(k==32){puts(t);return 0;}
+int main() {
+    int k;
+    unsigned i;
+    unsigned long l;
+    unsigned short s;
+    is32(i, "unsigned")
+    is32(l, "unsigned long")
+    is32(s, "unsigned short")
+    return 1;
+}
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN ztest30543.c -o ztest30543
+Looking for a four-byte integer type... Found.
+
+ALL = static shared all64
+AR = ar
+ARFLAGS = rc
+CC = gcc
+CFLAGS = -O3 -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN
+CPP = /usr/bin/cpp -P -traditional
+EXE =
+LDCONFIG = ldconfig
+LDFLAGS =
+LDSHARED = gcc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map
+LDSHAREDLIBC = -lc
+OBJC = $(OBJZ) $(OBJG)
+PIC_OBJC = $(PIC_OBJZ) $(PIC_OBJG)
+RANLIB = ranlib
+SFLAGS = -O3 -fPIC -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN
+SHAREDLIB = libz.so
+SHAREDLIBM = libz.so.1
+SHAREDLIBV = libz.so.1.2.7
+STATICLIB = libz.a
+TEST = all teststatic testshared test64
+VER = 1.2.7
+Z_U4 = unsigned
+exec_prefix = ${prefix}
+includedir = ${prefix}/include
+libdir = ${exec_prefix}/lib
+mandir = ${prefix}/share/man
+prefix = /usr/local
+sharedlibdir = ${libdir}
+uname = Linux
+--------------------
+
+
+--------------------
+./configure
+Fri Sep 17 17:15:42 UTC 2021
+
+=== ztest10218.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+gcc -c -O3 ztest10218.c
+... using gcc
+
+Checking for shared library support...
+=== ztest10218.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+gcc -w -c -O3 -fPIC ztest10218.c
+gcc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map -O3 -fPIC -o ztest10218.so ztest10218.o
+Building shared library libz.so.1.2.7 with gcc.
+
+
+=== ztest10218.c ===
+#include <sys/types.h>
+off64_t dummy = 0;
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest10218.c
+Checking for off64_t... Yes.
+Checking for fseeko... Yes.
+
+=== ztest10218.c ===
+#include <string.h>
+#include <errno.h>
+int main() { return strlen(strerror(errno)); }
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -o ztest10218 ztest10218.c
+Checking for strerror... Yes.
+
+=== ztest10218.c ===
+#include <unistd.h>
+int main() { return 0; }
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest10218.c
+Checking for unistd.h... Yes.
+
+=== ztest10218.c ===
+#include <stdarg.h>
+int main() { return 0; }
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest10218.c
+Checking for stdarg.h... Yes.
+
+=== ztest10218.c ===
+#include <stdio.h>
+#include <stdarg.h>
+#include "zconf.h"
+int main()
+{
+#ifndef STDC
+  choke me
+#endif
+  return 0;
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest10218.c
+Checking whether to use vs[n]printf() or s[n]printf()... using vs[n]printf().
+
+=== ztest10218.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return 0;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -o ztest10218 ztest10218.c
+Checking for vsnprintf() in stdio.h... Yes.
+
+=== ztest10218.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  int n;
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  n = vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return n;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest10218.c
+Checking for return value of vsnprintf()... Yes.
+
+=== ztest10218.c ===
+#define ZLIB_INTERNAL __attribute__((visibility ("hidden")))
+int ZLIB_INTERNAL foo;
+int main()
+{
+  return 0;
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest10218.c
+Checking for attribute(visibility) support... Yes.
+
+=== ztest10218.c ===
+#include <stdio.h>
+#define is32(n,t) for(n=1,k=0;n;n<<=1,k++);if(k==32){puts(t);return 0;}
+int main() {
+    int k;
+    unsigned i;
+    unsigned long l;
+    unsigned short s;
+    is32(i, "unsigned")
+    is32(l, "unsigned long")
+    is32(s, "unsigned short")
+    return 1;
+}
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN ztest10218.c -o ztest10218
+Looking for a four-byte integer type... Found.
+
+ALL = static shared all64
+AR = ar
+ARFLAGS = rc
+CC = gcc
+CFLAGS = -O3 -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN
+CPP = /usr/bin/cpp -P -traditional
+EXE =
+LDCONFIG = ldconfig
+LDFLAGS =
+LDSHARED = gcc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map
+LDSHAREDLIBC = -lc
+OBJC = $(OBJZ) $(OBJG)
+PIC_OBJC = $(PIC_OBJZ) $(PIC_OBJG)
+RANLIB = ranlib
+SFLAGS = -O3 -fPIC -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN
+SHAREDLIB = libz.so
+SHAREDLIBM = libz.so.1
+SHAREDLIBV = libz.so.1.2.7
+STATICLIB = libz.a
+TEST = all teststatic testshared test64
+VER = 1.2.7
+Z_U4 = unsigned
+exec_prefix = ${prefix}
+includedir = ${prefix}/include
+libdir = ${exec_prefix}/lib
+mandir = ${prefix}/share/man
+prefix = /usr/local
+sharedlibdir = ${libdir}
+uname = Linux
+--------------------
+
+
+--------------------
+./configure
+Fri Sep 17 17:18:57 UTC 2021
+
+=== ztest15539.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+gcc -c -O3 ztest15539.c
+... using gcc
+
+Checking for shared library support...
+=== ztest15539.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+gcc -w -c -O3 -fPIC ztest15539.c
+gcc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map -O3 -fPIC -o ztest15539.so ztest15539.o
+Building shared library libz.so.1.2.7 with gcc.
+
+
+=== ztest15539.c ===
+#include <sys/types.h>
+off64_t dummy = 0;
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest15539.c
+Checking for off64_t... Yes.
+Checking for fseeko... Yes.
+
+=== ztest15539.c ===
+#include <string.h>
+#include <errno.h>
+int main() { return strlen(strerror(errno)); }
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -o ztest15539 ztest15539.c
+Checking for strerror... Yes.
+
+=== ztest15539.c ===
+#include <unistd.h>
+int main() { return 0; }
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest15539.c
+Checking for unistd.h... Yes.
+
+=== ztest15539.c ===
+#include <stdarg.h>
+int main() { return 0; }
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest15539.c
+Checking for stdarg.h... Yes.
+
+=== ztest15539.c ===
+#include <stdio.h>
+#include <stdarg.h>
+#include "zconf.h"
+int main()
+{
+#ifndef STDC
+  choke me
+#endif
+  return 0;
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest15539.c
+Checking whether to use vs[n]printf() or s[n]printf()... using vs[n]printf().
+
+=== ztest15539.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return 0;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -o ztest15539 ztest15539.c
+Checking for vsnprintf() in stdio.h... Yes.
+
+=== ztest15539.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  int n;
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  n = vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return n;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest15539.c
+Checking for return value of vsnprintf()... Yes.
+
+=== ztest15539.c ===
+#define ZLIB_INTERNAL __attribute__((visibility ("hidden")))
+int ZLIB_INTERNAL foo;
+int main()
+{
+  return 0;
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest15539.c
+Checking for attribute(visibility) support... Yes.
+
+=== ztest15539.c ===
+#include <stdio.h>
+#define is32(n,t) for(n=1,k=0;n;n<<=1,k++);if(k==32){puts(t);return 0;}
+int main() {
+    int k;
+    unsigned i;
+    unsigned long l;
+    unsigned short s;
+    is32(i, "unsigned")
+    is32(l, "unsigned long")
+    is32(s, "unsigned short")
+    return 1;
+}
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN ztest15539.c -o ztest15539
+Looking for a four-byte integer type... Found.
+
+ALL = static shared all64
+AR = ar
+ARFLAGS = rc
+CC = gcc
+CFLAGS = -O3 -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN
+CPP = /usr/bin/cpp -P -traditional
+EXE =
+LDCONFIG = ldconfig
+LDFLAGS =
+LDSHARED = gcc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map
+LDSHAREDLIBC = -lc
+OBJC = $(OBJZ) $(OBJG)
+PIC_OBJC = $(PIC_OBJZ) $(PIC_OBJG)
+RANLIB = ranlib
+SFLAGS = -O3 -fPIC -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN
+SHAREDLIB = libz.so
+SHAREDLIBM = libz.so.1
+SHAREDLIBV = libz.so.1.2.7
+STATICLIB = libz.a
+TEST = all teststatic testshared test64
+VER = 1.2.7
+Z_U4 = unsigned
+exec_prefix = ${prefix}
+includedir = ${prefix}/include
+libdir = ${exec_prefix}/lib
+mandir = ${prefix}/share/man
+prefix = /usr/local
+sharedlibdir = ${libdir}
+uname = Linux
+--------------------
+
+
+--------------------
+./configure
+Fri Sep 17 17:21:38 UTC 2021
+
+=== ztest20301.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+gcc -c -O3 ztest20301.c
+... using gcc
+
+Checking for shared library support...
+=== ztest20301.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+gcc -w -c -O3 -fPIC ztest20301.c
+gcc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map -O3 -fPIC -o ztest20301.so ztest20301.o
+Building shared library libz.so.1.2.7 with gcc.
+
+
+=== ztest20301.c ===
+#include <sys/types.h>
+off64_t dummy = 0;
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest20301.c
+Checking for off64_t... Yes.
+Checking for fseeko... Yes.
+
+=== ztest20301.c ===
+#include <string.h>
+#include <errno.h>
+int main() { return strlen(strerror(errno)); }
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -o ztest20301 ztest20301.c
+Checking for strerror... Yes.
+
+=== ztest20301.c ===
+#include <unistd.h>
+int main() { return 0; }
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest20301.c
+Checking for unistd.h... Yes.
+
+=== ztest20301.c ===
+#include <stdarg.h>
+int main() { return 0; }
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest20301.c
+Checking for stdarg.h... Yes.
+
+=== ztest20301.c ===
+#include <stdio.h>
+#include <stdarg.h>
+#include "zconf.h"
+int main()
+{
+#ifndef STDC
+  choke me
+#endif
+  return 0;
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest20301.c
+Checking whether to use vs[n]printf() or s[n]printf()... using vs[n]printf().
+
+--------------------
+./configure
+Fri Sep 17 17:21:48 UTC 2021
+
+=== ztest21188.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+gcc -c -O3 ztest21188.c
+... using gcc
+
+Checking for shared library support...
+=== ztest21188.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+gcc -w -c -O3 -fPIC ztest21188.c
+gcc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map -O3 -fPIC -o ztest21188.so ztest21188.o
+Building shared library libz.so.1.2.7 with gcc.
+
+
+=== ztest21188.c ===
+#include <sys/types.h>
+off64_t dummy = 0;
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest21188.c
+Checking for off64_t... Yes.
+Checking for fseeko... Yes.
+
+=== ztest21188.c ===
+#include <string.h>
+#include <errno.h>
+int main() { return strlen(strerror(errno)); }
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -o ztest21188 ztest21188.c
+Checking for strerror... Yes.
+
+=== ztest21188.c ===
+#include <unistd.h>
+int main() { return 0; }
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest21188.c
+Checking for unistd.h... Yes.
+
+=== ztest21188.c ===
+#include <stdarg.h>
+int main() { return 0; }
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest21188.c
+Checking for stdarg.h... Yes.
+
+=== ztest21188.c ===
+#include <stdio.h>
+#include <stdarg.h>
+#include "zconf.h"
+int main()
+{
+#ifndef STDC
+  choke me
+#endif
+  return 0;
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest21188.c
+Checking whether to use vs[n]printf() or s[n]printf()... using vs[n]printf().
+
+=== ztest21188.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return 0;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -o ztest21188 ztest21188.c
+Checking for vsnprintf() in stdio.h... Yes.
+
+=== ztest21188.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  int n;
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  n = vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return n;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest21188.c
+Checking for return value of vsnprintf()... Yes.
+
+=== ztest21188.c ===
+#define ZLIB_INTERNAL __attribute__((visibility ("hidden")))
+int ZLIB_INTERNAL foo;
+int main()
+{
+  return 0;
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest21188.c
+Checking for attribute(visibility) support... Yes.
+
+=== ztest21188.c ===
+#include <stdio.h>
+#define is32(n,t) for(n=1,k=0;n;n<<=1,k++);if(k==32){puts(t);return 0;}
+int main() {
+    int k;
+    unsigned i;
+    unsigned long l;
+    unsigned short s;
+    is32(i, "unsigned")
+    is32(l, "unsigned long")
+    is32(s, "unsigned short")
+    return 1;
+}
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN ztest21188.c -o ztest21188
+Looking for a four-byte integer type... Found.
+
+ALL = static shared all64
+AR = ar
+ARFLAGS = rc
+CC = gcc
+CFLAGS = -O3 -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN
+CPP = /usr/bin/cpp -P -traditional
+EXE =
+LDCONFIG = ldconfig
+LDFLAGS =
+LDSHARED = gcc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map
+LDSHAREDLIBC = -lc
+OBJC = $(OBJZ) $(OBJG)
+PIC_OBJC = $(PIC_OBJZ) $(PIC_OBJG)
+RANLIB = ranlib
+SFLAGS = -O3 -fPIC -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN
+SHAREDLIB = libz.so
+SHAREDLIBM = libz.so.1
+SHAREDLIBV = libz.so.1.2.7
+STATICLIB = libz.a
+TEST = all teststatic testshared test64
+VER = 1.2.7
+Z_U4 = unsigned
+exec_prefix = ${prefix}
+includedir = ${prefix}/include
+libdir = ${exec_prefix}/lib
+mandir = ${prefix}/share/man
+prefix = /usr/local
+sharedlibdir = ${libdir}
+uname = Linux
+--------------------
+
+
+--------------------
+./configure
+Fri Sep 17 17:22:22 UTC 2021
+
+=== ztest21642.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+gcc -c -O3 ztest21642.c
+... using gcc
+
+Checking for shared library support...
+=== ztest21642.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+gcc -w -c -O3 -fPIC ztest21642.c
+gcc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map -O3 -fPIC -o ztest21642.so ztest21642.o
+Building shared library libz.so.1.2.7 with gcc.
+
+
+=== ztest21642.c ===
+#include <sys/types.h>
+off64_t dummy = 0;
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest21642.c
+Checking for off64_t... Yes.
+Checking for fseeko... Yes.
+
+=== ztest21642.c ===
+#include <string.h>
+#include <errno.h>
+int main() { return strlen(strerror(errno)); }
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -o ztest21642 ztest21642.c
+Checking for strerror... Yes.
+
+=== ztest21642.c ===
+#include <unistd.h>
+int main() { return 0; }
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest21642.c
+Checking for unistd.h... Yes.
+
+=== ztest21642.c ===
+#include <stdarg.h>
+int main() { return 0; }
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest21642.c
+Checking for stdarg.h... Yes.
+
+=== ztest21642.c ===
+#include <stdio.h>
+#include <stdarg.h>
+#include "zconf.h"
+int main()
+{
+#ifndef STDC
+  choke me
+#endif
+  return 0;
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest21642.c
+Checking whether to use vs[n]printf() or s[n]printf()... using vs[n]printf().
+
+=== ztest21642.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return 0;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -o ztest21642 ztest21642.c
+Checking for vsnprintf() in stdio.h... Yes.
+
+=== ztest21642.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  int n;
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  n = vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return n;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest21642.c
+Checking for return value of vsnprintf()... Yes.
+
+=== ztest21642.c ===
+#define ZLIB_INTERNAL __attribute__((visibility ("hidden")))
+int ZLIB_INTERNAL foo;
+int main()
+{
+  return 0;
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest21642.c
+Checking for attribute(visibility) support... Yes.
+
+=== ztest21642.c ===
+#include <stdio.h>
+#define is32(n,t) for(n=1,k=0;n;n<<=1,k++);if(k==32){puts(t);return 0;}
+int main() {
+    int k;
+    unsigned i;
+    unsigned long l;
+    unsigned short s;
+    is32(i, "unsigned")
+    is32(l, "unsigned long")
+    is32(s, "unsigned short")
+    return 1;
+}
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN ztest21642.c -o ztest21642
+Looking for a four-byte integer type... Found.
+
+ALL = static shared all64
+AR = ar
+ARFLAGS = rc
+CC = gcc
+CFLAGS = -O3 -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN
+CPP = /usr/bin/cpp -P -traditional
+EXE =
+LDCONFIG = ldconfig
+LDFLAGS =
+LDSHARED = gcc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map
+LDSHAREDLIBC = -lc
+OBJC = $(OBJZ) $(OBJG)
+PIC_OBJC = $(PIC_OBJZ) $(PIC_OBJG)
+RANLIB = ranlib
+SFLAGS = -O3 -fPIC -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN
+SHAREDLIB = libz.so
+SHAREDLIBM = libz.so.1
+SHAREDLIBV = libz.so.1.2.7
+STATICLIB = libz.a
+TEST = all teststatic testshared test64
+VER = 1.2.7
+Z_U4 = unsigned
+exec_prefix = ${prefix}
+includedir = ${prefix}/include
+libdir = ${exec_prefix}/lib
+mandir = ${prefix}/share/man
+prefix = /usr/local
+sharedlibdir = ${libdir}
+uname = Linux
+--------------------
+
+
+--------------------
+./configure
+Fri Sep 17 17:23:26 UTC 2021
+
+=== ztest22962.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+gcc -c -O3 ztest22962.c
+... using gcc
+
+Checking for shared library support...
+=== ztest22962.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+gcc -w -c -O3 -fPIC ztest22962.c
+gcc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map -O3 -fPIC -o ztest22962.so ztest22962.o
+Building shared library libz.so.1.2.7 with gcc.
+
+
+=== ztest22962.c ===
+#include <sys/types.h>
+off64_t dummy = 0;
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest22962.c
+Checking for off64_t... Yes.
+Checking for fseeko... Yes.
+
+=== ztest22962.c ===
+#include <string.h>
+#include <errno.h>
+int main() { return strlen(strerror(errno)); }
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -o ztest22962 ztest22962.c
+Checking for strerror... Yes.
+
+=== ztest22962.c ===
+#include <unistd.h>
+int main() { return 0; }
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest22962.c
+Checking for unistd.h... Yes.
+
+=== ztest22962.c ===
+#include <stdarg.h>
+int main() { return 0; }
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest22962.c
+Checking for stdarg.h... Yes.
+
+=== ztest22962.c ===
+#include <stdio.h>
+#include <stdarg.h>
+#include "zconf.h"
+int main()
+{
+#ifndef STDC
+  choke me
+#endif
+  return 0;
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest22962.c
+Checking whether to use vs[n]printf() or s[n]printf()... using vs[n]printf().
+
+=== ztest22962.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return 0;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -o ztest22962 ztest22962.c
+Checking for vsnprintf() in stdio.h... Yes.
+
+=== ztest22962.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  int n;
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  n = vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return n;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest22962.c
+Checking for return value of vsnprintf()... Yes.
+
+=== ztest22962.c ===
+#define ZLIB_INTERNAL __attribute__((visibility ("hidden")))
+int ZLIB_INTERNAL foo;
+int main()
+{
+  return 0;
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest22962.c
+Checking for attribute(visibility) support... Yes.
+
+=== ztest22962.c ===
+#include <stdio.h>
+#define is32(n,t) for(n=1,k=0;n;n<<=1,k++);if(k==32){puts(t);return 0;}
+int main() {
+    int k;
+    unsigned i;
+    unsigned long l;
+    unsigned short s;
+    is32(i, "unsigned")
+    is32(l, "unsigned long")
+    is32(s, "unsigned short")
+    return 1;
+}
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN ztest22962.c -o ztest22962
+Looking for a four-byte integer type... Found.
+
+ALL = static shared all64
+AR = ar
+ARFLAGS = rc
+CC = gcc
+CFLAGS = -O3 -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN
+CPP = /usr/bin/cpp -P -traditional
+EXE =
+LDCONFIG = ldconfig
+LDFLAGS =
+LDSHARED = gcc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map
+LDSHAREDLIBC = -lc
+OBJC = $(OBJZ) $(OBJG)
+PIC_OBJC = $(PIC_OBJZ) $(PIC_OBJG)
+RANLIB = ranlib
+SFLAGS = -O3 -fPIC -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN
+SHAREDLIB = libz.so
+SHAREDLIBM = libz.so.1
+SHAREDLIBV = libz.so.1.2.7
+STATICLIB = libz.a
+TEST = all teststatic testshared test64
+VER = 1.2.7
+Z_U4 = unsigned
+exec_prefix = ${prefix}
+includedir = ${prefix}/include
+libdir = ${exec_prefix}/lib
+mandir = ${prefix}/share/man
+prefix = /usr/local
+sharedlibdir = ${libdir}
+uname = Linux
+--------------------
+
+
+--------------------
+./configure
+Fri Sep 17 17:27:07 UTC 2021
+
+=== ztest882.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+gcc -c -O3 ztest882.c
+... using gcc
+
+Checking for shared library support...
+=== ztest882.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+gcc -w -c -O3 -fPIC ztest882.c
+gcc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map -O3 -fPIC -o ztest882.so ztest882.o
+Building shared library libz.so.1.2.7 with gcc.
+
+
+=== ztest882.c ===
+#include <sys/types.h>
+off64_t dummy = 0;
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest882.c
+Checking for off64_t... Yes.
+Checking for fseeko... Yes.
+
+=== ztest882.c ===
+#include <string.h>
+#include <errno.h>
+int main() { return strlen(strerror(errno)); }
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -o ztest882 ztest882.c
+Checking for strerror... Yes.
+
+=== ztest882.c ===
+#include <unistd.h>
+int main() { return 0; }
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest882.c
+Checking for unistd.h... Yes.
+
+=== ztest882.c ===
+#include <stdarg.h>
+int main() { return 0; }
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest882.c
+Checking for stdarg.h... Yes.
+
+=== ztest882.c ===
+#include <stdio.h>
+#include <stdarg.h>
+#include "zconf.h"
+int main()
+{
+#ifndef STDC
+  choke me
+#endif
+  return 0;
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest882.c
+Checking whether to use vs[n]printf() or s[n]printf()... using vs[n]printf().
+
+=== ztest882.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return 0;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -o ztest882 ztest882.c
+Checking for vsnprintf() in stdio.h... Yes.
+
+=== ztest882.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  int n;
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  n = vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return n;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest882.c
+Checking for return value of vsnprintf()... Yes.
+
+=== ztest882.c ===
+#define ZLIB_INTERNAL __attribute__((visibility ("hidden")))
+int ZLIB_INTERNAL foo;
+int main()
+{
+  return 0;
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest882.c
+Checking for attribute(visibility) support... Yes.
+
+=== ztest882.c ===
+#include <stdio.h>
+#define is32(n,t) for(n=1,k=0;n;n<<=1,k++);if(k==32){puts(t);return 0;}
+int main() {
+    int k;
+    unsigned i;
+    unsigned long l;
+    unsigned short s;
+    is32(i, "unsigned")
+    is32(l, "unsigned long")
+    is32(s, "unsigned short")
+    return 1;
+}
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN ztest882.c -o ztest882
+Looking for a four-byte integer type... Found.
+
+ALL = static shared all64
+AR = ar
+ARFLAGS = rc
+CC = gcc
+CFLAGS = -O3 -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN
+CPP = /usr/bin/cpp -P -traditional
+EXE =
+LDCONFIG = ldconfig
+LDFLAGS =
+LDSHARED = gcc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map
+LDSHAREDLIBC = -lc
+OBJC = $(OBJZ) $(OBJG)
+PIC_OBJC = $(PIC_OBJZ) $(PIC_OBJG)
+RANLIB = ranlib
+SFLAGS = -O3 -fPIC -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN
+SHAREDLIB = libz.so
+SHAREDLIBM = libz.so.1
+SHAREDLIBV = libz.so.1.2.7
+STATICLIB = libz.a
+TEST = all teststatic testshared test64
+VER = 1.2.7
+Z_U4 = unsigned
+exec_prefix = ${prefix}
+includedir = ${prefix}/include
+libdir = ${exec_prefix}/lib
+mandir = ${prefix}/share/man
+prefix = /usr/local
+sharedlibdir = ${libdir}
+uname = Linux
+--------------------
+
+
+--------------------
+./configure
+Fri Sep 17 17:33:56 UTC 2021
+
+=== ztest5057.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+gcc -c -O3 ztest5057.c
+... using gcc
+
+Checking for shared library support...
+=== ztest5057.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+gcc -w -c -O3 -fPIC ztest5057.c
+gcc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map -O3 -fPIC -o ztest5057.so ztest5057.o
+Building shared library libz.so.1.2.7 with gcc.
+
+
+=== ztest5057.c ===
+#include <sys/types.h>
+off64_t dummy = 0;
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest5057.c
+Checking for off64_t... Yes.
+Checking for fseeko... Yes.
+
+=== ztest5057.c ===
+#include <string.h>
+#include <errno.h>
+int main() { return strlen(strerror(errno)); }
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -o ztest5057 ztest5057.c
+Checking for strerror... Yes.
+
+=== ztest5057.c ===
+#include <unistd.h>
+int main() { return 0; }
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest5057.c
+Checking for unistd.h... Yes.
+
+=== ztest5057.c ===
+#include <stdarg.h>
+int main() { return 0; }
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest5057.c
+Checking for stdarg.h... Yes.
+
+=== ztest5057.c ===
+#include <stdio.h>
+#include <stdarg.h>
+#include "zconf.h"
+int main()
+{
+#ifndef STDC
+  choke me
+#endif
+  return 0;
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest5057.c
+Checking whether to use vs[n]printf() or s[n]printf()... using vs[n]printf().
+
+=== ztest5057.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return 0;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -o ztest5057 ztest5057.c
+Checking for vsnprintf() in stdio.h... Yes.
+
+=== ztest5057.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  int n;
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  n = vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return n;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest5057.c
+Checking for return value of vsnprintf()... Yes.
+
+=== ztest5057.c ===
+#define ZLIB_INTERNAL __attribute__((visibility ("hidden")))
+int ZLIB_INTERNAL foo;
+int main()
+{
+  return 0;
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest5057.c
+Checking for attribute(visibility) support... Yes.
+
+=== ztest5057.c ===
+#include <stdio.h>
+#define is32(n,t) for(n=1,k=0;n;n<<=1,k++);if(k==32){puts(t);return 0;}
+int main() {
+    int k;
+    unsigned i;
+    unsigned long l;
+    unsigned short s;
+    is32(i, "unsigned")
+    is32(l, "unsigned long")
+    is32(s, "unsigned short")
+    return 1;
+}
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN ztest5057.c -o ztest5057
+Looking for a four-byte integer type... Found.
+
+ALL = static shared all64
+AR = ar
+ARFLAGS = rc
+CC = gcc
+CFLAGS = -O3 -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN
+CPP = /usr/bin/cpp -P -traditional
+EXE =
+LDCONFIG = ldconfig
+LDFLAGS =
+LDSHARED = gcc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map
+LDSHAREDLIBC = -lc
+OBJC = $(OBJZ) $(OBJG)
+PIC_OBJC = $(PIC_OBJZ) $(PIC_OBJG)
+RANLIB = ranlib
+SFLAGS = -O3 -fPIC -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN
+SHAREDLIB = libz.so
+SHAREDLIBM = libz.so.1
+SHAREDLIBV = libz.so.1.2.7
+STATICLIB = libz.a
+TEST = all teststatic testshared test64
+VER = 1.2.7
+Z_U4 = unsigned
+exec_prefix = ${prefix}
+includedir = ${prefix}/include
+libdir = ${exec_prefix}/lib
+mandir = ${prefix}/share/man
+prefix = /usr/local
+sharedlibdir = ${libdir}
+uname = Linux
+--------------------
+
+
+--------------------
+./configure
+Fri Sep 17 17:34:40 UTC 2021
+
+=== ztest6402.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+gcc -c -O3 ztest6402.c
+... using gcc
+
+Checking for shared library support...
+=== ztest6402.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+gcc -w -c -O3 -fPIC ztest6402.c
+gcc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map -O3 -fPIC -o ztest6402.so ztest6402.o
+Building shared library libz.so.1.2.7 with gcc.
+
+
+=== ztest6402.c ===
+#include <sys/types.h>
+off64_t dummy = 0;
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest6402.c
+Checking for off64_t... Yes.
+Checking for fseeko... Yes.
+
+=== ztest6402.c ===
+#include <string.h>
+#include <errno.h>
+int main() { return strlen(strerror(errno)); }
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -o ztest6402 ztest6402.c
+Checking for strerror... Yes.
+
+=== ztest6402.c ===
+#include <unistd.h>
+int main() { return 0; }
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest6402.c
+Checking for unistd.h... Yes.
+
+=== ztest6402.c ===
+#include <stdarg.h>
+int main() { return 0; }
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest6402.c
+Checking for stdarg.h... Yes.
+
+=== ztest6402.c ===
+#include <stdio.h>
+#include <stdarg.h>
+#include "zconf.h"
+int main()
+{
+#ifndef STDC
+  choke me
+#endif
+  return 0;
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest6402.c
+Checking whether to use vs[n]printf() or s[n]printf()... using vs[n]printf().
+
+=== ztest6402.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return 0;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -o ztest6402 ztest6402.c
+Checking for vsnprintf() in stdio.h... Yes.
+
+=== ztest6402.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  int n;
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  n = vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return n;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest6402.c
+Checking for return value of vsnprintf()... Yes.
+
+=== ztest6402.c ===
+#define ZLIB_INTERNAL __attribute__((visibility ("hidden")))
+int ZLIB_INTERNAL foo;
+int main()
+{
+  return 0;
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest6402.c
+Checking for attribute(visibility) support... Yes.
+
+=== ztest6402.c ===
+#include <stdio.h>
+#define is32(n,t) for(n=1,k=0;n;n<<=1,k++);if(k==32){puts(t);return 0;}
+int main() {
+    int k;
+    unsigned i;
+    unsigned long l;
+    unsigned short s;
+    is32(i, "unsigned")
+    is32(l, "unsigned long")
+    is32(s, "unsigned short")
+    return 1;
+}
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN ztest6402.c -o ztest6402
+Looking for a four-byte integer type... Found.
+
+ALL = static shared all64
+AR = ar
+ARFLAGS = rc
+CC = gcc
+CFLAGS = -O3 -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN
+CPP = /usr/bin/cpp -P -traditional
+EXE =
+LDCONFIG = ldconfig
+LDFLAGS =
+LDSHARED = gcc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map
+LDSHAREDLIBC = -lc
+OBJC = $(OBJZ) $(OBJG)
+PIC_OBJC = $(PIC_OBJZ) $(PIC_OBJG)
+RANLIB = ranlib
+SFLAGS = -O3 -fPIC -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN
+SHAREDLIB = libz.so
+SHAREDLIBM = libz.so.1
+SHAREDLIBV = libz.so.1.2.7
+STATICLIB = libz.a
+TEST = all teststatic testshared test64
+VER = 1.2.7
+Z_U4 = unsigned
+exec_prefix = ${prefix}
+includedir = ${prefix}/include
+libdir = ${exec_prefix}/lib
+mandir = ${prefix}/share/man
+prefix = /usr/local
+sharedlibdir = ${libdir}
+uname = Linux
+--------------------
+
+
+--------------------
+./configure
+Fri Sep 17 17:35:34 UTC 2021
+
+=== ztest7050.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+gcc -c -O3 ztest7050.c
+... using gcc
+
+Checking for shared library support...
+=== ztest7050.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+gcc -w -c -O3 -fPIC ztest7050.c
+gcc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map -O3 -fPIC -o ztest7050.so ztest7050.o
+Building shared library libz.so.1.2.7 with gcc.
+
+
+=== ztest7050.c ===
+--------------------
+./configure
+Fri Sep 17 17:35:54 UTC 2021
+
+=== ztest7140.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+gcc -c -O3 ztest7140.c
+... using gcc
+
+Checking for shared library support...
+=== ztest7140.c ===
+extern int getchar();
+int hello() {return getchar();}
+--------------------
+./configure
+Fri Sep 17 17:36:29 UTC 2021
+
+=== ztest7851.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+gcc -c -O3 ztest7851.c
+... using gcc
+
+Checking for shared library support...
+=== ztest7851.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+gcc -w -c -O3 -fPIC ztest7851.c
+gcc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map -O3 -fPIC -o ztest7851.so ztest7851.o
+Building shared library libz.so.1.2.7 with gcc.
+
+
+=== ztest7851.c ===
+#include <sys/types.h>
+off64_t dummy = 0;
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest7851.c
+Checking for off64_t... Yes.
+Checking for fseeko... Yes.
+
+=== ztest7851.c ===
+#include <string.h>
+#include <errno.h>
+int main() { return strlen(strerror(errno)); }
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -o ztest7851 ztest7851.c
+Checking for strerror... Yes.
+
+=== ztest7851.c ===
+#include <unistd.h>
+int main() { return 0; }
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest7851.c
+Checking for unistd.h... Yes.
+
+=== ztest7851.c ===
+#include <stdarg.h>
+int main() { return 0; }
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest7851.c
+Checking for stdarg.h... Yes.
+
+=== ztest7851.c ===
+#include <stdio.h>
+#include <stdarg.h>
+#include "zconf.h"
+int main()
+{
+#ifndef STDC
+  choke me
+#endif
+  return 0;
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest7851.c
+Checking whether to use vs[n]printf() or s[n]printf()... using vs[n]printf().
+
+=== ztest7851.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return 0;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -o ztest7851 ztest7851.c
+Checking for vsnprintf() in stdio.h... Yes.
+
+=== ztest7851.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  int n;
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  n = vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return n;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest7851.c
+Checking for return value of vsnprintf()... Yes.
+
+=== ztest7851.c ===
+#define ZLIB_INTERNAL __attribute__((visibility ("hidden")))
+int ZLIB_INTERNAL foo;
+int main()
+{
+  return 0;
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest7851.c
+Checking for attribute(visibility) support... Yes.
+
+=== ztest7851.c ===
+#include <stdio.h>
+#define is32(n,t) for(n=1,k=0;n;n<<=1,k++);if(k==32){puts(t);return 0;}
+int main() {
+    int k;
+    unsigned i;
+    unsigned long l;
+    unsigned short s;
+    is32(i, "unsigned")
+    is32(l, "unsigned long")
+    is32(s, "unsigned short")
+    return 1;
+}
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN ztest7851.c -o ztest7851
+Looking for a four-byte integer type... Found.
+
+ALL = static shared all64
+AR = ar
+ARFLAGS = rc
+CC = gcc
+CFLAGS = -O3 -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN
+CPP = /usr/bin/cpp -P -traditional
+EXE =
+LDCONFIG = ldconfig
+LDFLAGS =
+LDSHARED = gcc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map
+LDSHAREDLIBC = -lc
+OBJC = $(OBJZ) $(OBJG)
+PIC_OBJC = $(PIC_OBJZ) $(PIC_OBJG)
+RANLIB = ranlib
+SFLAGS = -O3 -fPIC -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN
+SHAREDLIB = libz.so
+SHAREDLIBM = libz.so.1
+SHAREDLIBV = libz.so.1.2.7
+STATICLIB = libz.a
+TEST = all teststatic testshared test64
+VER = 1.2.7
+Z_U4 = unsigned
+exec_prefix = ${prefix}
+includedir = ${prefix}/include
+libdir = ${exec_prefix}/lib
+mandir = ${prefix}/share/man
+prefix = /usr/local
+sharedlibdir = ${libdir}
+uname = Linux
+--------------------
+
+
+--------------------
+./configure
+Fri Sep 17 17:39:26 UTC 2021
+
+=== ztest15574.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+gcc -c -O3 ztest15574.c
+... using gcc
+
+Checking for shared library support...
+=== ztest15574.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+gcc -w -c -O3 -fPIC ztest15574.c
+gcc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map -O3 -fPIC -o ztest15574.so ztest15574.o
+Building shared library libz.so.1.2.7 with gcc.
+--------------------
+./configure
+Fri Sep 17 17:40:05 UTC 2021
+
+=== ztest22619.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+gcc -c -O3 ztest22619.c
+... using gcc
+
+Checking for shared library support...
+=== ztest22619.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+gcc -w -c -O3 -fPIC ztest22619.c
+gcc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map -O3 -fPIC -o ztest22619.so ztest22619.o
+Building shared library libz.so.1.2.7 with gcc.
+
+
+=== ztest22619.c ===
+#include <sys/types.h>
+off64_t dummy = 0;
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest22619.c
+Checking for off64_t... Yes.
+Checking for fseeko... Yes.
+
+=== ztest22619.c ===
+#include <string.h>
+#include <errno.h>
+int main() { return strlen(strerror(errno)); }
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -o ztest22619 ztest22619.c
+Checking for strerror... Yes.
+
+=== ztest22619.c ===
+#include <unistd.h>
+int main() { return 0; }
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest22619.c
+Checking for unistd.h... Yes.
+
+=== ztest22619.c ===
+#include <stdarg.h>
+int main() { return 0; }
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest22619.c
+Checking for stdarg.h... Yes.
+
+=== ztest22619.c ===
+#include <stdio.h>
+#include <stdarg.h>
+#include "zconf.h"
+int main()
+{
+#ifndef STDC
+  choke me
+#endif
+  return 0;
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest22619.c
+Checking whether to use vs[n]printf() or s[n]printf()... using vs[n]printf().
+
+=== ztest22619.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return 0;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -o ztest22619 ztest22619.c
+Checking for vsnprintf() in stdio.h... Yes.
+
+=== ztest22619.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  int n;
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  n = vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return n;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest22619.c
+Checking for return value of vsnprintf()... Yes.
+
+=== ztest22619.c ===
+#define ZLIB_INTERNAL __attribute__((visibility ("hidden")))
+int ZLIB_INTERNAL foo;
+int main()
+{
+  return 0;
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest22619.c
+Checking for attribute(visibility) support... Yes.
+
+=== ztest22619.c ===
+#include <stdio.h>
+#define is32(n,t) for(n=1,k=0;n;n<<=1,k++);if(k==32){puts(t);return 0;}
+int main() {
+    int k;
+    unsigned i;
+    unsigned long l;
+    unsigned short s;
+    is32(i, "unsigned")
+    is32(l, "unsigned long")
+    is32(s, "unsigned short")
+    return 1;
+}
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN ztest22619.c -o ztest22619
+Looking for a four-byte integer type... Found.
+
+ALL = static shared all64
+AR = ar
+ARFLAGS = rc
+CC = gcc
+CFLAGS = -O3 -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN
+CPP = /usr/bin/cpp -P -traditional
+EXE =
+LDCONFIG = ldconfig
+LDFLAGS =
+LDSHARED = gcc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map
+LDSHAREDLIBC = -lc
+OBJC = $(OBJZ) $(OBJG)
+PIC_OBJC = $(PIC_OBJZ) $(PIC_OBJG)
+RANLIB = ranlib
+SFLAGS = -O3 -fPIC -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN
+SHAREDLIB = libz.so
+SHAREDLIBM = libz.so.1
+SHAREDLIBV = libz.so.1.2.7
+STATICLIB = libz.a
+TEST = all teststatic testshared test64
+VER = 1.2.7
+Z_U4 = unsigned
+exec_prefix = ${prefix}
+includedir = ${prefix}/include
+libdir = ${exec_prefix}/lib
+mandir = ${prefix}/share/man
+prefix = /usr/local
+sharedlibdir = ${libdir}
+uname = Linux
+--------------------
+
+
+--------------------
+./configure
+Fri Sep 17 17:42:45 UTC 2021
+
+=== ztest28619.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+/users/mcurry/build-gnu-10.1.0/install-gnu-10.1.0//bin/gcc -c -O3 ztest28619.c
+... using gcc
+
+Checking for shared library support...
+=== ztest28619.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+/users/mcurry/build-gnu-10.1.0/install-gnu-10.1.0//bin/gcc -w -c -O3 -fPIC ztest28619.c
+/users/mcurry/build-gnu-10.1.0/install-gnu-10.1.0//bin/gcc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map -O3 -fPIC -o ztest28619.so ztest28619.o
+Building shared library libz.so.1.2.7 with /users/mcurry/build-gnu-10.1.0/install-gnu-10.1.0//bin/gcc.
+
+
+=== ztest28619.c ===
+#include <sys/types.h>
+off64_t dummy = 0;
+===
+/users/mcurry/build-gnu-10.1.0/install-gnu-10.1.0//bin/gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest28619.c
+Checking for off64_t... Yes.
+Checking for fseeko... Yes.
+
+=== ztest28619.c ===
+#include <string.h>
+#include <errno.h>
+int main() { return strlen(strerror(errno)); }
+===
+/users/mcurry/build-gnu-10.1.0/install-gnu-10.1.0//bin/gcc -O3 -D_LARGEFILE64_SOURCE=1 -o ztest28619 ztest28619.c
+Checking for strerror... Yes.
+
+=== ztest28619.c ===
+#include <unistd.h>
+int main() { return 0; }
+===
+/users/mcurry/build-gnu-10.1.0/install-gnu-10.1.0//bin/gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest28619.c
+Checking for unistd.h... Yes.
+
+=== ztest28619.c ===
+#include <stdarg.h>
+int main() { return 0; }
+===
+/users/mcurry/build-gnu-10.1.0/install-gnu-10.1.0//bin/gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest28619.c
+Checking for stdarg.h... Yes.
+
+=== ztest28619.c ===
+#include <stdio.h>
+#include <stdarg.h>
+#include "zconf.h"
+int main()
+{
+#ifndef STDC
+  choke me
+#endif
+  return 0;
+}
+===
+/users/mcurry/build-gnu-10.1.0/install-gnu-10.1.0//bin/gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest28619.c
+Checking whether to use vs[n]printf() or s[n]printf()... using vs[n]printf().
+
+=== ztest28619.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return 0;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+/users/mcurry/build-gnu-10.1.0/install-gnu-10.1.0//bin/gcc -O3 -D_LARGEFILE64_SOURCE=1 -o ztest28619 ztest28619.c
+Checking for vsnprintf() in stdio.h... Yes.
+
+=== ztest28619.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  int n;
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  n = vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return n;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+/users/mcurry/build-gnu-10.1.0/install-gnu-10.1.0//bin/gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest28619.c
+Checking for return value of vsnprintf()... Yes.
+
+=== ztest28619.c ===
+#define ZLIB_INTERNAL __attribute__((visibility ("hidden")))
+int ZLIB_INTERNAL foo;
+int main()
+{
+  return 0;
+}
+===
+/users/mcurry/build-gnu-10.1.0/install-gnu-10.1.0//bin/gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest28619.c
+Checking for attribute(visibility) support... Yes.
+
+=== ztest28619.c ===
+#include <stdio.h>
+#define is32(n,t) for(n=1,k=0;n;n<<=1,k++);if(k==32){puts(t);return 0;}
+int main() {
+    int k;
+    unsigned i;
+    unsigned long l;
+    unsigned short s;
+    is32(i, "unsigned")
+    is32(l, "unsigned long")
+    is32(s, "unsigned short")
+    return 1;
+}
+===
+/users/mcurry/build-gnu-10.1.0/install-gnu-10.1.0//bin/gcc -O3 -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN ztest28619.c -o ztest28619
+Looking for a four-byte integer type... Found.
+
+ALL = static shared all64
+AR = ar
+ARFLAGS = rc
+CC = /users/mcurry/build-gnu-10.1.0/install-gnu-10.1.0//bin/gcc
+CFLAGS = -O3 -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN
+CPP = /users/mcurry/build-gnu-10.1.0/install-gnu-10.1.0//bin/cpp
+EXE =
+LDCONFIG = ldconfig
+LDFLAGS =
+LDSHARED = /users/mcurry/build-gnu-10.1.0/install-gnu-10.1.0//bin/gcc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map
+LDSHAREDLIBC = -lc
+OBJC = $(OBJZ) $(OBJG)
+PIC_OBJC = $(PIC_OBJZ) $(PIC_OBJG)
+RANLIB = ranlib
+SFLAGS = -O3 -fPIC -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN
+SHAREDLIB = libz.so
+SHAREDLIBM = libz.so.1
+SHAREDLIBV = libz.so.1.2.7
+STATICLIB = libz.a
+TEST = all teststatic testshared test64
+VER = 1.2.7
+Z_U4 = unsigned
+exec_prefix = ${prefix}
+includedir = ${prefix}/include
+libdir = ${exec_prefix}/lib
+mandir = ${prefix}/share/man
+prefix = /usr/local
+sharedlibdir = ${libdir}
+uname = Linux
+--------------------
+
+
+--------------------
+./configure
+Fri Sep 17 17:44:39 UTC 2021
+
+=== ztest30066.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+gcc -c -O3 ztest30066.c
+... using gcc
+
+Checking for shared library support...
+=== ztest30066.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+gcc -w -c -O3 -fPIC ztest30066.c
+gcc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map -O3 -fPIC -o ztest30066.so ztest30066.o
+Building shared library libz.so.1.2.7 with gcc.
+
+
+=== ztest30066.c ===
+#include <sys/types.h>
+off64_t dummy = 0;
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest30066.c
+Checking for off64_t... Yes.
+Checking for fseeko... Yes.
+
+=== ztest30066.c ===
+#include <string.h>
+#include <errno.h>
+int main() { return strlen(strerror(errno)); }
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -o ztest30066 ztest30066.c
+Checking for strerror... Yes.
+
+=== ztest30066.c ===
+#include <unistd.h>
+int main() { return 0; }
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest30066.c
+Checking for unistd.h... Yes.
+
+=== ztest30066.c ===
+#include <stdarg.h>
+int main() { return 0; }
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest30066.c
+Checking for stdarg.h... Yes.
+
+=== ztest30066.c ===
+#include <stdio.h>
+#include <stdarg.h>
+#include "zconf.h"
+int main()
+{
+#ifndef STDC
+  choke me
+#endif
+  return 0;
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest30066.c
+Checking whether to use vs[n]printf() or s[n]printf()... using vs[n]printf().
+
+=== ztest30066.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return 0;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -o ztest30066 ztest30066.c
+Checking for vsnprintf() in stdio.h... Yes.
+
+=== ztest30066.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  int n;
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  n = vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return n;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest30066.c
+Checking for return value of vsnprintf()... Yes.
+
+=== ztest30066.c ===
+#define ZLIB_INTERNAL __attribute__((visibility ("hidden")))
+int ZLIB_INTERNAL foo;
+int main()
+{
+  return 0;
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest30066.c
+Checking for attribute(visibility) support... Yes.
+
+=== ztest30066.c ===
+#include <stdio.h>
+#define is32(n,t) for(n=1,k=0;n;n<<=1,k++);if(k==32){puts(t);return 0;}
+int main() {
+    int k;
+    unsigned i;
+    unsigned long l;
+    unsigned short s;
+    is32(i, "unsigned")
+    is32(l, "unsigned long")
+    is32(s, "unsigned short")
+    return 1;
+}
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN ztest30066.c -o ztest30066
+Looking for a four-byte integer type... Found.
+
+ALL = static shared all64
+AR = ar
+ARFLAGS = rc
+CC = gcc
+CFLAGS = -O3 -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN
+CPP = /usr/bin/cpp -P -traditional
+EXE =
+LDCONFIG = ldconfig
+LDFLAGS =
+LDSHARED = gcc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map
+LDSHAREDLIBC = -lc
+OBJC = $(OBJZ) $(OBJG)
+PIC_OBJC = $(PIC_OBJZ) $(PIC_OBJG)
+RANLIB = ranlib
+SFLAGS = -O3 -fPIC -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN
+SHAREDLIB = libz.so
+SHAREDLIBM = libz.so.1
+SHAREDLIBV = libz.so.1.2.7
+STATICLIB = libz.a
+TEST = all teststatic testshared test64
+VER = 1.2.7
+Z_U4 = unsigned
+exec_prefix = ${prefix}
+includedir = ${prefix}/include
+libdir = ${exec_prefix}/lib
+mandir = ${prefix}/share/man
+prefix = /usr/local
+sharedlibdir = ${libdir}
+uname = Linux
+--------------------
+
+
+--------------------
+./configure
+Fri Sep 17 17:45:52 UTC 2021
+
+=== ztest32034.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+gcc -c -O3 ztest32034.c
+... using gcc
+
+Checking for shared library support...
+=== ztest32034.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+gcc -w -c -O3 -fPIC ztest32034.c
+gcc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map -O3 -fPIC -o ztest32034.so ztest32034.o
+Building shared library libz.so.1.2.7 with gcc.
+
+
+=== ztest32034.c ===
+#include <sys/types.h>
+off64_t dummy = 0;
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest32034.c
+Checking for off64_t... Yes.
+Checking for fseeko... Yes.
+
+=== ztest32034.c ===
+#include <string.h>
+#include <errno.h>
+int main() { return strlen(strerror(errno)); }
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -o ztest32034 ztest32034.c
+Checking for strerror... Yes.
+
+=== ztest32034.c ===
+#include <unistd.h>
+int main() { return 0; }
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest32034.c
+Checking for unistd.h... Yes.
+
+=== ztest32034.c ===
+#include <stdarg.h>
+int main() { return 0; }
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest32034.c
+Checking for stdarg.h... Yes.
+
+=== ztest32034.c ===
+#include <stdio.h>
+#include <stdarg.h>
+#include "zconf.h"
+int main()
+{
+#ifndef STDC
+  choke me
+#endif
+  return 0;
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest32034.c
+Checking whether to use vs[n]printf() or s[n]printf()... using vs[n]printf().
+
+=== ztest32034.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return 0;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -o ztest32034 ztest32034.c
+Checking for vsnprintf() in stdio.h... Yes.
+
+=== ztest32034.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  int n;
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  n = vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return n;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest32034.c
+Checking for return value of vsnprintf()... Yes.
+
+=== ztest32034.c ===
+#define ZLIB_INTERNAL __attribute__((visibility ("hidden")))
+int ZLIB_INTERNAL foo;
+int main()
+{
+  return 0;
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest32034.c
+Checking for attribute(visibility) support... Yes.
+
+=== ztest32034.c ===
+#include <stdio.h>
+#define is32(n,t) for(n=1,k=0;n;n<<=1,k++);if(k==32){puts(t);return 0;}
+int main() {
+    int k;
+    unsigned i;
+    unsigned long l;
+    unsigned short s;
+    is32(i, "unsigned")
+    is32(l, "unsigned long")
+    is32(s, "unsigned short")
+    return 1;
+}
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN ztest32034.c -o ztest32034
+Looking for a four-byte integer type... Found.
+
+ALL = static shared all64
+AR = ar
+ARFLAGS = rc
+CC = gcc
+CFLAGS = -O3 -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN
+CPP = /usr/bin/cpp -P -traditional
+EXE =
+LDCONFIG = ldconfig
+LDFLAGS =
+LDSHARED = gcc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map
+LDSHAREDLIBC = -lc
+OBJC = $(OBJZ) $(OBJG)
+PIC_OBJC = $(PIC_OBJZ) $(PIC_OBJG)
+RANLIB = ranlib
+SFLAGS = -O3 -fPIC -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN
+SHAREDLIB = libz.so
+SHAREDLIBM = libz.so.1
+SHAREDLIBV = libz.so.1.2.7
+STATICLIB = libz.a
+TEST = all teststatic testshared test64
+VER = 1.2.7
+Z_U4 = unsigned
+exec_prefix = ${prefix}
+includedir = ${prefix}/include
+libdir = ${exec_prefix}/lib
+mandir = ${prefix}/share/man
+prefix = /usr/local
+sharedlibdir = ${libdir}
+uname = Linux
+--------------------
+
+
+--------------------
+./configure
+Fri Sep 17 17:47:32 UTC 2021
+
+=== ztest33872.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+gcc -c -O3 ztest33872.c
+... using gcc
+
+Checking for shared library support...
+=== ztest33872.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+gcc -w -c -O3 -fPIC ztest33872.c
+gcc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map -O3 -fPIC -o ztest33872.so ztest33872.o
+Building shared library libz.so.1.2.7 with gcc.
+
+
+=== ztest33872.c ===
+#include <sys/types.h>
+off64_t dummy = 0;
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest33872.c
+Checking for off64_t... Yes.
+Checking for fseeko... Yes.
+
+=== ztest33872.c ===
+#include <string.h>
+#include <errno.h>
+int main() { return strlen(strerror(errno)); }
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -o ztest33872 ztest33872.c
+Checking for strerror... Yes.
+
+=== ztest33872.c ===
+#include <unistd.h>
+int main() { return 0; }
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest33872.c
+Checking for unistd.h... Yes.
+
+=== ztest33872.c ===
+#include <stdarg.h>
+int main() { return 0; }
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest33872.c
+Checking for stdarg.h... Yes.
+
+=== ztest33872.c ===
+#include <stdio.h>
+#include <stdarg.h>
+#include "zconf.h"
+int main()
+{
+#ifndef STDC
+  choke me
+#endif
+  return 0;
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest33872.c
+Checking whether to use vs[n]printf() or s[n]printf()... using vs[n]printf().
+
+=== ztest33872.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return 0;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -o ztest33872 ztest33872.c
+Checking for vsnprintf() in stdio.h... Yes.
+
+=== ztest33872.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  int n;
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  n = vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return n;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest33872.c
+Checking for return value of vsnprintf()... Yes.
+
+=== ztest33872.c ===
+#define ZLIB_INTERNAL __attribute__((visibility ("hidden")))
+int ZLIB_INTERNAL foo;
+int main()
+{
+  return 0;
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest33872.c
+Checking for attribute(visibility) support... Yes.
+
+=== ztest33872.c ===
+#include <stdio.h>
+#define is32(n,t) for(n=1,k=0;n;n<<=1,k++);if(k==32){puts(t);return 0;}
+int main() {
+    int k;
+    unsigned i;
+    unsigned long l;
+    unsigned short s;
+    is32(i, "unsigned")
+    is32(l, "unsigned long")
+    is32(s, "unsigned short")
+    return 1;
+}
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN ztest33872.c -o ztest33872
+Looking for a four-byte integer type... Found.
+
+ALL = static shared all64
+AR = ar
+ARFLAGS = rc
+CC = gcc
+CFLAGS = -O3 -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN
+CPP = /usr/bin/cpp -P -traditional
+EXE =
+LDCONFIG = ldconfig
+LDFLAGS =
+LDSHARED = gcc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map
+LDSHAREDLIBC = -lc
+OBJC = $(OBJZ) $(OBJG)
+PIC_OBJC = $(PIC_OBJZ) $(PIC_OBJG)
+RANLIB = ranlib
+SFLAGS = -O3 -fPIC -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN
+SHAREDLIB = libz.so
+SHAREDLIBM = libz.so.1
+SHAREDLIBV = libz.so.1.2.7
+STATICLIB = libz.a
+TEST = all teststatic testshared test64
+VER = 1.2.7
+Z_U4 = unsigned
+exec_prefix = ${prefix}
+includedir = ${prefix}/include
+libdir = ${exec_prefix}/lib
+mandir = ${prefix}/share/man
+prefix = /usr/local
+sharedlibdir = ${libdir}
+uname = Linux
+--------------------
+
+
+--------------------
+./configure
+Fri Sep 17 17:58:04 UTC 2021
+
+=== ztest31850.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+gcc -c -O3 ztest31850.c
+... using gcc
+
+Checking for shared library support...
+=== ztest31850.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+gcc -w -c -O3 -fPIC ztest31850.c
+gcc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map -O3 -fPIC -o ztest31850.so ztest31850.o
+Building shared library libz.so.1.2.7 with gcc.
+
+
+=== ztest31850.c ===
+#include <sys/types.h>
+off64_t dummy = 0;
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest31850.c
+Checking for off64_t... Yes.
+Checking for fseeko... Yes.
+
+=== ztest31850.c ===
+#include <string.h>
+#include <errno.h>
+int main() { return strlen(strerror(errno)); }
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -o ztest31850 ztest31850.c
+Checking for strerror... Yes.
+
+=== ztest31850.c ===
+#include <unistd.h>
+int main() { return 0; }
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest31850.c
+Checking for unistd.h... Yes.
+
+=== ztest31850.c ===
+#include <stdarg.h>
+int main() { return 0; }
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest31850.c
+Checking for stdarg.h... Yes.
+
+=== ztest31850.c ===
+#include <stdio.h>
+#include <stdarg.h>
+#include "zconf.h"
+int main()
+{
+#ifndef STDC
+  choke me
+#endif
+  return 0;
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest31850.c
+Checking whether to use vs[n]printf() or s[n]printf()... using vs[n]printf().
+
+=== ztest31850.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return 0;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -o ztest31850 ztest31850.c
+Checking for vsnprintf() in stdio.h... Yes.
+
+=== ztest31850.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  int n;
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  n = vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return n;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest31850.c
+Checking for return value of vsnprintf()... Yes.
+
+=== ztest31850.c ===
+#define ZLIB_INTERNAL __attribute__((visibility ("hidden")))
+int ZLIB_INTERNAL foo;
+int main()
+{
+  return 0;
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest31850.c
+Checking for attribute(visibility) support... Yes.
+
+=== ztest31850.c ===
+#include <stdio.h>
+#define is32(n,t) for(n=1,k=0;n;n<<=1,k++);if(k==32){puts(t);return 0;}
+int main() {
+    int k;
+    unsigned i;
+    unsigned long l;
+    unsigned short s;
+    is32(i, "unsigned")
+    is32(l, "unsigned long")
+    is32(s, "unsigned short")
+    return 1;
+}
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN ztest31850.c -o ztest31850
+Looking for a four-byte integer type... Found.
+
+ALL = static shared all64
+AR = ar
+ARFLAGS = rc
+CC = gcc
+CFLAGS = -O3 -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN
+CPP = /usr/bin/cpp -P -traditional
+EXE =
+LDCONFIG = ldconfig
+LDFLAGS =
+LDSHARED = gcc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map
+LDSHAREDLIBC = -lc
+OBJC = $(OBJZ) $(OBJG)
+PIC_OBJC = $(PIC_OBJZ) $(PIC_OBJG)
+RANLIB = ranlib
+SFLAGS = -O3 -fPIC -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN
+SHAREDLIB = libz.so
+SHAREDLIBM = libz.so.1
+SHAREDLIBV = libz.so.1.2.7
+STATICLIB = libz.a
+TEST = all teststatic testshared test64
+VER = 1.2.7
+Z_U4 = unsigned
+exec_prefix = ${prefix}
+includedir = ${prefix}/include
+libdir = ${exec_prefix}/lib
+mandir = ${prefix}/share/man
+prefix = /usr/local
+sharedlibdir = ${libdir}
+uname = Linux
+--------------------
+
+
+--------------------
+./configure
+Fri Sep 17 17:59:22 UTC 2021
+
+=== ztest33649.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+gcc -c -O3 ztest33649.c
+... using gcc
+
+Checking for shared library support...
+=== ztest33649.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+gcc -w -c -O3 -fPIC ztest33649.c
+gcc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map -O3 -fPIC -o ztest33649.so ztest33649.o
+Building shared library libz.so.1.2.7 with gcc.
+
+
+=== ztest33649.c ===
+#include <sys/types.h>
+off64_t dummy = 0;
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest33649.c
+Checking for off64_t... Yes.
+Checking for fseeko... Yes.
+
+=== ztest33649.c ===
+#include <string.h>
+#include <errno.h>
+int main() { return strlen(strerror(errno)); }
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -o ztest33649 ztest33649.c
+Checking for strerror... Yes.
+
+=== ztest33649.c ===
+#include <unistd.h>
+int main() { return 0; }
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest33649.c
+Checking for unistd.h... Yes.
+
+=== ztest33649.c ===
+#include <stdarg.h>
+int main() { return 0; }
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest33649.c
+Checking for stdarg.h... Yes.
+
+=== ztest33649.c ===
+#include <stdio.h>
+#include <stdarg.h>
+#include "zconf.h"
+int main()
+{
+#ifndef STDC
+  choke me
+#endif
+  return 0;
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest33649.c
+Checking whether to use vs[n]printf() or s[n]printf()... using vs[n]printf().
+
+=== ztest33649.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return 0;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -o ztest33649 ztest33649.c
+Checking for vsnprintf() in stdio.h... Yes.
+
+=== ztest33649.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  int n;
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  n = vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return n;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest33649.c
+Checking for return value of vsnprintf()... Yes.
+
+=== ztest33649.c ===
+#define ZLIB_INTERNAL __attribute__((visibility ("hidden")))
+int ZLIB_INTERNAL foo;
+int main()
+{
+  return 0;
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest33649.c
+Checking for attribute(visibility) support... Yes.
+
+=== ztest33649.c ===
+#include <stdio.h>
+#define is32(n,t) for(n=1,k=0;n;n<<=1,k++);if(k==32){puts(t);return 0;}
+int main() {
+    int k;
+    unsigned i;
+    unsigned long l;
+    unsigned short s;
+    is32(i, "unsigned")
+    is32(l, "unsigned long")
+    is32(s, "unsigned short")
+    return 1;
+}
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN ztest33649.c -o ztest33649
+Looking for a four-byte integer type... Found.
+
+ALL = static shared all64
+AR = ar
+ARFLAGS = rc
+CC = gcc
+CFLAGS = -O3 -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN
+CPP = /usr/bin/cpp -P -traditional
+EXE =
+LDCONFIG = ldconfig
+LDFLAGS =
+LDSHARED = gcc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map
+LDSHAREDLIBC = -lc
+OBJC = $(OBJZ) $(OBJG)
+PIC_OBJC = $(PIC_OBJZ) $(PIC_OBJG)
+RANLIB = ranlib
+SFLAGS = -O3 -fPIC -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN
+SHAREDLIB = libz.so
+SHAREDLIBM = libz.so.1
+SHAREDLIBV = libz.so.1.2.7
+STATICLIB = libz.a
+TEST = all teststatic testshared test64
+VER = 1.2.7
+Z_U4 = unsigned
+exec_prefix = ${prefix}
+includedir = ${prefix}/include
+libdir = ${exec_prefix}/lib
+mandir = ${prefix}/share/man
+prefix = /usr/local
+sharedlibdir = ${libdir}
+uname = Linux
+--------------------
+
+
+--------------------
+./configure
+Fri Sep 17 18:00:31 UTC 2021
+
+=== ztest36404.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+gcc -c -O3 ztest36404.c
+... using gcc
+
+Checking for shared library support...
+=== ztest36404.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+gcc -w -c -O3 -fPIC ztest36404.c
+gcc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map -O3 -fPIC -o ztest36404.so ztest36404.o
+Building shared library libz.so.1.2.7 with gcc.
+
+
+=== ztest36404.c ===
+#include <sys/types.h>
+off64_t dummy = 0;
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest36404.c
+Checking for off64_t... Yes.
+Checking for fseeko... Yes.
+
+=== ztest36404.c ===
+#include <string.h>
+#include <errno.h>
+int main() { return strlen(strerror(errno)); }
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -o ztest36404 ztest36404.c
+Checking for strerror... Yes.
+
+=== ztest36404.c ===
+#include <unistd.h>
+int main() { return 0; }
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest36404.c
+Checking for unistd.h... Yes.
+
+=== ztest36404.c ===
+#include <stdarg.h>
+int main() { return 0; }
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest36404.c
+Checking for stdarg.h... Yes.
+
+=== ztest36404.c ===
+#include <stdio.h>
+#include <stdarg.h>
+#include "zconf.h"
+int main()
+{
+#ifndef STDC
+  choke me
+#endif
+  return 0;
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest36404.c
+Checking whether to use vs[n]printf() or s[n]printf()... using vs[n]printf().
+
+=== ztest36404.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return 0;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -o ztest36404 ztest36404.c
+Checking for vsnprintf() in stdio.h... Yes.
+
+=== ztest36404.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  int n;
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  n = vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return n;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest36404.c
+Checking for return value of vsnprintf()... Yes.
+
+=== ztest36404.c ===
+#define ZLIB_INTERNAL __attribute__((visibility ("hidden")))
+int ZLIB_INTERNAL foo;
+int main()
+{
+  return 0;
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest36404.c
+Checking for attribute(visibility) support... Yes.
+
+=== ztest36404.c ===
+#include <stdio.h>
+#define is32(n,t) for(n=1,k=0;n;n<<=1,k++);if(k==32){puts(t);return 0;}
+int main() {
+    int k;
+    unsigned i;
+    unsigned long l;
+    unsigned short s;
+    is32(i, "unsigned")
+    is32(l, "unsigned long")
+    is32(s, "unsigned short")
+    return 1;
+}
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN ztest36404.c -o ztest36404
+Looking for a four-byte integer type... Found.
+
+ALL = static shared all64
+AR = ar
+ARFLAGS = rc
+CC = gcc
+CFLAGS = -O3 -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN
+CPP = /usr/bin/cpp -P -traditional
+EXE =
+LDCONFIG = ldconfig
+LDFLAGS =
+LDSHARED = gcc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map
+LDSHAREDLIBC = -lc
+OBJC = $(OBJZ) $(OBJG)
+PIC_OBJC = $(PIC_OBJZ) $(PIC_OBJG)
+RANLIB = ranlib
+SFLAGS = -O3 -fPIC -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN
+SHAREDLIB = libz.so
+SHAREDLIBM = libz.so.1
+SHAREDLIBV = libz.so.1.2.7
+STATICLIB = libz.a
+TEST = all teststatic testshared test64
+VER = 1.2.7
+Z_U4 = unsigned
+exec_prefix = ${prefix}
+includedir = ${prefix}/include
+libdir = ${exec_prefix}/lib
+mandir = ${prefix}/share/man
+prefix = /usr/local
+sharedlibdir = ${libdir}
+uname = Linux
+--------------------
+
+
+--------------------
+./configure
+Fri Sep 17 18:02:06 UTC 2021
+
+=== ztest3228.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+gcc -c -O3 ztest3228.c
+... using gcc
+
+Checking for shared library support...
+=== ztest3228.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+gcc -w -c -O3 -fPIC ztest3228.c
+gcc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map -O3 -fPIC -o ztest3228.so ztest3228.o
+Building shared library libz.so.1.2.7 with gcc.
+
+
+=== ztest3228.c ===
+#include <sys/types.h>
+off64_t dummy = 0;
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest3228.c
+Checking for off64_t... Yes.
+Checking for fseeko... Yes.
+
+=== ztest3228.c ===
+#include <string.h>
+#include <errno.h>
+int main() { return strlen(strerror(errno)); }
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -o ztest3228 ztest3228.c
+Checking for strerror... Yes.
+
+=== ztest3228.c ===
+#include <unistd.h>
+int main() { return 0; }
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest3228.c
+Checking for unistd.h... Yes.
+
+=== ztest3228.c ===
+#include <stdarg.h>
+int main() { return 0; }
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest3228.c
+Checking for stdarg.h... Yes.
+
+=== ztest3228.c ===
+#include <stdio.h>
+#include <stdarg.h>
+#include "zconf.h"
+int main()
+{
+#ifndef STDC
+  choke me
+#endif
+  return 0;
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest3228.c
+Checking whether to use vs[n]printf() or s[n]printf()... using vs[n]printf().
+
+=== ztest3228.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return 0;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -o ztest3228 ztest3228.c
+Checking for vsnprintf() in stdio.h... Yes.
+
+=== ztest3228.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  int n;
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  n = vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return n;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest3228.c
+Checking for return value of vsnprintf()... Yes.
+
+=== ztest3228.c ===
+#define ZLIB_INTERNAL __attribute__((visibility ("hidden")))
+int ZLIB_INTERNAL foo;
+int main()
+{
+  return 0;
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest3228.c
+Checking for attribute(visibility) support... Yes.
+
+=== ztest3228.c ===
+#include <stdio.h>
+#define is32(n,t) for(n=1,k=0;n;n<<=1,k++);if(k==32){puts(t);return 0;}
+int main() {
+    int k;
+    unsigned i;
+    unsigned long l;
+    unsigned short s;
+    is32(i, "unsigned")
+    is32(l, "unsigned long")
+    is32(s, "unsigned short")
+    return 1;
+}
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN ztest3228.c -o ztest3228
+Looking for a four-byte integer type... Found.
+
+ALL = static shared all64
+AR = ar
+ARFLAGS = rc
+CC = gcc
+CFLAGS = -O3 -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN
+CPP = /usr/bin/cpp
+EXE =
+LDCONFIG = ldconfig
+LDFLAGS =
+LDSHARED = gcc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map
+LDSHAREDLIBC = -lc
+OBJC = $(OBJZ) $(OBJG)
+PIC_OBJC = $(PIC_OBJZ) $(PIC_OBJG)
+RANLIB = ranlib
+SFLAGS = -O3 -fPIC -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN
+SHAREDLIB = libz.so
+SHAREDLIBM = libz.so.1
+SHAREDLIBV = libz.so.1.2.7
+STATICLIB = libz.a
+TEST = all teststatic testshared test64
+VER = 1.2.7
+Z_U4 = unsigned
+exec_prefix = ${prefix}
+includedir = ${prefix}/include
+libdir = ${exec_prefix}/lib
+mandir = ${prefix}/share/man
+prefix = /usr/local
+sharedlibdir = ${libdir}
+uname = Linux
+--------------------
+
+
+--------------------
+./configure
+Fri Sep 17 18:05:24 UTC 2021
+
+=== ztest25946.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+/users/mcurry/build-gnu-10.1.0/install-gnu-10.1.0//bin/gcc -c -O3 ztest25946.c
+... using gcc
+
+Checking for shared library support...
+=== ztest25946.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+/users/mcurry/build-gnu-10.1.0/install-gnu-10.1.0//bin/gcc -w -c -O3 -fPIC ztest25946.c
+--------------------
+./configure
+Fri Sep 17 18:05:31 UTC 2021
+
+=== ztest26268.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+gcc -c -O3 ztest26268.c
+... using gcc
+
+Checking for shared library support...
+=== ztest26268.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+gcc -w -c -O3 -fPIC ztest26268.c
+gcc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map -O3 -fPIC -o ztest26268.so ztest26268.o
+Building shared library libz.so.1.2.7 with gcc.
+
+
+=== ztest26268.c ===
+#include <sys/types.h>
+off64_t dummy = 0;
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest26268.c
+Checking for off64_t... Yes.
+Checking for fseeko... Yes.
+
+=== ztest26268.c ===
+#include <string.h>
+#include <errno.h>
+int main() { return strlen(strerror(errno)); }
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -o ztest26268 ztest26268.c
+Checking for strerror... Yes.
+
+=== ztest26268.c ===
+#include <unistd.h>
+int main() { return 0; }
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest26268.c
+Checking for unistd.h... Yes.
+
+=== ztest26268.c ===
+#include <stdarg.h>
+int main() { return 0; }
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest26268.c
+Checking for stdarg.h... Yes.
+
+=== ztest26268.c ===
+#include <stdio.h>
+#include <stdarg.h>
+#include "zconf.h"
+int main()
+{
+#ifndef STDC
+  choke me
+#endif
+  return 0;
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest26268.c
+Checking whether to use vs[n]printf() or s[n]printf()... using vs[n]printf().
+
+=== ztest26268.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return 0;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -o ztest26268 ztest26268.c
+Checking for vsnprintf() in stdio.h... Yes.
+
+=== ztest26268.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  int n;
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  n = vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return n;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest26268.c
+Checking for return value of vsnprintf()... Yes.
+
+=== ztest26268.c ===
+#define ZLIB_INTERNAL __attribute__((visibility ("hidden")))
+int ZLIB_INTERNAL foo;
+int main()
+{
+  return 0;
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest26268.c
+Checking for attribute(visibility) support... Yes.
+
+=== ztest26268.c ===
+#include <stdio.h>
+#define is32(n,t) for(n=1,k=0;n;n<<=1,k++);if(k==32){puts(t);return 0;}
+int main() {
+    int k;
+    unsigned i;
+    unsigned long l;
+    unsigned short s;
+    is32(i, "unsigned")
+    is32(l, "unsigned long")
+    is32(s, "unsigned short")
+    return 1;
+}
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN ztest26268.c -o ztest26268
+Looking for a four-byte integer type... Found.
+
+ALL = static shared all64
+AR = ar
+ARFLAGS = rc
+CC = gcc
+CFLAGS = -O3 -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN
+CPP = /usr/bin/cpp
+EXE =
+LDCONFIG = ldconfig
+LDFLAGS =
+LDSHARED = gcc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map
+LDSHAREDLIBC = -lc
+OBJC = $(OBJZ) $(OBJG)
+PIC_OBJC = $(PIC_OBJZ) $(PIC_OBJG)
+RANLIB = ranlib
+SFLAGS = -O3 -fPIC -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN
+SHAREDLIB = libz.so
+SHAREDLIBM = libz.so.1
+SHAREDLIBV = libz.so.1.2.7
+STATICLIB = libz.a
+TEST = all teststatic testshared test64
+VER = 1.2.7
+Z_U4 = unsigned
+exec_prefix = ${prefix}
+includedir = ${prefix}/include
+libdir = ${exec_prefix}/lib
+mandir = ${prefix}/share/man
+prefix = /usr/local
+sharedlibdir = ${libdir}
+uname = Linux
+--------------------
+
+
+--------------------
+./configure
+Fri Sep 17 18:15:13 UTC 2021
+
+=== ztest23495.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+gcc -c -O3 ztest23495.c
+... using gcc
+
+Checking for shared library support...
+=== ztest23495.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+gcc -w -c -O3 -fPIC ztest23495.c
+gcc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map -O3 -fPIC -o ztest23495.so ztest23495.o
+Building shared library libz.so.1.2.7 with gcc.
+
+
+=== ztest23495.c ===
+#include <sys/types.h>
+off64_t dummy = 0;
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest23495.c
+Checking for off64_t... Yes.
+Checking for fseeko... Yes.
+
+=== ztest23495.c ===
+#include <string.h>
+#include <errno.h>
+int main() { return strlen(strerror(errno)); }
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -o ztest23495 ztest23495.c
+Checking for strerror... Yes.
+
+=== ztest23495.c ===
+#include <unistd.h>
+int main() { return 0; }
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest23495.c
+Checking for unistd.h... Yes.
+
+=== ztest23495.c ===
+#include <stdarg.h>
+int main() { return 0; }
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest23495.c
+Checking for stdarg.h... Yes.
+
+=== ztest23495.c ===
+#include <stdio.h>
+#include <stdarg.h>
+#include "zconf.h"
+int main()
+{
+#ifndef STDC
+  choke me
+#endif
+  return 0;
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest23495.c
+Checking whether to use vs[n]printf() or s[n]printf()... using vs[n]printf().
+
+=== ztest23495.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return 0;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -o ztest23495 ztest23495.c
+Checking for vsnprintf() in stdio.h... Yes.
+
+=== ztest23495.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  int n;
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  n = vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return n;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest23495.c
+Checking for return value of vsnprintf()... Yes.
+
+=== ztest23495.c ===
+#define ZLIB_INTERNAL __attribute__((visibility ("hidden")))
+int ZLIB_INTERNAL foo;
+int main()
+{
+  return 0;
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest23495.c
+Checking for attribute(visibility) support... Yes.
+
+=== ztest23495.c ===
+#include <stdio.h>
+#define is32(n,t) for(n=1,k=0;n;n<<=1,k++);if(k==32){puts(t);return 0;}
+int main() {
+    int k;
+    unsigned i;
+    unsigned long l;
+    unsigned short s;
+    is32(i, "unsigned")
+    is32(l, "unsigned long")
+    is32(s, "unsigned short")
+    return 1;
+}
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN ztest23495.c -o ztest23495
+Looking for a four-byte integer type... Found.
+
+ALL = static shared all64
+AR = ar
+ARFLAGS = rc
+CC = gcc
+CFLAGS = -O3 -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN
+CPP = /usr/bin/cpp
+EXE =
+LDCONFIG = ldconfig
+LDFLAGS =
+LDSHARED = gcc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map
+LDSHAREDLIBC = -lc
+OBJC = $(OBJZ) $(OBJG)
+PIC_OBJC = $(PIC_OBJZ) $(PIC_OBJG)
+RANLIB = ranlib
+SFLAGS = -O3 -fPIC -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN
+SHAREDLIB = libz.so
+SHAREDLIBM = libz.so.1
+SHAREDLIBV = libz.so.1.2.7
+STATICLIB = libz.a
+TEST = all teststatic testshared test64
+VER = 1.2.7
+Z_U4 = unsigned
+exec_prefix = ${prefix}
+includedir = ${prefix}/include
+libdir = ${exec_prefix}/lib
+mandir = ${prefix}/share/man
+prefix = /usr/local
+sharedlibdir = ${libdir}
+uname = Linux
+--------------------
+
+
+--------------------
+./configure
+Fri Sep 17 18:18:52 UTC 2021
+
+=== ztest857.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+gcc -c -O3 ztest857.c
+... using gcc
+
+Checking for shared library support...
+=== ztest857.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+gcc -w -c -O3 -fPIC ztest857.c
+gcc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map -O3 -fPIC -o ztest857.so ztest857.o
+Building shared library libz.so.1.2.7 with gcc.
+
+
+=== ztest857.c ===
+#include <sys/types.h>
+off64_t dummy = 0;
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest857.c
+Checking for off64_t... Yes.
+Checking for fseeko... Yes.
+
+=== ztest857.c ===
+#include <string.h>
+#include <errno.h>
+int main() { return strlen(strerror(errno)); }
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -o ztest857 ztest857.c
+Checking for strerror... Yes.
+
+=== ztest857.c ===
+#include <unistd.h>
+int main() { return 0; }
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest857.c
+Checking for unistd.h... Yes.
+
+=== ztest857.c ===
+#include <stdarg.h>
+int main() { return 0; }
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest857.c
+Checking for stdarg.h... Yes.
+
+=== ztest857.c ===
+#include <stdio.h>
+#include <stdarg.h>
+#include "zconf.h"
+int main()
+{
+#ifndef STDC
+  choke me
+#endif
+  return 0;
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest857.c
+Checking whether to use vs[n]printf() or s[n]printf()... using vs[n]printf().
+
+=== ztest857.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return 0;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -o ztest857 ztest857.c
+Checking for vsnprintf() in stdio.h... Yes.
+
+=== ztest857.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  int n;
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  n = vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return n;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest857.c
+Checking for return value of vsnprintf()... Yes.
+
+=== ztest857.c ===
+#define ZLIB_INTERNAL __attribute__((visibility ("hidden")))
+int ZLIB_INTERNAL foo;
+int main()
+{
+  return 0;
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest857.c
+Checking for attribute(visibility) support... Yes.
+
+=== ztest857.c ===
+#include <stdio.h>
+#define is32(n,t) for(n=1,k=0;n;n<<=1,k++);if(k==32){puts(t);return 0;}
+int main() {
+    int k;
+    unsigned i;
+    unsigned long l;
+    unsigned short s;
+    is32(i, "unsigned")
+    is32(l, "unsigned long")
+    is32(s, "unsigned short")
+    return 1;
+}
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN ztest857.c -o ztest857
+Looking for a four-byte integer type... Found.
+
+ALL = static shared all64
+AR = ar
+ARFLAGS = rc
+CC = gcc
+CFLAGS = -O3 -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN
+CPP = /usr/bin/cpp
+EXE =
+LDCONFIG = ldconfig
+LDFLAGS =
+LDSHARED = gcc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map
+LDSHAREDLIBC = -lc
+OBJC = $(OBJZ) $(OBJG)
+PIC_OBJC = $(PIC_OBJZ) $(PIC_OBJG)
+RANLIB = ranlib
+SFLAGS = -O3 -fPIC -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN
+SHAREDLIB = libz.so
+SHAREDLIBM = libz.so.1
+SHAREDLIBV = libz.so.1.2.7
+STATICLIB = libz.a
+TEST = all teststatic testshared test64
+VER = 1.2.7
+Z_U4 = unsigned
+exec_prefix = ${prefix}
+includedir = ${prefix}/include
+libdir = ${exec_prefix}/lib
+mandir = ${prefix}/share/man
+prefix = /usr/local
+sharedlibdir = ${libdir}
+uname = Linux
+--------------------
+
+
+--------------------
+./configure
+Fri Sep 17 18:22:07 UTC 2021
+
+=== ztest20047.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+gcc -c -O3 ztest20047.c
+... using gcc
+
+Checking for shared library support...
+=== ztest20047.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+gcc -w -c -O3 -fPIC ztest20047.c
+gcc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map -O3 -fPIC -o ztest20047.so ztest20047.o
+Building shared library libz.so.1.2.7 with gcc.
+
+
+=== ztest20047.c ===
+#include <sys/types.h>
+off64_t dummy = 0;
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest20047.c
+Checking for off64_t... Yes.
+Checking for fseeko... Yes.
+
+=== ztest20047.c ===
+#include <string.h>
+#include <errno.h>
+int main() { return strlen(strerror(errno)); }
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -o ztest20047 ztest20047.c
+Checking for strerror... Yes.
+
+=== ztest20047.c ===
+#include <unistd.h>
+int main() { return 0; }
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest20047.c
+Checking for unistd.h... Yes.
+
+=== ztest20047.c ===
+#include <stdarg.h>
+int main() { return 0; }
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest20047.c
+Checking for stdarg.h... Yes.
+
+=== ztest20047.c ===
+#include <stdio.h>
+#include <stdarg.h>
+#include "zconf.h"
+int main()
+{
+#ifndef STDC
+  choke me
+#endif
+  return 0;
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest20047.c
+Checking whether to use vs[n]printf() or s[n]printf()... using vs[n]printf().
+
+=== ztest20047.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return 0;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -o ztest20047 ztest20047.c
+Checking for vsnprintf() in stdio.h... Yes.
+
+=== ztest20047.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  int n;
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  n = vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return n;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest20047.c
+Checking for return value of vsnprintf()... Yes.
+
+=== ztest20047.c ===
+#define ZLIB_INTERNAL __attribute__((visibility ("hidden")))
+int ZLIB_INTERNAL foo;
+int main()
+{
+  return 0;
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest20047.c
+Checking for attribute(visibility) support... Yes.
+
+=== ztest20047.c ===
+#include <stdio.h>
+#define is32(n,t) for(n=1,k=0;n;n<<=1,k++);if(k==32){puts(t);return 0;}
+int main() {
+    int k;
+    unsigned i;
+    unsigned long l;
+    unsigned short s;
+    is32(i, "unsigned")
+    is32(l, "unsigned long")
+    is32(s, "unsigned short")
+    return 1;
+}
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN ztest20047.c -o ztest20047
+Looking for a four-byte integer type... Found.
+
+ALL = static shared all64
+AR = ar
+ARFLAGS = rc
+CC = gcc
+CFLAGS = -O3 -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN
+CPP = /usr/bin/cpp
+EXE =
+LDCONFIG = ldconfig
+LDFLAGS =
+LDSHARED = gcc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map
+LDSHAREDLIBC = -lc
+OBJC = $(OBJZ) $(OBJG)
+PIC_OBJC = $(PIC_OBJZ) $(PIC_OBJG)
+RANLIB = ranlib
+SFLAGS = -O3 -fPIC -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN
+SHAREDLIB = libz.so
+SHAREDLIBM = libz.so.1
+SHAREDLIBV = libz.so.1.2.7
+STATICLIB = libz.a
+TEST = all teststatic testshared test64
+VER = 1.2.7
+Z_U4 = unsigned
+exec_prefix = ${prefix}
+includedir = ${prefix}/include
+libdir = ${exec_prefix}/lib
+mandir = ${prefix}/share/man
+prefix = /usr/local
+sharedlibdir = ${libdir}
+uname = Linux
+--------------------
+
+
+--------------------
+./configure
+Fri Sep 17 18:24:44 UTC 2021
+
+=== ztest1053.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+gcc -c -O3 ztest1053.c
+... using gcc
+
+Checking for shared library support...
+=== ztest1053.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+gcc -w -c -O3 -fPIC ztest1053.c
+gcc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map -O3 -fPIC -o ztest1053.so ztest1053.o
+Building shared library libz.so.1.2.7 with gcc.
+
+
+=== ztest1053.c ===
+#include <sys/types.h>
+off64_t dummy = 0;
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest1053.c
+Checking for off64_t... Yes.
+Checking for fseeko... Yes.
+
+=== ztest1053.c ===
+#include <string.h>
+#include <errno.h>
+int main() { return strlen(strerror(errno)); }
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -o ztest1053 ztest1053.c
+Checking for strerror... Yes.
+
+=== ztest1053.c ===
+#include <unistd.h>
+int main() { return 0; }
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest1053.c
+Checking for unistd.h... Yes.
+
+=== ztest1053.c ===
+#include <stdarg.h>
+int main() { return 0; }
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest1053.c
+Checking for stdarg.h... Yes.
+
+=== ztest1053.c ===
+#include <stdio.h>
+#include <stdarg.h>
+#include "zconf.h"
+int main()
+{
+#ifndef STDC
+  choke me
+#endif
+  return 0;
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest1053.c
+Checking whether to use vs[n]printf() or s[n]printf()... using vs[n]printf().
+
+=== ztest1053.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return 0;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -o ztest1053 ztest1053.c
+Checking for vsnprintf() in stdio.h... Yes.
+
+=== ztest1053.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  int n;
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  n = vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return n;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest1053.c
+Checking for return value of vsnprintf()... Yes.
+
+=== ztest1053.c ===
+#define ZLIB_INTERNAL __attribute__((visibility ("hidden")))
+int ZLIB_INTERNAL foo;
+int main()
+{
+  return 0;
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest1053.c
+Checking for attribute(visibility) support... Yes.
+
+=== ztest1053.c ===
+#include <stdio.h>
+#define is32(n,t) for(n=1,k=0;n;n<<=1,k++);if(k==32){puts(t);return 0;}
+int main() {
+    int k;
+    unsigned i;
+    unsigned long l;
+    unsigned short s;
+    is32(i, "unsigned")
+    is32(l, "unsigned long")
+    is32(s, "unsigned short")
+    return 1;
+}
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN ztest1053.c -o ztest1053
+Looking for a four-byte integer type... Found.
+
+ALL = static shared all64
+AR = ar
+ARFLAGS = rc
+CC = gcc
+CFLAGS = -O3 -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN
+CPP = /usr/bin/cpp
+EXE =
+LDCONFIG = ldconfig
+LDFLAGS =
+LDSHARED = gcc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map
+LDSHAREDLIBC = -lc
+OBJC = $(OBJZ) $(OBJG)
+PIC_OBJC = $(PIC_OBJZ) $(PIC_OBJG)
+RANLIB = ranlib
+SFLAGS = -O3 -fPIC -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN
+SHAREDLIB = libz.so
+SHAREDLIBM = libz.so.1
+SHAREDLIBV = libz.so.1.2.7
+STATICLIB = libz.a
+TEST = all teststatic testshared test64
+VER = 1.2.7
+Z_U4 = unsigned
+exec_prefix = ${prefix}
+includedir = ${prefix}/include
+libdir = ${exec_prefix}/lib
+mandir = ${prefix}/share/man
+prefix = /usr/local
+sharedlibdir = ${libdir}
+uname = Linux
+--------------------
+
+
+--------------------
+./configure
+Fri Sep 17 18:25:14 UTC 2021
+
+=== ztest6305.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+gcc -c -O3 ztest6305.c
+... using gcc
+
+Checking for shared library support...
+=== ztest6305.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+gcc -w -c -O3 -fPIC ztest6305.c
+gcc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map -O3 -fPIC -o ztest6305.so ztest6305.o
+Building shared library libz.so.1.2.7 with gcc.
+
+
+=== ztest6305.c ===
+#include <sys/types.h>
+off64_t dummy = 0;
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest6305.c
+Checking for off64_t... Yes.
+Checking for fseeko... Yes.
+
+=== ztest6305.c ===
+#include <string.h>
+#include <errno.h>
+int main() { return strlen(strerror(errno)); }
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -o ztest6305 ztest6305.c
+Checking for strerror... Yes.
+
+=== ztest6305.c ===
+#include <unistd.h>
+int main() { return 0; }
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest6305.c
+Checking for unistd.h... Yes.
+
+=== ztest6305.c ===
+#include <stdarg.h>
+int main() { return 0; }
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest6305.c
+Checking for stdarg.h... Yes.
+
+=== ztest6305.c ===
+#include <stdio.h>
+#include <stdarg.h>
+#include "zconf.h"
+int main()
+{
+#ifndef STDC
+  choke me
+#endif
+  return 0;
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest6305.c
+Checking whether to use vs[n]printf() or s[n]printf()... using vs[n]printf().
+
+=== ztest6305.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return 0;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -o ztest6305 ztest6305.c
+Checking for vsnprintf() in stdio.h... Yes.
+
+=== ztest6305.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  int n;
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  n = vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return n;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest6305.c
+Checking for return value of vsnprintf()... Yes.
+
+=== ztest6305.c ===
+#define ZLIB_INTERNAL __attribute__((visibility ("hidden")))
+int ZLIB_INTERNAL foo;
+int main()
+{
+  return 0;
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest6305.c
+Checking for attribute(visibility) support... Yes.
+
+=== ztest6305.c ===
+#include <stdio.h>
+#define is32(n,t) for(n=1,k=0;n;n<<=1,k++);if(k==32){puts(t);return 0;}
+int main() {
+    int k;
+    unsigned i;
+    unsigned long l;
+    unsigned short s;
+    is32(i, "unsigned")
+    is32(l, "unsigned long")
+    is32(s, "unsigned short")
+    return 1;
+}
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN ztest6305.c -o ztest6305
+Looking for a four-byte integer type... Found.
+
+ALL = static shared all64
+AR = ar
+ARFLAGS = rc
+CC = gcc
+CFLAGS = -O3 -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN
+CPP = /usr/bin/cpp
+EXE =
+LDCONFIG = ldconfig
+LDFLAGS =
+LDSHARED = gcc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map
+LDSHAREDLIBC = -lc
+OBJC = $(OBJZ) $(OBJG)
+PIC_OBJC = $(PIC_OBJZ) $(PIC_OBJG)
+RANLIB = ranlib
+SFLAGS = -O3 -fPIC -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN
+SHAREDLIB = libz.so
+SHAREDLIBM = libz.so.1
+SHAREDLIBV = libz.so.1.2.7
+STATICLIB = libz.a
+TEST = all teststatic testshared test64
+VER = 1.2.7
+Z_U4 = unsigned
+exec_prefix = ${prefix}
+includedir = ${prefix}/include
+libdir = ${exec_prefix}/lib
+mandir = ${prefix}/share/man
+prefix = /usr/local
+sharedlibdir = ${libdir}
+uname = Linux
+--------------------
+
+
+--------------------
+./configure
+Fri Sep 17 18:25:32 UTC 2021
+
+=== ztest11567.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+gcc -c -O3 ztest11567.c
+... using gcc
+
+Checking for shared library support...
+=== ztest11567.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+gcc -w -c -O3 -fPIC ztest11567.c
+gcc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map -O3 -fPIC -o ztest11567.so ztest11567.o
+Building shared library libz.so.1.2.7 with gcc.
+
+
+=== ztest11567.c ===
+#include <sys/types.h>
+off64_t dummy = 0;
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest11567.c
+Checking for off64_t... Yes.
+Checking for fseeko... Yes.
+
+=== ztest11567.c ===
+#include <string.h>
+#include <errno.h>
+int main() { return strlen(strerror(errno)); }
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -o ztest11567 ztest11567.c
+Checking for strerror... Yes.
+
+=== ztest11567.c ===
+#include <unistd.h>
+int main() { return 0; }
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest11567.c
+Checking for unistd.h... Yes.
+
+=== ztest11567.c ===
+#include <stdarg.h>
+int main() { return 0; }
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest11567.c
+Checking for stdarg.h... Yes.
+
+=== ztest11567.c ===
+#include <stdio.h>
+#include <stdarg.h>
+#include "zconf.h"
+int main()
+{
+#ifndef STDC
+  choke me
+#endif
+  return 0;
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest11567.c
+Checking whether to use vs[n]printf() or s[n]printf()... using vs[n]printf().
+
+=== ztest11567.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return 0;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -o ztest11567 ztest11567.c
+Checking for vsnprintf() in stdio.h... Yes.
+
+=== ztest11567.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  int n;
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  n = vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return n;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest11567.c
+Checking for return value of vsnprintf()... Yes.
+
+=== ztest11567.c ===
+#define ZLIB_INTERNAL __attribute__((visibility ("hidden")))
+int ZLIB_INTERNAL foo;
+int main()
+{
+  return 0;
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest11567.c
+Checking for attribute(visibility) support... Yes.
+
+=== ztest11567.c ===
+#include <stdio.h>
+#define is32(n,t) for(n=1,k=0;n;n<<=1,k++);if(k==32){puts(t);return 0;}
+int main() {
+    int k;
+    unsigned i;
+    unsigned long l;
+    unsigned short s;
+    is32(i, "unsigned")
+    is32(l, "unsigned long")
+    is32(s, "unsigned short")
+    return 1;
+}
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN ztest11567.c -o ztest11567
+Looking for a four-byte integer type... Found.
+
+ALL = static shared all64
+AR = ar
+ARFLAGS = rc
+CC = gcc
+CFLAGS = -O3 -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN
+CPP = /usr/bin/cpp
+EXE =
+LDCONFIG = ldconfig
+LDFLAGS =
+LDSHARED = gcc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map
+LDSHAREDLIBC = -lc
+OBJC = $(OBJZ) $(OBJG)
+PIC_OBJC = $(PIC_OBJZ) $(PIC_OBJG)
+RANLIB = ranlib
+SFLAGS = -O3 -fPIC -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN
+SHAREDLIB = libz.so
+SHAREDLIBM = libz.so.1
+SHAREDLIBV = libz.so.1.2.7
+STATICLIB = libz.a
+TEST = all teststatic testshared test64
+VER = 1.2.7
+Z_U4 = unsigned
+exec_prefix = ${prefix}
+includedir = ${prefix}/include
+libdir = ${exec_prefix}/lib
+mandir = ${prefix}/share/man
+prefix = /usr/local
+sharedlibdir = ${libdir}
+uname = Linux
+--------------------
+
+
+--------------------
+./configure
+Fri Sep 17 18:27:28 UTC 2021
+
+=== ztest29527.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+gcc -c -O3 ztest29527.c
+... using gcc
+
+Checking for shared library support...
+=== ztest29527.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+gcc -w -c -O3 -fPIC ztest29527.c
+gcc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map -O3 -fPIC -o ztest29527.so ztest29527.o
+Building shared library libz.so.1.2.7 with gcc.
+
+
+=== ztest29527.c ===
+#include <sys/types.h>
+off64_t dummy = 0;
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest29527.c
+Checking for off64_t... Yes.
+Checking for fseeko... Yes.
+
+=== ztest29527.c ===
+#include <string.h>
+#include <errno.h>
+int main() { return strlen(strerror(errno)); }
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -o ztest29527 ztest29527.c
+Checking for strerror... Yes.
+
+=== ztest29527.c ===
+#include <unistd.h>
+int main() { return 0; }
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest29527.c
+Checking for unistd.h... Yes.
+
+=== ztest29527.c ===
+#include <stdarg.h>
+int main() { return 0; }
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest29527.c
+Checking for stdarg.h... Yes.
+
+=== ztest29527.c ===
+#include <stdio.h>
+#include <stdarg.h>
+#include "zconf.h"
+int main()
+{
+#ifndef STDC
+  choke me
+#endif
+  return 0;
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest29527.c
+Checking whether to use vs[n]printf() or s[n]printf()... using vs[n]printf().
+
+=== ztest29527.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return 0;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -o ztest29527 ztest29527.c
+Checking for vsnprintf() in stdio.h... Yes.
+
+=== ztest29527.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  int n;
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  n = vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return n;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest29527.c
+Checking for return value of vsnprintf()... Yes.
+
+=== ztest29527.c ===
+#define ZLIB_INTERNAL __attribute__((visibility ("hidden")))
+int ZLIB_INTERNAL foo;
+int main()
+{
+  return 0;
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest29527.c
+Checking for attribute(visibility) support... Yes.
+
+=== ztest29527.c ===
+#include <stdio.h>
+#define is32(n,t) for(n=1,k=0;n;n<<=1,k++);if(k==32){puts(t);return 0;}
+int main() {
+    int k;
+    unsigned i;
+    unsigned long l;
+    unsigned short s;
+    is32(i, "unsigned")
+    is32(l, "unsigned long")
+    is32(s, "unsigned short")
+    return 1;
+}
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN ztest29527.c -o ztest29527
+Looking for a four-byte integer type... Found.
+
+ALL = static shared all64
+AR = ar
+ARFLAGS = rc
+CC = gcc
+CFLAGS = -O3 -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN
+CPP = /usr/bin/cpp
+EXE =
+LDCONFIG = ldconfig
+LDFLAGS =
+LDSHARED = gcc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map
+LDSHAREDLIBC = -lc
+OBJC = $(OBJZ) $(OBJG)
+PIC_OBJC = $(PIC_OBJZ) $(PIC_OBJG)
+RANLIB = ranlib
+SFLAGS = -O3 -fPIC -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN
+SHAREDLIB = libz.so
+SHAREDLIBM = libz.so.1
+SHAREDLIBV = libz.so.1.2.7
+STATICLIB = libz.a
+TEST = all teststatic testshared test64
+VER = 1.2.7
+Z_U4 = unsigned
+exec_prefix = ${prefix}
+includedir = ${prefix}/include
+libdir = ${exec_prefix}/lib
+mandir = ${prefix}/share/man
+prefix = /usr/local
+sharedlibdir = ${libdir}
+uname = Linux
+--------------------
+
+
+--------------------
+./configure
+Fri Sep 17 18:28:23 UTC 2021
+
+=== ztest38534.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+gcc -c -O3 ztest38534.c
+... using gcc
+
+Checking for shared library support...
+=== ztest38534.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+gcc -w -c -O3 -fPIC ztest38534.c
+gcc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map -O3 -fPIC -o ztest38534.so ztest38534.o
+Building shared library libz.so.1.2.7 with gcc.
+
+
+=== ztest38534.c ===
+#include <sys/types.h>
+off64_t dummy = 0;
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest38534.c
+Checking for off64_t... Yes.
+Checking for fseeko... Yes.
+
+=== ztest38534.c ===
+#include <string.h>
+#include <errno.h>
+int main() { return strlen(strerror(errno)); }
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -o ztest38534 ztest38534.c
+Checking for strerror... Yes.
+
+=== ztest38534.c ===
+#include <unistd.h>
+int main() { return 0; }
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest38534.c
+Checking for unistd.h... Yes.
+
+=== ztest38534.c ===
+#include <stdarg.h>
+int main() { return 0; }
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest38534.c
+Checking for stdarg.h... Yes.
+
+=== ztest38534.c ===
+#include <stdio.h>
+#include <stdarg.h>
+#include "zconf.h"
+int main()
+{
+#ifndef STDC
+  choke me
+#endif
+  return 0;
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest38534.c
+Checking whether to use vs[n]printf() or s[n]printf()... using vs[n]printf().
+
+=== ztest38534.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return 0;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -o ztest38534 ztest38534.c
+Checking for vsnprintf() in stdio.h... Yes.
+
+=== ztest38534.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  int n;
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  n = vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return n;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest38534.c
+Checking for return value of vsnprintf()... Yes.
+
+=== ztest38534.c ===
+#define ZLIB_INTERNAL __attribute__((visibility ("hidden")))
+int ZLIB_INTERNAL foo;
+int main()
+{
+  return 0;
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest38534.c
+Checking for attribute(visibility) support... Yes.
+
+=== ztest38534.c ===
+#include <stdio.h>
+#define is32(n,t) for(n=1,k=0;n;n<<=1,k++);if(k==32){puts(t);return 0;}
+int main() {
+    int k;
+    unsigned i;
+    unsigned long l;
+    unsigned short s;
+    is32(i, "unsigned")
+    is32(l, "unsigned long")
+    is32(s, "unsigned short")
+    return 1;
+}
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN ztest38534.c -o ztest38534
+Looking for a four-byte integer type... Found.
+
+ALL = static shared all64
+AR = ar
+ARFLAGS = rc
+CC = gcc
+CFLAGS = -O3 -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN
+CPP = /usr/bin/cpp
+EXE =
+LDCONFIG = ldconfig
+LDFLAGS =
+LDSHARED = gcc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map
+LDSHAREDLIBC = -lc
+OBJC = $(OBJZ) $(OBJG)
+PIC_OBJC = $(PIC_OBJZ) $(PIC_OBJG)
+RANLIB = ranlib
+SFLAGS = -O3 -fPIC -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN
+SHAREDLIB = libz.so
+SHAREDLIBM = libz.so.1
+SHAREDLIBV = libz.so.1.2.7
+STATICLIB = libz.a
+TEST = all teststatic testshared test64
+VER = 1.2.7
+Z_U4 = unsigned
+exec_prefix = ${prefix}
+includedir = ${prefix}/include
+libdir = ${exec_prefix}/lib
+mandir = ${prefix}/share/man
+prefix = /usr/local
+sharedlibdir = ${libdir}
+uname = Linux
+--------------------
+
+
+--------------------
+./configure
+Fri Sep 17 18:28:51 UTC 2021
+
+=== ztest947.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+gcc -c -O3 ztest947.c
+... using gcc
+
+Checking for shared library support...
+=== ztest947.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+gcc -w -c -O3 -fPIC ztest947.c
+gcc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map -O3 -fPIC -o ztest947.so ztest947.o
+Building shared library libz.so.1.2.7 with gcc.
+
+
+=== ztest947.c ===
+#include <sys/types.h>
+off64_t dummy = 0;
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest947.c
+Checking for off64_t... Yes.
+Checking for fseeko... Yes.
+
+=== ztest947.c ===
+#include <string.h>
+#include <errno.h>
+int main() { return strlen(strerror(errno)); }
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -o ztest947 ztest947.c
+Checking for strerror... Yes.
+
+=== ztest947.c ===
+#include <unistd.h>
+int main() { return 0; }
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest947.c
+Checking for unistd.h... Yes.
+
+=== ztest947.c ===
+#include <stdarg.h>
+int main() { return 0; }
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest947.c
+Checking for stdarg.h... Yes.
+
+=== ztest947.c ===
+#include <stdio.h>
+#include <stdarg.h>
+#include "zconf.h"
+int main()
+{
+#ifndef STDC
+  choke me
+#endif
+  return 0;
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest947.c
+Checking whether to use vs[n]printf() or s[n]printf()... using vs[n]printf().
+
+=== ztest947.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return 0;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -o ztest947 ztest947.c
+Checking for vsnprintf() in stdio.h... Yes.
+
+=== ztest947.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  int n;
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  n = vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return n;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest947.c
+Checking for return value of vsnprintf()... Yes.
+
+=== ztest947.c ===
+#define ZLIB_INTERNAL __attribute__((visibility ("hidden")))
+int ZLIB_INTERNAL foo;
+int main()
+{
+  return 0;
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest947.c
+Checking for attribute(visibility) support... Yes.
+
+=== ztest947.c ===
+#include <stdio.h>
+#define is32(n,t) for(n=1,k=0;n;n<<=1,k++);if(k==32){puts(t);return 0;}
+int main() {
+    int k;
+    unsigned i;
+    unsigned long l;
+    unsigned short s;
+    is32(i, "unsigned")
+    is32(l, "unsigned long")
+    is32(s, "unsigned short")
+    return 1;
+}
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN ztest947.c -o ztest947
+Looking for a four-byte integer type... Found.
+
+ALL = static shared all64
+AR = ar
+ARFLAGS = rc
+CC = gcc
+CFLAGS = -O3 -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN
+CPP = /usr/bin/cpp
+EXE =
+LDCONFIG = ldconfig
+LDFLAGS =
+LDSHARED = gcc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map
+LDSHAREDLIBC = -lc
+OBJC = $(OBJZ) $(OBJG)
+PIC_OBJC = $(PIC_OBJZ) $(PIC_OBJG)
+RANLIB = ranlib
+SFLAGS = -O3 -fPIC -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN
+SHAREDLIB = libz.so
+SHAREDLIBM = libz.so.1
+SHAREDLIBV = libz.so.1.2.7
+STATICLIB = libz.a
+TEST = all teststatic testshared test64
+VER = 1.2.7
+Z_U4 = unsigned
+exec_prefix = ${prefix}
+includedir = ${prefix}/include
+libdir = ${exec_prefix}/lib
+mandir = ${prefix}/share/man
+prefix = /usr/local
+sharedlibdir = ${libdir}
+uname = Linux
+--------------------
+
+
+--------------------
+./configure
+Fri Sep 17 18:31:10 UTC 2021
+
+=== ztest19948.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+gcc -c -O3 ztest19948.c
+... using gcc
+
+Checking for shared library support...
+=== ztest19948.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+gcc -w -c -O3 -fPIC ztest19948.c
+gcc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map -O3 -fPIC -o ztest19948.so ztest19948.o
+Building shared library libz.so.1.2.7 with gcc.
+
+
+=== ztest19948.c ===
+#include <sys/types.h>
+off64_t dummy = 0;
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest19948.c
+Checking for off64_t... Yes.
+Checking for fseeko... Yes.
+
+=== ztest19948.c ===
+#include <string.h>
+#include <errno.h>
+int main() { return strlen(strerror(errno)); }
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -o ztest19948 ztest19948.c
+Checking for strerror... Yes.
+
+=== ztest19948.c ===
+#include <unistd.h>
+int main() { return 0; }
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest19948.c
+Checking for unistd.h... Yes.
+
+=== ztest19948.c ===
+#include <stdarg.h>
+int main() { return 0; }
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest19948.c
+Checking for stdarg.h... Yes.
+
+=== ztest19948.c ===
+#include <stdio.h>
+#include <stdarg.h>
+#include "zconf.h"
+int main()
+{
+#ifndef STDC
+  choke me
+#endif
+  return 0;
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest19948.c
+Checking whether to use vs[n]printf() or s[n]printf()... using vs[n]printf().
+
+=== ztest19948.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return 0;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -o ztest19948 ztest19948.c
+Checking for vsnprintf() in stdio.h... Yes.
+
+=== ztest19948.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  int n;
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  n = vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return n;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest19948.c
+Checking for return value of vsnprintf()... Yes.
+
+=== ztest19948.c ===
+#define ZLIB_INTERNAL __attribute__((visibility ("hidden")))
+int ZLIB_INTERNAL foo;
+int main()
+{
+  return 0;
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest19948.c
+Checking for attribute(visibility) support... Yes.
+
+=== ztest19948.c ===
+#include <stdio.h>
+#define is32(n,t) for(n=1,k=0;n;n<<=1,k++);if(k==32){puts(t);return 0;}
+int main() {
+    int k;
+    unsigned i;
+    unsigned long l;
+    unsigned short s;
+    is32(i, "unsigned")
+    is32(l, "unsigned long")
+    is32(s, "unsigned short")
+    return 1;
+}
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN ztest19948.c -o ztest19948
+Looking for a four-byte integer type... Found.
+
+ALL = static shared all64
+AR = ar
+ARFLAGS = rc
+CC = gcc
+CFLAGS = -O3 -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN
+CPP = /usr/bin/cpp
+EXE =
+LDCONFIG = ldconfig
+LDFLAGS =
+LDSHARED = gcc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map
+LDSHAREDLIBC = -lc
+OBJC = $(OBJZ) $(OBJG)
+PIC_OBJC = $(PIC_OBJZ) $(PIC_OBJG)
+RANLIB = ranlib
+SFLAGS = -O3 -fPIC -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN
+SHAREDLIB = libz.so
+SHAREDLIBM = libz.so.1
+SHAREDLIBV = libz.so.1.2.7
+STATICLIB = libz.a
+TEST = all teststatic testshared test64
+VER = 1.2.7
+Z_U4 = unsigned
+exec_prefix = ${prefix}
+includedir = ${prefix}/include
+libdir = ${exec_prefix}/lib
+mandir = ${prefix}/share/man
+prefix = /usr/local
+sharedlibdir = ${libdir}
+uname = Linux
+--------------------
+
+
+--------------------
+./configure
+Fri Sep 17 18:34:38 UTC 2021
+
+=== ztest38421.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+gcc -c -O3 ztest38421.c
+... using gcc
+
+Checking for shared library support...
+=== ztest38421.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+gcc -w -c -O3 -fPIC ztest38421.c
+gcc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map -O3 -fPIC -o ztest38421.so ztest38421.o
+Building shared library libz.so.1.2.7 with gcc.
+
+
+=== ztest38421.c ===
+#include <sys/types.h>
+off64_t dummy = 0;
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest38421.c
+Checking for off64_t... Yes.
+Checking for fseeko... Yes.
+
+=== ztest38421.c ===
+#include <string.h>
+#include <errno.h>
+int main() { return strlen(strerror(errno)); }
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -o ztest38421 ztest38421.c
+Checking for strerror... Yes.
+
+=== ztest38421.c ===
+#include <unistd.h>
+int main() { return 0; }
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest38421.c
+Checking for unistd.h... Yes.
+
+=== ztest38421.c ===
+#include <stdarg.h>
+int main() { return 0; }
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest38421.c
+Checking for stdarg.h... Yes.
+
+=== ztest38421.c ===
+#include <stdio.h>
+#include <stdarg.h>
+#include "zconf.h"
+int main()
+{
+#ifndef STDC
+  choke me
+#endif
+  return 0;
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest38421.c
+Checking whether to use vs[n]printf() or s[n]printf()... using vs[n]printf().
+
+=== ztest38421.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return 0;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -o ztest38421 ztest38421.c
+Checking for vsnprintf() in stdio.h... Yes.
+
+=== ztest38421.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  int n;
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  n = vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return n;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest38421.c
+Checking for return value of vsnprintf()... Yes.
+
+=== ztest38421.c ===
+#define ZLIB_INTERNAL __attribute__((visibility ("hidden")))
+int ZLIB_INTERNAL foo;
+int main()
+{
+  return 0;
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest38421.c
+Checking for attribute(visibility) support... Yes.
+
+=== ztest38421.c ===
+#include <stdio.h>
+#define is32(n,t) for(n=1,k=0;n;n<<=1,k++);if(k==32){puts(t);return 0;}
+int main() {
+    int k;
+    unsigned i;
+    unsigned long l;
+    unsigned short s;
+    is32(i, "unsigned")
+    is32(l, "unsigned long")
+    is32(s, "unsigned short")
+    return 1;
+}
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN ztest38421.c -o ztest38421
+Looking for a four-byte integer type... Found.
+
+ALL = static shared all64
+AR = ar
+ARFLAGS = rc
+CC = gcc
+CFLAGS = -O3 -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN
+CPP = /usr/bin/cpp
+EXE =
+LDCONFIG = ldconfig
+LDFLAGS =
+LDSHARED = gcc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map
+LDSHAREDLIBC = -lc
+OBJC = $(OBJZ) $(OBJG)
+PIC_OBJC = $(PIC_OBJZ) $(PIC_OBJG)
+RANLIB = ranlib
+SFLAGS = -O3 -fPIC -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN
+SHAREDLIB = libz.so
+SHAREDLIBM = libz.so.1
+SHAREDLIBV = libz.so.1.2.7
+STATICLIB = libz.a
+TEST = all teststatic testshared test64
+VER = 1.2.7
+Z_U4 = unsigned
+exec_prefix = ${prefix}
+includedir = ${prefix}/include
+libdir = ${exec_prefix}/lib
+mandir = ${prefix}/share/man
+prefix = /usr/local
+sharedlibdir = ${libdir}
+uname = Linux
+--------------------
+
+
+--------------------
+./configure
+Fri Sep 17 18:38:36 UTC 2021
+
+=== ztest38832.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+gcc -c -O3 ztest38832.c
+... using gcc
+
+Checking for shared library support...
+=== ztest38832.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+gcc -w -c -O3 -fPIC ztest38832.c
+gcc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map -O3 -fPIC -o ztest38832.so ztest38832.o
+Building shared library libz.so.1.2.7 with gcc.
+
+
+=== ztest38832.c ===
+#include <sys/types.h>
+off64_t dummy = 0;
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest38832.c
+Checking for off64_t... Yes.
+Checking for fseeko... Yes.
+
+=== ztest38832.c ===
+#include <string.h>
+#include <errno.h>
+int main() { return strlen(strerror(errno)); }
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -o ztest38832 ztest38832.c
+Checking for strerror... Yes.
+
+=== ztest38832.c ===
+#include <unistd.h>
+int main() { return 0; }
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest38832.c
+Checking for unistd.h... Yes.
+
+=== ztest38832.c ===
+#include <stdarg.h>
+int main() { return 0; }
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest38832.c
+Checking for stdarg.h... Yes.
+
+=== ztest38832.c ===
+#include <stdio.h>
+#include <stdarg.h>
+#include "zconf.h"
+int main()
+{
+#ifndef STDC
+  choke me
+#endif
+  return 0;
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest38832.c
+Checking whether to use vs[n]printf() or s[n]printf()... using vs[n]printf().
+
+=== ztest38832.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return 0;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -o ztest38832 ztest38832.c
+Checking for vsnprintf() in stdio.h... Yes.
+
+=== ztest38832.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  int n;
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  n = vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return n;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest38832.c
+Checking for return value of vsnprintf()... Yes.
+
+=== ztest38832.c ===
+#define ZLIB_INTERNAL __attribute__((visibility ("hidden")))
+int ZLIB_INTERNAL foo;
+int main()
+{
+  return 0;
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest38832.c
+Checking for attribute(visibility) support... Yes.
+
+=== ztest38832.c ===
+#include <stdio.h>
+#define is32(n,t) for(n=1,k=0;n;n<<=1,k++);if(k==32){puts(t);return 0;}
+int main() {
+    int k;
+    unsigned i;
+    unsigned long l;
+    unsigned short s;
+    is32(i, "unsigned")
+    is32(l, "unsigned long")
+    is32(s, "unsigned short")
+    return 1;
+}
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN ztest38832.c -o ztest38832
+Looking for a four-byte integer type... Found.
+
+ALL = static shared all64
+AR = ar
+ARFLAGS = rc
+CC = gcc
+CFLAGS = -O3 -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN
+CPP = /usr/bin/cpp
+EXE =
+LDCONFIG = ldconfig
+LDFLAGS =
+LDSHARED = gcc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map
+LDSHAREDLIBC = -lc
+OBJC = $(OBJZ) $(OBJG)
+PIC_OBJC = $(PIC_OBJZ) $(PIC_OBJG)
+RANLIB = ranlib
+SFLAGS = -O3 -fPIC -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN
+SHAREDLIB = libz.so
+SHAREDLIBM = libz.so.1
+SHAREDLIBV = libz.so.1.2.7
+STATICLIB = libz.a
+TEST = all teststatic testshared test64
+VER = 1.2.7
+Z_U4 = unsigned
+exec_prefix = ${prefix}
+includedir = ${prefix}/include
+libdir = ${exec_prefix}/lib
+mandir = ${prefix}/share/man
+prefix = /usr/local
+sharedlibdir = ${libdir}
+uname = Linux
+--------------------
+
+
+--------------------
+./configure
+Fri Sep 17 18:38:52 UTC 2021
+
+=== ztest420.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+gcc -c -O3 ztest420.c
+... using gcc
+
+Checking for shared library support...
+=== ztest420.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+gcc -w -c -O3 -fPIC ztest420.c
+gcc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map -O3 -fPIC -o ztest420.so ztest420.o
+Building shared library libz.so.1.2.7 with gcc.
+
+
+=== ztest420.c ===
+#include <sys/types.h>
+off64_t dummy = 0;
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest420.c
+Checking for off64_t... Yes.
+Checking for fseeko... Yes.
+
+=== ztest420.c ===
+#include <string.h>
+#include <errno.h>
+int main() { return strlen(strerror(errno)); }
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -o ztest420 ztest420.c
+Checking for strerror... Yes.
+
+=== ztest420.c ===
+#include <unistd.h>
+int main() { return 0; }
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest420.c
+Checking for unistd.h... Yes.
+
+=== ztest420.c ===
+#include <stdarg.h>
+int main() { return 0; }
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest420.c
+Checking for stdarg.h... Yes.
+
+=== ztest420.c ===
+#include <stdio.h>
+#include <stdarg.h>
+#include "zconf.h"
+int main()
+{
+#ifndef STDC
+  choke me
+#endif
+  return 0;
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest420.c
+Checking whether to use vs[n]printf() or s[n]printf()... using vs[n]printf().
+
+=== ztest420.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return 0;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -o ztest420 ztest420.c
+Checking for vsnprintf() in stdio.h... Yes.
+
+=== ztest420.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  int n;
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  n = vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return n;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest420.c
+Checking for return value of vsnprintf()... Yes.
+
+=== ztest420.c ===
+#define ZLIB_INTERNAL __attribute__((visibility ("hidden")))
+int ZLIB_INTERNAL foo;
+int main()
+{
+  return 0;
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest420.c
+Checking for attribute(visibility) support... Yes.
+
+=== ztest420.c ===
+#include <stdio.h>
+#define is32(n,t) for(n=1,k=0;n;n<<=1,k++);if(k==32){puts(t);return 0;}
+int main() {
+    int k;
+    unsigned i;
+    unsigned long l;
+    unsigned short s;
+    is32(i, "unsigned")
+    is32(l, "unsigned long")
+    is32(s, "unsigned short")
+    return 1;
+}
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN ztest420.c -o ztest420
+Looking for a four-byte integer type... Found.
+
+ALL = static shared all64
+AR = ar
+ARFLAGS = rc
+CC = gcc
+CFLAGS = -O3 -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN
+CPP = /usr/bin/cpp
+EXE =
+LDCONFIG = ldconfig
+LDFLAGS =
+LDSHARED = gcc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map
+LDSHAREDLIBC = -lc
+OBJC = $(OBJZ) $(OBJG)
+PIC_OBJC = $(PIC_OBJZ) $(PIC_OBJG)
+RANLIB = ranlib
+SFLAGS = -O3 -fPIC -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN
+SHAREDLIB = libz.so
+SHAREDLIBM = libz.so.1
+SHAREDLIBV = libz.so.1.2.7
+STATICLIB = libz.a
+TEST = all teststatic testshared test64
+VER = 1.2.7
+Z_U4 = unsigned
+exec_prefix = ${prefix}
+includedir = ${prefix}/include
+libdir = ${exec_prefix}/lib
+mandir = ${prefix}/share/man
+prefix = /usr/local
+sharedlibdir = ${libdir}
+uname = Linux
+--------------------
+
+
+--------------------
+./configure
+Fri Sep 17 18:43:01 UTC 2021
+
+=== ztest35314.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+gcc -c -O3 ztest35314.c
+... using gcc
+
+Checking for shared library support...
+=== ztest35314.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+gcc -w -c -O3 -fPIC ztest35314.c
+gcc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map -O3 -fPIC -o ztest35314.so ztest35314.o
+Building shared library libz.so.1.2.7 with gcc.
+
+
+=== ztest35314.c ===
+#include <sys/types.h>
+off64_t dummy = 0;
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest35314.c
+Checking for off64_t... Yes.
+Checking for fseeko... Yes.
+
+=== ztest35314.c ===
+#include <string.h>
+#include <errno.h>
+int main() { return strlen(strerror(errno)); }
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -o ztest35314 ztest35314.c
+Checking for strerror... Yes.
+
+=== ztest35314.c ===
+#include <unistd.h>
+int main() { return 0; }
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest35314.c
+Checking for unistd.h... Yes.
+
+=== ztest35314.c ===
+#include <stdarg.h>
+int main() { return 0; }
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest35314.c
+Checking for stdarg.h... Yes.
+
+=== ztest35314.c ===
+#include <stdio.h>
+#include <stdarg.h>
+#include "zconf.h"
+int main()
+{
+#ifndef STDC
+  choke me
+#endif
+  return 0;
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest35314.c
+Checking whether to use vs[n]printf() or s[n]printf()... using vs[n]printf().
+
+=== ztest35314.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return 0;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -o ztest35314 ztest35314.c
+Checking for vsnprintf() in stdio.h... Yes.
+
+=== ztest35314.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  int n;
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  n = vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return n;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest35314.c
+Checking for return value of vsnprintf()... Yes.
+
+=== ztest35314.c ===
+#define ZLIB_INTERNAL __attribute__((visibility ("hidden")))
+int ZLIB_INTERNAL foo;
+int main()
+{
+  return 0;
+}
+===
+gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest35314.c
+Checking for attribute(visibility) support... Yes.
+
+=== ztest35314.c ===
+#include <stdio.h>
+#define is32(n,t) for(n=1,k=0;n;n<<=1,k++);if(k==32){puts(t);return 0;}
+int main() {
+    int k;
+    unsigned i;
+    unsigned long l;
+    unsigned short s;
+    is32(i, "unsigned")
+    is32(l, "unsigned long")
+    is32(s, "unsigned short")
+    return 1;
+}
+===
+gcc -O3 -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN ztest35314.c -o ztest35314
+Looking for a four-byte integer type... Found.
+
+ALL = static shared all64
+AR = ar
+ARFLAGS = rc
+CC = gcc
+CFLAGS = -O3 -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN
+CPP = /usr/bin/cpp
+EXE =
+LDCONFIG = ldconfig
+LDFLAGS =
+LDSHARED = gcc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map
+LDSHAREDLIBC = -lc
+OBJC = $(OBJZ) $(OBJG)
+PIC_OBJC = $(PIC_OBJZ) $(PIC_OBJG)
+RANLIB = ranlib
+SFLAGS = -O3 -fPIC -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN
+SHAREDLIB = libz.so
+SHAREDLIBM = libz.so.1
+SHAREDLIBV = libz.so.1.2.7
+STATICLIB = libz.a
+TEST = all teststatic testshared test64
+VER = 1.2.7
+Z_U4 = unsigned
+exec_prefix = ${prefix}
+includedir = ${prefix}/include
+libdir = ${exec_prefix}/lib
+mandir = ${prefix}/share/man
+prefix = /usr/local
+sharedlibdir = ${libdir}
+uname = Linux
+--------------------
+
+

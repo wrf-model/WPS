@@ -1,0 +1,6 @@
+jas_version.lo: jas_version.c /usr/include/stdc-predef.h \
+ ../../../src/libjasper/include/jasper/jas_version.h \
+ ../../../src/libjasper/include/jasper/jas_config.h
+/usr/include/stdc-predef.h:
+../../../src/libjasper/include/jasper/jas_version.h:
+../../../src/libjasper/include/jasper/jas_config.h:
