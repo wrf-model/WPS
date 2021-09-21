@@ -11,6 +11,9 @@ bad_idea:
 	@echo ' *************** '
 
 all:
+	(if [ "$(BUILD_GRIB2_LIBS)" = "true" ] ; then \
+		( cd extern && SCC=$(SCC) $(MAKE) ) ; \
+	 fi ; )
 	( cd src/ngl ; $(MAKE) DEV_TOP="$(DEV_TOP)" CC="$(SCC)" FC="$(SFC)" RANLIB="$(RANLIB)" all )
 	( cd src ; \
         if [ "$(COMPILING_ON_CYGWIN_NT)" = yes ] ; then \
@@ -38,6 +41,7 @@ all:
 	fi
 
 clean:
+	( cd extern ; $(MAKE) clean )
 	( cd src/ngl ; $(MAKE) DEV_TOP="$(DEV_TOP)" clean )
 	if [ -h $(TARGET) ] ; then \
 		$(RM) $(TARGET) ; \
