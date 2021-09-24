@@ -75,9 +75,8 @@ if($ENV{JASPERLIB} && $ENV{JASPERINC})
    $sw_jasperlib_path = "-L$ENV{JASPERLIB} -ljasper -lpng -lz"; 
    $sw_jasperinc_path = "-I$ENV{JASPERINC}"; 
 }
-else
+elsif ($ENV{BUILD_GRIB2_LIBS} ne "true") # Try and use default install locaitons
 {
-
     $tmp1 = '/usr/local/jasper';
     if (-e $tmp1) {
       $sw_jasperlib_path = '-L/usr/local/jasper/lib -ljasper -L/usr/local/libpng -lpng12 -lpng -L/usr/local/zlib/lib -lz' ;
@@ -97,6 +96,13 @@ else
         printf "\$JASPERLIB or \$JASPERINC not found in environment. Using default values for library paths...\n";
       }
     }
+}
+else # Use the WPS installs if --build-grib2-libs  was specified in configure
+{
+    use Cwd;
+    $sw_jasperlib_path = '-L ' . getcwd . '/extern/lib -ljasper -lpng -lz';
+    $sw_jasperinc_path = '-I ' . getcwd . '/extern/include';
+    printf "--build-grib2-libs set - WPS will build zlib, png and JasperLib for ungrib\n";
 }
 
 $validresponse = 0 ;
@@ -302,6 +308,7 @@ open CONFIGURE_WRF, "> configure.wps" || die "cannot Open for writing... configu
 
         $_ =~ s:CONFIGURE_NETCDFF_LIB:$sw_netcdff_lib:g; 
         $_ =~ s:CONFIGURE_WRF_PATH:$sw_wrf_path:g; 
+        $_ =~ s:CONFIGURE_BUILD_GRIB2_LIBS:$ENV{BUILD_GRIB2_LIBS}:g;
         @preamble = ( @preamble, $_ ) ;
     }
     close ARCH_PREAMBLE;

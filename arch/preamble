@@ -49,6 +49,8 @@ WRF_LIB         =       -L$(WRF_DIR)/external/io_grib1 -lio_grib1 \
 
 #### Architecture specific settings ####
 
+BUILD_GRIB2_LIBS = CONFIGURE_BUILD_GRIB2_LIBS
+
 COMPRESSION_LIBS	=  # intentionally left blank, fill in COMPRESSION_LIBS below
 
 COMPRESSION_INC		=  # intentionally left blank, fill in COMPRESSION_INC below

@@ -10,6 +10,9 @@ for arg in $@; do
   if [ "${arg}" = "--nowrf" ]; then
     nowrf=1
   fi
+  if [ "${arg}" = "--build-grib2-libs" ]; then
+    export BUILD_GRIB2_LIBS=true
+  fi
 done
 
 
