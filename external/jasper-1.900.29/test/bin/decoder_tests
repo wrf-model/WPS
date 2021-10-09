@@ -1,0 +1,164 @@
+/* JasPer Decoder Test Cases */
+
+id=j2kc_c0p0_01 \
+	collection=j2kc \
+	encoded_file=codestreams_profile0/p0_01.j2k \
+	decoded_file=reference_class0_profile0/c0p0_01.pgx \
+	pae=0
+
+id=j2kc_c0p0_02 \
+	collection=j2kc \
+	encoded_file=codestreams_profile0/p0_02.j2k \
+	decoded_file=reference_class0_profile0/c0p0_02.pgx \
+	pae=0
+
+#if 0
+/* MISSING FILES*/
+id=j2kc_c0p0_03 \
+	collection=j2kc \
+	encoded_file=codestreams_profile0/p0_03.j2k \
+	decoded_file=reference_class0_profile0/c0p0_03.pgx \
+	pae=0
+#endif
+
+/* # comp differ */
+id=j2kc_c0p0_04 \
+	collection=j2kc \
+	encoded_file=codestreams_profile0/p0_04.j2k \
+	decoded_file=reference_class0_profile0/c0p0_04.pgx \
+	pae=0
+
+/* 4 comp */
+id=j2kc_c0p0_05 \
+	collection=j2kc \
+	encoded_file=codestreams_profile0/p0_05.j2k \
+	decoded_file=reference_class0_profile0/c0p0_05.pgx \
+	pae=0
+
+/* color */
+id=j2kc_c0p0_06 \
+	collection=j2kc \
+	encoded_file=codestreams_profile0/p0_06.j2k \
+	decoded_file=reference_class0_profile0/c0p0_06.pgx \
+	pae=0
+
+#if 0
+id=j2kc_c0p0_07 \
+	collection=j2kc \
+	encoded_file=codestreams_profile0/p0_07.j2k \
+	decoded_file=reference_class0_profile0/c0p0_07.pgx \
+	pae=0
+#endif
+
+id=j2kc_c0p0_08 \
+	collection=j2kc \
+	encoded_file=codestreams_profile0/p0_08.j2k \
+	decoded_file=reference_class0_profile0/c0p0_08.pgx \
+	pae=0
+
+id=j2kc_c0p0_09 \
+	collection=j2kc \
+	encoded_file=codestreams_profile0/p0_09.j2k \
+	decoded_file=reference_class0_profile0/c0p0_09.pgx \
+	pae=0
+
+#if 0
+id=j2kc_c0p0_10 \
+	collection=j2kc \
+	encoded_file=codestreams_profile0/p0_10.j2k \
+	decoded_file=reference_class0_profile0/c0p0_10.pgx \
+	pae=0
+#endif
+
+id=j2kc_c0p0_11 \
+	collection=j2kc \
+	encoded_file=codestreams_profile0/p0_11.j2k \
+	decoded_file=reference_class0_profile0/c0p0_11.pgx \
+	pae=0
+
+id=j2kc_c0p0_12 \
+	collection=j2kc \
+	encoded_file=codestreams_profile0/p0_12.j2k \
+	decoded_file=reference_class0_profile0/c0p0_12.pgx \
+	pae=0
+
+id=j2kc_c0p0_13 \
+	collection=j2kc \
+	encoded_file=codestreams_profile0/p0_13.j2k \
+	decoded_file=reference_class0_profile0/c0p0_13.pgx \
+	pae=0
+
+id=j2kc_c0p0_14 \
+	collection=j2kc \
+	encoded_file=codestreams_profile0/p0_14.j2k \
+	decoded_file=reference_class0_profile0/c0p0_14.pgx \
+	pae=0
+
+id=j2kc_c0p0_15 \
+	collection=j2kc \
+	encoded_file=codestreams_profile0/p0_15.j2k \
+	decoded_file=reference_class0_profile0/c0p0_15.pgx \
+	pae=0
+
+id=j2kc_c0p0_16 \
+	collection=j2kc \
+	encoded_file=codestreams_profile0/p0_16.j2k \
+	decoded_file=reference_class0_profile0/c0p0_16.pgx \
+	pae=0
+
+/* JP2 files */
+
+id=j2kc_jp2_01 \
+	collection=j2kc \
+	encoded_file=testfiles_jp2/file1.jp2 \
+	decoded_file=reference_jp2/jp2_1.tif \
+	pae=0
+
+id=j2kc_jp2_02 \
+	collection=j2kc \
+	encoded_file=testfiles_jp2/file2.jp2 \
+	decoded_file=reference_jp2/jp2_2.tif \
+	pae=0
+
+id=j2kc_jp2_03 \
+	collection=j2kc \
+	encoded_file=testfiles_jp2/file3.jp2 \
+	decoded_file=reference_jp2/jp2_3.tif \
+	pae=0
+
+id=j2kc_jp2_04 \
+	collection=j2kc \
+	encoded_file=testfiles_jp2/file4.jp2 \
+	decoded_file=reference_jp2/jp2_4.tif \
+	pae=0
+
+id=j2kc_jp2_05 \
+	collection=j2kc \
+	encoded_file=testfiles_jp2/file5.jp2 \
+	decoded_file=reference_jp2/jp2_5.tif \
+	pae=0
+
+id=j2kc_jp2_06 \
+	collection=j2kc \
+	encoded_file=testfiles_jp2/file6.jp2 \
+	decoded_file=reference_jp2/jp2_6.tif \
+	pae=0
+
+id=j2kc_jp2_07 \
+	collection=j2kc \
+	encoded_file=testfiles_jp2/file7.jp2 \
+	decoded_file=reference_jp2/jp2_7.tif \
+	pae=0
+
+id=j2kc_jp2_08 \
+	collection=j2kc \
+	encoded_file=testfiles_jp2/file8.jp2 \
+	decoded_file=reference_jp2/jp2_8.tif \
+	pae=0
+
+id=j2kc_jp2_09 \
+	collection=j2kc \
+	encoded_file=testfiles_jp2/file9.jp2 \
+	decoded_file=reference_jp2/jp2_9.tif \
+	pae=0
+
