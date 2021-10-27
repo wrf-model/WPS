@@ -1,3 +1,28 @@
+================================================================================
+Author: Michael G. Duda - National Center for Atmospheric Research
+Date:   27 October 2021
+
+Fix a compilation error with the GNU 9.2.0 compilers on macOS:
+
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I../../../src/libjasper/include/jasper -I../../../src/libjasper/include -I../../../src/libjasper/include -g -O2 -std=c11 -pedantic -Wall -Wno-unused -pedantic-errors -MT jpg_dummy.lo -MD -MP -MF .deps/jpg_dummy.Tpo -c jpg_dummy.c  -fno-common -DPIC -o .libs/jpg_dummy.o
+jpg_dummy.c:90:14: error: conflicting types for 'jpg_decode'
+   90 | jas_image_t *jpg_decode(jas_stream_t *in, char *optstr)
+      |              ^~~~~~~~~~
+In file included from jpg_dummy.c:70:
+../../../src/libjasper/include/jasper/jas_image.h:518:14: note: previous declaration of 'jpg_decode' was here
+  518 | jas_image_t *jpg_decode(jas_stream_t *in, const char *optstr);
+      |              ^~~~~~~~~~
+jpg_dummy.c:104:5: error: conflicting types for 'jpg_encode'
+  104 | int jpg_encode(jas_image_t *image, jas_stream_t *out, char *optstr)
+      |     ^~~~~~~~~~
+In file included from jpg_dummy.c:70:
+../../../src/libjasper/include/jasper/jas_image.h:519:5: note: previous declaration of 'jpg_encode' was here
+  519 | int jpg_encode(jas_image_t *image, jas_stream_t *out, const char *optstr);
+      |     ^~~~~~~~~~
+make[5]: [jpg_dummy.lo] Error 1 (ignored)
+
+================================================================================
+
 commit d9d95a0504bb0cd2857029ef3c5968762294b614
 Author: Michael Adams <mdadams@ece.uvic.ca>
 Date:   Tue Nov 15 23:23:26 2016 -0800
