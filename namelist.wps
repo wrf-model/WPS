@@ -3,8 +3,7 @@
  max_dom = 2,
  start_date = '2019-09-04_12:00:00','2019-09-04_12:00:00',
  end_date   = '2019-09-06_00:00:00','2019-09-04_12:00:00',
- interval_seconds = 21600
- io_form_geogrid = 2,
+ interval_seconds = 10800
 /
 
 &geogrid
@@ -14,19 +13,6 @@
  j_parent_start    =   1,  25,
  e_we              =  150, 220,
  e_sn              =  130, 214,
- !
- !!!!!!!!!!!!!!!!!!!!!!!!!!!! IMPORTANT NOTE !!!!!!!!!!!!!!!!!!!!!!!!!!!!
- ! The default datasets used to produce the MAXSNOALB and ALBEDO12M
- ! fields have changed in WPS v4.0. These fields are now interpolated
- ! from MODIS-based datasets.
- !
- ! To match the output given by the default namelist.wps in WPS v3.9.1,
- ! the following setting for geog_data_res may be used:
- !
- ! geog_data_res = 'maxsnowalb_ncep+albedo_ncep+default', 'maxsnowalb_ncep+albedo_ncep+default', 
- !
- !!!!!!!!!!!!!!!!!!!!!!!!!!!! IMPORTANT NOTE !!!!!!!!!!!!!!!!!!!!!!!!!!!!
- !
  geog_data_res = 'default','default',
  dx = 15000,
  dy = 15000,
@@ -46,5 +32,4 @@
 
 &metgrid
  fg_name = 'FILE'
- io_form_metgrid = 2, 
 /
