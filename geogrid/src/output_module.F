@@ -1429,21 +1429,21 @@ module output_module
 #ifdef IO_BINARY
       if (io_form_output == BINARY) then
          call ext_int_put_dom_ti_integer(handle, trim(var_name), &
-                                         var_value, &
+                                         (/ var_value /), &
                                          1, istatus)
       end if
 #endif
 #ifdef IO_NETCDF
       if (io_form_output == NETCDF) then
          call ext_ncd_put_dom_ti_integer(handle, trim(var_name), &
-                                         var_value, &
+                                         (/ var_value /), &
                                          1, istatus)
       end if
 #endif
 #ifdef IO_GRIB1
       if (io_form_output == GRIB1) then
          call ext_gr1_put_dom_ti_integer(handle, trim(var_name), &
-                                         var_value, &
+                                         (/ var_value /), &
                                          1, istatus)
       end if
 #endif
@@ -1516,21 +1516,21 @@ module output_module
 #ifdef IO_BINARY
       if (io_form_output == BINARY) then
          call ext_int_put_dom_ti_real(handle, trim(var_name), &
-                                         var_value, &
+                                         (/ var_value /), &
                                          1, istatus)
       end if
 #endif
 #ifdef IO_NETCDF
       if (io_form_output == NETCDF) then
          call ext_ncd_put_dom_ti_real(handle, trim(var_name), &
-                                         var_value, &
+                                         (/ var_value /), &
                                          1, istatus)
       end if
 #endif
 #ifdef IO_GRIB1
       if (io_form_output == GRIB1) then
          call ext_gr1_put_dom_ti_real(handle, trim(var_name), &
-                                         var_value, &
+                                         (/ var_value /), &
                                          1, istatus)
       end if
 #endif
