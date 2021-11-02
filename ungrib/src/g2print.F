@@ -488,10 +488,10 @@ end program g2print
            write (6,*) '     ',map%source
 
           if (debug_level .le. 50) then
-          write(6,*) '---------------------------------------------------------------------------------------'
-          write(6,*) ' rec Prod Cat Param  Lvl    Lvl      Lvl     Prod    Name            Time          Fcst'
-          write(6,*) ' num Disc     num    code   one      two     Templ                                 hour'
-          write(6,*) '---------------------------------------------------------------------------------------'
+          write(6,'(a)') '---------------------------------------------------------------------------------------'
+          write(6,'(a)') ' rec Prod Cat Param  Lvl    Lvl      Lvl     Prod    Name            Time          Fcst'
+          write(6,'(a)') ' num Disc     num    code   one      two     Templ                                 hour'
+          write(6,'(a)') '---------------------------------------------------------------------------------------'
           endif
 
 
