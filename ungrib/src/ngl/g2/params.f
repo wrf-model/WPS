@@ -40,7 +40,7 @@
 !
 !$$$
 
-      integer,parameter :: MAXPARAM=801
+      integer,parameter :: MAXPARAM=816
 
       type gribparam
           integer :: g1tblver
@@ -431,7 +431,7 @@
       data paramlist(370) /gribparam(2,160,0,4,198,'CSUSF')/
       data paramlist(371) /gribparam(2,162,0,5,195,'CSULF')/
       data paramlist(372) /gribparam(2,163,0,5,196,'CSDLF')/
-      data paramlist(373) /gribparam(2,164,0,4,199,'CFNSF')/
+      data paramlist(373) /gribparam(2,164,0,4,199,'CFNSF')/     ! used as Fire Radiative Power in HRRR
       data paramlist(374) /gribparam(2,165,0,5,197,'CFNLF')/
       data paramlist(375) /gribparam(2,166,0,4,200,'VBDSF')/
       data paramlist(376) /gribparam(2,167,0,4,201,'VDDSF')/
@@ -857,7 +857,7 @@
        data paramlist(790) /gribparam(2,238,0,1,42,'SNOWC')/
        data paramlist(791) /gribparam(2,204,0,4,7,'DSWRF')/
 ! Added 04/6/19 for HRRR fields.
-! table version, grib1 value, grib2 desc, grib2 category, grib2num, abbreviation
+! table version, grib1 value, grib2 disc, grib2 category, grib2num, abbreviation
        data paramlist(792) /gribparam(2,255,0,1,31,'HAIL')/
        data paramlist(793) /gribparam(2,255,0,1,82,'CIMIXR')/
        data paramlist(794) /gribparam(2,253,0,2,30,'FRICV')/
@@ -868,6 +868,22 @@
        data paramlist(799) /gribparam(2,155,2,0,10,'GFLUX')/
        data paramlist(800) /gribparam(2,235,1,0,6,'SSRUN')/
        data paramlist(801) /gribparam(2,234,1,0,5,'BGRUN')/
+! Added 08/16/21 for more HRRR fields.
+       data paramlist(802) /gribparam(2,255,0,1,100,'SPNCR')/
+       data paramlist(803) /gribparam(2,255,0,6,28,'NCONCD')/
+       data paramlist(804) /gribparam(2,255,0,6,29,'NCCICE')/
+       data paramlist(805) /gribparam(2,255,0,6,32,'FRACCC')/
+       data paramlist(806) /gribparam(2,255,0,7,204,'EFHL')/
+       data paramlist(807) /gribparam(2,255,0,7,205,'ESP')/
+       data paramlist(808) /gribparam(2,255,0,7,206,'CANGLE')/
+       data paramlist(809) /gribparam(2,255,0,20,0,'MASSDEN')/     ! smoke
+       data paramlist(810) /gribparam(2,255,0,20,1,'COLMD')/       ! smoke
+       data paramlist(811) /gribparam(2,255,0,17,1,'LTPINX')/
+       data paramlist(812) /gribparam(2,255,2,0,231,'VEGMIN')/
+       data paramlist(813) /gribparam(2,255,2,0,232,'VEGMAX')/
+       data paramlist(814) /gribparam(2,255,0,6,18,'TCOLWO')/
+       data paramlist(815) /gribparam(2,255,0,6,19,'TCOLIO')/
+       data paramlist(816) /gribparam(2,255,0,16,201,'RADARVIL')/
 
       contains
 
