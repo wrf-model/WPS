@@ -105,16 +105,16 @@ if ($sw_grib2_path eq "")
          }
        }
    }
+   @platforms = ('serial', 'serial_NO_GRIB2', 'dmpar', 'dmpar_NO_GRIB2');
 }
 else
 {
    $sw_jasperlib_path = '-L$(INTERNAL_GRIB2_PATH)/lib -ljasper -lpng -lz';
    $sw_jasperinc_path = '-I$(INTERNAL_GRIB2_PATH)/include';
+   @platforms = ('serial', 'dmpar');
 }
 
 $validresponse = 0 ;
-# added this from the WRF Config.pl by John M.
-@platforms = ('serial', 'serial_NO_GRIB2', 'dmpar', 'dmpar_NO_GRIB2');
 # Display the choices to the user and get selection
 until ($validresponse)
 {
