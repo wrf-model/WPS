@@ -55,13 +55,13 @@ g2print.exe:		filelist.o gridinfo.o g2print.o
 g2print.o:		table.o gridinfo.o filelist.o module_datarray.o \
 				ngl/g2/gribmod.o ngl/g2/params.o g2print.F
 			$(CPP) $(CPPFLAGS) $*.F > $*.f90
-			$(FC) -c $(FFLAGS) $(FCSUFFIX) $*.f90 -I. -I./ngl/g2
+			$(FC) -c $(FFLAGS) $(FCSUFFIX) $(FCCOMPAT) $*.f90 -I. -I./ngl/g2
 #			$(RM) $*.f90
 
 rd_grib2.o:		ngl/g2/gribmod.o module_debug.o table.o gridinfo.o ngl/g2/params.o new_storage.o \
 				rd_grib2.F
 			$(CPP) $(CPPFLAGS) $*.F > $*.f90
-			$(FC) -c $(F77FLAGS) $(FCSUFFIX) $*.f90 -I. -I./ngl/g2
+			$(FC) -c $(F77FLAGS) $(FCSUFFIX) $(FCCOMPAT) $*.f90 -I. -I./ngl/g2
 #			$(RM) $*.f90
 
 datint.o:		misc_definitions_module.o module_debug.o gridinfo.o new_storage.o datint.F
@@ -88,7 +88,7 @@ read_namelist.o:	misc_definitions_module.o module_debug.o read_namelist.F
 
 .F.o:
 			$(CPP) $(CPPFLAGS) $(FDEFS) $< > $*.f90
-			$(FC) -c $(FFLAGS) $*.f90
+			$(FC) -c $(FFLAGS) $(FCCOMPAT) $*.f90
 #			$(RM) $*.f90
 
 .c.o:

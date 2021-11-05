@@ -159,6 +159,7 @@ CC                  = CONFIGURE_CC
 LD                  = $(FC)
 FFLAGS              = -ffree-form -O -fconvert=big-endian -frecord-marker=4
 F77FLAGS            = -ffixed-form -O -fconvert=big-endian -frecord-marker=4
+FCCOMPAT            = CONFIGURE_COMPAT_FLAGS
 FCSUFFIX            = 
 FNGFLAGS            = $(FFLAGS)
 LDFLAGS             =
@@ -182,6 +183,7 @@ CC                  = CONFIGURE_CC
 LD                  = $(FC)
 FFLAGS              = -ffree-form -O -fconvert=big-endian -frecord-marker=4
 F77FLAGS            = -ffixed-form -O -fconvert=big-endian -frecord-marker=4
+FCCOMPAT            = CONFIGURE_COMPAT_FLAGS
 FCSUFFIX            = 
 FNGFLAGS            = $(FFLAGS)
 LDFLAGS             =
@@ -452,6 +454,7 @@ CC                  = CONFIGURE_CC
 LD                  = $(FC)
 FFLAGS              = -ffree-form -O -fconvert=big-endian -frecord-marker=4
 F77FLAGS            = -ffixed-form -O -fconvert=big-endian -frecord-marker=4
+FCCOMPAT            = CONFIGURE_COMPAT_FLAGS
 FCSUFFIX            = 
 FNGFLAGS            = $(FFLAGS)
 LDFLAGS             =
@@ -477,6 +480,7 @@ CC                  = CONFIGURE_CC
 LD                  = $(FC)
 FFLAGS              = -ffree-form -O -fconvert=big-endian -frecord-marker=4
 F77FLAGS            = -ffixed-form -O -fconvert=big-endian -frecord-marker=4
+FCCOMPAT            = CONFIGURE_COMPAT_FLAGS
 FCSUFFIX            =
 FNGFLAGS            = $(FFLAGS)
 # For a WRF OpenMP build, add the gomp library for WPS
