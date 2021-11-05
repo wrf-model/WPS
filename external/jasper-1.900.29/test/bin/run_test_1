@@ -1,0 +1,97 @@
+#! /bin/bash
+# Copyright (c) 2016 Michael David Adams
+################################################################################
+
+# Reference on sanitizer options:
+# https://github.com/google/sanitizers/wiki/SanitizerCommonFlags
+
+################################################################################
+
+cmd_dir=$(dirname "$0") || exit 1
+source "$cmd_dir"/utilities || exit 1
+
+################################################################################
+
+set_source_and_build_dirs || panic "cannot set source and build directories"
+
+top_dir="$cmd_dir/../.."
+data_dir="$top_dir/data/test"
+
+################################################################################
+
+good_list=($data_dir/good/*.*)
+bad_list=($data_dir/bad/*.*)
+
+imginfo="$abs_top_builddir/src/appl/imginfo"
+
+error_count=0
+
+echo "############################################################"
+echo "Testing valid data sets"
+echo "############################################################"
+
+for in_file in "${good_list[@]}"; do
+	echo "############################################################"
+	expected_status=0
+	echo "Input file: $in_file"
+	"$imginfo" < "$in_file"
+	status=$?
+	echo "actual exit status: $status"
+	echo "expected exit status: $expected_status"
+	if [ "$status" -ne "$expected_status" ]; then
+		echo "ERROR: imginfo command had unexpected exit status " \
+		  "(expected $expected_status got $status)"
+		error_count=$((error_count + 1))
+	fi
+done
+echo "############################################################"
+
+echo "############################################################"
+echo "Testing invalid data sets"
+echo "############################################################"
+
+for in_file in "${bad_list[@]}"; do
+	name=$(basename "$in_file")
+	echo "############################################################"
+	case "$name" in
+	2_crashes.bmp)
+		#jasper-doublefree-mem_close.jpg
+		# The file jasper-doublefree-mem_close.jpg must be skipped
+		# since this test could pass or fail depending on the version of
+		# the JPEG library used (and if it passes it will be VERY SLOW).
+		# Thie file 2_crashes.bmp must be skipped since it will try
+		# to allocate a huge palette which can cause an ASAN failure.
+		echo "Skipping $in_file"
+		continue
+		;;
+	esac
+
+	echo "Input file: $in_file"
+	imginfo_opts=()
+	imginfo_opts+=(--max-samples 100000000)
+	special_asan_options=()
+	special_asan_options+=(exitcode=10)
+	special_asan_options+=(allocator_may_return_null=true)
+	special_asan_options+=(detect_leaks=false)
+	#special_asan_options+=(soft_rss_limit_mb=1024)
+	expected_status=1
+	ASAN_OPTIONS="${special_asan_options[*]}" \
+	  "$imginfo" "${imginfo_opts[@]}" < "$in_file"
+	status=$?
+	echo "actual exit status: $status"
+	echo "expected exit status: $expected_status"
+	if [ "$status" -ne 1 ]; then
+		echo "ERROR: imginfo command had unexpected exit status " \
+		  "(expected $expected_status got $status)"
+		error_count=$((error_count + 1))
+	fi
+done
+echo "############################################################"
+
+echo "error count: $error_count"
+if [ "$error_count" -gt 0 ]; then
+	echo "STATUS: FAILED"
+	panic "FAILED"
+fi
+
+echo "STATUS: PASSED"

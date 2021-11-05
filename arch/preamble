@@ -53,3 +53,5 @@ COMPRESSION_LIBS	=  # intentionally left blank, fill in COMPRESSION_LIBS below
 
 COMPRESSION_INC		=  # intentionally left blank, fill in COMPRESSION_INC below
 
+INTERNAL_GRIB2_PATH     = CONFIGURE_GRIB2_PATH
+
