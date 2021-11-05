@@ -458,3 +458,40 @@ EOF
 
   fi
 fi
+
+
+#
+# Check for newer GNU Fortran compilers that require the use of the following:
+# -fallow-argument-mismatch
+#
+cat > gnu_flag_test.F90 << EOF
+program gnu_flag_test
+#ifdef __GNUC__
+#if __GNUC__ > 9
+call exit(1)   ! A GNU extension, but at this point we know this is a GNU compiler
+#endif
+#endif
+end program gnu_flag_test
+EOF
+
+# The above test program gives exit status 1 iff we are using the GNU Fortran
+# compiler with a major version greater than 9
+
+FC=`grep ^SFC configure.wps | cut -d"=" -f2-`
+FFLAGS=`grep ^FFLAGS configure.wps | cut -d"=" -f2-`
+$FC ${FFLAGS} gnu_flag_test.F90 -o gnu_flag_test > /dev/null 2>&1
+if [ -f ./gnu_flag_test ]; then
+   ./gnu_flag_test > /dev/null 2>&1
+   if [ $? -eq 1 ]; then
+      compat="-fallow-argument-mismatch"
+   fi
+   rm gnu_flag_test
+else
+   printf "*** Failed to compile the gnu_flag_test program!\n"
+   printf "    This may be because the selected build option does not work correctly.\n"
+fi
+rm gnu_flag_test.F90
+
+sed "s/CONFIGURE_COMPAT_FLAGS/${compat}/" configure.wps > configure.wps.tmp
+mv configure.wps.tmp configure.wps
+
