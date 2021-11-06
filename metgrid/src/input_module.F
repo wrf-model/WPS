@@ -427,7 +427,9 @@ module input_module
 #endif
      
          call ext_get_dom_ti_char('TITLE', title)
-         if (index(title,'GEOGRID V4.3') /= 0) then
+         if (index(title,'GEOGRID V4.3.1') /= 0) then
+            wps_version = 4.31
+         else if (index(title,'GEOGRID V4.3') /= 0) then
             wps_version = 4.3
          else if (index(title,'GEOGRID V4.2') /= 0) then
             wps_version = 4.2
@@ -633,25 +635,26 @@ module input_module
 
       ! Local variables
       integer :: istatus, outcount
+      integer, dimension(1) :: var_value_arr
 
 #ifdef IO_BINARY
       if (io_form_input == BINARY) then
          call ext_int_get_dom_ti_integer(handle, trim(var_name), &
-                                         var_value, &
+                                         var_value_arr, &
                                          1, outcount, istatus)
       end if
 #endif
 #ifdef IO_NETCDF
       if (io_form_input == NETCDF) then
          call ext_ncd_get_dom_ti_integer(handle, trim(var_name), &
-                                         var_value, &
+                                         var_value_arr, &
                                          1, outcount, istatus)
       end if
 #endif
 #ifdef IO_GRIB1
       if (io_form_input == GRIB1) then
          call ext_gr1_get_dom_ti_integer(handle, trim(var_name), &
-                                         var_value, &
+                                         var_value_arr, &
                                          1, outcount, istatus)
       end if
 #endif
@@ -661,6 +664,8 @@ module input_module
       else
          call mprintf((istatus /= 0),ERROR,'Error while reading domain time-independent attribute.')
       end if
+
+      var_value = var_value_arr(1)
 
    end subroutine ext_get_dom_ti_integer_scalar
 
@@ -724,30 +729,33 @@ module input_module
 
       ! Local variables
       integer :: istatus, outcount
+      real, dimension(1) :: var_value_arr
 
 #ifdef IO_BINARY
       if (io_form_input == BINARY) then
          call ext_int_get_dom_ti_real(handle, trim(var_name), &
-                                         var_value, &
+                                         var_value_arr, &
                                          1, outcount, istatus)
       end if
 #endif
 #ifdef IO_NETCDF
       if (io_form_input == NETCDF) then
          call ext_ncd_get_dom_ti_real(handle, trim(var_name), &
-                                         var_value, &
+                                         var_value_arr, &
                                          1, outcount, istatus)
       end if
 #endif
 #ifdef IO_GRIB1
       if (io_form_input == GRIB1) then
          call ext_gr1_get_dom_ti_real(handle, trim(var_name), &
-                                         var_value, &
+                                         var_value_arr, &
                                          1, outcount, istatus)
       end if
 #endif
 
       call mprintf((istatus /= 0),ERROR,'Error while reading domain time-independent attribute.')
+
+      var_value = var_value_arr(1)
 
    end subroutine ext_get_dom_ti_real_scalar
 

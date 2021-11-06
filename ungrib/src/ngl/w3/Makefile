@@ -42,7 +42,7 @@ clean:
 
 .f.o:
 	$(RM) $*.o
-	$(FC) $(F77FLAGS) -c $< 
+	$(FC) $(F77FLAGS) $(FCCOMPAT) -c $<
 
 .c.o:
 	$(RM) $*.o
