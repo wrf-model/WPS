@@ -832,7 +832,7 @@ name=QNWFA_DEC ; output_name=W_WIF_DEC
 name=W_WIF_DEC 
         z_dim_name=num_wif_levels
         interp_option=four_pt+average_4pt
-        flag_in_output=FLAG_QNWFA
+        flag_in_output=FLAG_QNWFA_CL
 ========================================
 name=QNIFA_JAN ; output_name=I_WIF_JAN
 ========================================
@@ -905,7 +905,7 @@ name=QNIFA_DEC ; output_name=I_WIF_DEC
 name=I_WIF_DEC 
         z_dim_name=num_wif_levels
         interp_option=four_pt+average_4pt
-        flag_in_output=FLAG_QNIFA
+        flag_in_output=FLAG_QNIFA_CL
 ========================================
 name=P_WIF_JAN
         z_dim_name=num_wif_levels
@@ -1012,12 +1012,27 @@ name=HGTMAXW
         flag_in_output=FLAG_HGTMAXW
 ========================================
 name=QNWFA
-        z_dim_name=num_qnwfa_levels
+        z_dim_name=num_wif_levels
         interp_option=four_pt+average_4pt
+        flag_in_output=FLAG_QNWFA
 ========================================
 name=QNIFA
-        z_dim_name=num_qnwfa_levels
+        z_dim_name=num_wif_levels
         interp_option=four_pt+average_4pt
+        flag_in_output=FLAG_QNIFA
+========================================
+name=P_WIF
+        z_dim_name=num_wif_levels
+        interp_option=four_pt+average_4pt
+        flag_in_output=FLAG_P_WIF
+========================================
+name=QNWFA2D
+        interp_option=four_pt+average_4pt
+        flag_in_output=FLAG_QNWFA2D
+========================================
+name=QNIFA2D
+        interp_option=four_pt+average_4pt
+        flag_in_output=FLAG_QNIFA2D
 ========================================
 # This entry is only used for MPAS data
 name=smois
