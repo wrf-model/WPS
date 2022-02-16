@@ -1,0 +1,154 @@
+#! /bin/bash
+# Copyright (c) 2016 Michael David Adams
+################################################################################
+
+################################################################################
+
+if [ "${BASH_VERSINFO[0]}" -lt 4 ]; then
+	echo "This test requires Bash 4 or greater."
+	echo "This test is being skipped."
+	exit 0
+fi
+
+cmd_dir=$(dirname "$0") || exit 1
+source "$cmd_dir"/utilities || exit 1
+source "$cmd_dir/jpcod" || exit 1
+
+set_source_and_build_dirs || panic "cannot set source and build directories"
+
+init
+
+################################################################################
+
+cmd_name=$(basename "$0") || panic "cannot get command name"
+tmp_dir=$(make_tmp_dir "$cmd_name") || panic "cannot make temporary directory"
+
+debug_level=0
+verbose=0
+jas_jp2k_test_top_dir="$JAS_JP2K_TEST_TOP_DIR"
+
+while getopts T:D:v opt; do
+	case $opt in
+	T)
+		jas_jp2k_test_top_dir="$OPTARG";;
+	D)
+		debug_level="$OPTARG";;
+	v)
+		verbose=$((verbose + 1));;
+	\?)
+		usage
+		break;;
+	esac
+done
+shift `expr $OPTIND - 1`
+
+if [ ! -d "$jas_jp2k_test_top_dir" ]; then
+	echo "The directory named by JAS_JP2K_TEST_TOP_DIR does not exist."
+	echo "The data for this test is not available."
+	echo "Skipping test."
+	exit 0
+fi
+
+jpdec="$cmd_dir/jpdec"
+dec=jasper
+imgcmp="$abs_top_builddir/src/appl/imgcmp"
+imginfo="$abs_top_builddir/src/appl/imginfo"
+export IMGINFO_COMMAND="$imginfo"
+jasper="$abs_top_builddir/src/appl/jasper"
+
+
+testcase_file="$cmd_dir/decoder_tests"
+tcf_gettestids "$testcase_file" testcases || \
+  panic "cannot get test cases"
+echo "Number of test cases: ${#testcases[@]}"
+
+error_count=0
+
+for testcase in "${testcases[@]}"; do
+
+	echo "############################################################"
+	echo "Test case: $testcase"
+
+	tcf_gettest "$testcase_file" "$testcase" record || \
+	  panic "cannot get test case"
+
+	enc_file="$JAS_JP2K_TEST_TOP_DIR/${record[encoded_file]}"
+	if [ "$debug_level" -ne 0 ]; then
+		imginfo_opts+=(--debug-level "$debug_level")
+	fi
+	if [ "$verbose" -ge 1 ]; then
+		echo "Running $imginfo ${imginfo_opts[@]} < $enc_file"
+	fi
+	"$imginfo" "${imginfo_opts[@]}" < "$enc_file"
+	status=$?
+	if [ "$status" -ne 0 ]; then
+		echo "error: cannot decode $enc_file"
+		error_count=$((error_count + 1))
+	fi
+
+done
+
+if [ "$error_count" -ne 0 ]; then
+	echo "error count: $error_count"
+	exit 1
+fi
+
+exit 0
+
+for testcase in "${testcases[@]}"; do
+
+	echo "############################################################"
+	echo "Test case: $testcase"
+
+	tcf_gettest "$testcase_file" "$testcase" record || \
+	  panic "cannot get test case"
+
+#	for key in "${!record[@]}"; do
+#		echo "$key -> ${record[$key]}"
+#	done
+
+	enc_file="$JAS_JP2K_TEST_TOP_DIR/${record[encoded_file]}"
+	orig_file="$JAS_JP2K_TEST_TOP_DIR/${record[decoded_file]}"
+	dec_file="$tmp_dir/decoded"
+	dec_opts=()
+	if [ "$debug_level" -ne 0 ]; then
+		dec_opts+=(debug="$debug_level")
+	fi
+	if [ "$verbose" -ne 0 ]; then
+		dec_opts+=(verbose=1)
+	fi
+	width=$(image_info "$enc_file" width) || panic "cannot get image width"
+	height=$(image_info "$enc_file" height) || panic "cannot get image height"
+	depth=$(image_info "$enc_file" depth) || panic "cannot get image depth"
+	num_comps=$(image_info "$enc_file" num_components) || \
+	  panic "cannot get number of image components"
+	format=$(image_info "$enc_file" format) || panic "cannot get image format"
+	buffer=$("$imginfo" < "$enc_file")
+	echo "IMAGE INFO width=$width height=$height prec=$depth num_components=$num_comps"
+	echo "IMAGE INFO $buffer"
+#continue
+	echo "Decoding $enc_file"
+#	"$jpdec" software="$dec" input="$enc_file" output="$dec_file" \
+#	  "${dec_opts[@]}"
+	jasper_opts=()
+	jasper_opts+=(-T jp2)
+	echo "Running $jasper ${jasper_opts[@]} < $enc_file > $dec_file"
+	"$jasper" "${jasper_opts[@]}" < "$enc_file" > "$dec_file"
+	status=$?
+	if [ $status -eq 0 ]; then
+		echo "OK"
+		pae=$("$imgcmp" -f "$orig_file" -F "$dec_file" -m pae --max) || panic
+		if [ "$pae" -eq 0 ]; then
+			echo "STATUS: LOSSLESS (PAE=$pae)"
+		else
+			echo "ERROR: PAE CONSTRAINT VIOLATED (PAE=$pae)"
+			#$IMGCMP -f $ORIGFILE -F $OUTFILE -d $DIFFFILE
+			#xloadimage $DIFFFILE > /dev/null
+		fi
+	else
+		echo "ERROR: DECODER FAILED"
+		exit 1
+	fi
+done
+
+exit 0

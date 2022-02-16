@@ -9,7 +9,7 @@ OBJS1		=	misc_definitions_module.o debug_cio.o module_debug.o module_stringutil.
 			ungrib.o output.o rrpr.o \
 			rd_grib1.o file_delete.o datint.o rd_grib2.o 
 
-OBJS2		=	build_hdate.o geth_newdate.o geth_idts.o swap.o table.o \
+OBJS2		=	build_hdate.o geth_newdate.o geth_idts.o swap.o table.o module_stringutil.o \
 			parse_table.o gbytesys.o gribcode.o read_namelist.o cio.o
 
 all:			lib$(LIBTARGET).a $(EXE)
@@ -37,7 +37,7 @@ lib$(LIBTARGET).a:	$(OBJS2)
 g1print.exe:		g1print.o gribcode.o module_debug.o debug_cio.o lib$(LIBTARGET).a
 			$(FC) -o $(@) $(LDFLAGS) g1print.o gribcode.o module_debug.o debug_cio.o lib$(LIBTARGET).a
 
-g2print.exe:		filelist.o gridinfo.o g2print.o
+g2print.exe:		filelist.o gridinfo.o g2print.o lib$(LIBTARGET).a
 			if [ -z $(COMPILING_ON_CYGWIN_NT) ] ; then \
 			  $(FC) -o $(@) $(LDFLAGS) g2print.o \
 				filelist.o gridinfo.o \
@@ -55,13 +55,13 @@ g2print.exe:		filelist.o gridinfo.o g2print.o
 g2print.o:		table.o gridinfo.o filelist.o module_datarray.o \
 				ngl/g2/gribmod.o ngl/g2/params.o g2print.F
 			$(CPP) $(CPPFLAGS) $*.F > $*.f90
-			$(FC) -c $(FFLAGS) $(FCSUFFIX) $*.f90 -I. -I./ngl/g2
+			$(FC) -c $(FFLAGS) $(FCSUFFIX) $(FCCOMPAT) $*.f90 -I. -I./ngl/g2
 #			$(RM) $*.f90
 
 rd_grib2.o:		ngl/g2/gribmod.o module_debug.o table.o gridinfo.o ngl/g2/params.o new_storage.o \
 				rd_grib2.F
 			$(CPP) $(CPPFLAGS) $*.F > $*.f90
-			$(FC) -c $(F77FLAGS) $(FCSUFFIX) $*.f90 -I. -I./ngl/g2
+			$(FC) -c $(F77FLAGS) $(FCSUFFIX) $(FCCOMPAT) $*.f90 -I. -I./ngl/g2
 #			$(RM) $*.f90
 
 datint.o:		misc_definitions_module.o module_debug.o gridinfo.o new_storage.o datint.F
@@ -76,7 +76,7 @@ new_storage.o:		gridinfo.o new_storage.F
 
 output.o:		misc_definitions_module.o module_debug.o table.o gridinfo.o module_stringutil.o new_storage.o filelist.o output.F
 
-parse_table.o:		module_debug.o table.o parse_table.F
+parse_table.o:		module_debug.o table.o module_stringutil.o parse_table.F
 
 rd_grib1.o:		module_debug.o table.o gridinfo.o module_datarray.o rd_grib1.F
 
@@ -88,7 +88,7 @@ read_namelist.o:	misc_definitions_module.o module_debug.o read_namelist.F
 
 .F.o:
 			$(CPP) $(CPPFLAGS) $(FDEFS) $< > $*.f90
-			$(FC) -c $(FFLAGS) $*.f90
+			$(FC) -c $(FFLAGS) $(FCCOMPAT) $*.f90
 #			$(RM) $*.f90
 
 .c.o:

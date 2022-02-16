@@ -756,12 +756,24 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, &
         endif
 
 ! Modify the 2017 GFS masked fields
-        if (index(map%source,'NCEP GFS') .ne. 0 ) then
+        if (index(map%source,'NCEP GFS') .ne. 0 .or. &
+            index(map%source,'NCEP GEFS') .ne. 0 ) then
           call mprintf(.true.,DEBUG, &
              "RRPR:   Adjusting GFS masked fields ")
 	     if ( is_there(200100, 'ST000010')) then
                call get_dims(200100, 'ST000010')
                call fix_gfs_miss (map%nx, map%ny, 200100.)
+	     endif
+        endif
+
+! Fix the 23 September 2020 GEFS landmask
+        if (index(map%source,'NCEP GEFS') .ne. 0 ) then
+          call mprintf(.true.,DEBUG, &
+             "RRPR:   Adjusting GEFS landmask")
+	     if ( is_there(200100, 'ST000010') .and.   &
+                  is_there(200100, 'LANDSEA')) then
+               call get_dims(200100, 'LANDSEA')
+               call fix_gefs_landmask (map%nx, map%ny, 200100.)
 	     endif
         endif
 
@@ -1399,4 +1411,43 @@ subroutine fix_ruc_soilm (ix, jx)
 
 end subroutine fix_ruc_soilm
  
-
+subroutine fix_gefs_landmask (ix, jx, plvl)
+! Set LANDSEA to values based on soil temp. Assumes fix_gfs_miss has already been called.
+! Needed for September 23, 2020 changes to GEFS. 
+! Earlier GEFS files are unmodified. Must be called after fix_gfs_miss
+! plvl must always be 200100.
+!
+  use storage_module
+  use module_debug
+  implicit none
+  integer :: ix, jx, i, j, k
+  real :: plvl
+  real, allocatable, dimension(:,:) :: f, sea
+!
+! If LANDN is present (not currently the case) then exit
+  if ( is_there(200100, 'LANDN') ) then
+    return
+  else
+    allocate(sea(ix,jx))
+    allocate(f(ix,jx))
+    if (is_there(nint(plvl), 'ST000010' )) then
+      call get_storage(nint(plvl), 'ST000010', f, ix, jx)
+      call get_storage(nint(plvl), 'LANDSEA', sea, ix, jx)
+      do j = 1, jx
+      do i = 1, ix
+        if (f(i,j) .le. 0.) then
+          sea(i,j) = 0.
+        else
+          sea(i,j) = 1.
+        endif
+      enddo
+      enddo
+      call put_storage(200100, 'LANDSEA', sea, ix, jx)
+    else
+      call mprintf(.true.,INFORM, &
+         "RRPR: fix_gefs_landmask: ST000010 not found, LANDSEA is not modified")
+    endif
+    deallocate (f)
+    deallocate (sea)
+  endif
+end subroutine fix_gefs_landmask

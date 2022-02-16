@@ -18,10 +18,10 @@ AR		=	ar ru
 
 .f.o:
 	$(RM) $@ $*.mod
-	$(FC) $(F77FLAGS) -c $< $(WRF_INCLUDE)
+	$(FC) $(F77FLAGS) $(FCCOMPAT) -c $< $(WRF_INCLUDE)
 
 .F.o:
 	$(RM) $@ $*.mod
 	$(CPP) $(CPPFLAGS) $(FDEFS) $(WRF_INCLUDE) $< > $*.f90
-	$(FC) $(FFLAGS) -c $*.f90 $(WRF_INCLUDE)
+	$(FC) $(FFLAGS) $(FCCOMPAT) -c $*.f90 $(WRF_INCLUDE)
 #	$(RM) $*.f90

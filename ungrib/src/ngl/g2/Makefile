@@ -65,11 +65,11 @@ superclean:	clean
 
 .F.o:
 	$(CPP) $(FDEFS) $*.F > $*.f90
-	$(FC) -c $(F77FLAGS) $*.f90
+	$(FC) -c $(F77FLAGS) $(FCCOMPAT) $*.f90
 	/bin/rm -f $*.f90
 
 .f.o:
-	$(FC) -c $(F77FLAGS) $*.f
+	$(FC) -c $(F77FLAGS) $(FCCOMPAT) $*.f
 
 .c.o:
 	$(CC) -c $(CFLAGS) $(CFLAGS2) $<

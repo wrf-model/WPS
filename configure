@@ -1,6 +1,25 @@
 #!/bin/sh
 
-arg1=$1
+#
+# Check for command-line arguments
+# At present, the only supported arguments are:
+#     --nowrf : disables checks to find the path to the compiled WRF model
+#     --build-grib2-libs : compiles zlib, libpng, and JasPer libraries from
+#                          source in the external/ directory and installs
+#                          the libraries in grib2/
+#
+nowrf=0
+build_grib2=0
+for arg in $@; do
+  if [ "${arg}" = "--nowrf" ]; then
+    nowrf=1
+  elif [ "${arg}" = "--build-grib2-libs" ]; then
+    build_grib2=1
+  else
+    printf "Unrecognized option %s\n" ${arg}
+  fi
+done
+
 
 # Look for netcdf
 if test -z "$NETCDF" ; then
@@ -153,44 +172,74 @@ fi
 wrf_dir="none"
 standard_wrf_dirs="WRF WRF-4.0.3 WRF-4.0.2 WRF-4.0.1 WRF-4.0 WRFV3"
 
-#
-# If no WRF_DIR environment variable is set, try to locate a WRF build in one
-# of the expected directory names one directory level up; otherwise, try to use
-# the WRF I/O library from the code in $WRF_DIR
-#
-if [ -z "$WRF_DIR" ]; then
-#   for d in WRF WRF-4.0.3 WRF-4.0.2 WRF-4.0.1 WRF-4.0 WRFV3; do
-   for d in ${standard_wrf_dirs}; do
-      if [ -e ../${d}/external/io_netcdf/libwrfio_nf.a ]; then
-         echo "Found what looks like a valid WRF I/O library in ../${d}"
-         wrf_dir="../${d}"
-         break
+if [ ${nowrf} -eq 0 ]; then
+   #
+   # If no WRF_DIR environment variable is set, try to locate a WRF build in one
+   # of the expected directory names one directory level up; otherwise, try to use
+   # the WRF I/O library from the code in $WRF_DIR
+   #
+   if [ -z "$WRF_DIR" ]; then
+   #   for d in WRF WRF-4.0.3 WRF-4.0.2 WRF-4.0.1 WRF-4.0 WRFV3; do
+      for d in ${standard_wrf_dirs}; do
+         if [ -e ../${d}/external/io_netcdf/libwrfio_nf.a ]; then
+            echo "Found what looks like a valid WRF I/O library in ../${d}"
+            wrf_dir="../${d}"
+            break
+         fi
+      done
+   else
+      if [ ! -e ${WRF_DIR}/external/io_netcdf/libwrfio_nf.a ]; then
+         echo ""
+         echo "Error: The \$WRF_DIR environment variable was set, but the WRF code at"
+         echo "       ${WRF_DIR} doesn't appear to have been successfully compiled"
+         echo ""
+         exit
       fi
-   done
-else
-   if [ ! -e ${WRF_DIR}/external/io_netcdf/libwrfio_nf.a ]; then
+
+      echo "Using WRF I/O library in WRF build identified by \$WRF_DIR: ${WRF_DIR}"
+      wrf_dir=$WRF_DIR
+   fi
+
+   if [ $wrf_dir = "none" ]; then
       echo ""
-      echo "Error: The \$WRF_DIR environment variable was set, but the WRF code at"
-      echo "       ${WRF_DIR} doesn't appear to have been successfully compiled"
+      echo "Error: No compiled WRF code found. Please check that the WRF model has been compiled"
+      echo "       one directory level up (i.e., ../) in a directory named 'WRF', 'WRF-4.0.3', 'WRF-4.0.2', etc.,"
+      echo "       or specify the full path to the compiled WRF model with the environment variable \$WRF_DIR ."
+      echo ""
+      echo "Alternatively, if only WPS components that do no depend on WRF I/O libraries are needed, re-run"
+      echo "the configure script with the --nowrf option."
       echo ""
       exit
    fi
-
-   echo "Using WRF I/O library in WRF build identified by \$WRF_DIR: ${WRF_DIR}"
-   wrf_dir=$WRF_DIR
+else
+   cat << EOF
+********************************************************************************
+Configuring the WPS without a compiled WRF model.
+It will not be possible to build the following WPS components, which depend on
+the WRF I/O libraries:
+  - geogrid
+  - metgrid
+  - int2nc
+********************************************************************************
+EOF
 fi
 
-if [ $wrf_dir = "none" ]; then
-   echo ""
-   echo "Error: No compiled WRF code found. Please check that the WRF model has been compiled"
-   echo "       one directory level up (i.e., ../) in a directory named 'WRF', 'WRF-4.0.3', 'WRF-4.0.2', etc.,"
-   echo "       or specify the full path to the compiled WRF model with the environment variable \$WRF_DIR ."
-   echo ""
-   exit
+grib2dir=""
+if [ ${build_grib2} -eq 1 ]; then
+   grib2dir="${PWD}/grib2"
+
+   cat << EOF
+********************************************************************************
+The zlib, libpng, and JasPer libraries will be compiled from source and
+installed in ${grib2dir} .
+
+The environment variables JASPERLIB and JASPERINC will be ignored.
+********************************************************************************
+EOF
 fi
 
 # Found perl, so proceed with configuration
-perl arch/Config.pl -perl=$PERL -netcdf=$NETCDF -netcdff=$NETCDFF -os=$os -mach=$mach -wrfdir=$wrf_dir
+perl arch/Config.pl -perl=$PERL -netcdf=$NETCDF -netcdff=$NETCDFF -os=$os -mach=$mach -wrfdir=$wrf_dir -grib2dir=$grib2dir
 
 
 #Checking cross-compiling capability for some particular environment 
@@ -431,3 +480,40 @@ EOF
 
   fi
 fi
+
+
+#
+# Check for newer GNU Fortran compilers that require the use of the following:
+# -fallow-argument-mismatch
+#
+cat > gnu_flag_test.F90 << EOF
+program gnu_flag_test
+#ifdef __GNUC__
+#if __GNUC__ > 9
+call exit(1)   ! A GNU extension, but at this point we know this is a GNU compiler
+#endif
+#endif
+end program gnu_flag_test
+EOF
+
+# The above test program gives exit status 1 iff we are using the GNU Fortran
+# compiler with a major version greater than 9
+
+FC=`grep ^SFC configure.wps | cut -d"=" -f2-`
+FFLAGS=`grep ^FFLAGS configure.wps | cut -d"=" -f2-`
+$FC ${FFLAGS} gnu_flag_test.F90 -o gnu_flag_test > /dev/null 2>&1
+if [ -f ./gnu_flag_test ]; then
+   ./gnu_flag_test > /dev/null 2>&1
+   if [ $? -eq 1 ]; then
+      compat="-fallow-argument-mismatch"
+   fi
+   rm gnu_flag_test
+else
+   printf "*** Failed to compile the gnu_flag_test program!\n"
+   printf "    This may be because the selected build option does not work correctly.\n"
+fi
+rm gnu_flag_test.F90
+
+sed "s/CONFIGURE_COMPAT_FLAGS/${compat}/" configure.wps > configure.wps.tmp
+mv configure.wps.tmp configure.wps
+
