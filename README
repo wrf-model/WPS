@@ -4,10 +4,9 @@ http://www2.mmm.ucar.edu/wrf/users/
 
 The WRF Pre-Processing System (WPS) is a collection
 of Fortran and C programs that provides data used as
-input to the real.exe and real_nmm.exe programs. There 
-are three main programs and a number of auxiliary 
-programs that are part of WPS.  Both the ARW and NMM 
-dynamical cores in WRF are supported by WPS.
+input to the real.exe program. There are three main 
+programs and a number of auxiliary programs that 
+are part of WPS.
 
 For questions and help to run the program, please see the 
 User's Guide at http://www2.mmm.ucar.edu/wrf/users/docs/user_guide_v4/contents.html
