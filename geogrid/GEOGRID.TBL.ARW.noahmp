@@ -1037,7 +1037,7 @@ name=TD_FRACTION
         interp_option=default:average_gcell(4.0)+four_pt+average_4pt
         masked = water
         fill_missing = 0.
-        rel_path=default:crop/tile_drainage_map/
+        rel_path=default:crop/drainage_map/
 ===============================
 name=FDEPTH
         priority=1
