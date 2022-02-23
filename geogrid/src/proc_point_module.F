@@ -248,8 +248,8 @@ module proc_point_module
          call xytoll(real(min_i), real(min_j), lat_corner, lon_corner, M)
          call select_domain(current_domain)
          call lltoxy(lat_corner, lon_corner, rx, ry, istagger)
-         rx = (rx-1.0) * sr_x + 1.0
-         ry = (ry-1.0) * sr_y + 1.0
+         rx = (rx-0.5) * sr_x + 0.5
+         ry = (ry-0.5) * sr_y + 0.5
          if (real(start_x) <= rx .and. rx <= real(end_x) .and. real(start_y) <= ry .and. ry <= real(end_y)) then
             where_maps_to(min_i,min_j,1) = nint(rx)
             where_maps_to(min_i,min_j,2) = nint(ry)
@@ -265,8 +265,8 @@ module proc_point_module
          call xytoll(real(min_i), real(max_j), lat_corner, lon_corner, M)
          call select_domain(current_domain)
          call lltoxy(lat_corner, lon_corner, rx, ry, istagger)
-         rx = (rx-1.0) * sr_x + 1.0
-         ry = (ry-1.0) * sr_y + 1.0
+         rx = (rx-0.5) * sr_x + 0.5
+         ry = (ry-0.5) * sr_y + 0.5
          if (real(start_x) <= rx .and. rx <= real(end_x) .and. real(start_y) <= ry .and. ry <= real(end_y)) then
             where_maps_to(min_i,max_j,1) = nint(rx)
             where_maps_to(min_i,max_j,2) = nint(ry)
@@ -282,8 +282,8 @@ module proc_point_module
          call xytoll(real(max_i), real(max_j), lat_corner, lon_corner, M)
          call select_domain(current_domain)
          call lltoxy(lat_corner, lon_corner, rx, ry, istagger)
-         rx = (rx-1.0) * sr_x + 1.0
-         ry = (ry-1.0) * sr_y + 1.0
+         rx = (rx-0.5) * sr_x + 0.5
+         ry = (ry-0.5) * sr_y + 0.5
          if (real(start_x) <= rx .and. rx <= real(end_x) .and. real(start_y) <= ry .and. ry <= real(end_y)) then
             where_maps_to(max_i,max_j,1) = nint(rx)
             where_maps_to(max_i,max_j,2) = nint(ry)
@@ -299,8 +299,8 @@ module proc_point_module
          call xytoll(real(max_i), real(min_j), lat_corner, lon_corner, M)
          call select_domain(current_domain) 
          call lltoxy(lat_corner, lon_corner, rx, ry, istagger)
-         rx = (rx-1.0) * sr_x + 1.0
-         ry = (ry-1.0) * sr_y + 1.0
+         rx = (rx-0.5) * sr_x + 0.5
+         ry = (ry-0.5) * sr_y + 0.5
          if (real(start_x) <= rx .and. rx <= real(end_x) .and. real(start_y) <= ry .and. ry <= real(end_y)) then
             where_maps_to(max_i,min_j,1) = nint(rx)
             where_maps_to(max_i,min_j,2) = nint(ry)
@@ -583,8 +583,8 @@ module proc_point_module
          call xytoll(real(min_i), real(min_j), lat_corner, lon_corner, M)
          call select_domain(current_domain)
          call lltoxy(lat_corner, lon_corner, rx, ry, istagger)
-         rx = (rx-1.0) * sr_x + 1.0
-         ry = (ry-1.0) * sr_y + 1.0
+         rx = (rx-0.5) * sr_x + 0.5
+         ry = (ry-0.5) * sr_y + 0.5
          if (real(start_x) <= rx .and. rx <= real(end_x) .and. real(start_y) <= ry .and. ry <= real(end_y)) then
             where_maps_to(min_i,min_j,1) = nint(rx)
             where_maps_to(min_i,min_j,2) = nint(ry)
@@ -600,8 +600,8 @@ module proc_point_module
          call xytoll(real(min_i), real(max_j), lat_corner, lon_corner, M)
          call select_domain(current_domain)
          call lltoxy(lat_corner, lon_corner, rx, ry, istagger)
-         rx = (rx-1.0) * sr_x + 1.0
-         ry = (ry-1.0) * sr_y + 1.0
+         rx = (rx-0.5) * sr_x + 0.5
+         ry = (ry-0.5) * sr_y + 0.5
          if (real(start_x) <= rx .and. rx <= real(end_x) .and. real(start_y) <= ry .and. ry <= real(end_y)) then
             where_maps_to(min_i,max_j,1) = nint(rx)
             where_maps_to(min_i,max_j,2) = nint(ry)
@@ -617,8 +617,8 @@ module proc_point_module
          call xytoll(real(max_i), real(max_j), lat_corner, lon_corner, M)
          call select_domain(current_domain)
          call lltoxy(lat_corner, lon_corner, rx, ry, istagger)
-         rx = (rx-1.0) * sr_x + 1.0
-         ry = (ry-1.0) * sr_y + 1.0
+         rx = (rx-0.5) * sr_x + 0.5
+         ry = (ry-0.5) * sr_y + 0.5
          if (real(start_x) <= rx .and. rx <= real(end_x) .and. real(start_y) <= ry .and. ry <= real(end_y)) then
             where_maps_to(max_i,max_j,1) = nint(rx)
             where_maps_to(max_i,max_j,2) = nint(ry)
@@ -634,8 +634,8 @@ module proc_point_module
          call xytoll(real(max_i), real(min_j), lat_corner, lon_corner, M)
          call select_domain(current_domain) 
          call lltoxy(lat_corner, lon_corner, rx, ry, istagger)
-         rx = (rx-1.0) * sr_x + 1.0
-         ry = (ry-1.0) * sr_y + 1.0
+         rx = (rx-0.5) * sr_x + 0.5
+         ry = (ry-0.5) * sr_y + 0.5
          if (real(start_x) <= rx .and. rx <= real(end_x) .and. real(start_y) <= ry .and. ry <= real(end_y)) then
             where_maps_to(max_i,min_j,1) = nint(rx)
             where_maps_to(max_i,min_j,2) = nint(ry)
