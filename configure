@@ -162,7 +162,7 @@ if [ $? -eq 0 ] ; then
 fi
 
 wrf_dir="none"
-standard_wrf_dirs="WRF WRF-4.0.3 WRF-4.0.2 WRF-4.0.1 WRF-4.0 WRFV3"
+standard_wrf_dirs="WRF WRF-4.3.3 WRF-4.3 WRF-4.0.3 WRF-4.0.2 WRF-4.0.1 WRF-4.0 WRFV3"
 
 if [ ${nowrf} -eq 0 ]; then
    #
