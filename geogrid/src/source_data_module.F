@@ -1349,7 +1349,7 @@ module source_data_module
    recursive subroutine get_next_output_fieldname(nest_num, field_name, ndims, &
                                             min_cat, max_cat, istagger, memorder, &
                                             dimnames, units, description, sr_x, sr_y, &
-                                            derived_from, istatus)
+                                            is_subgrid_var, derived_from, istatus)
 
       use gridinfo_module
  
@@ -1361,6 +1361,7 @@ module source_data_module
       integer, intent(in) :: nest_num
       integer, intent(out) :: istatus, ndims, istagger, min_cat, max_cat
       integer, intent(out) :: sr_x, sr_y
+      logical, intent(out) :: is_subgrid_var
       character (len=128), intent(out) :: memorder, field_name, units, description, derived_from
       character (len=128), dimension(3), intent(out) :: dimnames
   
@@ -1389,7 +1390,7 @@ module source_data_module
                call get_next_output_fieldname(nest_num, field_name, ndims, &
                                               min_cat, max_cat, istagger, &
                                               memorder, dimnames, units, description, &
-                                              sr_x, sr_y, derived_from, istatus)
+                                              sr_x, sr_y, is_subgrid_var, derived_from, istatus)
                return
             else
                ndims = 2
@@ -1432,7 +1433,7 @@ module source_data_module
                   memorder = '   ' 
                   dimnames(3) = ' '
                end if
-               call get_subgrid_dim_name(nest_num, field_name, dimnames(1:2), sr_x, sr_y, istatus)
+               call get_subgrid_dim_name(nest_num, field_name, dimnames(1:2), sr_x, sr_y, is_subgrid_var, istatus)
                call get_source_units(field_name, 1, units, istatus)
                if (istatus /= 0) units = '-'
                call get_source_descr(field_name, 1, description, istatus)
@@ -1445,7 +1446,7 @@ module source_data_module
             call get_next_output_fieldname(nest_num, field_name, ndims, &
                                            min_cat, max_cat, istagger, &
                                            memorder, dimnames, units, description, &
-                                           sr_x, sr_y, derived_from, istatus)
+                                           sr_x, sr_y, is_subgrid_var, derived_from, istatus)
             return
          end if
   
@@ -1464,7 +1465,7 @@ module source_data_module
                call get_next_output_fieldname(nest_num, field_name, ndims, &
                                               min_cat, max_cat, istagger, &
                                               memorder, dimnames, units, description, &
-                                              sr_x, sr_y, derived_from, istatus)
+                                              sr_x, sr_y, is_subgrid_var, derived_from, istatus)
                return
      
             ! Return the fractional field
@@ -1509,7 +1510,7 @@ module source_data_module
                   memorder = '   ' 
                   dimnames(3) = ' '
                end if
-               call get_subgrid_dim_name(nest_num, field_name, dimnames(1:2), sr_x, sr_y, istatus)
+               call get_subgrid_dim_name(nest_num, field_name, dimnames(1:2), sr_x, sr_y, is_subgrid_var, istatus)
                call get_source_units(field_name, 1, units, istatus)
                if (istatus /= 0) units = '-'
                call get_source_descr(field_name, 1, description, istatus)
@@ -1525,7 +1526,7 @@ module source_data_module
             call get_next_output_fieldname(nest_num, field_name, ndims, &
                                            min_cat, max_cat, istagger, &
                                            memorder, dimnames, units, description, &
-                                           sr_x, sr_y, derived_from, istatus)
+                                           sr_x, sr_y, is_subgrid_var, derived_from, istatus)
             return
          end if
   
@@ -1564,7 +1565,7 @@ module source_data_module
                dimnames(3) = ' ' 
                memorder = 'XY ' 
 
-               call get_subgrid_dim_name(nest_num, field_name, dimnames(1:2), sr_x, sr_y, istatus)
+               call get_subgrid_dim_name(nest_num, field_name, dimnames(1:2), sr_x, sr_y, is_subgrid_var, istatus)
                field_name = domcat_name
                units = 'category'
                description = 'Dominant category'
@@ -1582,7 +1583,7 @@ module source_data_module
                call get_next_output_fieldname(nest_num, field_name, ndims, &
                                               min_cat, max_cat, istagger, &
                                               memorder, dimnames, units, description, &
-                                              sr_x, sr_y, derived_from, istatus)
+                                              sr_x, sr_y, is_subgrid_var, derived_from, istatus)
               return
             end if 
          else
@@ -1648,7 +1649,7 @@ module source_data_module
 !               field_name = dfdx_name
 !               units = '-'
 
-               call get_subgrid_dim_name(nest_num, field_name, dimnames(1:2), sr_x, sr_y, istatus)
+               call get_subgrid_dim_name(nest_num, field_name, dimnames(1:2), sr_x, sr_y, is_subgrid_var, istatus)
 ! Correct location of the two lines of code is below (see also dfdy)
                field_name = dfdx_name
                units = '-'
@@ -1668,7 +1669,7 @@ module source_data_module
                call get_next_output_fieldname(nest_num, field_name, ndims, &
                                               min_cat, max_cat, istagger, &
                                               memorder, dimnames, units, description, &
-                                              sr_x, sr_y, derived_from, istatus)
+                                              sr_x, sr_y, is_subgrid_var, derived_from, istatus)
                return
             end if 
          else
@@ -1729,7 +1730,7 @@ module source_data_module
                   dimnames(3) = ' '
                end if
                
-               call get_subgrid_dim_name(nest_num, field_name, dimnames(1:2), sr_x, sr_y, istatus)
+               call get_subgrid_dim_name(nest_num, field_name, dimnames(1:2), sr_x, sr_y, is_subgrid_var, istatus)
                field_name = dfdy_name
                units = '-'
                description = 'df/dy'
@@ -1739,7 +1740,7 @@ module source_data_module
                call get_next_output_fieldname(nest_num, field_name, ndims, &
                                               min_cat, max_cat, istagger, &
                                               memorder, dimnames, units, description, &
-                                              sr_x, sr_y, derived_from, istatus)
+                                              sr_x, sr_y, is_subgrid_var, derived_from, istatus)
                return
             end if 
          else
@@ -2546,19 +2547,21 @@ module source_data_module
    ! Pupose:
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
    subroutine get_subgrid_dim_name(nest_num, field_name, dimnames, &
-                                   sub_x, sub_y, istatus)
+                                   sub_x, sub_y, is_subgrid_var, istatus)
 
       use gridinfo_module
 
       implicit none
       integer, intent(in) :: nest_num
       integer, intent(out) :: sub_x, sub_y, istatus
+      logical, intent(out) :: is_subgrid_var
       character(len=128), intent(in) :: field_name
       character(len=128), dimension(2), intent(inout) :: dimnames
       integer :: idx, nlen
 
       sub_x = 1
       sub_y = 1
+      is_subgrid_var = .false.
 
       istatus = 0
       do idx=1,num_entries
@@ -2573,6 +2576,7 @@ module source_data_module
                dimnames(2) = trim(dimnames(2))//"_subgrid"
                sub_x = subgrid_ratio_x(nest_num)
                sub_y = subgrid_ratio_y(nest_num)
+               is_subgrid_var = .true.
             end if
          end if
       end do

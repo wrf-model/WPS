@@ -459,6 +459,7 @@ module output_module
       character (len=128) :: memorder, units, description
       character (len=128), dimension(3) :: dimnames 
       integer :: sr_x, sr_y
+      logical :: is_subgrid_var, sub_status
   
       !
       ! First find out how many fields there are
@@ -474,7 +475,8 @@ module output_module
                                         min_category, max_category, &
                                         istagger, memorder, dimnames, &
                                         units, description, sr_x, sr_y, &
-                                        derived_from, ifieldstatus)
+                                        is_subgrid_var, derived_from, ifieldstatus)
+         sub_status = (.not. is_subgrid_var .or. (sr_x > 0 .or. sr_y > 0))
 #ifdef _GEOGRID
          if (len_trim(derived_from) > 0) then
             call get_source_opt_status(trim(derived_from), 0, optstatus)
@@ -483,7 +485,7 @@ module output_module
          end if
 #endif
    
-         if (ifieldstatus == 0 .and. optstatus == 0) then
+         if (ifieldstatus == 0 .and. optstatus == 0 .and. sub_status) then
             nfields = nfields + 1
          end if
       end do
@@ -932,7 +934,8 @@ module output_module
                                       min_category, max_category, &
                                       istagger, memorder, dimnames, &
                                       units, description, sr_x, sr_y, &
-                                      derived_from, ifieldstatus)
+                                      is_subgrid_var, derived_from, ifieldstatus)
+         sub_status = (.not. is_subgrid_var .or. (sr_x > 0 .or. sr_y > 0))
 #ifdef _GEOGRID
          if (len_trim(derived_from) > 0) then
             call get_source_opt_status(trim(derived_from), 0, optstatus)
@@ -942,7 +945,7 @@ module output_module
 #endif
 
    
-         if (ifieldstatus == 0 .and. optstatus == 0) then !{
+         if (ifieldstatus == 0 .and. optstatus == 0 .and. sub_status) then !{
      
             fields(nfields)%ndims = ndims
             fields(nfields)%fieldname = fieldname
