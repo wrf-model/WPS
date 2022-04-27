@@ -832,7 +832,7 @@ name=QNWFA_DEC ; output_name=W_WIF_DEC
 name=W_WIF_DEC 
         z_dim_name=num_wif_levels
         interp_option=four_pt+average_4pt
-        flag_in_output=FLAG_QNWFA
+        flag_in_output=FLAG_QNWFA_CL
 ========================================
 name=QNIFA_JAN ; output_name=I_WIF_JAN
 ========================================
@@ -905,7 +905,80 @@ name=QNIFA_DEC ; output_name=I_WIF_DEC
 name=I_WIF_DEC 
         z_dim_name=num_wif_levels
         interp_option=four_pt+average_4pt
-        flag_in_output=FLAG_QNIFA
+        flag_in_output=FLAG_QNIFA_CL
+========================================
+name=QNBCA_JAN ; output_name=B_WIF_JAN
+========================================
+name=B_WIF_JAN
+        z_dim_name=num_wif_levels
+        interp_option=four_pt+average_4pt
+========================================
+name=QNBCA_FEB ; output_name=B_WIF_FEB
+========================================
+name=B_WIF_FEB
+        z_dim_name=num_wif_levels
+        interp_option=four_pt+average_4pt
+========================================
+name=QNBCA_MAR ; output_name=B_WIF_MAR
+========================================
+name=B_WIF_MAR
+        z_dim_name=num_wif_levels
+        interp_option=four_pt+average_4pt
+========================================
+name=QNBCA_APR ; output_name=B_WIF_APR
+========================================
+name=B_WIF_APR
+        z_dim_name=num_wif_levels
+        interp_option=four_pt+average_4pt
+========================================
+name=QNBCA_MAY ; output_name=B_WIF_MAY
+========================================
+name=B_WIF_MAY
+        z_dim_name=num_wif_levels
+        interp_option=four_pt+average_4pt
+========================================
+name=QNBCA_JUN ; output_name=B_WIF_JUN
+========================================
+name=B_WIF_JUN
+        z_dim_name=num_wif_levels
+        interp_option=four_pt+average_4pt
+========================================
+name=QNBCA_JUL ; output_name=B_WIF_JUL
+========================================
+name=B_WIF_JUL
+        z_dim_name=num_wif_levels
+        interp_option=four_pt+average_4pt
+========================================
+name=QNBCA_AUG ; output_name=B_WIF_AUG
+========================================
+name=B_WIF_AUG
+        z_dim_name=num_wif_levels
+        interp_option=four_pt+average_4pt
+========================================
+name=QNBCA_SEP ; output_name=B_WIF_SEP
+========================================
+name=B_WIF_SEP
+        z_dim_name=num_wif_levels
+        interp_option=four_pt+average_4pt
+========================================
+name=QNBCA_OCT ; output_name=B_WIF_OCT
+========================================
+name=B_WIF_OCT
+        z_dim_name=num_wif_levels
+        interp_option=four_pt+average_4pt
+========================================
+name=QNBCA_NOV ; output_name=B_WIF_NOV
+========================================
+name=B_WIF_NOV
+        z_dim_name=num_wif_levels
+        interp_option=four_pt+average_4pt
+========================================
+name=QNBCA_DEC ; output_name=B_WIF_DEC
+========================================
+name=B_WIF_DEC
+        z_dim_name=num_wif_levels
+        interp_option=four_pt+average_4pt
+        flag_in_output=FLAG_QNBCA_CL
 ========================================
 name=P_WIF_JAN
         z_dim_name=num_wif_levels
@@ -1012,12 +1085,48 @@ name=HGTMAXW
         flag_in_output=FLAG_HGTMAXW
 ========================================
 name=QNWFA
-        z_dim_name=num_qnwfa_levels
+        z_dim_name=num_wif_levels
         interp_option=four_pt+average_4pt
+        flag_in_output=FLAG_QNWFA
 ========================================
 name=QNIFA
-        z_dim_name=num_qnwfa_levels
+        z_dim_name=num_wif_levels
         interp_option=four_pt+average_4pt
+        flag_in_output=FLAG_QNIFA
+========================================
+name=QNBCA
+        z_dim_name=num_wif_levels
+        interp_option=four_pt+average_4pt
+        flag_in_output=FLAG_QNBCA
+========================================
+name=P_WIF
+        z_dim_name=num_wif_levels
+        interp_option=four_pt+average_4pt
+        flag_in_output=FLAG_P_WIF
+========================================
+name=QNWFA2D
+        interp_option=four_pt+average_4pt
+        flag_in_output=FLAG_QNWFA2D
+========================================
+name=QNIFA2D
+        interp_option=four_pt+average_4pt
+        flag_in_output=FLAG_QNIFA2D
+========================================
+name=QNBCA2D
+        interp_option=four_pt+average_4pt
+        flag_in_output=FLAG_QNBCA2D
+========================================
+name=QNOCBB2D
+        interp_option=nearest_neighbor
+        masked=water
+        fill_missing=0.
+        flag_in_output=FLAG_QNOCBB2D
+========================================
+name=QNBCBB2D
+        interp_option=nearest_neighbor
+        masked=water
+        fill_missing=0.
+        flag_in_output=FLAG_QNBCBB2D
 ========================================
 # This entry is only used for MPAS data
 name=smois

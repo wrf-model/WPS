@@ -957,3 +957,12 @@ name = OL4SS
         rel_path = 2deg:orogwd3_2deg/ol4ss/
         rel_path = default:orogwd3_10m/ol4ss/
 ===============================
+name = BATHYMETRY
+        priority = 1
+        dest_type = continuous
+        optional=yes
+        fill_missing=999.
+        interp_option = default:average_gcell(1.0)+search(5)
+        rel_path =  default:topobath_30s/
+        flag_in_output=FLAG_BATHYMETRY
+===============================

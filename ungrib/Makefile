@@ -1,5 +1,13 @@
 include $(DEV_TOP)/configure.wps
 
+ifneq "$(INTERNAL_GRIB2_PATH)" ""
+GRIB2_DEPS=grib2_libs
+GRIB2_CLEAN=grib2_clean
+else
+GRIB2_DEPS=
+GRIB2_CLEAN=
+endif
+
 bad_idea:
 	clear
 	@echo ' *************** '
@@ -10,7 +18,7 @@ bad_idea:
 	@echo " "
 	@echo ' *************** '
 
-all:
+all: $(GRIB2_DEPS)
 	( cd src/ngl ; $(MAKE) DEV_TOP="$(DEV_TOP)" CC="$(SCC)" FC="$(SFC)" RANLIB="$(RANLIB)" all )
 	( cd src ; \
         if [ "$(COMPILING_ON_CYGWIN_NT)" = yes ] ; then \
@@ -37,7 +45,13 @@ all:
 		$(LN) src/$(TARGET) . ; \
 	fi
 
-clean:
+grib2_libs:
+	( cd $(DEV_TOP)/external; $(MAKE) CC=$(SCC) INTERNAL_GRIB2_PATH=$(INTERNAL_GRIB2_PATH) )
+
+grib2_clean:
+	( cd $(DEV_TOP)/external; $(MAKE) clean INTERNAL_GRIB2_PATH=$(INTERNAL_GRIB2_PATH) )
+
+clean: $(GRIB2_CLEAN)
 	( cd src/ngl ; $(MAKE) DEV_TOP="$(DEV_TOP)" clean )
 	if [ -h $(TARGET) ] ; then \
 		$(RM) $(TARGET) ; \

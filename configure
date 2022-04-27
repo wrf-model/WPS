@@ -2,13 +2,21 @@
 
 #
 # Check for command-line arguments
-# At present, the only supported argument is --nowrf, which disables checks to
-# find the path to the compiled WRF model.
+# At present, the only supported arguments are:
+#     --nowrf : disables checks to find the path to the compiled WRF model
+#     --build-grib2-libs : compiles zlib, libpng, and JasPer libraries from
+#                          source in the external/ directory and installs
+#                          the libraries in grib2/
 #
 nowrf=0
+build_grib2=0
 for arg in $@; do
   if [ "${arg}" = "--nowrf" ]; then
     nowrf=1
+  elif [ "${arg}" = "--build-grib2-libs" ]; then
+    build_grib2=1
+  else
+    printf "Unrecognized option %s\n" ${arg}
   fi
 done
 
@@ -216,8 +224,22 @@ the WRF I/O libraries:
 EOF
 fi
 
+grib2dir=""
+if [ ${build_grib2} -eq 1 ]; then
+   grib2dir="${PWD}/grib2"
+
+   cat << EOF
+********************************************************************************
+The zlib, libpng, and JasPer libraries will be compiled from source and
+installed in ${grib2dir} .
+
+The environment variables JASPERLIB and JASPERINC will be ignored.
+********************************************************************************
+EOF
+fi
+
 # Found perl, so proceed with configuration
-perl arch/Config.pl -perl=$PERL -netcdf=$NETCDF -netcdff=$NETCDFF -os=$os -mach=$mach -wrfdir=$wrf_dir
+perl arch/Config.pl -perl=$PERL -netcdf=$NETCDF -netcdff=$NETCDFF -os=$os -mach=$mach -wrfdir=$wrf_dir -grib2dir=$grib2dir
 
 
 #Checking cross-compiling capability for some particular environment 

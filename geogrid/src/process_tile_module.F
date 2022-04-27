@@ -67,7 +67,8 @@ module process_tile_module
                                        sina_array, cosa_array
       real, pointer, dimension(:,:) :: xlat_ptr, xlon_ptr, mapfac_ptr_x, mapfac_ptr_y, landmask, dominant_field
       real, pointer, dimension(:,:,:) :: field, slp_field
-      logical :: is_water_mask, only_save_dominant, halt_on_missing
+      logical :: is_water_mask, only_save_dominant, halt_on_missing, &
+                 is_subgrid_var, sub_status
       character (len=19) :: datestr
       character (len=128) :: fieldname, gradname, domname, landmask_name
       character (len=256) :: temp_string
@@ -300,7 +301,7 @@ module process_tile_module
       end if
 
       ! Initialize the output module now that we have the corner point lats/lons
-      call output_init(which_domain, 'OUTPUT FROM GEOGRID V4.3.1', '0000-00-00_00:00:00', grid_type, dynopt, &
+      call output_init(which_domain, 'OUTPUT FROM GEOGRID V4.4', '0000-00-00_00:00:00', grid_type, dynopt, &
                        corner_lats, corner_lons, &
                        start_dom_i,   end_dom_i,   start_dom_j,   end_dom_j, &
                        start_patch_i, end_patch_i, start_patch_j, end_patch_j, &
@@ -747,17 +748,17 @@ module process_tile_module
             temp_string(1:128) = fieldname
 
             call get_source_opt_status(fieldname, 0, opt_status)
-      
+            call get_output_stagger(fieldname, istagger, istatus)
+            dimnames(:) = 'null'
+            call get_subgrid_dim_name(which_domain, fieldname, dimnames, &
+                                      sub_x, sub_y, is_subgrid_var, istatus)
+            sub_status = (.not. is_subgrid_var .or. (sub_x > 0 .or. sub_y > 0))
+             
             ! If this field is still to be processed
-            if (.not. hash_search(processed_fieldnames, temp_string) .and. opt_status == 0) then
+            if (.not. hash_search(processed_fieldnames, temp_string) .and. opt_status == 0 .and. sub_status) then
      
                call hash_insert(processed_fieldnames, temp_string)
                call mprintf(.true.,STDOUT,'  Processing %s', s1=trim(fieldname))
-       
-               call get_output_stagger(fieldname, istagger, istatus)
-               dimnames(:) = 'null'
-               call get_subgrid_dim_name(which_domain, fieldname, dimnames, &
-                                         sub_x, sub_y, istatus)
        
                if (istagger == M .or. (sub_x > 1) .or. (sub_y > 1)) then
                   sm1 = start_mem_i
@@ -962,9 +963,9 @@ module process_tile_module
                                   i1=field_count,i2=NUM_FIELDS-NUM_AUTOMATIC_FIELDS,s1=gradname)
 
                      if (grid_type == 'C') then
-                        call calc_dfdx(field, slp_field, sm1, sm2, min_level, em1, em2, max_level, mapfac_ptr_x)
+                        call calc_dfdx(field, slp_field, sm1, sm2, min_level, em1, em2, max_level, sub_x, mapfac_ptr_x)
                      else if (grid_type == 'E') then
-                        call calc_dfdx(field, slp_field, sm1, sm2, min_level, em1, em2, max_level)
+                        call calc_dfdx(field, slp_field, sm1, sm2, min_level, em1, em2, max_level, sub_x)
                      end if
                      call write_field(sm1, em1, sm2, em2, &
                                       min_level, max_level, trim(gradname), datestr, real_array=slp_field)
@@ -979,9 +980,9 @@ module process_tile_module
                                   i1=field_count,i2=NUM_FIELDS-NUM_AUTOMATIC_FIELDS,s1=gradname)
 
                      if (grid_type == 'C') then
-                        call calc_dfdy(field, slp_field, sm1, sm2, min_level, em1, em2, max_level, mapfac_ptr_y)
+                        call calc_dfdy(field, slp_field, sm1, sm2, min_level, em1, em2, max_level, sub_y, mapfac_ptr_y)
                      else if (grid_type == 'E') then
-                        call calc_dfdy(field, slp_field, sm1, sm2, min_level, em1, em2, max_level)
+                        call calc_dfdy(field, slp_field, sm1, sm2, min_level, em1, em2, max_level, sub_y)
                      end if
                      call write_field(sm1, em1, sm2, em2, &
                                       min_level, max_level, trim(gradname), datestr, real_array=slp_field)
@@ -1715,7 +1716,7 @@ module process_tile_module
 
       do i=start_mem_i, end_mem_i
          do j=start_mem_j, end_mem_j
-            call xytoll(real(i-1)/rx+1.0, real(j-1)/ry+1.0, &
+            call xytoll(real(i-0.5)/rx+0.5, real(j-0.5)/ry+0.5, &
                         xlat_arr(i,j), xlon_arr(i,j), stagger, comp_ll=comp_ll)
          end do
       end do
@@ -2043,10 +2044,10 @@ module process_tile_module
    !   the result in dst_array.
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
    subroutine calc_dfdy(src_arr, dst_arr, start_mem_i, start_mem_j, start_mem_k, &
-                        end_mem_i, end_mem_j, end_mem_k, mapfac)
+                        end_mem_i, end_mem_j, end_mem_k, sr_y, mapfac)
    
       ! Modules
-      use gridinfo_module
+      use llxy_module
     
       implicit none
     
@@ -2054,41 +2055,46 @@ module process_tile_module
       integer, intent(in) :: start_mem_i, start_mem_j, start_mem_k, end_mem_i, end_mem_j, end_mem_k
       real, dimension(start_mem_i:end_mem_i, start_mem_j:end_mem_j,start_mem_k:end_mem_k), intent(in) :: src_arr
       real, dimension(start_mem_i:end_mem_i, start_mem_j:end_mem_j,start_mem_k:end_mem_k), intent(out) :: dst_arr
+      integer, intent(in) :: sr_y
       real, dimension(start_mem_i:end_mem_i, start_mem_j:end_mem_j), intent(in), optional :: mapfac
     
       ! Local variables
       integer :: i, j, k
-    
+      real :: dom_dx, dom_dy
+      
+      ! Get domain resolution
+      call get_domain_resolution(dom_dx, dom_dy)
+
       if (present(mapfac)) then
          do k=start_mem_k,end_mem_k
             do i=start_mem_i, end_mem_i
                do j=start_mem_j+1, end_mem_j-1
-                  dst_arr(i,j,k) = (src_arr(i,j+1,k) - src_arr(i,j-1,k))/(2.*dykm*mapfac(i,j))
+                  dst_arr(i,j,k) = (src_arr(i,j+1,k) - src_arr(i,j-1,k))/(2.*dom_dy*mapfac(i,j)/sr_y)
                end do
             end do
      
             do i=start_mem_i, end_mem_i
-               dst_arr(i,start_mem_j,k) = (src_arr(i,start_mem_j+1,k) - src_arr(i,start_mem_j,k))/(dykm*mapfac(i,j))
+               dst_arr(i,start_mem_j,k) = (src_arr(i,start_mem_j+1,k) - src_arr(i,start_mem_j,k))/(dom_dy*mapfac(i,j)/sr_y)
             end do
      
             do i=start_mem_i, end_mem_i
-               dst_arr(i,end_mem_j,k) = (src_arr(i,end_mem_j,k) - src_arr(i,end_mem_j-1,k))/(dykm*mapfac(i,j))
+               dst_arr(i,end_mem_j,k) = (src_arr(i,end_mem_j,k) - src_arr(i,end_mem_j-1,k))/(dom_dy*mapfac(i,j)/sr_y)
             end do
          end do
       else
          do k=start_mem_k,end_mem_k
             do i=start_mem_i, end_mem_i
                do j=start_mem_j+1, end_mem_j-1
-                  dst_arr(i,j,k) = (src_arr(i,j+1,k) - src_arr(i,j-1,k))/(2.*dykm)
+                  dst_arr(i,j,k) = (src_arr(i,j+1,k) - src_arr(i,j-1,k))/(2.*dom_dy/sr_y)
                end do
             end do
      
             do i=start_mem_i, end_mem_i
-               dst_arr(i,start_mem_j,k) = (src_arr(i,start_mem_j+1,k) - src_arr(i,start_mem_j,k))/(dykm)
+               dst_arr(i,start_mem_j,k) = (src_arr(i,start_mem_j+1,k) - src_arr(i,start_mem_j,k))/(dom_dy/sr_y)
             end do
      
             do i=start_mem_i, end_mem_i
-               dst_arr(i,end_mem_j,k) = (src_arr(i,end_mem_j,k) - src_arr(i,end_mem_j-1,k))/(dykm)
+               dst_arr(i,end_mem_j,k) = (src_arr(i,end_mem_j,k) - src_arr(i,end_mem_j-1,k))/(dom_dy/sr_y)
             end do
          end do
       end if
@@ -2103,10 +2109,10 @@ module process_tile_module
    !   the result in dst_array.
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
    subroutine calc_dfdx(src_arr, dst_arr, start_mem_i, start_mem_j, &
-                        start_mem_k, end_mem_i, end_mem_j, end_mem_k, mapfac)
+                        start_mem_k, end_mem_i, end_mem_j, end_mem_k, sr_x, mapfac)
    
       ! Modules
-      use gridinfo_module
+      use llxy_module
     
       implicit none
     
@@ -2114,41 +2120,46 @@ module process_tile_module
       integer, intent(in) :: start_mem_i, start_mem_j, start_mem_k, end_mem_i, end_mem_j, end_mem_k
       real, dimension(start_mem_i:end_mem_i, start_mem_j:end_mem_j, start_mem_k:end_mem_k), intent(in) :: src_arr
       real, dimension(start_mem_i:end_mem_i, start_mem_j:end_mem_j, start_mem_k:end_mem_k), intent(out) :: dst_arr
+      integer, intent(in) :: sr_x
       real, dimension(start_mem_i:end_mem_i, start_mem_j:end_mem_j), intent(in), optional :: mapfac
     
       ! Local variables
       integer :: i, j, k
-    
+      real :: dom_dx, dom_dy
+      
+      ! Get domain resolution
+      call get_domain_resolution(dom_dx, dom_dy)
+
       if (present(mapfac)) then
          do k=start_mem_k, end_mem_k
             do i=start_mem_i+1, end_mem_i-1
                do j=start_mem_j, end_mem_j
-                  dst_arr(i,j,k) = (src_arr(i+1,j,k) - src_arr(i-1,j,k))/(2.*dxkm*mapfac(i,j))
+                  dst_arr(i,j,k) = (src_arr(i+1,j,k) - src_arr(i-1,j,k))/(2.*dom_dx*mapfac(i,j)/sr_x)
                end do
             end do
      
             do j=start_mem_j, end_mem_j
-               dst_arr(start_mem_i,j,k) = (src_arr(start_mem_i+1,j,k) - src_arr(start_mem_i,j,k))/(dxkm*mapfac(i,j))
+               dst_arr(start_mem_i,j,k) = (src_arr(start_mem_i+1,j,k) - src_arr(start_mem_i,j,k))/(dom_dx*mapfac(i,j)/sr_x)
             end do
      
             do j=start_mem_j, end_mem_j
-               dst_arr(end_mem_i,j,k) = (src_arr(end_mem_i,j,k) - src_arr(end_mem_i-1,j,k))/(dxkm*mapfac(i,j))
+               dst_arr(end_mem_i,j,k) = (src_arr(end_mem_i,j,k) - src_arr(end_mem_i-1,j,k))/(dom_dx*mapfac(i,j)/sr_x)
             end do
          end do
       else
          do k=start_mem_k, end_mem_k
             do i=start_mem_i+1, end_mem_i-1
                do j=start_mem_j, end_mem_j
-                  dst_arr(i,j,k) = (src_arr(i+1,j,k) - src_arr(i-1,j,k))/(2.*dxkm)
+                  dst_arr(i,j,k) = (src_arr(i+1,j,k) - src_arr(i-1,j,k))/(2.*dom_dx/sr_x)
                end do
             end do
      
             do j=start_mem_j, end_mem_j
-               dst_arr(start_mem_i,j,k) = (src_arr(start_mem_i+1,j,k) - src_arr(start_mem_i,j,k))/(dxkm)
+               dst_arr(start_mem_i,j,k) = (src_arr(start_mem_i+1,j,k) - src_arr(start_mem_i,j,k))/(dom_dx/sr_x)
             end do
      
             do j=start_mem_j, end_mem_j
-               dst_arr(end_mem_i,j,k) = (src_arr(end_mem_i,j,k) - src_arr(end_mem_i-1,j,k))/(dxkm)
+               dst_arr(end_mem_i,j,k) = (src_arr(end_mem_i,j,k) - src_arr(end_mem_i-1,j,k))/(dom_dx/sr_x)
             end do
          end do
       end if

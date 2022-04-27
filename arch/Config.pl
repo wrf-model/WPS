@@ -11,6 +11,7 @@ $sw_wrf_path   = "<SET ME>";
 $sw_netcdf_path = "";
 $sw_netcdff_lib = "";
 $sw_phdf5_path  = ""; 
+$sw_grib2_path = "";
 $sw_jasperlib_path = ""; 
 $sw_jasperinc_path = ""; 
 $sw_ldflags      = ""; 
@@ -61,47 +62,59 @@ while(substr( $ARGV[0], 0, 1 ) eq "-")
         # separated by ! instead. Replace with spaces here.
         $sw_ldflags =~ s/!/ /g ;
     }    
+    if(substr( $ARGV[0], 1, 9 ) eq "grib2dir=")
+    {
+        $sw_grib2_path = substr( $ARGV[0], 10 );
+    }
     shift @ARGV;
 } # end while
 
-# The jasper library is required to build Grib2 I/O.  User must set 
-# environment variables JASPERLIB and JASPERINC to paths to library and 
-# include files to enable this feature prior to running configure.  
-if($ENV{JASPERLIB} && $ENV{JASPERINC})
+if ($sw_grib2_path eq "")
 {
-   printf "Found Jasper environment variables for GRIB2 support...\n";
-   printf("  \$JASPERLIB = %s\n",$ENV{JASPERLIB});
-   printf("  \$JASPERINC = %s\n",$ENV{JASPERINC});
-   $sw_jasperlib_path = "-L$ENV{JASPERLIB} -ljasper -lpng -lz"; 
-   $sw_jasperinc_path = "-I$ENV{JASPERINC}"; 
+   # The jasper library is required to build Grib2 I/O.  User must set 
+   # environment variables JASPERLIB and JASPERINC to paths to library and 
+   # include files to enable this feature prior to running configure.  
+   if($ENV{JASPERLIB} && $ENV{JASPERINC})
+   {
+      printf "Found Jasper environment variables for GRIB2 support...\n";
+      printf("  \$JASPERLIB = %s\n",$ENV{JASPERLIB});
+      printf("  \$JASPERINC = %s\n",$ENV{JASPERINC});
+      $sw_jasperlib_path = "-L$ENV{JASPERLIB} -ljasper -lpng -lz"; 
+      $sw_jasperinc_path = "-I$ENV{JASPERINC}"; 
+   }
+   else
+   {
+
+       $tmp1 = '/usr/local/jasper';
+       if (-e $tmp1) {
+         $sw_jasperlib_path = '-L/usr/local/jasper/lib -ljasper -L/usr/local/libpng -lpng12 -lpng -L/usr/local/zlib/lib -lz' ;
+         $sw_jasperinc_path = '-I/usr/local/zlib/include -I/usr/local/jasper/include -I/usr/local/libpng/' ; 
+           printf "\$JASPERLIB or \$JASPERINC not found in environment. Using /usr/local for library paths...\n";
+       }
+       else {
+         $tmp1 = '/opt/local/lib';
+         if (-e $tmp1) {
+           $sw_jasperlib_path = '-L/opt/local/lib -ljasper -lpng -lz';
+           $sw_jasperinc_path = '-I/opt/local/include'; 
+           printf "\$JASPERLIB or \$JASPERINC not found in environment. Using /opt/local for library paths...\n";
+         }
+         else {
+           $sw_jasperlib_path = '-L/glade/u/home/wrfhelp/UNGRIB_LIBRARIES/lib -ljasper -lpng -lz';
+           $sw_jasperinc_path = '-I/glade/u/home/wrfhelp/UNGRIB_LIBRARIES/include';
+           printf "\$JASPERLIB or \$JASPERINC not found in environment. Using default values for library paths...\n";
+         }
+       }
+   }
+   @platforms = ('serial', 'serial_NO_GRIB2', 'dmpar', 'dmpar_NO_GRIB2');
 }
 else
 {
-
-    $tmp1 = '/usr/local/jasper';
-    if (-e $tmp1) {
-      $sw_jasperlib_path = '-L/usr/local/jasper/lib -ljasper -L/usr/local/libpng -lpng12 -lpng -L/usr/local/zlib/lib -lz' ;
-      $sw_jasperinc_path = '-I/usr/local/zlib/include -I/usr/local/jasper/include -I/usr/local/libpng/' ; 
-        printf "\$JASPERLIB or \$JASPERINC not found in environment. Using /usr/local for library paths...\n";
-    }
-    else {
-      $tmp1 = '/opt/local/lib';
-      if (-e $tmp1) {
-        $sw_jasperlib_path = '-L/opt/local/lib -ljasper -lpng -lz';
-	$sw_jasperinc_path = '-I/opt/local/include'; 
-        printf "\$JASPERLIB or \$JASPERINC not found in environment. Using /opt/local for library paths...\n";
-      }
-      else {
-      $sw_jasperlib_path = '-L/glade/u/home/wrfhelp/UNGRIB_LIBRARIES/lib -ljasper -lpng -lz';
-      $sw_jasperinc_path = '-I/glade/u/home/wrfhelp/UNGRIB_LIBRARIES/include';
-        printf "\$JASPERLIB or \$JASPERINC not found in environment. Using default values for library paths...\n";
-      }
-    }
+   $sw_jasperlib_path = '-L$(INTERNAL_GRIB2_PATH)/lib -ljasper -lpng -lz';
+   $sw_jasperinc_path = '-I$(INTERNAL_GRIB2_PATH)/include';
+   @platforms = ('serial', 'dmpar');
 }
 
 $validresponse = 0 ;
-# added this from the WRF Config.pl by John M.
-@platforms = ('serial', 'serial_NO_GRIB2', 'dmpar', 'dmpar_NO_GRIB2');
 # Display the choices to the user and get selection
 until ($validresponse)
 {
@@ -208,7 +221,7 @@ while(<CONFIGURE_DEFAULTS>)
             {                                      
                 if($paropt eq 'serial')
                 {                    
-                    if($ENV{JASPERLIB} && $ENV{JASPERINC})
+                    if(($ENV{JASPERLIB} && $ENV{JASPERINC}) || $sw_grib2_path ne "")
                     {
                        $sw_compL = $sw_jasperlib_path;
                        $sw_compI = $sw_jasperinc_path;
@@ -236,7 +249,7 @@ while(<CONFIGURE_DEFAULTS>)
                 }
                 if($paropt eq 'dmpar') 
                 {                         
-                    if($ENV{JASPERLIB} && $ENV{JASPERINC})
+                    if(($ENV{JASPERLIB} && $ENV{JASPERINC}) || $sw_grib2_path ne "")
                     {
                        $sw_compL = $sw_jasperlib_path;
                        $sw_compI = $sw_jasperinc_path;
@@ -302,6 +315,7 @@ open CONFIGURE_WRF, "> configure.wps" || die "cannot Open for writing... configu
 
         $_ =~ s:CONFIGURE_NETCDFF_LIB:$sw_netcdff_lib:g; 
         $_ =~ s:CONFIGURE_WRF_PATH:$sw_wrf_path:g; 
+        $_ =~ s:CONFIGURE_GRIB2_PATH:$sw_grib2_path:g;
         @preamble = ( @preamble, $_ ) ;
     }
     close ARCH_PREAMBLE;
