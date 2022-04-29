@@ -139,7 +139,7 @@ if [ -n "$NETCDF" ] ; then
   # for 3.6.2 and greater there might be a second library, libnetcdff.a .  Check for this and use
   # if available
   NETCDFF=" "
-  if [ -f "$NETCDF/lib/libnetcdff.a" ] ; then
+  if [ -f "$NETCDF/lib/libnetcdff.a" -o -f "$NETCDF/lib/libnetcdff.so" -o -f "$NETCDF/lib/libnetcdff.dll.a" ] ; then
     NETCDFF="-lnetcdff"
   fi
 else
