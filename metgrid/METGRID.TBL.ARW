@@ -1148,3 +1148,19 @@ name=LOGSFP
         output=no
         interp_option=four_pt
 ========================================
+name=CLDMASK
+        interp_option=nearest_neighbor
+        flag_in_output=FLAG_CLDMASK
+========================================
+name=CLDBASEZ
+        interp_option=nearest_neighbor
+        flag_in_output=FLAG_CLDBASEZ
+========================================
+name=CLDTOPZ
+        interp_option=nearest_neighbor
+        flag_in_output=FLAG_CLDTOPZ
+========================================
+name=BRTEMP
+        interp_option=nearest_neighbor
+        flag_in_output=FLAG_BRTEMP
+========================================
