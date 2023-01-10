@@ -80,7 +80,7 @@ subroutine output(hdate, nlvl, maxlvl, plvl, interval, iflag, out_format, prefix
      do k = 1, n-1
         if (namvar(k).eq.namvar(n)) cycle WRTLOOP
      enddo
-     write(*,advance='NO', fmt='(1x,A8)') namvar(n)
+     write(*,advance='NO', fmt='(1x,A9)') namvar(n)
      write(tmp9,'(A9)') namvar(n)(1:9)
      call right_justify(tmp9,9)
      call mprintf(.true.,LOGFILE,tmp9,newline=.false.)
