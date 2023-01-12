@@ -761,8 +761,6 @@ name=T0
         missing_value=200.
         fill_missing=-20.
 ========================================
-name=O3_TOT ; output_name=O3_GFS_DU
-========================================
 name=O3_GFS_DU
         interp_option=four_pt+average_4pt
         fill_lev=200100:const(200100.)

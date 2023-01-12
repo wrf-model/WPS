@@ -45,7 +45,7 @@ Param| Type |Level1|Level2| Name     | Units   | Description                    
      |   7  |   0  |      | PTROPNN  | Pa      | PTROP, used for nearest neighbor interp |  0  |  3  |  0  |   7 |
    2 |   7  |   0  |      | TTROP    | K       | Temperature at tropopause               |  0  |  0  |  0  |   7 |
    7 |   7  |   0  |      | HGTTROP  | m       | Height of tropopause                    |  0  |  3  |  5  |   7 |
-  10 | 200  |   *  |      | O3_TOT   | Dobson  | Total ozone column                      |  0  | 14  |  0  | 200 |
+  10 | 200  |   *  |      | O3_GFS_DU| Dobson  | Total ozone column                      |  0  | 14  |  0  | 200 |
 -----+------+------+------+----------+---------+-----------------------------------------+-----------------------+
 #
 #  Vtable for GFS pressure-level data from the ncep server.
