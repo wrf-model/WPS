@@ -217,6 +217,8 @@ SUBROUTINE rd_grib1(IUNIT, gribflnm, level, field, hdate,  &
       map%source = 'ECMWF'
   else if (icenter .eq. 74 .or. icenter .eq. 75 ) then
       map%source = 'UKMO'
+  else if (icenter .eq. 78 .or. icenter .eq. 79 ) then
+      map%source = 'DWD'
   else
     map%source = 'unknown model and orig center'
   end if
