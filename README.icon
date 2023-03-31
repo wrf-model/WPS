@@ -1,0 +1,56 @@
+#########################################################################
+README for running ICON suite of models - ICON-eu, ICON-d2 and ICON global
+
+Icon data can be downloaded from the opdate data server - 
+https://opendata.dwd.de/weather/nwp/
+
+Archive data server information can be found at (not free) - 
+https://www.dwd.de/EN/ourservices/pamore/pamore.html 
+
+For all model data you need to HSURF which is the geometric height of the earts surface above msl. Can use cdo to merge this file into each timestep after downloading it for each timestep.
+
+#########################################################################
+Soil data - all DWD models
+
+All the icon models and DWD suite of models output 9 soil temperature levels and 8 soil moisture layers. For running with wrf you can use however many levels you need, however soil level 0 is needed. 
+This 0 layer is layer 1 of 8 in the soil moisture levels. For temperature you can either use layer 0 or 1 at depths 0cm or 0.5cm as a zero gradient conditions is assumed between these levels. For ease of download level 0 is easiest to download.
+For layers 1 to 6 these are prognosed in soil moisture, however for soil moisture layers 7 and 8 these are considered zero gradient condition and filled the same as level 6.
+Temperatures are prognosed from layers 1 to 7 with layer 8 filled with the climatological average 2m temperature so caution should be used when using this layer in soil models.
+
+Soil moisture should be fed into ungrib as kg/m2 so metgrid then turns this into a fraction so WRF can use it.
+
+#########################################################################
+ICON-EU and icon-d2
+
+Can be run using pressure levels or model level data. 
+
+Variable tables labelled as pressure_level or model_level.
+Note different variables are downloaded depending on what variable tables you are using due to some variable not. 
+
+
+##########################################################################
+ICON-Global
+
+Can be run using pressure level data or model level data.
+
+Variable tables labelled as pressure_level and model_level.
+
+Data needs to be converted from icosahedral grid to latlon grid.
+
+To convert to latlong grid from native icosahedral grid yo ucan use various tools -
+https://www.dwd.de/DE/leistungen/opendata/help/modelle/Opendata_cdo_EN.pdf?__blob=publicationFile&v=3
+https://github.com/DeutscherWetterdienst/regrid
+
+########################################################################
+________________________________________
+        |Pressure level | Model level  |
+        |---------------|--------------|
+        |               |              |
+Icon-EU |      Yes      |      Yes     |
+________|_______________|______________|
+        |               |              |
+ICON-d2 |      Yes      |      Yes     |
+________|_______________|______________|
+        |               |              |
+ICON-   |      Yes      |      Yes     |   ICON Global is on icosahedral grid so needs to be converted to latlon grid before (See notes above)
+global  |_______________|______________|
