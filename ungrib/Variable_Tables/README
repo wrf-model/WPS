@@ -49,6 +49,7 @@ Vtable.TCRP                Twentieth Century Global Reanalysis Version 2
 Vtable.UKMO_ENDGame        U.K. Met Office model
 Vtable.UKMO_LANDSEA
 Vtable.UKMO_no_heights
+Vtable.ICON_pressure_levels  DWD ICON-EU pressure level
+Vtable.ICON_model_levels     DWD ICON/ICON EU model levels
 
-
-Updated 12 Aug 2014
+Updated 31 Mar 2023
