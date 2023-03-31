@@ -1,13 +1,14 @@
 #########################################################################
 README for running ICON suite of models - ICON-eu, ICON-d2 and ICON global
 
-Icon data can be downloaded from the opdate data server - 
+Icon data can be downloaded from the open data server - 
 https://opendata.dwd.de/weather/nwp/
 
 Archive data server information can be found at (not free) - 
 https://www.dwd.de/EN/ourservices/pamore/pamore.html 
 
-For all model data you need to HSURF which is the geometric height of the earts surface above msl. Can use cdo to merge this file into each timestep after downloading it for each timestep.
+For all model data you need to include variable HSURF which is the geometric height of the earths surface above msl. Can use cdo to merge this file into each timestep after downloading it for each timestep.
+Time needs to be corrected for each timestep on download if downloading from open data server. This can be done by using cdo -setdate,"$date" -settime,"$Tstad":00:00 with date being year, month and day of the model timestep and Tstad is hour of model timestep. 
 
 #########################################################################
 Soil data - all DWD models
@@ -25,7 +26,7 @@ ICON-EU and icon-d2
 Can be run using pressure levels or model level data. 
 
 Variable tables labelled as pressure_level or model_level.
-Note different variables are downloaded depending on what variable tables you are using due to some variable not. 
+Note different variables are downloaded depending on what variable tables you are using due to some variables not available on the open data server for that model. 
 
 
 ##########################################################################
