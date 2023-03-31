@@ -326,6 +326,8 @@ C  SET ARGUMENTS
              map%source = 'JMA'
            else if (icenter .eq. 74 .or. icenter .eq. 75 ) then
              map%source = 'UKMO'
+	   else if (icenter .eq. 78 .or. icenter .eq. 79 ) then
+             map%source = 'DWD'
            else
              map%source = 'unknown model and orig center'
            end if
@@ -757,7 +759,8 @@ C  SET ARGUMENTS
      &                           (10. ** (-1. * gfld%ipdtmpl(11)))
 		 if ( level .lt. pmin ) cycle MATCH_LOOP
               elseif((gfld%ipdtmpl(10).eq.105).or.
-     &               (gfld%ipdtmpl(10).eq.118))then
+     &               (gfld%ipdtmpl(10).eq.118)).or.
+     &               (gfld%ipdtmpl(10).eq.150))then
                  ! Hybrid level (range from 1 to N)
                  level=gfld%ipdtmpl(12)
               elseif(gfld%ipdtmpl(10).eq.104) then
