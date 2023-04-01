@@ -43,6 +43,3 @@ Param| Type |Level1|Level2| Name     | Units   | Description                    
 # Notes:
 # Variable from server come as individual files per variable and timestep so need to merge them together.
 # Some variable only come for initial time so need to be added for each timestep being ingested into wps.
-#
-# Due to model levels being on .5 levels then need to convert these to whole model levels before running ungrib 
-# Can be done using CDO command (cdo -setzaxis,"zaxis.tmp" Fin Fout) for each variable)
