@@ -759,7 +759,7 @@ C  SET ARGUMENTS
      &                           (10. ** (-1. * gfld%ipdtmpl(11)))
 		 if ( level .lt. pmin ) cycle MATCH_LOOP
               elseif((gfld%ipdtmpl(10).eq.105).or.
-     &               (gfld%ipdtmpl(10).eq.118)).or.
+     &               (gfld%ipdtmpl(10).eq.118).or.
      &               (gfld%ipdtmpl(10).eq.150))then
                  ! Hybrid level (range from 1 to N)
                  level=gfld%ipdtmpl(12)
