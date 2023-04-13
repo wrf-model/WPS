@@ -1484,7 +1484,7 @@ subroutine fix_icon_soilm (ix, jx)
   call get_storage(200100, 'SOILM486', soilm486, ix, jx)
   call get_storage(200100, 'SOILM999', soilm999, ix, jx)
     !convert kg m-2 to m3 m-3
-    soilm001 = soilm000 / 10.
+    soilm000 = soilm000 / 10.
     soilm002 = soilm002 / 20.
     soilm006 = soilm006 / 60.
     soilm018 = soilm018 / 180.
