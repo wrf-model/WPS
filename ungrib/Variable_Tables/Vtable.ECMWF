@@ -12,7 +12,7 @@ Param| Type |Level1|Level2| Name     | Units   | Description                    
  167 |  1   |   0  |      | TT       | K        | Temperature          At  2 m             |  0  |  0  |  0  | 103 |
  168 |  1   |   0  |      | DEWPT    | K        |                                          |  0  |  0  |     | 103 |
      |  1   |   0  |      | RH       | %        | Relative Humidity    At  2 m             |  0  |  0  |     | 103 | 
- 172 |  1   |   0  |      | LANDSEA  | 0/1 Flag | Land/Sea flag                            |  0  |  0  |     | 103 | 
+ 172 |  1   |   0  |      | LANDSEA  | 0/1 Flag | Land/Sea flag                            |  2  |  0  |  0  |  1  | 
  129 |  1   |   0  |      | SOILGEO  | m2 s-2   |                                          |  0  |  0  |     | 103 | 
      |  1   |   0  |      | SOILHGT  | m        | Terrain field of source analysis         |  0  |  0  |     | 106 | 
  134 |  1   |   0  |      | PSFC     | Pa       | Surface Pressure                         |  0  |  3  |  0  |  1  |
@@ -22,14 +22,14 @@ Param| Type |Level1|Level2| Name     | Units   | Description                    
   34 |  1   |   0  |      | SST      | K        | Sea-Surface Temperature                  |  0  |  3  |     | 101 |
  141 |  1   |   0  |      | SNOW_EC  | m        |                                          |  0  |  3  |     | 101 |
      |  1   |   0  |      | SNOW     | kg m-2   |Water Equivalent of Accumulated Snow Depth|  0  |  3  |     | 101 |
- 139 | 112  |   0  |   7  | ST000007 | K        | T of 0-7 cm ground layer                 |  0  |  0  |     | 106 | 
- 170 | 112  |   7  |  28  | ST007028 | K        | T of 7-28 cm ground layer                |  0  |  0  |     | 106 | 
- 183 | 112  |  28  | 100  | ST028100 | K        | T of 28-100 cm ground layer              |  0  |  0  |     | 106 | 
- 236 | 112  | 100  | 255  | ST100289 | K        | T of 100-289 cm ground layer             |  0  |  0  |     | 106 | 
-  39 | 112  |   0  |   7  | SM000007 | fraction | Soil moisture of 0-7 cm ground layer     |  0  |  0  |     | 106 | 
-  40 | 112  |   7  |  28  | SM007028 | fraction | Soil moisture of 7-28 cm ground layer    |  0  |  0  |     | 106 | 
-  41 | 112  |  28  | 100  | SM028100 | fraction | Soil moisture of 28-100 cm ground layer  |  0  |  0  |     | 106 | 
-  42 | 112  | 100  | 255  | SM100289 | fraction | Soil moisture of 100-289 cm ground layer |  0  |  0  |     | 106 | 
+ 139 | 112  |   0  |   7  | ST000007 | K        | T of 0-7 cm ground layer                 |  2  |  0  |  2  | 106 | 
+ 170 | 112  |   7  |  28  | ST007028 | K        | T of 7-28 cm ground layer                |  2  |  0  |     | 106 | 
+ 183 | 112  |  28  | 100  | ST028100 | K        | T of 28-100 cm ground layer              |  2  |  0  |     | 106 | 
+ 236 | 112  | 100  | 255  | ST100289 | K        | T of 100-289 cm ground layer             |  2  |  0  |     | 106 | 
+  39 | 112  |   0  |   7  | SM000007 | fraction | Soil moisture of 0-7 cm ground layer     |  2  |  0  |     | 106 | 
+  40 | 112  |   7  |  28  | SM007028 | fraction | Soil moisture of 7-28 cm ground layer    |  2  |  0  |     | 106 | 
+  41 | 112  |  28  | 100  | SM028100 | fraction | Soil moisture of 28-100 cm ground layer  |  2  |  0  |     | 106 | 
+  42 | 112  | 100  | 255  | SM100289 | fraction | Soil moisture of 100-289 cm ground layer |  2  |  0  |     | 106 | 
 -----+------+------+------+----------+----------+------------------------------------------+-----+-----+-----+-----+
 #
 #  Grib codes are from Table 128 
