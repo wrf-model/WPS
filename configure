@@ -1,5 +1,24 @@
 #!/bin/sh
 
+print_help()
+{
+  echo 'Usage: configure [options]'
+  echo ''
+  echo 'where options may be any of the following:'
+  echo ''
+  echo ' --nowrf             Disables checks to find the path to the compiled WRF model.'
+  echo '                     This enables some WPS programs to be compiled without'
+  echo '                     requiring WRF to have been compiled, but it will preclude'
+  echo '                     the compilation of WPS programs that depend on the WRF I/O'
+  echo '                     API (geogrid, metgrid, and int2nc).'
+  echo ''
+  echo ' --build-grib2-libs  Compiles zlib, libpng, and JasPer libraries from source in'
+  echo '                     the external/ directory, and installs the libraries in'
+  echo '                     grib2/.'
+  echo ''
+  echo ' -h/--help           Print this help message and quit.'
+}
+
 #
 # Check for command-line arguments
 # At present, the only supported arguments are:
@@ -15,6 +34,9 @@ for arg in $@; do
     nowrf=1
   elif [ "${arg}" = "--build-grib2-libs" ]; then
     build_grib2=1
+  elif [ "${arg}" = "--help" ] || [ "${arg}" = "-h" ]; then
+    print_help
+    exit
   else
     printf "Unrecognized option %s\n" ${arg}
   fi

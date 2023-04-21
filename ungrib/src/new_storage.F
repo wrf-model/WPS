@@ -16,7 +16,7 @@ module storage_module
   public :: setll
   public :: getll
 
-  integer, parameter :: idlen = 8
+  integer, parameter :: idlen = 9
   integer :: verbose = 0  ! 0 = no prints; 1 = some prints; 2 = more; etc.
 
   type node2

@@ -301,7 +301,7 @@ module process_tile_module
       end if
 
       ! Initialize the output module now that we have the corner point lats/lons
-      call output_init(which_domain, 'OUTPUT FROM GEOGRID V4.4', '0000-00-00_00:00:00', grid_type, dynopt, &
+      call output_init(which_domain, 'OUTPUT FROM GEOGRID V4.5', '0000-00-00_00:00:00', grid_type, dynopt, &
                        corner_lats, corner_lons, &
                        start_dom_i,   end_dom_i,   start_dom_j,   end_dom_j, &
                        start_patch_i, end_patch_i, start_patch_j, end_patch_j, &
@@ -1922,6 +1922,7 @@ module process_tile_module
    
       use constants_module
       use gridinfo_module
+      use map_utils, only : lc_cone
     
       implicit none
     
@@ -1932,51 +1933,136 @@ module process_tile_module
     
       ! Local variables
       integer :: i, j
+      real :: cone
       real :: alpha, d_lon
 
-      do i=start_mem_i, end_mem_i
-         do j=start_mem_j+1, end_mem_j-1
-            d_lon = xlon_arr(i,j+1)-xlon_arr(i,j-1)
+      !
+      ! Lambert conformal projection
+      !
+      if (iproj_type == PROJ_LC) then
+
+         ! Rotation angle is given by the difference in longitude from the standard longitude
+         ! scaled by the cone factor of the projection
+
+         call lc_cone(truelat1, truelat2, cone)
+
+         do i=start_mem_i, end_mem_i
+            do j=start_mem_j, end_mem_j
+               d_lon = stand_lon - xlon_arr(i,j)
+               if (d_lon > 180.) then
+                  d_lon = d_lon - 360.
+               else if (d_lon < -180.) then
+                  d_lon = d_lon + 360.
+               end if
+
+               alpha = d_lon * cone * RAD_PER_DEG
+
+               sina(i,j) = sin(alpha)
+               cosa(i,j) = cos(alpha)
+            end do
+         end do
+
+      !
+      ! Polar stereographic projection
+      !
+      else if (iproj_type == PROJ_PS) then
+
+         ! Rotation angle is given by the difference in longitude from the standard longitude
+
+         do i=start_mem_i, end_mem_i
+            do j=start_mem_j, end_mem_j
+               d_lon = stand_lon - xlon_arr(i,j)
+               if (d_lon > 180.) then
+                  d_lon = d_lon - 360.
+               else if (d_lon < -180.) then
+                  d_lon = d_lon + 360.
+               end if
+
+               alpha = d_lon * RAD_PER_DEG
+
+               sina(i,j) = sin(alpha)
+               cosa(i,j) = cos(alpha)
+            end do
+         end do
+
+      !
+      ! Mercator projection
+      !
+      else if (iproj_type == PROJ_MERC) then
+
+         ! Rotation angle is always zero
+
+         sina(:,:) = 0.0
+         cosa(:,:) = 1.0
+
+      !
+      ! Global cylindrical projection
+      !
+      else if (iproj_type == PROJ_CYL) then
+
+         ! Rotation angle is always zero
+
+         sina(:,:) = 0.0
+         cosa(:,:) = 1.0
+
+      !
+      ! Rotated global cylindrical projection
+      !
+      else if (iproj_type == PROJ_CASSINI) then
+
+         ! Compute angles using finite differences
+
+         do i=start_mem_i, end_mem_i
+            do j=start_mem_j+1, end_mem_j-1
+               d_lon = xlon_arr(i,j+1)-xlon_arr(i,j-1)
+               if (d_lon > 180.) then
+                  d_lon = d_lon - 360.
+               else if (d_lon < -180.) then
+                  d_lon = d_lon + 360.
+               end if
+
+               alpha = atan2(-cos(xlat_arr(i,j)*RAD_PER_DEG) * (d_lon*RAD_PER_DEG), &
+                               ((xlat_arr(i,j+1)-xlat_arr(i,j-1))*RAD_PER_DEG))
+               sina(i,j) = sin(alpha)
+               cosa(i,j) = cos(alpha)
+            end do
+         end do
+
+         do i=start_mem_i, end_mem_i
+            d_lon = xlon_arr(i,start_mem_j+1)-xlon_arr(i,start_mem_j)
             if (d_lon > 180.) then
                d_lon = d_lon - 360.
             else if (d_lon < -180.) then
                d_lon = d_lon + 360.
             end if
 
-            alpha = atan2(-cos(xlat_arr(i,j)*RAD_PER_DEG) * (d_lon*RAD_PER_DEG), &
-                            ((xlat_arr(i,j+1)-xlat_arr(i,j-1))*RAD_PER_DEG))
-            sina(i,j) = sin(alpha)
-            cosa(i,j) = cos(alpha)
+            alpha = atan2(-cos(xlat_arr(i,start_mem_j)*RAD_PER_DEG) * (d_lon*RAD_PER_DEG), &
+                          ((xlat_arr(i,start_mem_j+1)-xlat_arr(i,start_mem_j))*RAD_PER_DEG))
+            sina(i,start_mem_j) = sin(alpha)
+            cosa(i,start_mem_j) = cos(alpha)
          end do
-      end do
 
-      do i=start_mem_i, end_mem_i
-         d_lon = xlon_arr(i,start_mem_j+1)-xlon_arr(i,start_mem_j)
-         if (d_lon > 180.) then
-            d_lon = d_lon - 360.
-         else if (d_lon < -180.) then
-            d_lon = d_lon + 360.
-         end if
+         do i=start_mem_i, end_mem_i
+            d_lon = xlon_arr(i,end_mem_j)-xlon_arr(i,end_mem_j-1)
+            if (d_lon > 180.) then
+               d_lon = d_lon - 360.
+            else if (d_lon < -180.) then
+               d_lon = d_lon + 360.
+            end if
 
-         alpha = atan2(-cos(xlat_arr(i,start_mem_j)*RAD_PER_DEG) * (d_lon*RAD_PER_DEG), &
-                       ((xlat_arr(i,start_mem_j+1)-xlat_arr(i,start_mem_j))*RAD_PER_DEG))
-         sina(i,start_mem_j) = sin(alpha)
-         cosa(i,start_mem_j) = cos(alpha)
-      end do
+            alpha = atan2(-cos(xlat_arr(i,end_mem_j)*RAD_PER_DEG) * (d_lon*RAD_PER_DEG), &
+                          ((xlat_arr(i,end_mem_j)-xlat_arr(i,end_mem_j-1))*RAD_PER_DEG))
+            sina(i,end_mem_j) = sin(alpha)
+            cosa(i,end_mem_j) = cos(alpha)
+         end do
 
-      do i=start_mem_i, end_mem_i
-         d_lon = xlon_arr(i,end_mem_j)-xlon_arr(i,end_mem_j-1)
-         if (d_lon > 180.) then
-            d_lon = d_lon - 360.
-         else if (d_lon < -180.) then
-            d_lon = d_lon + 360.
-         end if
+      ! NMM Rotated latitude-longitude projection
+      else if (iproj_type == PROJ_ROTLL) then
 
-         alpha = atan2(-cos(xlat_arr(i,end_mem_j)*RAD_PER_DEG) * (d_lon*RAD_PER_DEG), &
-                       ((xlat_arr(i,end_mem_j)-xlat_arr(i,end_mem_j-1))*RAD_PER_DEG))
-         sina(i,end_mem_j) = sin(alpha)
-         cosa(i,end_mem_j) = cos(alpha)
-      end do
+         ! No longer supported...
+         call mprintf(.true.,ERROR,' The NMM rotated lat-lon grid is no longer supported. Rotation angles cannot be computed.')
+
+      end if
     
    end subroutine get_rotang
    

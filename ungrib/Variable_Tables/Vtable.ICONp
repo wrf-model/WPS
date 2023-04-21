@@ -1,0 +1,45 @@
+GRIB1| Level| From |  To  | metgrid  | metgrid | metgrid                                 |GRIB2|GRIB2|GRIB2|GRIB2|
+Param| Type |Level1|Level2| Name     | Units   | Description                             |Discp|Catgy|Param|Level|
+-----+------+------+------+----------+---------+-----------------------------------------+-----------------------+
+  11 | 100  |   *  |      | TT       | K       | Temperature                             |  0  |  0  |  0  | 100 |
+  33 | 100  |   *  |      | UU       | m s-1   | U                                       |  0  |  2  |  2  | 100 |
+  34 | 100  |   *  |      | VV       | m s-1   | V                                       |  0  |  2  |  3  | 100 |
+  52 | 100  |   *  |      | RH       | %       | Relative Humidity                       |  0  |  1  |  1  | 100 |
+ 129 | 100  |   *  |      | GEOPT    | m2 s-2  |                                         |  0  |  3  |  4  | 100 |
+     | 100  |   *  |      | HGT      | m       | Height                                  |     |     |     | 100 |
+  11 | 105  |   2  |      | TT       | K       | Temperature       at 2 m                |  0  |  0  |  0  | 103 |
+  33 | 105  |  10  |      | UU       | m s-1   | U                 at 10 m               |  0  |  2  |  2  | 103 |
+  34 | 105  |  10  |      | VV       | m s-1   | V                 at 10 m               |  0  |  2  |  3  | 103 |
+  52 | 105  |   2  |      | RH       | %       | Relative Humidity at 2 m                |  0  |  1  |  1  | 103 |
+   1 |   1  |   0  |      | PSFC     | Pa      | Surface Pressure                        |  0  |  3  |  0  |   1 |
+   2 | 102  |   0  |      | PMSL     | Pa      | Sea-level Pressure                      |  0  |  3  |  1  | 101 |
+   7 |   1  |   0  |      | SOILHGT  | m       | Terrain field of source analysis        |  0  |  3  |  6  |   1 |
+  81 |   1  |   0  |      | LANDSEA  | proprtn | Land/Sea flag (1=land, 0 or 2=sea)      |  2  |  0  |  0  |   1 |
+  11 |   1  |   0  |      | SKINTEMP | K       | Skin temperature                        |  0  |  0  |  0  |   1 |
+  65 |   1  |   0  |      | SNOW     | kg m-2  | Water equivalent snow depth             |  0  |  1  | 60  |   1 |
+  66 |   1  |   0  |      | SNOWH    | m       | Physical Snow Depth                     |  0  |  1  | 11  |   1 |  
+  85 | 111  |   5  |      | SOILT001 | K       | Soil Temp  0.5 cm below ground          |  2  |  3  | 18  | 106 |
+  85 | 111  |   2  |      | SOILT002 | K       | Soil Temp    2 cm below ground          |  2  |  3  | 18  | 106 |
+  85 | 111  |   6  |      | SOILT006 | K       | Soil Temp    6 cm below ground          |  2  |  3  | 18  | 106 |
+  85 | 111  |  18  |      | SOILT018 | K       | Soil Temp   18 cm below ground          |  2  |  3  | 18  | 106 |
+  85 | 111  |  54  |      | SOILT054 | K       | Soil Temp   54 cm below ground          |  2  |  3  | 18  | 106 |
+  85 | 111  | 162  |      | SOILT162 | K       | Soil Temp  162 cm below ground          |  2  |  3  | 18  | 106 |
+  85 | 111  | 486  |      | SOILT486 | K       | Soil Temp  486 cm below ground          |  2  |  3  | 18  | 106 |
+  85 | 111  |1458  |      | SOILT999 | K       | Soil Temp 1458 cm below ground          |  2  |  3  | 18  | 106 |
+  86 | 112  |   0  |   1  | SOILM001 | kg m-2  | Soil Moist      0-1 cm below grn layer  |  2  |  3  | 20  | 106 |
+  86 | 112  |   1  |   3  | SOILM002 | kg m-2  | Soil Moist      1-3 cm below grn layer  |  2  |  3  | 20  | 106 |
+  86 | 112  |   3  |   9  | SOILM006 | kg m-2  | Soil Moist      3-9 cm below grn layer  |  2  |  3  | 20  | 106 |
+  86 | 112  |   9  |  27  | SOILM018 | kg m-2  | Soil Moist     9-27 cm below grn layer  |  2  |  3  | 20  | 106 |
+  86 | 112  |  27  |  81  | SOILM054 | kg m-2  | Soil Moist    27-81 cm below grn layer  |  2  |  3  | 20  | 106 |
+  86 | 112  |  81  | 243  | SOILM162 | kg m-2  | Soil Moist   81-243 cm below grn layer  |  2  |  3  | 20  | 106 |
+  86 | 112  | 243  | 729  | SOILM486 | kg m-2  | Soil Moist  243-729 cm below grn layer  |  2  |  3  | 20  | 106 |
+  86 | 112  | 729  | 2187 | SOILM999 | kg m-2  | Soil Moist 729-2187 cm below grn layer  |  2  |  3  | 20  | 106 |
+-----+------+------+------+----------+---------+-----------------------------------------+-----------------------+
+#
+#
+#  Vtable for Icon-EU pressure levels from the dwd server.
+#
+# https://opendata.dwd.de/weather/nwp/
+#
+# Variables from server come as individual files per variable and timestep so need to merge them together.
+# Some variable only come for initial time so need to be added for each timestep being ingested into wps.
