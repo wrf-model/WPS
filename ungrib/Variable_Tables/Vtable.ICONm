@@ -6,9 +6,9 @@ Param| Type |Level1|Level2| Name     | Units   | Description                    
   11 | 109  |   *  |      | TT       | K       | Temperature                             |  0  |  0  |  0  | 150 |
   33 | 109  |   *  |      | UU       | m s-1   | U                                       |  0  |  2  |  2  | 150 |
   34 | 109  |   *  |      | VV       | m s-1   | V                                       |  0  |  2  |  3  | 150 |
-  51 | 109  |   *  |      | SPECHUMD | kg kg-1 | Specific Humidity                       |  0  |  1  |  0  | 150 |
+  51 | 109  |   *  |      | SPECHUMD | kg kg-1 |                                         |  0  |  1  |  0  | 150 |
   11 | 105  |   2  |      | TT       | K       | Temperature       at 2 m                |  0  |  0  |  0  | 103 |
-  51 | 105  |   2  |      | SPECHUMD | kg kg-1 | Specific Humidity at 2 m                |  0  |  1  |  0  | 103 |
+  51 | 105  |   2  |      | SPECHUMD | kg kg-1 |                                         |  0  |  1  |  0  | 103 |
   52 | 105  |   2  |      | RH       | %       | Relative Humidity at 2 m                |  0  |  1  |  1  | 103 |
   33 | 105  |  10  |      | UU       | m s-1   | U                 at 10 m               |  0  |  2  |  2  | 103 |
   34 | 105  |  10  |      | VV       | m s-1   | V                 at 10 m               |  0  |  2  |  3  | 103 |
