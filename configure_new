@@ -1,0 +1,15 @@
+#!/bin/sh
+# Meant to be run at the top level
+./arch/configure_reader.py \
+  arch/configure.defaults  \
+  cmake/template/arch_config.cmake \
+  wps_config.cmake \
+  CMakeLists.txt
+
+WRF_DIR=
+if [ ! -z $1 ]; then
+  WRF_DIR=-DWRF_DIR="$1"
+fi
+
+# Now run cmake
+cmake -S . -B _build -DCMAKE_INSTALL_PREFIX=$PWD/run -DCMAKE_TOOLCHAIN_FILE=$PWD/wps_config.cmake ${WRF_DIR}
