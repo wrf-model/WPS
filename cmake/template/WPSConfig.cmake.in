@@ -1,0 +1,20 @@
+# WRF CMake Package
+
+@PACKAGE_INIT@
+
+include( "${CMAKE_CURRENT_LIST_DIR}/@EXPORT_NAME@Targets.cmake" )
+
+set( WRF_VERSION @PROJECT_VERSION@ )
+
+# Options WPS was built with
+set( WPS_WRF_DIR         @WRF_DIR@         )
+set( WPS_USE_MPI         @USE_MPI@         )
+set( WPS_USE_OPENMP      @USE_OPENMP@      )
+set( WPS_BUILD_EXTERNALS @BUILD_EXTERNALS@ )
+
+
+find_package( ZLIB   REQUIRED )
+find_package( PNG    REQUIRED )
+find_package( Jasper REQUIRED )
+
+check_required_components( "ungrib" )
