@@ -9,6 +9,10 @@ project( WPS )
 set( EXPORT_NAME          ${PROJECT_NAME} )
 set( INTERNAL_GRIB2_PATH  ${CMAKE_INSTALL_PREFIX}/grib2 )
 
+if ( NOT DEFINED WRF_DIR )
+  message( STATUS "No WRF_DIR provided, skipping targets that rely on WRF" )
+endif()
+
 # if ( DEFINED CMAKE_TOOLCHAIN_FILE )
 #   set( WPS_CONFIG ${CMAKE_TOOLCHAIN_FILE} )
 #   message( STATUS "Loading configuration file... : ${WPS_CONFIG}" )
@@ -111,6 +115,11 @@ add_compile_definitions(
                         $<$<COMPILE_LANGUAGE:Fortran>:USE_JPEG2000>
                         $<$<COMPILE_LANGUAGE:Fortran>:USE_PNG>
                         )
+# Whole project flags
+add_compile_options(
+                    $<$<COMPILE_LANG_AND_ID:Fortran,GNU>:-fallow-argument-mismatch>
+                    )
+
 
 # Always build whatever we can
 add_subdirectory( ungrib )
