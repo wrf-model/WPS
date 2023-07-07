@@ -13,13 +13,6 @@ if ( NOT DEFINED WRF_DIR )
   message( STATUS "No WRF_DIR provided, skipping targets that rely on WRF" )
 endif()
 
-# if ( DEFINED CMAKE_TOOLCHAIN_FILE )
-#   set( WPS_CONFIG ${CMAKE_TOOLCHAIN_FILE} )
-#   message( STATUS "Loading configuration file... : ${WPS_CONFIG}" )
-#   include( ${WPS_CONFIG} )
-# endif()
-
-# list( APPEND CMAKE_MODULE_PATH         )
 list( APPEND CMAKE_MODULE_PATH 
       ${PROJECT_SOURCE_DIR}/cmake/
       ${PROJECT_SOURCE_DIR}/cmake/modules
@@ -129,6 +122,8 @@ if ( DEFINED WRF_DIR )
   add_subdirectory( metgrid )
   add_subdirectory( geogrid )
 endif()
+
+add_subdirectory( util )
 
 
 ################################################################################
