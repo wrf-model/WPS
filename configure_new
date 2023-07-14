@@ -12,4 +12,7 @@ if [ ! -z $1 ]; then
 fi
 
 # Now run cmake
-cmake -S . -B _build -DCMAKE_INSTALL_PREFIX=$PWD/run -DCMAKE_TOOLCHAIN_FILE=$PWD/wps_config.cmake ${WRF_DIR}
+mkdir -p _build/
+cd _build
+cmake .. -DCMAKE_INSTALL_PREFIX=$PWD/../run -DCMAKE_TOOLCHAIN_FILE=$PWD/..//wps_config.cmake ${WRF_DIR}
+# cmake -S . -B _build 

@@ -2,4 +2,5 @@
 # Meant to be run at the top level
 
 # Now run cmake
-cmake --build _build --target install $*
+cd _build && make install $*
+# cmake --build _build --target install $*
