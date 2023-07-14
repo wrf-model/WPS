@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # Meant to be run at the top level
 
 # Now run cmake
