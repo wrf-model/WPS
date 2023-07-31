@@ -5,8 +5,8 @@ set( MPI_C_COMPILER       "{DM_CC}" )
 set( CMAKE_Fortran_COMPILER "{SFC}" )
 set( CMAKE_C_COMPILER       "{SCC}" )
 
-set( CMAKE_Fortran_FLAGS_INIT    "{FFLAGS}" )
-set( CMAKE_C_FLAGS_INIT          "{CFLAGS}" )
+set( CMAKE_Fortran_FLAGS_INIT    "{SFC_FLAGS} {FFLAGS}" )
+set( CMAKE_C_FLAGS_INIT          "{SCC_FLAGS} {CFLAGS}" )
 
 # set( CMAKE_Fortran_FLAGS_DEBUG_INIT    "{{FCDEBUG}}" )
 # set( CMAKE_Fortran_FLAGS_RELEASE_INIT  "{{FCOPTIM}}" )
