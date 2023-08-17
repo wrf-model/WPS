@@ -170,12 +170,3 @@ install(
         FILES_MATCHING  
           PATTERN       "*.cmake"
         )
-# install(
-#         FILES
-#           ${PROJECT_SOURCE_DIR}/cmake/confcheck.cmake
-#           ${PROJECT_SOURCE_DIR}/cmake/gitinfo.cmake
-#           ${PROJECT_SOURCE_DIR}/cmake/printOption.cmake
-#           ${PROJECT_SOURCE_DIR}/cmake/wrf_get_version.cmake
-#         COMPONENT     helpers
-#         DESTINATION   share
-#         )
