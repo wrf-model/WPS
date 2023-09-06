@@ -100,11 +100,25 @@ find_package( Jasper REQUIRED )
 
 # Add config definitions
 message( STATUS "Adding configuration specific definitions : ${WPS_DEFINITIONS}" )
-# In CMake 2.26 this will not be necessary
+
 string( REPLACE " " ";" WPS_DEFINITIONS_LIST ${WPS_DEFINITIONS} )
+
+# Make a copy, filter for anything not -D
+set( WPS_UNDEFINITIONS_LIST ${WPS_DEFINITIONS_LIST} )
+list( FILTER WPS_UNDEFINITIONS_LIST EXCLUDE REGEX "^-D(.*)" )
+
+# Add this to the cpp processing
+list( APPEND CMAKE_C_PREPROCESSOR_FLAGS ${WPS_UNDEFINITIONS_LIST} )
+
+# Filter for anything that is -D
+list( FILTER WPS_DEFINITIONS_LIST INCLUDE REGEX "^-D(.*)" )
+
+# In CMake 2.26 this will not be necessary
 list( TRANSFORM WPS_DEFINITIONS_LIST REPLACE "^-D(.*)" "\\1" )
+
 add_compile_definitions( 
                         ${WPS_DEFINITIONS_LIST}
+                        ${WPS_UNDEFINITIONS_LIST}
                         $<$<COMPILE_LANGUAGE:Fortran>:USE_JPEG2000>
                         $<$<COMPILE_LANGUAGE:Fortran>:USE_PNG>
                         )
