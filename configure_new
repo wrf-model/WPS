@@ -1,6 +1,6 @@
 #!/bin/sh
 
-function help()
+help()
 {
   echo "./configure_new [options] [-- <CMake configuration options>]"
   echo "  -p                  Preselect a stanza configuration with matching description"
@@ -60,6 +60,6 @@ if [ $configureStanza -eq 0 ]; then
   # Now run cmake
   mkdir -p _build/
   cd _build
-  cmake .. -DCMAKE_INSTALL_PREFIX=$PWD/../runTemp -DCMAKE_TOOLCHAIN_FILE=$PWD/../wps_config.cmake $*
+  cmake .. -DCMAKE_INSTALL_PREFIX=$PWD/../run -DCMAKE_TOOLCHAIN_FILE=$PWD/../wps_config.cmake $*
   # cmake -S . -B _build 
 fi
