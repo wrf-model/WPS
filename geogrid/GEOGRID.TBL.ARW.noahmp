@@ -1079,11 +1079,11 @@ name=SOILCOMP
         priority=1
         optional=yes
         dest_type=continuous
-        interp_option=soilgrids:average_gcell(0.0)+average_4pt+average_16pt
+        interp_option=default:average_gcell(0.0)+average_4pt+average_16pt
         z_dim_name=soilcomp
         masked = water
         fill_missing = 0.
-        rel_path=soilgrids:soilgrids/soilcomp/
+        rel_path=default:soilgrids/soilcomp/
 ===============================
 name=SOILCL1F
         priority=1
@@ -1091,8 +1091,8 @@ name=SOILCL1F
         dest_type=categorical
         z_dim_name=soil_cat
         dominant=SOILCL1
-        interp_option = soilgrids:nearest_neighbor
-        rel_path= soilgrids:soilgrids/texture_layer1/
+        interp_option = default:nearest_neighbor
+        rel_path= default:soilgrids/texture_layer1/
 ===============================
 name=SOILCL2F
         priority=1
@@ -1100,8 +1100,8 @@ name=SOILCL2F
         dest_type=categorical
         z_dim_name=soil_cat
         dominant=SOILCL2
-        interp_option = soilgrids:nearest_neighbor
-        rel_path= soilgrids:soilgrids/texture_layer2/
+        interp_option = default:nearest_neighbor
+        rel_path= default:soilgrids/texture_layer2/
 ===============================
 name=SOILCL3F
         priority=1
@@ -1109,8 +1109,8 @@ name=SOILCL3F
         dest_type=categorical
         z_dim_name=soil_cat
         dominant=SOILCL3
-        interp_option = soilgrids:nearest_neighbor
-        rel_path= soilgrids:soilgrids/texture_layer3/
+        interp_option = default:nearest_neighbor
+        rel_path= default:soilgrids/texture_layer3/
 ===============================
 name=SOILCL4F
         priority=1
@@ -1118,6 +1118,6 @@ name=SOILCL4F
         dest_type=categorical
         z_dim_name=soil_cat
         dominant=SOILCL4
-        interp_option = soilgrids:nearest_neighbor
-        rel_path= soilgrids:soilgrids/texture_layer4/
+        interp_option = default:nearest_neighbor
+        rel_path= default:soilgrids/texture_layer4/
 ===============================
