@@ -96,7 +96,7 @@ endif()
 # rather than finding our external thirdparty libraries first
 find_package( ZLIB   REQUIRED )
 find_package( PNG    REQUIRED )
-find_package( Jasper REQUIRED )
+find_package( Jasper 1.900.1...<1.900.24 REQUIRED )
 
 # Add config definitions
 message( STATUS "Adding configuration specific definitions : ${WPS_DEFINITIONS}" )
