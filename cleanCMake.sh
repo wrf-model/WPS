@@ -1,40 +1,44 @@
 #!/bin/sh
-BUILD_DIR=_build
-INSTALL_DIR=run
-TEST_DIR=test/
+buildDirectory=_build
+installDirectory=install
 
 help()
 {
   echo "./cleanCMake.sh [options]"
-  echo "  -c          Basic cmake clean functionality [cmake --build ${BUILD_DIR} -j 1 --target clean]"
-  echo "  -i          Remove cmake binary installs [xargs rm < ${BUILD_DIR}/install_manifest.txt]"
-  # echo "  -l          Remove symlinks (WPS) [ find ${TEST_DIR} -type l -exec rm {} \; ]"
-  echo "  -f          Remove build & install folders (WPS) [ rm ${BUILD_DIR} -r; rm ${INSTALL_DIR}/ -r ]"
-  echo "  -a          Remove all (WPS), equivalent to -f (more specifically -c -i -f)"
+  echo "  -c            [Default if no options] Basic cmake clean functionality [make -j 1 clean]"
+  echo "  -b            Remove cmake binary installs [xargs rm < ${buildDirectory}/install_manifest.txt]"
+  echo "  -f            Remove build & install folders (WRF) [ rm ${buildDirectory} -r; rm ${installDirectory}/ -r ]"
+  echo "  -a            Remove all (WRF), equivalent to -c -b -f (more specifically -c then -b then-f)"
+  echo "Specific builds/installs"
+  echo "  -d directory  Specify operating on particular build directory"
+  echo "  -i directory  Specify operating on particular install directory"
 }
 
-CLEAN_BASIC_BUILD=FALSE
-CLEAN_BASIC_INSTALL=FALSE
-CLEAN_LINKS=FALSE
-CLEAN_FOLDERS=FALSE
-CLEAN_ALL=FALSE
+cleanBasicBuild=FALSE
+cleanBasicInstall=FALSE
+cleanLinks=FALSE
+cleanFolders=FALSE
+cleanAll=FALSE
 
-while getopts "hcilfa" opt; do
+while getopts "hcbfad:i:" opt; do
   case ${opt} in
     c)
-      CLEAN_BASIC_BUILD=TRUE
+      cleanBasicBuild=TRUE
     ;;
-    i)
-      CLEAN_BASIC_INSTALL=TRUE
-    ;;
-    l)
-      CLEAN_LINKS=TRUE
+    b)
+      cleanBasicInstall=TRUE
     ;;
     f)
-      CLEAN_FOLDERS=TRUE
+      cleanFolders=TRUE
     ;;
     a)
-      CLEAN_ALL=TRUE
+      cleanAll=TRUE
+    ;;
+    d)
+      buildDirectory=$OPTARG
+    ;;
+    i)
+      installDirectory=$OPTARG
     ;;
     h)  help; exit 0 ;;
     *)  help; exit 1 ;;
@@ -45,26 +49,21 @@ done
 
 if [ $OPTIND -eq 1 ]; then
   # Do basic clean I guess
-  CLEAN_BASIC_BUILD=TRUE
+  cleanBasicBuild=TRUE
 fi
 
-if [ "${CLEAN_BASIC_BUILD}" = "TRUE" ] || [ "${CLEAN_ALL}" = "TRUE" ]; then
+if [ "${cleanBasicBuild}" = "TRUE" ] || [ "${cleanAll}" = "TRUE" ]; then
   echo "Doing cmake make clean"
   OLD_DIR=$PWD
-  cd ${BUILD_DIR} && make -j 1 clean; cd $OLD_DIR
+  cd ${buildDirectory} && make -j 1 clean > /dev/null 2>&1; cd $OLD_DIR
 fi
 
-if [ "${CLEAN_BASIC_INSTALL}" = "TRUE" ] || [ "${CLEAN_ALL}" = "TRUE" ]; then
+if [ "${cleanBasicInstall}" = "TRUE" ] || [ "${cleanAll}" = "TRUE" ]; then
   echo "Removing binary installs"
-  xargs rm < ${BUILD_DIR}/install_manifest.txt
+  xargs rm < ${buildDirectory}/install_manifest.txt > /dev/null 2>&1
 fi
 
-# if [ "${CLEAN_LINKS}" = "TRUE" ] || [ "${CLEAN_ALL}" = "TRUE" ]; then
-#   echo "Removing all symlinks in ${TEST_DIR}"
-#   find ${TEST_DIR} -type l -exec rm {} \;
-# fi
-
-if [ "${CLEAN_FOLDERS}" = "TRUE" ] || [ "${CLEAN_ALL}" = "TRUE" ]; then
-  echo "Deleting ${BUILD_DIR} & ${INSTALL_DIR}/"
-  rm ${BUILD_DIR} -r; rm ${INSTALL_DIR}/ -r
+if [ "${cleanFolders}" = "TRUE" ] || [ "${cleanAll}" = "TRUE" ]; then
+  echo "Deleting ${buildDirectory} & ${installDirectory}/"
+  rm ${buildDirectory} -r; rm ${installDirectory}/ -r > /dev/null 2>&1
 fi

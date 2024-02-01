@@ -2,5 +2,12 @@
 # Meant to be run at the top level
 
 # Now run cmake
-cd _build && make install $*
-# cmake --build _build --target install $*
+buildDirectory=$1
+if [ ! -d "$buildDirectory" ]; then
+  buildDirectory=$PWD/_build
+  echo "Using default build directory : ${buildDirectory}"
+else
+  shift
+fi
+cd $buildDirectory && make install $*
+exit $?
