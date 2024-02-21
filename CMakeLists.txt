@@ -77,7 +77,7 @@ endif()
 
 
 # First do externals
-if ( BUILD_EXTERNALS )
+if ( ${BUILD_EXTERNALS} )
   add_subdirectory( external )
   # If we got here everything built, we are safe to add find paths for libs
   set( ZLIB_ROOT   ${INTERNAL_GRIB2_PATH} ) # This may get overridden by HDF5 if zlib is packaged with that
@@ -99,7 +99,15 @@ endif()
 # rather than finding our external thirdparty libraries first
 find_package( ZLIB   REQUIRED )
 find_package( PNG    REQUIRED )
-find_package( Jasper 1.900.1...<1.900.24 REQUIRED )
+find_package( Jasper 1.900.1...1.900.29 REQUIRED )
+
+# Because WRF might use a different version of zlib, check to see if we are using a different one
+# when externals (really internals) are used
+if ( ${BUILD_EXTERNALS} AND ${WRF_FOUND} )
+  if ( NOT ( ${ZLIB_INCLUDE_DIRS} STREQUAL ${INTERNAL_GRIB2_PATH}/include ) )
+    message( STATUS "Note: Using WRF-specified zlib instead of ${INTERNAL_GRIB2_PATH}" )
+  endif()
+endif()
 
 # Add config definitions
 message( STATUS "Adding configuration specific definitions : ${WPS_DEFINITIONS}" )
