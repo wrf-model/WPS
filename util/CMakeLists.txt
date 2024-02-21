@@ -66,7 +66,7 @@ foreach( TARGET ${ALL_UTIL_TARGETS} util_common )
                         ${TARGET}
                         PROPERTIES
                           # Just dump everything in here
-                          Fortran_MODULE_DIRECTORY ${CMAKE_INSTALL_PREFIX}/util/
+                          Fortran_MODULE_DIRECTORY ${CMAKE_INSTALL_PREFIX}/modules/util/
                           Fortran_FORMAT           FREE
                         )
 

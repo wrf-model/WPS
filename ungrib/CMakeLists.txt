@@ -9,7 +9,7 @@ set_target_properties(
                       pgu
                       PROPERTIES
                         # Just dump everything in here
-                        Fortran_MODULE_DIRECTORY ${CMAKE_INSTALL_PREFIX}/ungrib/
+                        Fortran_MODULE_DIRECTORY ${CMAKE_INSTALL_PREFIX}/modules/ungrib/
                         Fortran_FORMAT           FREE
                       )
 
@@ -17,7 +17,7 @@ set_target_properties(
                       ungrib
                       PROPERTIES
                         # Just dump everything in here
-                        Fortran_MODULE_DIRECTORY ${CMAKE_INSTALL_PREFIX}/ungrib/
+                        Fortran_MODULE_DIRECTORY ${CMAKE_INSTALL_PREFIX}/modules/ungrib/
                         Fortran_FORMAT           FREE
                       )
 
@@ -25,7 +25,7 @@ set_target_properties(
                       g1print
                       PROPERTIES
                         # Just dump everything in here
-                        Fortran_MODULE_DIRECTORY ${CMAKE_INSTALL_PREFIX}/ungrib/
+                        Fortran_MODULE_DIRECTORY ${CMAKE_INSTALL_PREFIX}/modules/ungrib/
                         Fortran_FORMAT           FREE
                       )
 
@@ -33,7 +33,7 @@ set_target_properties(
                       g2print
                       PROPERTIES
                         # Just dump everything in here
-                        Fortran_MODULE_DIRECTORY ${CMAKE_INSTALL_PREFIX}/ungrib/
+                        Fortran_MODULE_DIRECTORY ${CMAKE_INSTALL_PREFIX}/modules/ungrib/
                         Fortran_FORMAT           FREE
                       )
 

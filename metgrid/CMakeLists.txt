@@ -6,7 +6,7 @@ set_target_properties(
                       metgrid
                       PROPERTIES
                         # Just dump everything in here
-                        Fortran_MODULE_DIRECTORY ${CMAKE_INSTALL_PREFIX}/metgrid/
+                        Fortran_MODULE_DIRECTORY ${CMAKE_INSTALL_PREFIX}/modules/metgrid/
                         Fortran_FORMAT           FREE
                       )
 
