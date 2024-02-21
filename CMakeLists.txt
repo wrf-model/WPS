@@ -35,6 +35,8 @@ include( CMakePackageConfigHelpers )
 # include( confcheck   )
 # include( gitinfo     )
 include( wrf_get_version )
+include( wrf_case_setup )
+
 
 # Grab version info
 wrf_get_version( ${PROJECT_SOURCE_DIR}/README )
@@ -156,6 +158,23 @@ add_subdirectory( util )
 ## Install and export
 ##
 ################################################################################
+wrf_setup_targets(
+                  TARGETS
+                    $<TARGET_NAME_IF_EXISTS:geogrid>
+                    $<TARGET_NAME_IF_EXISTS:metgrid>
+                    $<TARGET_NAME_IF_EXISTS:ungrib>
+                  DEST_PATH       ${CMAKE_INSTALL_PREFIX}/bin
+                  )
+
+
+wrf_setup_files( 
+                FILES
+                  ${PROJECT_SOURCE_DIR}/link_grib.csh
+                DEST_PATH
+                  ${CMAKE_INSTALL_PREFIX}/bin
+                USE_SYMLINKS
+                )
+
 
 # Install to namespace
 install(
