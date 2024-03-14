@@ -19,10 +19,11 @@ target_link_libraries(
                         $<$<BOOL:${USE_OPENMP}>:$<TARGET_NAME_IF_EXISTS:OpenMP::OpenMP_Fortran>>
                         $<$<BOOL:${USE_OPENMP}>:$<TARGET_NAME_IF_EXISTS:OpenMP::OpenMP_C>>
                         ${netCDF_LIBRARIES}
-                        WRF::WRF_Core
+                        WRF::io_int
                         WRF::io_netcdf
                         WRF::io_grib1
                         WRF::io_grib_share
+                        WRF::WRF_Core
                       )
 
 target_compile_definitions(
