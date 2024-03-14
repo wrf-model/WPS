@@ -6,7 +6,7 @@ set_target_properties(
                       ${FOLDER_COMPILE_TARGET}
                         PROPERTIES
                           Fortran_MODULE_DIRECTORY ${CMAKE_INSTALL_PREFIX}/modules/${FOLDER_COMPILE_TARGET}
-                          # Fortran_FORMAT           FREE
+                          Fortran_FORMAT           FIXED
                       )
 target_sources( 
                 ${FOLDER_COMPILE_TARGET}
