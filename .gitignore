@@ -3,6 +3,13 @@ ungrib.exe
 metgrid.exe
 configure.wps
 configure.wps.backup
-
+wps_config.cmake
+run/
+*.log
+_build/
 # Compiled GRIB2 libraries if --build-grib2-libs option is given to configure script
 grib2
+*.nc
+GRIBFILE.*
+*.o
+FILE:*

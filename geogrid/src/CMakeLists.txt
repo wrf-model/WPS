@@ -1,0 +1,27 @@
+
+target_sources(
+                geogrid
+                PRIVATE
+                  cio.c
+                  wrf_debug.F
+                  bitarray_module.F
+                  constants_module.F
+                  module_stringutil.F
+                  geogrid.F
+                  gridinfo_module.F
+                  hash_module.F
+                  interp_module.F
+                  list_module.F
+                  llxy_module.F
+                  misc_definitions_module.F
+                  module_debug.F
+                  module_map_utils.F
+                  output_module.F
+                  parallel_module.F
+                  process_tile_module.F
+                  proc_point_module.F
+                  queue_module.F
+                  read_geogrid.c
+                  smooth_module.F
+                  source_data_module.F
+                )
