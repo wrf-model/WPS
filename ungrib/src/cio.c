@@ -48,8 +48,6 @@
 #endif
 
 /* ****************************************************************** */
-
-c_open(unit, nunit, name, mode, err, oflag)
  /*
   * unit  = Fortran unit number 
   * nunit = UNIX file descriptor associated with 'unit'
@@ -64,12 +62,15 @@ c_open(unit, nunit, name, mode, err, oflag)
           =  1 : file name and unit number printed (and errors)
           = -1 : no print at all (not even errors)
   */
-    int             *unit;
-    int             *nunit;
-    int             *mode;
-    int             *err;
-    int             *oflag;
-    char            name[FORT_FILE_LEN];
+int
+c_open(
+      int             *unit,
+      int             *nunit,
+      char            name[FORT_FILE_LEN],
+      int             *mode,
+      int             *err,
+      int             *oflag
+      )
 {
     int             fd, i;
     char            fname[FORT_FILE_LEN];
@@ -114,8 +115,6 @@ c_open(unit, nunit, name, mode, err, oflag)
 }
 
 /* ****************************************************************** */
-bn_seek(fd, bread, mode, iprint)
-
 /*  Move the read/write file pointer
        fd     : Unix file descriptor.
        bread  : Number of bytes to move the pointer.
@@ -128,9 +127,13 @@ bn_seek(fd, bread, mode, iprint)
    Location 0 [bn_seek(fd,0,-1,0)] puts us just before the first byte, 
    so the next bn_read will get byte 1.
 */
-
-    int            *fd, *bread, *mode, *iprint;
-
+int
+bn_seek(
+        int *fd,
+        int *bread,
+        int *mode,
+        int *iprint
+        )
 {
     off_t           i, offset;
     int             how_to_space;
@@ -151,8 +154,6 @@ bn_seek(fd, bread, mode, iprint)
 }
 
 /* ****************************************************************** */
-
-bn_read(fd, buf, nbuf, bread, ios, idiag)
  /*
   * fd = UNIX file descriptor number (NOT a Fortran unit) 
   * buf = area into which to read 
@@ -163,8 +164,15 @@ bn_read(fd, buf, nbuf, bread, ios, idiag)
           2 = Error in reading
   * idiag : if non-zero, error and EOF messages will be printed
   */
-
-    int            *fd, *nbuf, buf[], *bread, *ios, *idiag;
+int
+bn_read(
+        int *fd,
+        int  buf[],
+        int *nbuf,
+        int *bread,
+        int *ios,
+        int *idiag
+        )
 {
     int             bytesread;
 
@@ -197,17 +205,21 @@ bn_read(fd, buf, nbuf, bread, ios, idiag)
 }
 
 /* ****************************************************************** */
-
-bnwrit_(fd, buf, nbuf, bwritten, err, idiag)
-    int            *fd, *nbuf, buf[], *bwritten, *err, *idiag;
-
  /*
   * fd = UNIX file descriptor number (NOT a Fortran unit) buf = area from
   * which to write nbuf = number of bytes to write to fd bwritten = number
   * actually written err = UNIX error number returned to FORTRAN idiag : if
   * non-zero, error and EOF messages will be printed
   */
-
+int
+bnwrit_(
+        int *fd,
+        int  buf[],
+        int *nbuf,
+        int *bwritten,
+        int *err,
+        int *idiag
+        )
 {
     int             byteswritten;
 
@@ -231,8 +243,6 @@ bnwrit_(fd, buf, nbuf, bwritten, err, idiag)
 }
 
 /* ****************************************************************** */
-
-c_close(nunit, iprint, err)
 /*
 Close a C (UNIX?) file descriptor:
   nunit  : (INPUT)  : The C (UNIX?) file descriptor to close.
@@ -241,7 +251,12 @@ Close a C (UNIX?) file descriptor:
   err    : (OUTPUT) : Error flag ( err = 0 : Successful close)
                                  ( err = 1 : Error on close)
      */
-    int            *nunit, *iprint, *err;
+int
+c_close(
+        int *nunit,
+        int *iprint,
+        int *err
+        )
 {
     extern int      errno;	/* I/O error return */
     int             istat;
