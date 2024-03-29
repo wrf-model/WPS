@@ -192,7 +192,6 @@ if [ $? -eq 0 ] ; then
 fi
 
 wrf_dir="none"
-standard_wrf_dirs="WRF WRF-4.0.3 WRF-4.0.2 WRF-4.0.1 WRF-4.0 WRFV3"
 
 if [ ${nowrf} -eq 0 ]; then
    #
@@ -201,14 +200,19 @@ if [ ${nowrf} -eq 0 ]; then
    # the WRF I/O library from the code in $WRF_DIR
    #
    if [ -z "$WRF_DIR" ]; then
-   #   for d in WRF WRF-4.0.3 WRF-4.0.2 WRF-4.0.1 WRF-4.0 WRFV3; do
-      for d in ${standard_wrf_dirs}; do
-         if [ -e ../${d}/external/io_netcdf/libwrfio_nf.a ]; then
-            echo "Found what looks like a valid WRF I/O library in ../${d}"
-            wrf_dir="../${d}"
-            break
+      # Use the find command with regular expressions to search for matching directories, matching the patterns of WRF, WRFV3, WRF-4.? and WRF-4.?.?
+      # -maxdepth 1 limits the search depth to the immediate subdirectories of the current directory
+      # -regex provides a complete regular expression to match directory names
+      # -type d only matches directories
+      # Note: Regular expressions require full path matching, hence using .* at the beginning
+      # Use a while loop to read the output of the find command
+      while IFS= read -r FOUND_DIR; do
+         if [ -e "$FOUND_DIR/external/io_netcdf/libwrfio_nf.a" ]; then
+               echo "Found what looks like a valid WRF I/O library in ${FOUND_DIR}"
+               WRF_DIR=$FOUND_DIR
+               break # break once found WRF I/o 
          fi
-      done
+      done < <(find .. -maxdepth 1 -type d -regex ".*\(WRFV3\|WRF\|WRF-4\.[0-9]\|WRF-4\.[0-9]\.[0-9]\)")
    else
       if [ ! -e ${WRF_DIR}/external/io_netcdf/libwrfio_nf.a ]; then
          echo ""
