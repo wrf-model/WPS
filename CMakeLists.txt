@@ -105,7 +105,7 @@ find_package( Jasper 1.900.1...1.900.29 REQUIRED )
 
 # Because WRF might use a different version of zlib, check to see if we are using a different one
 # when externals (really internals) are used
-if ( ${BUILD_EXTERNALS} AND ${WRF_FOUND} )
+if ( ${BUILD_EXTERNALS} AND "${WRF_FOUND}" )
   if ( NOT ( ${ZLIB_INCLUDE_DIRS} STREQUAL ${INTERNAL_GRIB2_PATH}/include ) )
     message( STATUS "Note: Using WRF-specified zlib instead of ${INTERNAL_GRIB2_PATH}" )
   endif()
@@ -158,11 +158,20 @@ add_subdirectory( util )
 ## Install and export
 ##
 ################################################################################
+
+if ( "${WRF_FOUND}" )
+
+  wrf_setup_targets(
+                    TARGETS
+                      geogrid
+                      metgrid
+                    DEST_PATH       ${CMAKE_INSTALL_PREFIX}/bin
+                    )
+endif()
+
 wrf_setup_targets(
                   TARGETS
-                    $<TARGET_NAME_IF_EXISTS:geogrid>
-                    $<TARGET_NAME_IF_EXISTS:metgrid>
-                    $<TARGET_NAME_IF_EXISTS:ungrib>
+                    ungrib
                   DEST_PATH       ${CMAKE_INSTALL_PREFIX}/bin
                   )
 
