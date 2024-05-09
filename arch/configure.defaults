@@ -97,7 +97,7 @@ ARFLAGS             =
 CC_TOOLS            = 
 
 ########################################################################################################################
-#ARCH    Linux i486 i586 i686, Intel compiler    # serial serial_NO_GRIB2 dmpar dmpar_NO_GRIB2
+#ARCH    Linux i486 i586 i686, Intel Classic compilers    # serial serial_NO_GRIB2 dmpar dmpar_NO_GRIB2
 #
 COMPRESSION_LIBS    = CONFIGURE_COMP_L
 COMPRESSION_INC     = CONFIGURE_COMP_I
@@ -293,7 +293,7 @@ ARFLAGS             =
 CC_TOOLS            = 
 
 ########################################################################################################################
-#ARCH    Linux x86_64, Intel compiler   # serial serial_NO_GRIB2 dmpar dmpar_NO_GRIB2
+#ARCH    Linux x86_64, Intel Classic compilers   # serial serial_NO_GRIB2 dmpar dmpar_NO_GRIB2
 #
 COMPRESSION_LIBS    = CONFIGURE_COMP_L
 COMPRESSION_INC     = CONFIGURE_COMP_I
@@ -317,7 +317,7 @@ ARFLAGS             =
 CC_TOOLS            = 
 
 ########################################################################################################################
-#ARCH    Linux x86_64, Intel compiler, SGI MPT   # serial serial_NO_GRIB2 dmpar dmpar_NO_GRIB2
+#ARCH    Linux x86_64, Intel Classic compilers, SGI MPT   # serial serial_NO_GRIB2 dmpar dmpar_NO_GRIB2
 #
 COMPRESSION_LIBS    = CONFIGURE_COMP_L
 COMPRESSION_INC     = CONFIGURE_COMP_I
@@ -341,7 +341,7 @@ ARFLAGS             =
 CC_TOOLS            = 
 
 ########################################################################################################################
-#ARCH    Linux x86_64, Intel compiler, IBM POE   # serial serial_NO_GRIB2 dmpar dmpar_NO_GRIB2
+#ARCH    Linux x86_64, Intel Classic compilers, IBM POE   # serial serial_NO_GRIB2 dmpar dmpar_NO_GRIB2
 #
 COMPRESSION_LIBS    = CONFIGURE_COMP_L
 COMPRESSION_INC     = CONFIGURE_COMP_I
@@ -415,7 +415,7 @@ RANLIB              = ranlib
 CC_TOOLS            = 
 
 ########################################################################################################################
-#ARCH   Darwin Intel Intel compiler  # serial serial_NO_GRIB2 dmpar dmpar_NO_GRIB2
+#ARCH   Darwin Intel Intel Classic compilers  # serial serial_NO_GRIB2 dmpar dmpar_NO_GRIB2
 #
 COMPRESSION_LIBS    = CONFIGURE_COMP_L
 COMPRESSION_INC     = CONFIGURE_COMP_I
@@ -799,7 +799,7 @@ ARFLAGS             =
 CC_TOOLS            =
 
 ########################################################################################################################
-#ARCH   Cray XC CLE/Linux x86_64, Intel compiler  # serial serial_NO_GRIB2 dmpar dmpar_NO_GRIB2
+#ARCH   Cray XC CLE/Linux x86_64, Intel Classic compilers  # serial serial_NO_GRIB2 dmpar dmpar_NO_GRIB2
 #
 COMPRESSION_LIBS    = CONFIGURE_COMP_L
 COMPRESSION_INC     = CONFIGURE_COMP_I
