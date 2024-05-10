@@ -606,6 +606,15 @@ def projectSpecificOptions( options, stanzaCfg ) :
   ##############################################################################
 
   buildExt     = input( "[EXT] Build external? Default [N] [y/N] : " ).lower() in yesValues
+  useWRF       = not( input( inspect.cleandoc( 
+                              """
+                              [WRF] Try to find WRF for metgrid/geogrid?
+                                    Requires WRF path set or ../WRF or ../wrf to exist.
+                                    Valid input paths are WRF_ROOT or WRF_DIR, set via env var or passed into cmake.
+                                    !!! If no valid path is found, these targets will be skipped !!!
+                                    Default [Y] [Y/n] : 
+                              """
+                              ) ).lower() in noValues )
 
   additionalOptions = {
                         # "WRF_CORE"    : coreOption,
@@ -613,7 +622,8 @@ def projectSpecificOptions( options, stanzaCfg ) :
                         # "WRF_CASE"    : caseOption,
                         "USE_OPENMP"       : "ON" if useOpenMP else "OFF",
                         "USE_MPI"          : "ON" if useMPI    else "OFF",
-                        "BUILD_EXTERNALS"  : "ON" if buildExt  else "OFF"
+                        "BUILD_EXTERNALS"  : "ON" if buildExt  else "OFF",
+                        "USE_WRF"          : "ON" if useWRF    else "OFF"
                         }
 
   return additionalOptions

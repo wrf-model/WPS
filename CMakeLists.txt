@@ -9,9 +9,11 @@ project( WPS )
 set( EXPORT_NAME          ${PROJECT_NAME} )
 set( INTERNAL_GRIB2_PATH  ${CMAKE_INSTALL_PREFIX}/grib2 )
 
-if ( NOT DEFINED WRF_DIR AND NOT DEFINED WRF_ROOT )
-  message( STATUS "No WRF_DIR or WRF_ROOT provided, skipping targets that rely on WRF" )
+if ( DEFINED CMAKE_TOOLCHAIN_FILE )
+  set( WPS_CONFIG ${CMAKE_TOOLCHAIN_FILE} )
 endif()
+
+
 
 list( APPEND CMAKE_MODULE_PATH 
       ${PROJECT_SOURCE_DIR}/cmake/
@@ -40,6 +42,9 @@ include( wrf_case_setup )
 
 # Grab version info
 wrf_get_version( ${PROJECT_SOURCE_DIR}/README )
+
+# Disable WRF-specifics entirely
+set( USE_WRF      ON CACHE BOOL "USE_WRF"     )
 
 ################################################################################
 ##
@@ -89,11 +94,14 @@ endif()
 
 
 # Now find required libraries, which may have been affected by externals
-if ( DEFINED WRF_DIR OR DEFINED WRF_ROOT )
-  find_package( WRF COMPONENTS WRF_Core io_netcdf io_grib1 io_int REQUIRED )
+if ( DEFINED WRF_DIR OR DEFINED WRF_ROOT OR DEFINED ENV{WRF_DIR} OR DEFINED ENV{WRF_ROOT} )
+  # PATHS will be checked last
+  find_package( WRF COMPONENTS WRF_Core io_netcdf io_grib1 io_int REQUIRED PATHS ../WRF/install ../wrf/install )
   if ( ${WRF_FOUND} )
     message( STATUS "Found WRF : ${WRF_CONFIG} (found version \"${WRF_VERSION}\")" )
   endif()
+elseif ( ${USE_WRF} )
+  message( STATUS "No WRF_DIR or WRF_ROOT provided, skipping targets that rely on WRF" )
 endif()
 
 # Find externals now -- this is a little different than normal since we want WRF to 
