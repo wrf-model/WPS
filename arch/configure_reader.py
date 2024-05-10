@@ -588,7 +588,7 @@ def projectSpecificOptions( options, stanzaCfg ) :
     # togglable
     # we can safely check this since the user would not have been able to select this stanza if it couldn't be disabled
     if stanzaCfg.dmCompilersAvailable() :
-      useMPI       = not( input( "[DM] Use MPI?    Default [Y] [Y/n] : " ).lower() in noValues )
+      useMPI       = not( input( "[DM] Use MPI?    Default [N] [y/N] : " ).lower() in yesValues )
     else :
       useMPI = False
   else:
