@@ -94,9 +94,22 @@ endif()
 
 
 # Now find required libraries, which may have been affected by externals
-if ( DEFINED WRF_DIR OR DEFINED WRF_ROOT OR DEFINED ENV{WRF_DIR} OR DEFINED ENV{WRF_ROOT} )
+if ( 
+    DEFINED WRF_DIR OR 
+    DEFINED WRF_ROOT OR 
+    DEFINED ENV{WRF_DIR} OR 
+    DEFINED ENV{WRF_ROOT} OR
+    EXISTS "${PROJECT_SOURCE_DIR}/../WRF/" OR EXISTS "${PROJECT_SOURCE_DIR}/../wrf/" )
   # PATHS will be checked last
-  find_package( WRF COMPONENTS WRF_Core io_netcdf io_grib1 io_int REQUIRED PATHS ../WRF/install ../wrf/install )
+  find_package( 
+                WRF 
+                COMPONENTS 
+                  WRF_Core io_netcdf io_grib1 io_int 
+                REQUIRED 
+                PATHS
+                  ${PROJECT_SOURCE_DIR}/../WRF/install
+                  ${PROJECT_SOURCE_DIR}/../wrf/install
+                )
   if ( ${WRF_FOUND} )
     message( STATUS "Found WRF : ${WRF_CONFIG} (found version \"${WRF_VERSION}\")" )
   endif()
