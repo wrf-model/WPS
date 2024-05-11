@@ -200,19 +200,25 @@ if [ ${nowrf} -eq 0 ]; then
    # the WRF I/O library from the code in $WRF_DIR
    #
    if [ -z "$WRF_DIR" ]; then
-      # Use the find command with regular expressions to search for matching directories, matching the patterns of WRF, WRFV3, WRF-4.? and WRF-4.?.?
-      # -maxdepth 1 limits the search depth to the immediate subdirectories of the current directory
-      # -regex provides a complete regular expression to match directory names
-      # -type d only matches directories
-      # Note: Regular expressions require full path matching, hence using .* at the beginning
-      # Use a while loop to read the output of the find command
-      while IFS= read -r FOUND_DIR; do
-         if [ -e "$FOUND_DIR/external/io_netcdf/libwrfio_nf.a" ]; then
-               echo "Found what looks like a valid WRF I/O library in ${FOUND_DIR}"
-               WRF_DIR=$FOUND_DIR
-               break # break once found WRF I/o 
-         fi
-      done < <(find .. -maxdepth 1 -type d -regex ".*\(WRFV3\|WRF\|WRF-4\.[0-9]\|WRF-4\.[0-9]\.[0-9]\)")
+      # find WRF dir
+      if [ -e "../WRF/external/io_netcdf/libwrfio_nf.a" ]; then
+        echo "Found what looks like a valid WRF I/O library in ../WRF"
+        WRF_DIR="../WRF"
+      else
+        # If the WRF directory does not exist or libwrfio_nf.a is not found, search for directories starting with WRF-4 in descending order of version number
+        for dir in $(ls .. | grep '^WRF-4' | sort -rV); do
+          if [ -e "../$dir/external/io_netcdf/libwrfio_nf.a" ]; then
+            echo "Found what looks like a valid WRF I/O library in ../$dir"
+            WRF_DIR="../$dir"
+            break
+          fi
+        done
+        # If still not found, finally try to search for the WRFV3 directory
+        if [ -z "$WRF_DIR" ] && [ -e "../WRFV3/external/io_netcdf/libwrfio_nf.a" ]; then
+          echo "Found what looks like a valid WRF I/O library in ../WRFV3"
+          WRF_DIR="../WRFV3"
+        fi
+      fi
    else
       if [ ! -e ${WRF_DIR}/external/io_netcdf/libwrfio_nf.a ]; then
          echo ""
