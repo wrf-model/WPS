@@ -605,7 +605,7 @@ def projectSpecificOptions( options, stanzaCfg ) :
 
   ##############################################################################
 
-  buildExt     = input( "[EXT] Build external? Default [N] [y/N] : " ).lower() in yesValues
+  buildExt     = input( "[GRIB2] Build GRIB2 libraries (zlib, libpng, JasPer) from source in external/? Default [N] [y/N] : " ).lower() in yesValues
   useWRF       = not( input( inspect.cleandoc( 
                               """
                               [WRF] Try to find WRF for metgrid/geogrid?
