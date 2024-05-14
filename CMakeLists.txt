@@ -51,6 +51,48 @@ set( USE_WRF      ON CACHE BOOL "USE_WRF"     )
 ## MPI & OpenMP
 ##
 ################################################################################
+
+# First do externals
+if ( ${BUILD_EXTERNALS} )
+  add_subdirectory( external )
+  # If we got here everything built, we are safe to add find paths for libs
+  set( ZLIB_ROOT   ${INTERNAL_GRIB2_PATH} ) # This may get overridden by HDF5 if zlib is packaged with that
+  set( PNG_ROOT    ${INTERNAL_GRIB2_PATH} )
+  set( Jasper_ROOT ${INTERNAL_GRIB2_PATH} )
+endif()
+
+
+# Now find required libraries, which may have been affected by externals
+if ( ${USE_WRF} )
+  # PATHS will be checked last
+  find_package( 
+                WRF 
+                COMPONENTS 
+                  WRF_Core io_netcdf io_grib1 io_int 
+                # REQUIRED # this is technically required but we'll print our own msg
+                PATHS
+                  ${PROJECT_SOURCE_DIR}/../WRF/install
+                  ${PROJECT_SOURCE_DIR}/../wrf/install
+                QUIET
+                NO_CMAKE_ENVIRONMENT_PATH # Do not use _DIR option
+                )
+  if ( ${WRF_FOUND} )
+    message( STATUS "Found WRF : ${WRF_CONFIG} (found version \"${WRF_VERSION}\")" )
+  else()
+    message(
+            FATAL_ERROR
+            "Compiled WRF model not found. Please ensure a compiled WRF exists "
+            "and can be found by trying one of the following : \n"
+            "(1) provide -DWRF_ROOT=<path to install location> to CMake, if done "
+            "via the configure_new script use -- before option or see ./configure_new -h for more info\n"
+            "(2) set the environment variable WRF_ROOT to the path to the install location\n"
+            "(3) compile the WRF model code in ../WRF using the default install location\n"
+            "\nMore detail on search modes of CMake can be found at\n"
+            "https://cmake.org/cmake/help/latest/command/find_package.html#search-modes"
+            )
+  endif()
+endif()
+
 if ( ${USE_MPI} )
   # Through ***MUCH*** debugging, if utilizing MPI_<LANG>_COMPILER
   # https://cmake.org/cmake/help/latest/module/FindMPI.html#variables-for-locating-mpi
@@ -82,40 +124,6 @@ if ( ${USE_OPENMP} )
   add_compile_definitions( USE_OPENMP=1 SM_PARALLEL )
 endif()
 
-
-# First do externals
-if ( ${BUILD_EXTERNALS} )
-  add_subdirectory( external )
-  # If we got here everything built, we are safe to add find paths for libs
-  set( ZLIB_ROOT   ${INTERNAL_GRIB2_PATH} ) # This may get overridden by HDF5 if zlib is packaged with that
-  set( PNG_ROOT    ${INTERNAL_GRIB2_PATH} )
-  set( Jasper_ROOT ${INTERNAL_GRIB2_PATH} )
-endif()
-
-
-# Now find required libraries, which may have been affected by externals
-if ( 
-    DEFINED WRF_DIR OR 
-    DEFINED WRF_ROOT OR 
-    DEFINED ENV{WRF_DIR} OR 
-    DEFINED ENV{WRF_ROOT} OR
-    EXISTS "${PROJECT_SOURCE_DIR}/../WRF/" OR EXISTS "${PROJECT_SOURCE_DIR}/../wrf/" )
-  # PATHS will be checked last
-  find_package( 
-                WRF 
-                COMPONENTS 
-                  WRF_Core io_netcdf io_grib1 io_int 
-                REQUIRED 
-                PATHS
-                  ${PROJECT_SOURCE_DIR}/../WRF/install
-                  ${PROJECT_SOURCE_DIR}/../wrf/install
-                )
-  if ( ${WRF_FOUND} )
-    message( STATUS "Found WRF : ${WRF_CONFIG} (found version \"${WRF_VERSION}\")" )
-  endif()
-elseif ( ${USE_WRF} )
-  message( STATUS "No WRF_DIR or WRF_ROOT provided, skipping targets that rely on WRF" )
-endif()
 
 # Find externals now -- this is a little different than normal since we want WRF to 
 # take precedence if it is present on which libraries to use to avoid library splicing

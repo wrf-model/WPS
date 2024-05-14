@@ -588,7 +588,7 @@ def projectSpecificOptions( options, stanzaCfg ) :
     # togglable
     # we can safely check this since the user would not have been able to select this stanza if it couldn't be disabled
     if stanzaCfg.dmCompilersAvailable() :
-      useMPI       = not( input( "[DM] Use MPI?    Default [N] [y/N] : " ).lower() in yesValues )
+      useMPI       = not( input( "[DM]    Use MPI?    Default [N] [y/N] : " ).lower() in yesValues )
     else :
       useMPI = False
   else:
@@ -598,7 +598,7 @@ def projectSpecificOptions( options, stanzaCfg ) :
   useOpenMP = False
   if ( stanzaCfg.serialOpt_ or stanzaCfg.dmparOpt_ ) and ( stanzaCfg.smparOpt_ or stanzaCfg.dmsmOpt_ ):
     # togglable
-    useOpenMP    = input( "[SM] Use OpenMP? Default [N] [y/N] : " ).lower() in yesValues
+    useOpenMP    = input( "[SM]    Use OpenMP? Default [N] [y/N] : " ).lower() in yesValues
   else:
     # User has no choice in the matter
     useOpenMP = ( stanzaCfg.smparOpt_ or stanzaCfg.dmsmOpt_ )
@@ -606,15 +606,7 @@ def projectSpecificOptions( options, stanzaCfg ) :
   ##############################################################################
 
   buildExt     = input( "[GRIB2] Build GRIB2 libraries (zlib, libpng, JasPer) from source in external/? Default [N] [y/N] : " ).lower() in yesValues
-  useWRF       = not( input( inspect.cleandoc( 
-                              """
-                              [WRF] Try to find WRF for metgrid/geogrid?
-                                    Requires WRF path set or ../WRF or ../wrf to exist.
-                                    Valid input paths are WRF_ROOT or WRF_DIR, set via env var or passed into cmake.
-                                    !!! If no valid path is found, these targets will be skipped !!!
-                                    Default [Y] [Y/n] : 
-                              """
-                              ) ).lower() in noValues )
+  useWRF       = not( input( "[WRF]   Attempt to find compiled WRF model (needed for geogrid and metgrid)? Default [Y] [Y/n] : " ).lower() in noValues )
 
   additionalOptions = {
                         # "WRF_CORE"    : coreOption,
