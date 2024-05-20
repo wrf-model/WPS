@@ -38,10 +38,13 @@ Param| Type |Level1|Level2| Name     | Units   | Description                    
 #        the files also contain some PDT 11 fields.
 #
 #  ftp://ftpprd.ncep.noaa.gov/pub/data/nccf/com/gens/prod/gefs.ccyymmdd
+#  https://nomads.ncep.noaa.gov/pub/data/nccf/com/gens/prod/gefs.ccyymmdd/hh/atmos/
 #
-#                                  approx.    grid    hours       domain  dx      notes
+#                                  approx.    grid    hours       domain    dx      notes
 #                                 file size   no.
 #   
-#  gep01.txxz.pgrb2fhh             15500 Kb    3   0-h to 384-h   global  1 deg  20 ensemble members
-#                                                                                 gep01 - gep20
+#  gep01.txxz.pgrb2fhh            170000 Kb  193   0-h to 384-h   global  .25 deg  30 ensemble members
+#                                                                                  gep01 - gep30
+#
+#
 # NCEP updated the soil temperature fields on 2 December 2015, matching the changes made in January to the operational GFS.
