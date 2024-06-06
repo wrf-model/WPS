@@ -40,7 +40,7 @@
 !
 !$$$
 
-      integer,parameter :: MAXPARAM=816
+      integer,parameter :: MAXPARAM=832
 
       type gribparam
           integer :: g1tblver
@@ -884,6 +884,24 @@
        data paramlist(814) /gribparam(2,255,0,6,18,'TCOLWO')/
        data paramlist(815) /gribparam(2,255,0,6,19,'TCOLIO')/
        data paramlist(816) /gribparam(2,255,0,16,201,'RADARVIL')/
+! Added 06/05/24  for NCEP GFS
+       data paramlist(817) /gribparam(2,214,0,1,37,'CPRAT')/
+       data paramlist(818) /gribparam(2,255,10,2,8,'ICETMP')/
+! Added 06/05/24  for CMA GFS
+       data paramlist(819) /gribparam(2,255,2,0,24,'HFLUX')/
+       data paramlist(820) /gribparam(2,255,0,5,5,'NLWRF')/
+       data paramlist(821) /gribparam(2,255,0,4,9,'NSWRF')/
+       data paramlist(822) /gribparam(2,255,0,5,8,'DLWRFCS')/
+       data paramlist(823) /gribparam(2,255,0,4,11,'NSWRFCS')/
+       data paramlist(824) /gribparam(2,255,0,4,53,'USWRFCS')/
+       data paramlist(825) /gribparam(2,255,0,1,64,'TCIWV')/
+       data paramlist(826) /gribparam(2,255,0,1,69,'TCOLW')/
+       data paramlist(827) /gribparam(2,255,0,1,70,'TCOLI')/
+       data paramlist(828) /gribparam(2,255,0,6,22,'CDCC')/
+       data paramlist(829) /gribparam(2,136,0,2,25,'VWSH')/
+       data paramlist(830) /gribparam(2,255,0,1,19,'PTYPE')/
+       data paramlist(831) /gribparam(2,255,0,6,11,'CDCB')/
+       data paramlist(832) /gribparam(2,255,0,6,12,'CDCTOP')/
 
       contains
 
