@@ -10,9 +10,13 @@ FC                  = mpifort
 SFC                 = xlf2003_r
 CC                  = mpicc
 SCC                 = xlc_r
+DM_FC               = mpifort
+DM_CC               = mpicc
 LD                  = $(FC)
-FFLAGS              = -qfree=f90 -qufmt=be
-F77FLAGS            = -qfixed -qufmt=be
+FFLAGS              = $(FORMAT_FREE) -qufmt=be
+F77FLAGS            = $(FORMAT_FIXED) -qufmt=be
+FORMAT_FREE         = -qfree=f90
+FORMAT_FIXED        = -qfixed
 FNGFLAGS            = $(FFLAGS)
 LDFLAGS             =
 CFLAGS              =
@@ -31,9 +35,13 @@ FC                  = mpifort
 SFC                 = pgfortran
 CC                  = mpicc
 SCC                 = pgcc
+DM_FC               = mpifort
+DM_CC               = mpicc
 LD                  = $(FC)
-FFLAGS              = -Mfree -byteswapio
-F77FLAGS            = -Mfixed -byteswapio
+FFLAGS              = $(FORMAT_FREE) -byteswapio
+F77FLAGS            = $(FORMAT_FIXED) -byteswapio
+FORMAT_FREE         = -Mfree
+FORMAT_FIXED        = -Mfixed
 FNGFLAGS            = $(FFLAGS)
 LDFLAGS             =
 CFLAGS              =
@@ -55,9 +63,13 @@ MPI_LIB             = -L$(BGL_SYS)/lib -lmpich.rts -lmsglayer.rts -lrts.rts -lde
 FC                  = blrts_xlf90
 SFC                 = blrts_xlf90
 CC                  = blrts_xlc
+DM_FC               = blrts_xlf90
+DM_CC               = blrts_xlc
 LD                  = $(FC)
-FFLAGS              = -qfree=f90 $(MPI_INC)
-F77FLAGS            = -qfixed $(MPI_INC)
+FFLAGS              = $(FORMAT_FREE) $(MPI_INC)
+F77FLAGS            = $(FORMAT_FIXED) $(MPI_INC)
+FORMAT_FREE         = -qfree=f90
+FORMAT_FIXED        = -qfixed
 FNGFLAGS            = $(FFLAGS)
 LDFLAGS             = 
 SCC                 = cc
@@ -85,8 +97,10 @@ DM_CC               = mpicc
 FC                  = CONFIGURE_FC
 CC                  = CONFIGURE_CC
 LD                  = $(FC)
-FFLAGS              = -Mfree -byteswapio -O
-F77FLAGS            = -Mfixed -byteswapio -O
+FFLAGS              = $(FORMAT_FREE) -byteswapio -O
+F77FLAGS            = $(FORMAT_FIXED) -byteswapio -O
+FORMAT_FREE         = -Mfree
+FORMAT_FIXED        = -Mfixed
 FCSUFFIX            =
 FNGFLAGS            = $(FFLAGS)
 LDFLAGS             =
@@ -97,7 +111,7 @@ ARFLAGS             =
 CC_TOOLS            = 
 
 ########################################################################################################################
-#ARCH    Linux i486 i586 i686, Intel compiler    # serial serial_NO_GRIB2 dmpar dmpar_NO_GRIB2
+#ARCH    Linux i486 i586 i686, Intel Classic compilers    # serial serial_NO_GRIB2 dmpar dmpar_NO_GRIB2
 #
 COMPRESSION_LIBS    = CONFIGURE_COMP_L
 COMPRESSION_INC     = CONFIGURE_COMP_I
@@ -109,8 +123,10 @@ DM_CC               = mpicc
 FC                  = CONFIGURE_FC
 CC                  = CONFIGURE_CC 
 LD                  = $(FC)
-FFLAGS              = -FR -convert big_endian
-F77FLAGS            = -FI -convert big_endian
+FFLAGS              = $(FORMAT_FREE) -convert big_endian
+F77FLAGS            = $(FORMAT_FIXED) -convert big_endian
+FORMAT_FREE         = -FR
+FORMAT_FIXED        = -FI
 FCSUFFIX            =
 FNGFLAGS            = $(FFLAGS)
 LDFLAGS             =
@@ -133,8 +149,10 @@ DM_CC               = mpicc
 FC                  = CONFIGURE_FC
 CC                  = CONFIGURE_CC 
 LD                  = $(FC)
-FFLAGS              = -ffree-form -O -fendian=big
-F77FLAGS            = -ffixed-form -O -fendian=big
+FFLAGS              = $(FORMAT_FREE) -O -fendian=big
+F77FLAGS            = $(FORMAT_FIXED) -O -fendian=big
+FORMAT_FREE         = -ffree-form
+FORMAT_FIXED        = -ffixed-form
 FCSUFFIX            = 
 FNGFLAGS            = $(FFLAGS)
 LDFLAGS             = 
@@ -157,8 +175,10 @@ DM_CC               = mpicc
 FC                  = CONFIGURE_FC 
 CC                  = CONFIGURE_CC
 LD                  = $(FC)
-FFLAGS              = -ffree-form -O -fconvert=big-endian -frecord-marker=4
-F77FLAGS            = -ffixed-form -O -fconvert=big-endian -frecord-marker=4
+FFLAGS              = $(FORMAT_FREE) -O -fconvert=big-endian -frecord-marker=4
+F77FLAGS            = $(FORMAT_FIXED) -O -fconvert=big-endian -frecord-marker=4
+FORMAT_FREE         = -ffree-form
+FORMAT_FIXED        = -ffixed-form
 FCCOMPAT            = CONFIGURE_COMPAT_FLAGS
 FCSUFFIX            = 
 FNGFLAGS            = $(FFLAGS)
@@ -181,8 +201,10 @@ DM_CC               = mpicc
 FC                  = CONFIGURE_FC 
 CC                  = CONFIGURE_CC
 LD                  = $(FC)
-FFLAGS              = -ffree-form -O -fconvert=big-endian -frecord-marker=4
-F77FLAGS            = -ffixed-form -O -fconvert=big-endian -frecord-marker=4
+FFLAGS              = $(FORMAT_FREE) -O -fconvert=big-endian -frecord-marker=4
+F77FLAGS            = $(FORMAT_FIXED) -O -fconvert=big-endian -frecord-marker=4
+FORMAT_FREE         = -ffree-form
+FORMAT_FIXED        = -ffixed-form
 FCCOMPAT            = CONFIGURE_COMPAT_FLAGS
 FCSUFFIX            = 
 FNGFLAGS            = $(FFLAGS)
@@ -207,8 +229,10 @@ DM_CC               = mpicc
 FC                  = CONFIGURE_FC
 CC                  = CONFIGURE_CC
 LD                  = $(FC) 
-FFLAGS              = -Mfree -byteswapio -O
-F77FLAGS            = -Mfixed -byteswapio -O
+FFLAGS              = $(FORMAT_FREE) -byteswapio -O
+F77FLAGS            = $(FORMAT_FIXED) -byteswapio -O
+FORMAT_FREE         = -Mfree
+FORMAT_FIXED        = -Mfixed
 FCSUFFIX            = 
 FNGFLAGS            = $(FFLAGS)
 LDFLAGS             = 
@@ -233,8 +257,10 @@ DM_CC               = $(SCC) -I$(MPI_ROOT)/include
 FC                  = CONFIGURE_FC
 CC                  = CONFIGURE_CC
 LD                  = $(FC) 
-FFLAGS              = -Mfree -byteswapio -O
-F77FLAGS            = -Mfixed -byteswapio -O
+FFLAGS              = $(FORMAT_FREE) -byteswapio -O
+F77FLAGS            = $(FORMAT_FIXED) -byteswapio -O
+FORMAT_FREE         = -Mfree
+FORMAT_FIXED        = -Mfixed
 FCSUFFIX            = 
 FNGFLAGS            = $(FFLAGS)
 LDFLAGS             = -L$(MPI_ROOT)/lib -lmpi
@@ -257,8 +283,10 @@ DM_CC               = mpicc -cc=pathcc
 FC                  = CONFIGURE_FC
 CC                  = CONFIGURE_CC
 LD                  = $(FC)
-FFLAGS              = -freeform -fno-second-underscore -byteswapio -O
-F77FLAGS            = -byteswapio -fno-second-underscore -O
+FFLAGS              = $(FORMAT_FREE) -fno-second-underscore -byteswapio -O
+F77FLAGS            = $(FORMAT_FIXED) -byteswapio -fno-second-underscore -O
+FORMAT_FREE         = -freeform
+FORMAT_FIXED        =
 FCSUFFIX            = 
 FNGFLAGS            = $(FFLAGS)
 LDFLAGS             = 
@@ -269,13 +297,13 @@ ARFLAGS             =
 CC_TOOLS            = 
 
 ########################################################################################################################
-#ARCH    Linux x86_64, Intel compiler   # serial serial_NO_GRIB2 dmpar dmpar_NO_GRIB2
+#ARCH    Linux x86_64, Intel oneAPI compilers   # serial serial_NO_GRIB2 dmpar dmpar_NO_GRIB2
 #
 COMPRESSION_LIBS    = CONFIGURE_COMP_L
 COMPRESSION_INC     = CONFIGURE_COMP_I
 FDEFS               = CONFIGURE_FDEFS
-SFC                 = ifort
-SCC                 = icc
+SFC                 = ifx
+SCC                 = icx
 DM_FC               = mpif90
 DM_CC               = mpicc
 FC                  = CONFIGURE_FC
@@ -293,7 +321,33 @@ ARFLAGS             =
 CC_TOOLS            = 
 
 ########################################################################################################################
-#ARCH    Linux x86_64, Intel compiler, SGI MPT   # serial serial_NO_GRIB2 dmpar dmpar_NO_GRIB2
+#ARCH    Linux x86_64, Intel Classic compilers   # serial serial_NO_GRIB2 dmpar dmpar_NO_GRIB2
+#
+COMPRESSION_LIBS    = CONFIGURE_COMP_L
+COMPRESSION_INC     = CONFIGURE_COMP_I
+FDEFS               = CONFIGURE_FDEFS
+SFC                 = ifort
+SCC                 = icc
+DM_FC               = mpif90
+DM_CC               = mpicc
+FC                  = CONFIGURE_FC
+CC                  = CONFIGURE_CC
+LD                  = $(FC)
+FFLAGS              = $(FORMAT_FREE) -convert big_endian
+F77FLAGS            = $(FORMAT_FIXED) -convert big_endian
+FORMAT_FREE         = -FR
+FORMAT_FIXED        = -FI
+FCSUFFIX            = 
+FNGFLAGS            = $(FFLAGS)
+LDFLAGS             = 
+CFLAGS              = -w
+CPP                 = /lib/cpp -P -traditional
+CPPFLAGS            = -D_UNDERSCORE -DBYTESWAP -DLINUX -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -DBIT32 CONFIGURE_MPI
+ARFLAGS             =
+CC_TOOLS            = 
+
+########################################################################################################################
+#ARCH    Linux x86_64, Intel Classic compilers, SGI MPT   # serial serial_NO_GRIB2 dmpar dmpar_NO_GRIB2
 #
 COMPRESSION_LIBS    = CONFIGURE_COMP_L
 COMPRESSION_INC     = CONFIGURE_COMP_I
@@ -305,8 +359,10 @@ DM_CC               = $(SCC) -I$(MPI_ROOT)/include
 FC                  = CONFIGURE_FC
 CC                  = CONFIGURE_CC
 LD                  = $(FC)
-FFLAGS              = -FR -convert big_endian
-F77FLAGS            = -FI -convert big_endian
+FFLAGS              = $(FORMAT_FREE) -convert big_endian
+F77FLAGS            = $(FORMAT_FIXED) -convert big_endian
+FORMAT_FREE         = -FR
+FORMAT_FIXED        = -FI
 FCSUFFIX            = 
 FNGFLAGS            = $(FFLAGS)
 LDFLAGS             = -L$(MPI_ROOT)/lib -lmpi
@@ -317,7 +373,7 @@ ARFLAGS             =
 CC_TOOLS            = 
 
 ########################################################################################################################
-#ARCH    Linux x86_64, Intel compiler, IBM POE   # serial serial_NO_GRIB2 dmpar dmpar_NO_GRIB2
+#ARCH    Linux x86_64, Intel Classic compilers, IBM POE   # serial serial_NO_GRIB2 dmpar dmpar_NO_GRIB2
 #
 COMPRESSION_LIBS    = CONFIGURE_COMP_L
 COMPRESSION_INC     = CONFIGURE_COMP_I
@@ -329,8 +385,10 @@ DM_CC               = mpcc
 FC                  = CONFIGURE_FC
 CC                  = CONFIGURE_CC
 LD                  = $(FC)
-FFLAGS              = -FR -convert big_endian
-F77FLAGS            = -FI -convert big_endian
+FFLAGS              = $(FORMAT_FREE) -convert big_endian
+F77FLAGS            = $(FORMAT_FIXED) -convert big_endian
+FORMAT_FREE         = -FR
+FORMAT_FIXED        = -FI
 FCSUFFIX            = 
 FNGFLAGS            = $(FFLAGS)
 LDFLAGS             = 
@@ -353,8 +411,10 @@ DM_CC               = mpicc
 FC                  = CONFIGURE_FC
 CC                  = CONFIGURE_CC
 LD                  = $(FC)
-FFLAGS              = -Mfree -byteswapio -O2
-F77FLAGS            = -Mfixed -byteswapio -O2
+FFLAGS              = $(FORMAT_FREE) -byteswapio -O2
+F77FLAGS            = $(FORMAT_FIXED) -byteswapio -O2
+FORMAT_FREE         = -Mfree
+FORMAT_FIXED        = -Mfixed
 FCSUFFIX            = 
 FNGFLAGS            = $(FFLAGS)
 LDFLAGS             = -g
@@ -378,8 +438,10 @@ DM_CC               = mpicc
 FC                  = CONFIGURE_FC
 CC                  = CONFIGURE_CC
 LD                  = $(FC)
-FFLAGS              = -Mfree -byteswapio -O2
-F77FLAGS            = -Mfixed -byteswapio -O2
+FFLAGS              = $(FORMAT_FREE) -byteswapio -O2
+F77FLAGS            = $(FORMAT_FIXED) -byteswapio -O2
+FORMAT_FREE         = -Mfree
+FORMAT_FIXED        = -Mfixed
 FCSUFFIX            = 
 FNGFLAGS            = $(FFLAGS)
 LDFLAGS             = -g
@@ -391,7 +453,7 @@ RANLIB              = ranlib
 CC_TOOLS            = 
 
 ########################################################################################################################
-#ARCH   Darwin Intel Intel compiler  # serial serial_NO_GRIB2 dmpar dmpar_NO_GRIB2
+#ARCH   Darwin Intel Intel Classic compilers  # serial serial_NO_GRIB2 dmpar dmpar_NO_GRIB2
 #
 COMPRESSION_LIBS    = CONFIGURE_COMP_L
 COMPRESSION_INC     = CONFIGURE_COMP_I
@@ -403,8 +465,10 @@ DM_CC               = mpicc
 FC                  = CONFIGURE_FC
 CC                  = CONFIGURE_CC
 LD                  = $(FC)
-FFLAGS              = -FR -convert big_endian
-F77FLAGS            = -FI -convert big_endian
+FFLAGS              = $(FORMAT_FREE) -convert big_endian
+F77FLAGS            = $(FORMAT_FIXED) -convert big_endian
+FORMAT_FREE         = -FR
+FORMAT_FIXED        = -FI
 FCSUFFIX            = 
 FNGFLAGS            = $(FFLAGS)
 LDFLAGS             = 
@@ -427,8 +491,10 @@ DM_CC               = mpicc -cc=gcc
 FC                  = CONFIGURE_FC
 CC                  = CONFIGURE_CC
 LD                  = $(FC)
-FFLAGS              = -ffree-form -g -fendian=big
-F77FLAGS            = -ffixed-form -g -fendian=big
+FFLAGS              = $(FORMAT_FREE) -g -fendian=big
+F77FLAGS            = $(FORMAT_FIXED) -g -fendian=big
+FORMAT_FREE         = -ffree-form
+FORMAT_FIXED        = -ffixed-form
 FCSUFFIX            = 
 FNGFLAGS            = $(FFLAGS)
 LDFLAGS             = -g
@@ -452,8 +518,10 @@ DM_CC               = mpicc
 FC                  = CONFIGURE_FC
 CC                  = CONFIGURE_CC
 LD                  = $(FC)
-FFLAGS              = -ffree-form -O -fconvert=big-endian -frecord-marker=4
-F77FLAGS            = -ffixed-form -O -fconvert=big-endian -frecord-marker=4
+FFLAGS              = $(FORMAT_FREE) -O -fconvert=big-endian -frecord-marker=4
+F77FLAGS            = $(FORMAT_FIXED) -O -fconvert=big-endian -frecord-marker=4
+FORMAT_FREE         = -ffree-form
+FORMAT_FIXED        = -ffixed-form
 FCCOMPAT            = CONFIGURE_COMPAT_FLAGS
 FCSUFFIX            = 
 FNGFLAGS            = $(FFLAGS)
@@ -478,8 +546,10 @@ DM_CC               = mpicc
 FC                  = CONFIGURE_FC
 CC                  = CONFIGURE_CC
 LD                  = $(FC)
-FFLAGS              = -ffree-form -O -fconvert=big-endian -frecord-marker=4
-F77FLAGS            = -ffixed-form -O -fconvert=big-endian -frecord-marker=4
+FFLAGS              = $(FORMAT_FREE) -O -fconvert=big-endian -frecord-marker=4
+F77FLAGS            = $(FORMAT_FIXED) -O -fconvert=big-endian -frecord-marker=4
+FORMAT_FREE         = -ffree-form
+FORMAT_FIXED        = -ffixed-form
 FCCOMPAT            = CONFIGURE_COMPAT_FLAGS
 FCSUFFIX            =
 FNGFLAGS            = $(FFLAGS)
@@ -509,8 +579,10 @@ DM_CC               = mpicc -cc=$(SCC)
 FC                  = CONFIGURE_FC
 CC                  = CONFIGURE_CC
 LD                  = $(FC)
-FFLAGS              = -qfree
-F77FLAGS            = -qfixed
+FFLAGS              = $(FORMAT_FREE)
+F77FLAGS            = $(FORMAT_FIXED)
+FORMAT_FREE         = -qfree
+FORMAT_FIXED        = -qfixed
 FCSUFFIX            = 
 FNGFLAGS            = $(FFLAGS) -qextname
 LDFLAGS             = -Wl,-stack_size,10000000,-stack_addr,0xc000000
@@ -535,8 +607,10 @@ SFC                 = xlf90_r
 SCC                 = gcc-3.3
 DM_FC               = mpif90 -f90=$(SFC)
 DM_CC               = mpicc -cc=$(SCC)
-FFLAGS              = -qfree
-F77FLAGS            = -qfixed
+FFLAGS              = $(FORMAT_FREE)
+F77FLAGS            = $(FORMAT_FIXED)
+FORMAT_FREE         = -qfree
+FORMAT_FIXED        = -qfixed
 FNGFLAGS            = $(FFLAGS) -qextname
 LDFLAGS             = -Wl,-stack_size,10000000,-stack_addr,0xc0000000 -L/usr/lib -lSystemStubs
 FC                  = CONFIGURE_FC
@@ -559,8 +633,10 @@ DM_CC               = mpicc -cc=gcc
 FC                  = CONFIGURE_FC
 CC                  = CONFIGURE_CC
 LD                  = $(FC)
-FFLAGS              = -ffree-form -g -fno-second-underscore
-F77FLAGS            = -ffixed-form -g -fno-second-underscore
+FFLAGS              = $(FORMAT_FREE) -g -fno-second-underscore
+F77FLAGS            = $(FORMAT_FIXED) -g -fno-second-underscore
+FORMAT_FREE         = -ffree-form
+FORMAT_FIXED        = -ffixed-form
 FCSUFFIX            = 
 FNGFLAGS            = $(FFLAGS)
 LDFLAGS             = -g
@@ -572,7 +648,7 @@ RANLIB              = ranlib
 CC_TOOLS            =
 
 ########################################################################################################################
-#ARCH    AIX      # serial serial_NO_GRIB2 dmpar dmpar_NO_GRIB2
+#ARCH    AIX something      # serial serial_NO_GRIB2 dmpar dmpar_NO_GRIB2
 #
 COMPRESSION_LIBS    = CONFIGURE_COMP_L
 COMPRESSION_INC     = CONFIGURE_COMP_I
@@ -588,8 +664,10 @@ FC                  = CONFIGURE_FC
 CC                  = CONFIGURE_CC
 LD                  = $(FC)
 AR                  = ar
-FFLAGS              = -qfree=f90
-F77FLAGS            = -qfixed
+FFLAGS              = $(FORMAT_FREE)
+F77FLAGS            = $(FORMAT_FIXED)
+FORMAT_FREE         = -qfree=f90
+FORMAT_FIXED        = -qfixed
 FCSUFFIX            = -qsuffix=f=f90
 FNGFLAGS            = $(FFLAGS)
 LDFLAGS             =
@@ -611,8 +689,10 @@ DM_CC               = mpicc
 FC                  = CONFIGURE_FC
 CC                  = CONFIGURE_FC
 LD                  = $(FC)
-FFLAGS              = -free -convert big_endian
-F77FLAGS            = -convert big_endian
+FFLAGS              = $(FORMAT_FREE) -convert big_endian
+F77FLAGS            = $(FORMAT_FIXED) -convert big_endian
+FORMAT_FREE         = -free
+FORMAT_FIXED        =
 FNGFLAGS            = $(FFLAGS)
 LDFLAGS             =    
 CFLAGS              =    
@@ -633,8 +713,10 @@ DM_CC               = mpicc -cc=$(SCC)
 FC                  = CONFIGURE_FC
 CC                  = CONFIGURE_CC
 LD                  = $(FC)
-FFLAGS              = -ffree-form -g -fno-second-underscore
-F77FLAGS            = -ffixed-form -g -fno-second-underscore
+FFLAGS              = $(FORMAT_FREE) -g -fno-second-underscore
+F77FLAGS            = $(FORMAT_FIXED) -g -fno-second-underscore
+FORMAT_FREE         = -ffree-form
+FORMAT_FIXED        = -ffixed-form
 FCSUFFIX            = 
 FNGFLAGS            = $(FFLAGS)
 LDFLAGS             = -g
@@ -663,8 +745,10 @@ DM_CC               = pgcc -Mmpi=msmpi
 FC                  = CONFIGURE_FC
 CC                  = CONFIGURE_CC
 LD                  = $(FC)
-FFLAGS              = -Mfree -g
-F77FLAGS            = -Mfixed -g
+FFLAGS              = $(FORMAT_FREE) -g
+F77FLAGS            = $(FORMAT_FIXED) -g
+FORMAT_FREE         = -Mfree
+FORMAT_FIXED        = -Mfixed
 FCSUFFIX            = 
 FNGFLAGS            = $(FFLAGS)
 LDFLAGS             = -g
@@ -686,8 +770,10 @@ DM_CC               = mpicc
 FC                  = CONFIGURE_FC
 CC                  = CONFIGURE_CC
 LD                  = $(FC)
-FFLAGS              = -freeform -64
-F77FLAGS            = -64
+FFLAGS              = $(FORMAT_FREE) -64
+F77FLAGS            = $(FORMAT_FIXED) -64
+FORMAT_FREE         = -freeform
+FORMAT_FIXED        =
 FCSUFFIX            = 
 FNGFLAGS            = $(FFLAGS)
 LDFLAGS             = -64
@@ -716,8 +802,10 @@ DM_CC               = icc -lmpi
 FC                  = CONFIGURE_FC
 CC                  = CONFIGURE_CC
 LD                  = $(FC)
-FFLAGS              = -FR -convert big_endian
-F77FLAGS            = -FI -convert big_endian
+FFLAGS              = $(FORMAT_FREE) -convert big_endian
+F77FLAGS            = $(FORMAT_FIXED) -convert big_endian
+FORMAT_FREE         = -FR
+FORMAT_FIXED        = -FI
 FCSUFFIX            = 
 FNGFLAGS            = 
 LDFLAGS             = 
@@ -740,8 +828,10 @@ DM_CC               =
 FC                  = CONFIGURE_FC
 CC                  = CONFIGURE_CC
 LD                  = $(FC)
-FFLAGS              = -free
-F77FLAGS            = 
+FFLAGS              = $(FORMAT_FREE)
+F77FLAGS            = $(FORMAT_FIXED)
+FORMAT_FREE         = -free
+FORMAT_FIXED        =
 FCSUFFIX            = 
 FNGFLAGS            = $(FFLAGS)
 LDFLAGS             = 
@@ -763,8 +853,10 @@ DM_CC               = cc
 FC                  = CONFIGURE_FC
 CC                  = CONFIGURE_CC
 LD                  = $(FC)
-FFLAGS              = -N255 -f free -h byteswapio
-F77FLAGS            = -N255 -f fixed -h byteswapio
+FFLAGS              = $(FORMAT_FREE) -N255 -h byteswapio
+F77FLAGS            = $(FORMAT_FIXED) -N255 -h byteswapio
+FORMAT_FREE         = -f free
+FORMAT_FIXED        = -f fixed
 FCSUFFIX            =
 FNGFLAGS            = $(FFLAGS)
 LDFLAGS             =
@@ -775,7 +867,7 @@ ARFLAGS             =
 CC_TOOLS            =
 
 ########################################################################################################################
-#ARCH   Cray XC CLE/Linux x86_64, Intel compiler  # serial serial_NO_GRIB2 dmpar dmpar_NO_GRIB2
+#ARCH   Cray XC CLE/Linux x86_64, Intel Classic compilers  # serial serial_NO_GRIB2 dmpar dmpar_NO_GRIB2
 #
 COMPRESSION_LIBS    = CONFIGURE_COMP_L
 COMPRESSION_INC     = CONFIGURE_COMP_I
@@ -787,8 +879,10 @@ DM_CC               = $(SCC)
 FC                  = CONFIGURE_FC
 CC                  = CONFIGURE_CC
 LD                  = $(FC)
-FFLAGS              = -FR -convert big_endian
-F77FLAGS            = -FI -convert big_endian
+FFLAGS              = $(FORMAT_FREE) -convert big_endian
+F77FLAGS            = $(FORMAT_FIXED) -convert big_endian
+FORMAT_FREE         = -FR
+FORMAT_FIXED        = -FI
 FCSUFFIX            =
 FNGFLAGS            = $(FFLAGS)
 LDFLAGS             =
@@ -821,8 +915,10 @@ CC_TOOLS            =
 #TRADFLAG           = 
 #CPP                = 
 #AR                 = 
-#FFLAGS             = 
-#F77FLAGS           = 
+#FFLAGS             = $(FORMAT_FREE)
+#F77FLAGS           = $(FORMAT_FIXED)
+FORMAT_FREE         =
+FORMAT_FIXED        =
 #FCSUFFIX           = 
 #FNGFLAGS           = 
 #LDFLAGS            = 

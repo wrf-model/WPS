@@ -1,3 +1,4 @@
+jasper-1.900.29/autom4te.cache/
 jasper-1.900.29/Makefile
 jasper-1.900.29/config.log
 jasper-1.900.29/config.status
@@ -281,11 +282,14 @@ zlib-1.2.11/inffast.o
 zlib-1.2.11/inflate.o
 zlib-1.2.11/inftrees.o
 zlib-1.2.11/libz.a
+zlib-1.2.11/Makefile
 zlib-1.2.11/minigzip
 zlib-1.2.11/minigzip.o
 zlib-1.2.11/minigzip64
 zlib-1.2.11/minigzip64.o
 zlib-1.2.11/trees.o
 zlib-1.2.11/uncompr.o
+zlib-1.2.11/zconf.h
 zlib-1.2.11/zlib.pc
+zlib-1.2.11/ztest63255*
 zlib-1.2.11/zutil.o

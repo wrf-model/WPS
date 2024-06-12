@@ -22,13 +22,25 @@ Param| Type |Level1|Level2| Name     |  Units  | Description                    
 #
 #  Soil fields are in the hybrid-coordinate files.
 #
+#  https://nomads.ncep.noaa.gov/pub/data/nccf/com/rap/prod/rap.ccyymmdd/
 #  ftp://ftpprd.ncep.noaa.gov/pub/data/nccf/com/rap/prod/rap.ccyymmdd/
 #                                                                                        approx. size
-
-#  rap.txxz.awp252pgrbfhh.grib2   20km conus  (25-mb, 38-level 1000 to 100 mb plus sfc)   6858 Kb
-#  rap.txxz.awp130pgrbfhh.grib2   13km conus                                             12228 Kb
-#  rap.txxz.awip32fhh.grib2       32km N. Amer.                                          23188 Kb
-#  rap.txxz.awp200fhh.grib2       16km Puerto Rico                                        1600 Kb
-#  rap.txxz.awp242fhh.grib2       11km Alaska                                            44757 Kb
 #
-# hourly output to 18-h
+#  rap.txxz.awp252pgrbfhh.grib2   20km conus  (25-mb, 38-level 1000 to 100 mb plus sfc)   9400 Kb
+#  rap.txxz.awp130pgrbfhh.grib2   13km conus                                             41000 Kb
+#  rap.txxz.awip32fhh.grib2       32km N. Amer.                                          19000 Kb
+#  rap.txxz.awp200fhh.grib2       16km Puerto Rico                                        1600 Kb
+#  rap.txxz.awp242fhh.grib2       11km Alaska                                            25000 Kb
+#
+# hourly output to 21-h, except to 51-h at 03, 09, 15, and 21 UTC cycles.
+#
+#   Abbreviated history of RAP changes (all starting at 12 UTC)
+#
+#  2 December 2020  - Updated RAP to V5.0. Use WRF-ARW V3.9.1. Updated MYNN, GWD. Raise Ptop to 15 hPa
+#                   - Updated GF scheme. Add smoke transport. Extended forecast length.
+# 12 July 2018      - Updated RAP to V4.0. Use WRR-ARW V3.8.1. Extended forecast length. Updated GSI.
+#                   - Hybrid vertical coordinate. Update MYNN and use EDMF.
+# 12 July 2017      - Upgrade SST calculations
+# 23 August 2016    - Upgrade RAP to V3.0. Expanded domain to include Hawaii. Uses updated GSI.
+#                   - Use WRF-ARW V3.6.1, RRTMG, updated MYNN, GF convective scheme, aerosol-aware Thompson micro.
+#
