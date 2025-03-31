@@ -1,141 +1,3 @@
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-! MODULE GRIDINFO_MODULE
-!
-! This module handles (i.e., acquires, stores, and makes available) all data
-!   describing the model domains to be processed.
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-module gridinfo_module
-
-  ! Parameters
-  integer, parameter :: MAX_DOMAINS = 21
-
-  ! Variables
-  integer :: iproj_type, n_domains, io_form_output, dyn_opt
-  integer, dimension(MAX_DOMAINS) :: parent_grid_ratio, parent_id, ixdim, jydim
-  integer, dimension(MAX_DOMAINS) :: subgrid_ratio_x, subgrid_ratio_y
-  real :: known_lat, known_lon, pole_lat, pole_lon, stand_lon, truelat1, truelat2, &
-          known_x, known_y, dxkm, dykm, phi, lambda, ref_lat, ref_lon, ref_x, ref_y, &
-          dlatdeg, dlondeg
-  real, dimension(MAX_DOMAINS) :: parent_ll_x, parent_ll_y, parent_ur_x, parent_ur_y
-  character (len=256) :: geog_data_path, opt_output_from_geogrid_path, opt_geogrid_tbl_path
-
-  character (len=128), dimension(MAX_DOMAINS) :: geog_data_res 
-  character (len=1) :: gridtype
-  logical :: do_tiled_output
-  logical, dimension(MAX_DOMAINS) :: grid_is_active
-  integer :: debug_level
-
-contains
-
-  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
-  ! Name: get_grid_params
-  !
-  ! Purpose: This subroutine retrieves all parameters regarding the model domains
-  !    to be processed by geogrid.exe. This includes map parameters, domain
-  !    size and location, and nest information. 
-  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
-  subroutine get_grid_params()
-
-    implicit none
-
-    ! Local variables
-    integer :: i, j, max_dom, funit, io_form_geogrid, interval_seconds
-    real :: dx, dy, rparent_gridpts
-    integer, dimension(MAX_DOMAINS) :: i_parent_start, j_parent_start, &
-              s_we, e_we, s_sn, e_sn, &
-              start_year, start_month, start_day, start_hour, start_minute, start_second, &
-              end_year,   end_month,   end_day,   end_hour,   end_minute,   end_second
-    character (len=128) :: map_proj
-    character (len=128), dimension(MAX_DOMAINS) :: start_date, end_date
-    character (len=3) :: wrf_core
-    logical :: is_used, nest_outside
-    logical, dimension(MAX_DOMAINS) :: active_grid
-    logical :: nocolons
-
-    namelist /share/ wrf_core, max_dom, start_date, end_date, &
-          start_year, end_year, start_month, end_month, &
-          start_day, end_day, start_hour, end_hour, &
-          start_minute, end_minute, start_second, end_second, &
-          interval_seconds, &
-          io_form_geogrid, opt_output_from_geogrid_path, &
-          debug_level, active_grid, &
-          subgrid_ratio_x, subgrid_ratio_y, &
-          nocolons
-    namelist /geogrid/ parent_id, parent_grid_ratio, &
-            i_parent_start, j_parent_start, s_we, e_we, s_sn, e_sn, &
-            map_proj, ref_x, ref_y, ref_lat, ref_lon, &
-            pole_lat, pole_lon, truelat1, truelat2, stand_lon, &
-            dx, dy, geog_data_res, geog_data_path, opt_geogrid_tbl_path
-
-    ! Set defaults for namelist variables
-    debug_level = 0
-    io_form_geogrid = 2
-    wrf_core = 'ARW'
-    max_dom = 1
-    geog_data_path = 'NOT_SPECIFIED'
-    ref_x = 1.e20
-    ref_y = 1.e20
-    ref_lat = 1.e20
-    ref_lon = 1.e20
-    dx = 1.e20
-    dy = 1.e20
-    map_proj = 'Lambert'
-    pole_lat = 90.0
-    pole_lon = 0.0
-    truelat1 = 1.e20
-    truelat2 = 1.e20
-    stand_lon = 1.e20
-    do i=1,MAX_DOMAINS
-      geog_data_res(i) = 'default'
-      parent_id(i) = 1
-      parent_grid_ratio(i) = 1e9
-      s_we(i) = 1
-      e_we(i) = 1e9
-      s_sn(i) = 1
-      e_sn(i) = 1e9
-      start_year(i) = 0
-      start_month(i) = 0
-      start_day(i) = 0
-      start_hour(i) = 0
-      start_minute(i) = 0
-      start_second(i) = 0
-      end_year(i) = 0
-      end_month(i) = 0
-      end_day(i) = 0
-      end_hour(i) = 0
-      end_minute(i) = 0
-      end_second(i) = 0
-      start_date(i) = '0000-00-00_00:00:00'
-      end_date(i) = '0000-00-00_00:00:00'
-      active_grid(i) = .true.
-      subgrid_ratio_x(i) = 1
-      subgrid_ratio_y(i) = 1
-    end do
-    opt_output_from_geogrid_path = './'
-    opt_geogrid_tbl_path = 'geogrid/'
-    interval_seconds = 1e9
-    nocolons = .false.
-
-    ! Read parameters from Fortran namelist
-    do funit=10,100
-      inquire(unit=funit, opened=is_used)
-      if (.not. is_used) exit
-    end do
-    open(funit,file='namelist.wps',status='old',form='formatted',err=1000)
-    read(funit,share)
-    read(funit,geogrid)
-    close(funit)
-
-    n_domains = max_dom
-
-    return
-
-    1000 write( *, * ) 'Error opening file namelist.wps'
-
-  end subroutine get_grid_params
-
-end module gridinfo_module
-
 module nc_helpers
 contains
   subroutine nf90_check_error( stat )
@@ -152,6 +14,7 @@ end module nc_helpers
 
 module source_data_module
   type :: source_index_raw
+    character (len=256):: source_path      = "required"
     character (len=32) :: projection       = "required"
     character (len=32) :: source_type      = "required"
     logical            :: signed           = .false.
@@ -202,8 +65,9 @@ contains
 
     type( source_index_raw ), intent( inout ) :: index_data
 
+    write( index_data % source_path, "(a)" ) trim(source_path)
     write( index_path, "(a)" ) trim(source_path) // 'index'
-    write( *, * ) "Reading 'index' file at ", index_path
+    write( *, * ) "Reading 'index' file at ", index_data % source_path
 
     !
     ! Open the index file for the data source for this field, and read in metadata specs
@@ -216,7 +80,7 @@ contains
 
     ! TODO add optional to control when not found
     if (iostatus /= 0 ) then
-      write( *, * ) 'Could not open ', trim(index_path)
+      write( *, * ) 'Could not open ', trim(index_data % source_path)
     end if
 
     do
@@ -225,11 +89,10 @@ contains
         if ( iostatus == iostat_end ) exit
       end if
 
-      ! Process line
-      ! write( *, * ) "Line : ", trim(line_buffer)
+      ! Process line iff a key-value pair was found
       kv_exist = get_kv_pair( line_buffer, key, var )
       if ( kv_exist ) then
-        ! write( *, * ) "Found kv ", key, " = ", var
+        ! consider multiline else if even if not neater
         if ( key == "projection"      ) index_data % projection      = var
         if ( key == "source_type"     ) index_data % source_type     = var
         if ( key == "signed" .and. var == "yes" ) index_data % signed = .true.
@@ -291,12 +154,86 @@ contains
     if ( idx_comment == 0 ) idx_comment = len( line )
 
     ! We are fine to parse
-    key = trim(line(1:idx-1))
-    var = trim(line(idx+1:idx_comment))
+    key = trim(adjustl(line(1:idx-1)))
+    var = trim(adjustl(line(idx+1:idx_comment)))
     found = .true.
 
   end function get_kv_pair
 
+  integer function get_proj_code( index_data ) result( proj_code )
+    use misc_definitions_module
+    implicit none
+    type( source_index_raw ), intent( in ) :: index_data
+    if      ( index_data % projection == "lambert"      ) then; proj_code = PROJ_LC
+    else if ( index_data % projection == "polar_wgs84"  ) then; proj_code = PROJ_PS_WGS84
+    else if ( index_data % projection == "albers_nad83" ) then; proj_code = PROJ_ALBERS_NAD83
+    else if ( index_data % projection == "polar"        ) then; proj_code = PROJ_PS
+    else if ( index_data % projection == "mercator"     ) then; proj_code = PROJ_MERC
+    else if ( index_data % projection == "regular_ll"   ) then; proj_code = PROJ_LATLON
+    else; write( *, * ) "ERROR: Unknown projection '", index_data % projection, "'"
+    end if
+  end function get_proj_code
+
+
+  ! Taken from the souce_data_module of geogrid, but simplified to take stateful index data 
+  subroutine get_tile_fname(index_data, lat, lon, tile_fname, istatus)
+
+    use llxy_module
+    use gridinfo_module
+
+    implicit none
+
+    type( source_index_raw ), intent( in ) :: index_data
+    real, intent(in) :: lat, lon
+    character (len=*), intent(out) :: tile_fname
+    integer, intent(out) :: istatus
+
+    ! Local variables
+    integer :: current_domain, idx
+    real :: rx, ry
+
+    istatus = 0
+    write(tile_fname, '(a)') 'TILE.OUTSIDE.DOMAIN'
+
+    ! do idx=1,num_entries
+    !   if ((index(source_fieldname(idx),trim(fieldname)) /= 0) .and. &
+    !       (len_trim(source_fieldname(idx)) == len_trim(fieldname))) then
+    !     if (ilevel == source_priority(idx)) then
+    !       istatus = 0
+    !       exit
+    !     end if
+    !   end if
+    ! end do
+
+    ! if (istatus /= 0) return
+
+    current_domain = iget_selected_domain()
+    call select_domain(SOURCE_PROJ)
+    call lltoxy(lat, lon, rx, ry, M) 
+    call select_domain(current_domain)
+
+    !      rx = real(source_tile_x(idx)) * real(floor((rx-0.5*source_dx(idx))/ real(source_tile_x(idx)))) + 1.0
+    !      ry = real(source_tile_y(idx)) * real(floor((ry-0.5*source_dy(idx))/ real(source_tile_y(idx)))) + 1.0
+    rx = real( index_data % tile_x ) * real(floor((rx-0.5) / real( index_data % tile_x ))) + 1.0
+    ry = real( index_data % tile_y ) * real(floor((ry-0.5) / real( index_data % tile_y ))) + 1.0
+
+    if (rx > 0. .and. ry > 0.) then
+      select case(index_data % filename_digits)
+        case (5)
+          write(tile_fname, '(a,i5.5,a1,i5.5,a1,i5.5,a1,i5.5)') trim( index_data % source_path ), &
+          nint(rx),'-',nint(rx)+index_data % tile_x -1,'.',nint(ry),'-',nint(ry)+index_data % tile_y -1
+        case (6)
+          write(tile_fname, '(a,i6.6,a1,i6.6,a1,i6.6,a1,i6.6)') trim( index_data % source_path ), &
+          nint(rx),'-',nint(rx)+index_data % tile_x -1,'.',nint(ry),'-',nint(ry)+index_data % tile_y -1
+        case default
+          call mprintf(.true., ERROR, 'In GEOGRID.TBL, for index file of data at '// &
+          'entry %i, filename_digits must be either 5 or 6.', i1=idx)
+          istatus = 1
+          return
+      end select
+    end if
+
+  end subroutine get_tile_fname
 end module source_data_module
 
 program compute_gwdo
@@ -304,6 +241,7 @@ program compute_gwdo
   use nc_helpers
   use source_data_module
   use gridinfo_module
+  use llxy_module
 
   implicit none
   character (len=128), parameter  :: geo_em_prefix = "geo_em.d"
@@ -334,6 +272,16 @@ program compute_gwdo
 
   write( tmp, "(a)" ) trim(geog_data_path) // "topo_gmted2010_30s/"
   call read_index_file( tmp, index_data )
+
+  ! For now set the source data projection here
+  call push_source_projection( get_proj_code( index_data ), index_data % stdlon, &
+                               index_data % truelat1, index_data % truelat2,     &
+                               index_data % dx, index_data % dy,                 &
+                               index_data % dy, index_data % dx,                 &
+                               index_data % known_x, index_data % known_y,       &
+                               index_data % known_lat, index_data % known_lon )
+
+  
 
   write( *, * ) "Source data dx / dy : ", index_data % dx, ", ", index_data % dy
 
@@ -386,6 +334,9 @@ program compute_gwdo
     ierr = nf90_get_var( ncid, latvarid, lats )
     ierr = nf90_get_var( ncid, lonvarid, lons )
 
+    ! Find correct file and location within file to grab
+
+
     ! Just stuff for now
     do j = 1, dim1
       do k = 1, dim2
@@ -401,7 +352,10 @@ program compute_gwdo
         do l = 1, dim3
           cur_lat = lats(j,k,l)
           cur_lon = lons(j,k,l)
-          ! write( *, * ) "Current LL : ", cur_lat, ", ", cur_lon
+          call get_tile_fname( index_data, cur_lat, cur_lon, tmp, ierr )
+          if ( j == 10 .and. k == 10 ) then
+            write( *, * ) "Filename for [", i, ", ", j, ", ", k, "] at LL [", cur_lat, ", ", cur_lon, "] :", tmp 
+          end if
         end do
       end do
     end do
