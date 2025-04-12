@@ -587,8 +587,11 @@ subroutine rrpr(hstart, ntimes, interval, nlvl, maxlvl, plvl, &
         endif
 
 ! Repair GFS and ECMWF pressure-level RH
-        if (index(map%source,'NCEP GFS') .ne. 0 .or.  &
-            index(map%source,'NCEP GEFS') .ne. 0 .or. &
+! NCEP switched to rh wrt water with V16 on 3/22/21. 
+
+        if ( ((index(map%source,'NCEP GFS') .ne. 0 .or.  &
+            index(map%source,'NCEP GEFS') .ne. 0) .and. &
+	    (hdate .lt. '2021-03-22_12:00:00')) .or. &
             index(map%source,'NCEP CDAS CFSV2') .ne. 0 .or.  &
             index(map%source,'ECMWF') .ne. 0 ) then
           call mprintf(.true.,DEBUG, &
