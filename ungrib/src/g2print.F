@@ -480,6 +480,8 @@ end program g2print
              map%source = 'ECMWF'
            else if (icenter .eq. 34) then
              map%source = 'JMA'
+           else if (icenter .eq. 38) then
+             map%source = 'CMA'
            else if (icenter .eq. 74 .or. icenter .eq. 75 ) then
              map%source = 'UKMO'
            else
@@ -902,7 +904,8 @@ end program g2print
              level=gfld%ipdtmpl(12) *  &
                      (10. ** (-1. * gfld%ipdtmpl(11)))
            else if(gfld%ipdtmpl(10).eq.101 .or.&    ! sea level, sfc, or trop
-                gfld%ipdtmpl(10).eq.1 .or. gfld%ipdtmpl(10).eq.7) then 
+                gfld%ipdtmpl(10).eq.1 .or. gfld%ipdtmpl(10).eq.7 .or. &
+                gfld%ipdtmpl(10).eq.8 .or. gfld%ipdtmpl(10).eq.10) then
              level = 0
            else if(gfld%ipdtmpl(10).eq.106) then  ! below ground sfc is in cm in Vtable
              level= 100. * gfld%ipdtmpl(12)*(10.**(-1.*gfld%ipdtmpl(11)))

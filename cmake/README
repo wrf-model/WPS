@@ -1,0 +1,6 @@
+All files in this directory are currently clone-and-owned
+from WRF/cmake (except for the project-specific config)
+
+!!!!!!!!!!!!!!!!!!!!!!!! IMPORTANT !!!!!!!!!!!!!!!!!!!!!!!!
+If you modify a file in here, you will need to modify the 
+respective original file in WRF

@@ -52,18 +52,17 @@ Param| Type |Level1|Level2| Name     | Units   | Description                    
 #  NCEP has used multiple definitions of the soil temperature in their output and the Vtable attempts
 #  to account for these possibilities. (Definition changed 14 Jan 2015).
 #
-#  ftp://ftpprd.ncep.noaa.gov/pub/data/nccf/com/gfs/prod/gfs.ccyymmddhh/    (note hh at end)
+# As of 22 March 2021:
+#
+#  https://nomads.ncep.noaa.gov/pub/data/nccf/com/gfs/prod/gfs.ccyymmdd/hh/atmos/
+#  ftp://ftpprd.ncep.noaa.gov/pub/data/nccf/com/gfs/prod/gfs.ccyymmdd/hh/atmos/
 #
 #                          approx.    grid    hours      domain  dx       notes
 #                         file size   no.
 #
-#  gfs.t12z.pgrb2.0p25    220000 Kb   193  3-h to 240-h  global  0.25 deg  (26 p-levels plus sfc and trop, 1000 to 10 mb).
-#  gfs.t12z.pgrb2.0p50     68000 Kb     4  3-h to 240-h  global  0.5  deg  (26 p-levels plus sfc and trop, 1000 to 10 mb).
-#                                          
-#  Prior to 12z 14 January 2015:
-#
-#  gfs.t12z.pgrb2f00       56000 Kb     4  3-h to 192-h  global  0.5  deg  (26 p-levels plus sfc and trop, 1000 to 10 mb).
-#  gfs.t12z.pgrbf00.grib2  18000 Kb     3  3-h to 384-h  global  1.0  deg  (26 p-levels plus sfc and trop, 1000 to 10 mb).
+#  gfs.t12z.pgrb2.0p25    510000 Kb   193  1-h to 120-h  global  0.25 deg  (41 p-levels plus sfc and trop, 1000 to .01 hPa).
+#                                          3-h to 384-h
+#  gfs.t12z.pgrb2.0p50    150000 Kb     4  3-h to 384-h  global  0.5  deg  (41 p-levels plus sfc and trop, 1000 to .01 hPa).
 #
 #
 #  As of mid-2017 the GFS provides two land mask fields in the pressure-level output. WPS uses LANDN if available
@@ -78,7 +77,13 @@ Param| Type |Level1|Level2| Name     | Units   | Description                    
 #
 #   Abbreviated history of GFS changes (all starting at 12 UTC)
 #
-# Sometime 2019     - Update to FV3 (requires WPS V4.0 or later)
+# 29 November 2022  - Updated GFS to V16.3.0. Improved snow depth prediction. 
+#                   - Assimilate Leo-Geo winds, MetOp-C AVHRR and ASCAT winds. Upgrade CRTM to V2.4.0
+# 22 March 2021     - Upgrade GFS to V16. Update FV3. Add a new gravity wave parameterization, scale-aware 
+#                     TKE-EDMF scheme, update RRTMG. Use LETKF, 4D-IAU, new satellite obs.
+#  7 November 2019  - Updated to V15.2.0. Assimilate more satellite data. Fix mask issues over water and 
+#                     add LANDN field.
+# 12 June 2019      - Updated to V15.1.0 with FV3 dynamical core. (requires WPS V4.0 or later)
 # 19 July 2017      - Change to land mask and other terrestrial variables (requires WPS V3.9.1.1)
 #                   - Change missing value, removal of grid 211 (80km conus). Flag value of .468 in soil moisture.
 # 11 May 2016       - Assimilate AMSU-A radiances, AVHRR winds, CRTMv2.2.1, 4d hybrid das.
@@ -92,3 +97,13 @@ Param| Type |Level1|Level2| Name     | Units   | Description                    
 # 25 September 2007 - Implement UPP.
 # 31 May 2005       - T254L64 to T382L64. Change in soil output to 3 levels.
 # 29 October 2002   - Change from T170L42  to T254L64. Model top changed from 2 hPA to .2 hPa
+#
+#  Prior to 12z 22 March 2021:
+#
+#  gfs.t12z.pgrb2.0p25    220000 Kb   193  3-h to 240-h  global  0.25 deg  (26 p-levels plus sfc and trop, 1000 to 10 mb).
+#  gfs.t12z.pgrb2.0p50     68000 Kb     4  3-h to 240-h  global  0.5  deg  (26 p-levels plus sfc and trop, 1000 to 10 mb).
+#                                          
+#  Prior to 12z 14 January 2015:
+#
+#  gfs.t12z.pgrb2f00       56000 Kb     4  3-h to 192-h  global  0.5  deg  (26 p-levels plus sfc and trop, 1000 to 10 mb).
+#  gfs.t12z.pgrbf00.grib2  18000 Kb     3  3-h to 384-h  global  1.0  deg  (26 p-levels plus sfc and trop, 1000 to 10 mb).

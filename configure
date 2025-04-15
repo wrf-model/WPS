@@ -427,6 +427,8 @@ cat > fort_netcdf.f <<EOF
         end program
 EOF
     FFLAGS=`grep ^FFLAGS configure.wps | cut -d"=" -f2-`
+    FORMAT_FREE=`grep ^FORMAT_FREE configure.wps | cut -d"=" -f2-`
+    FFLAGS=`printf "%s" "${FFLAGS}" | sed -e "s/\\$(FORMAT_FREE)/${FORMAT_FREE}/g"`
     cp $NETCDF/include/netcdf.inc .
     FC=`grep ^SFC configure.wps | cut -d"=" -f2-`
     $FC ${FFLAGS} fort_netcdf.f -o fort_netcdf -L${NETCDF}/lib $NETCDFF -lnetcdf > /dev/null 2>&1 
@@ -523,6 +525,8 @@ EOF
 
 FC=`grep ^SFC configure.wps | cut -d"=" -f2-`
 FFLAGS=`grep ^FFLAGS configure.wps | cut -d"=" -f2-`
+FORMAT_FREE=`grep ^FORMAT_FREE configure.wps | cut -d"=" -f2-`
+FFLAGS=`printf "%s" "${FFLAGS}" | sed -e "s/\\$(FORMAT_FREE)/${FORMAT_FREE}/g"`
 $FC ${FFLAGS} gnu_flag_test.F90 -o gnu_flag_test > /dev/null 2>&1
 if [ -f ./gnu_flag_test ]; then
    ./gnu_flag_test > /dev/null 2>&1

@@ -1,4 +1,4 @@
-WRF Pre-Processing System Version 4.5
+WRF Pre-Processing System Version 4.6.0
 
 http://www2.mmm.ucar.edu/wrf/users/
 
@@ -95,6 +95,15 @@ in configure.wps and then compiled using
 ./compile plotfmt
 ./compile plotgrids
 
+Building WPS with CMake
+
+The WPS cmake build follows the same procedure as the WRF
+build procedure, using the following:
+   ./configure_new
+   ./compile_new
+  
+The prompts will look similar and present the user with
+available options specific to their system.
 
 Running WPS (for serially compiled code)
 
