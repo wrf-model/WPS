@@ -1,0 +1,55 @@
+GRIB1| Level| From |  To  | metgrid  | metgrid  | metgrid                                  |GRIB2|GRIB2|GRIB2|GRIB2|
+Param| Type |Level1|Level2| Name     | Units    | Description                              |Discp|Catgy|Param|Level|
+-----+------+------+------+----------+----------+------------------------------------------+-----------------------+
+ 129 | 100  |   *  |      | GEOPT    | m2 s-2   |                                          |  0  |  0  |     | 100 |
+ 156 | 100  |   *  |      | HGT      | m        | Height                                   |  0  |  3  |  5  | 100 |  
+ 130 | 100  |   *  |      | TT       | K        | Temperature                              |  0  |  0  |  0  | 100 |
+ 131 | 100  |   *  |      | UU       | m s-1    | U                                        |  0  |  2  |  2  | 100 |
+ 132 | 100  |   *  |      | VV       | m s-1    | V                                        |  0  |  2  |  3  | 100 |
+ 157 | 100  |   *  |      | RH       | %        | Relative Humidity                        |  0  |  1  |  1  | 100 |
+ 165 |  1   |   0  |      | UU       | m s-1    | U                    At 10 m             |  0  |  2  |  2  | 103 | 
+ 166 |  1   |   0  |      | VV       | m s-1    | V                    At 10 m             |  0  |  2  |  3  | 103 | 
+ 167 |  1   |   0  |      | TT       | K        | Temperature          At  2 m             |  0  |  0  |  0  | 103 |
+ 168 |  1   |   0  |      | DEWPT    | K        |                                          |  0  |  0  |  6  | 103 |
+     |  1   |   0  |      | RH       | %        | Relative Humidity    At  2 m             |  0  |  0  |     | 103 | 
+ 172 |  1   |   0  |      | LANDSEA  | 0/1 Flag | Land/Sea flag                            |  2  |  0  |  0  |  1  | 
+ 129 |  1   |   0  |      | SOILGEO  | m2 s-2   |                                          |  0  |  0  |     | 103 | 
+ 156 |  1   |   0  |      | SOILHGT  | m        | Terrain field of source analysis         |  0  |  0  |     | 106 | 
+ 134 |  1   |   0  |      | PSFC     | Pa       | Surface Pressure                         |  0  |  3  |  0  |  1  |
+ 151 |  1   |   0  |      | PMSL     | Pa       | Sea-level Pressure                       |  0  |  3  |  0  | 101 |
+ 235 |  1   |   0  |      | SKINTEMP | K        | Sea-Surface Temperature                  |  0  |  3  |     | 101 |
+  31 |  1   |   0  |      | SEAICE   | 0/1 Flag | Sea-Ice-Flag                             |  0  |  3  |     | 101 |
+  34 |  1   |   0  |      | SST      | K        | Sea-Surface Temperature                  |  0  |  3  |     | 101 |
+ 141 |  1   |   0  |      | SNOW_EC  | m        |                                          |  0  |  3  |     | 101 |
+     |  1   |   0  |      | SNOW     | kg m-2   |Water Equivalent of Accumulated Snow Depth|  0  |  3  |     | 101 |
+ 139 | 112  |   0  |   7  | ST000007 | K        | T of 0-7 cm ground layer                 |  2  |  0  |  2  | 106 | 
+ 170 | 112  |   7  |  28  | ST007028 | K        | T of 7-28 cm ground layer                | 192 | 128 | 170 | 106 | 
+ 183 | 112  |  28  | 100  | ST028100 | K        | T of 28-100 cm ground layer              | 192 | 128 | 183 | 106 | 
+ 236 | 112  | 100  | 255  | ST100289 | K        | T of 100-289 cm ground layer             | 192 | 128 | 236 | 106 | 
+  39 | 112  |   0  |   7  | SM000007 | fraction | Soil moisture of 0-7 cm ground layer     | 192 | 128 | 39  | 106 | 
+  40 | 112  |   7  |  28  | SM007028 | fraction | Soil moisture of 7-28 cm ground layer    | 192 | 128 | 40  | 106 | 
+  41 | 112  |  28  | 100  | SM028100 | fraction | Soil moisture of 28-100 cm ground layer  | 192 | 128 | 41  | 106 | 
+  42 | 112  | 100  | 255  | SM100289 | fraction | Soil moisture of 100-289 cm ground layer | 192 | 128 | 42  | 106 | 
+  0  |  1   |   0  |   7  | ST000007 | K        | T of 0-7 cm ground layer                 |  2  |  3  | 18  | 151 | 
+  1  |  2   |   7  |  28  | ST007028 | K        | T of 7-28 cm ground layer                |  2  |  3  | 18  | 151 | 
+  2  |  3   |  28  | 100  | ST028100 | K        | T of 28-100 cm ground layer              |  2  |  3  | 18  | 151 | 
+  3  |  4   | 100  | 289  | ST100289 | K        | T of 100-289 cm ground layer             |  2  |  3  | 18  | 151 | 
+  0  |  1   |   0  |   7  | SM000007 | fraction | Soil moisture of 0-7 cm ground layer     |  2  |  0  | 25  | 151 | 
+  1  |  2   |   7  |  28  | SM007028 | fraction | Soil moisture of 7-28 cm ground layer    |  2  |  0  | 25  | 151 | 
+  2  |  3   |  28  | 100  | SM028100 | fraction | Soil moisture of 28-100 cm ground layer  |  2  |  0  | 25  | 151 | 
+  3  |  4   | 100  | 289  | SM100289 | fraction | Soil moisture of 100-289 cm ground layer |  2  |  0  | 25  | 151 | 
+-----+------+------+------+----------+----------+------------------------------------------+-----+-----+-----+-----+
+#
+# Vtable for the ECMWF IFS output that can be found at:
+#    https://data.ecmwf.int/forecasts/ccyymmdd/12z/ifs/0p25/oper/
+#
+#  output includes 13 p-levels (mandatory levels only).  0 to 360-h every 6-h
+#
+# This Vtable will work with IFS output from before November 2024 (soil level code 106)
+# and after Nov 2024 (soil level code 151). If more IFS soil levels are added in the future 
+# they can be decoded by modifying the Vtable soil fields. Column 1 is the start
+# level number, column 2 is the end level number. Columns 3 and 4 contain the
+# depth of those levels in cm.
+#
+#  This Vtable has not been tested on any other EC output.
+
