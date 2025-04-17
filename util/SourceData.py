@@ -1,6 +1,8 @@
 import numpy as np
 import cartopy
 
+from TileData import TileData
+
 def get_kv_pair( line, delimiter="=", comment="#" ):
   non_comment = line.split( comment, maxsplit=1 )[0]
 
@@ -108,6 +110,7 @@ class SourceData:
     self.index_        = IndexData( self.source_path_ )
 
     self.projection_   = None
+    self.tile_data_    = None
     self.npts_x_       = int( 360.0 / self.index_.dx_ )
     self.pts_per_deg_  = int( 1.0 / self.index_.dx_ )
     self.subgrid_m_dx_ = 2.0 * np.pi * self.earth_radius_ / self.npts_x_
@@ -142,9 +145,44 @@ class SourceData:
                                               )
     elif self.index_.projection_ == "regular_ll":
       self.projection_ = cartopy.crs.LambertCylindrical( central_longitude   =self.index_.known_lon_ )
+      self.tile_data_  = TileData(
+                                  int( int( 360.0 / self.index_.dx_ ) / self.index_.tile_x_ ),
+                                  int( int( 180.0 / self.index_.dy_ ) / self.index_.tile_y_ ),
+                                  self.index_.tile_x_,
+                                  self.index_.tile_y_,
+                                  load_func=lambda i, j:
+                                    self.read_geogrid(
+                                                      self.get_tile_name_ij( i, j )[0] )[ # Limit the view to just the tile data for now, remove border
+                                                                                          0,
+                                                                                          self.index_.tile_bdr_:self.index_.tile_y_+self.index_.tile_bdr_,
+                                                                                          self.index_.tile_bdr_:self.index_.tile_x_+self.index_.tile_bdr_
+                                                                                          ]
+                                  )
 
 
   def read_geogrid( self, file ):
+    """
+    Read in the geogrid raw data using the format provided here:
+    https://www2.mmm.ucar.edu/wrf/users/wrf_users_guide/build/html/wps.html#writing-static-data-to-the-geogrid-binary-format
+
+    Note that data passed out is assumed to be oriented as follows:
+      SW
+            <- -x               +x -> (increasing longitude)
+         ^  +---+---+---+---+---+---+
+         |  |   |   |   |   |   |   |
+        -y  +---+---+---+---+---+---+
+            |   |   |   |   |   |   |
+            +---+---+---+---+---+---+
+            |   |   |   |   |   |   |
+            +---+---+---+---+---+---+
+            |   |   |   |   |   |   |
+        +y  +---+---+---+---+---+---+
+         |  |   |   |   |   |   |   |
+         v  +---+---+---+---+---+---+
+        (increasing latitude)
+                                      NE
+    """
+    print( "Reading " + file )
     rawdata = np.fromfile( 
                           file,
                           dtype=self.index_.get_dtype()
@@ -163,7 +201,7 @@ class SourceData:
                           self.index_.tile_x_ + 2 * self.index_.tile_bdr_
                         )
                        )
-    if self.index_.row_order_ != "top_bottom":
+    if self.index_.row_order_ == "top_bottom":
       data = np.flip( data, axis=1 )
     
     return data
@@ -200,9 +238,11 @@ class SourceData:
     print( ( starti + self.index_.tile_x_ - 1 + self.index_.tile_bdr_, startj + self.index_.tile_y_ - 1  + self.index_.tile_bdr_ ) )
     return ( start_lon, stop_lon, start_lat, stop_lat )
 
-  def get_tile_name( self, lat, lon ):
+  def get_tile_name_ll( self, lat, lon ):
     i, j = self.latlon_to_ij( lat, lon )
+    return self.get_tile_name_ij( i, j )
 
+  def get_tile_name_ij( self, i, j ):
     tile_i = self.index_.tile_x_ * int( int( i ) / self.index_.tile_x_ ) + 1
     tile_j = self.index_.tile_y_ * int( int( j ) / self.index_.tile_y_ ) + 1
 
@@ -219,34 +259,42 @@ class SourceData:
     # X span in points
     nx = 0
     if ( np.cos( np.deg2rad( lat ) ) > ( 2.0 * self.pts_per_deg_ * size * 180.0 ) / ( self.npts_x_ * np.pi * self.earth_radius_ ) ):
-      nx = np.ceil( ( 180.0 * size * self.pts_per_deg_ ) / ( np.pi * self.earth_radius_ * np.cos( np.deg2rad( lat ) ) ) )
+      nx = int( np.ceil( ( 180.0 * size * self.pts_per_deg_ ) / ( np.pi * self.earth_radius_ * np.cos( np.deg2rad( lat ) ) ) ) )
     else:
       nx = int( self.npts_x_ / 2 )
 
     # Y span in points
-    ny = np.ceil( ( 180.0 * size * self.pts_per_deg_ ) / ( np.pi * self.earth_radius_ ) )
+    ny = int( np.ceil( ( 180.0 * size * self.pts_per_deg_ ) / ( np.pi * self.earth_radius_ ) ) )
 
 
     ####################################################################################################################
     ####################################################################################################################
     ####################################################################################################################
-    ## Just load the tile in for now
-    self.data_ = self.read_geogrid( self.get_tile_name( lat, lon )[0] )
-    truei, truej = self.latlon_to_ij( lat, lon )
-    # Relative i, j in data
-    reli = truei % self.index_.tile_x_
-    relj = truej % self.index_.tile_y_
+    # ## Just load the tile in for now
+    # self.data_ = self.read_geogrid( self.get_tile_name( lat, lon )[0] )
+    true_i, true_j = self.latlon_to_ij( lat, lon )
+    # # Relative i, j in data
+    # reli = truei % self.index_.tile_x_
+    # relj = truej % self.index_.tile_y_
     
-    print( reli )
-    print( relj )
-    print( nx )
-    print( ny )
-    print( (int(relj-ny/2), int(relj+ny/2)) )
-    print( (int(reli-nx/2), int(reli+nx/2)) )
-    print( self.data_.shape )
-    # Assume it contains all that we need for now
-    box = self.data_[ 0, int(relj-ny/2):int(relj+ny/2), int(reli-nx/2):int(reli+nx/2) ]
+    # print( reli )
+    # print( relj )
+    # print( nx )
+    # print( ny )
 
+    # print( (int(relj-ny/2), int(relj+ny/2)) )
+    # print( (int(reli-nx/2), int(reli+nx/2)) )
+    # print( self.data_.shape )
+    # # Assume it contains all that we need for now
+    # box = self.data_[ 0, int(relj-ny/2):int(relj+ny/2), int(reli-nx/2):int(reli+nx/2) ]
+    
+    # Generate the indices for this box regardless of tile periodicity, let the tile data handle that
+    indices = np.indices( ( ny, nx ) )
+    indices[0] += int( true_j - ny / 2 )
+    indices[1] += int( true_i - nx / 2 )
+    # print( indices )
+
+    box = self.tile_data_.get_box( indices )
     ####################################################################################################################
     ####################################################################################################################
     ####################################################################################################################
