@@ -271,28 +271,11 @@ class SourceData:
     ####################################################################################################################
     ####################################################################################################################
     # ## Just load the tile in for now
-    # self.data_ = self.read_geogrid( self.get_tile_name( lat, lon )[0] )
     true_i, true_j = self.latlon_to_ij( lat, lon )
-    # # Relative i, j in data
-    # reli = truei % self.index_.tile_x_
-    # relj = truej % self.index_.tile_y_
-    
-    # print( reli )
-    # print( relj )
-    # print( nx )
-    # print( ny )
-
-    # print( (int(relj-ny/2), int(relj+ny/2)) )
-    # print( (int(reli-nx/2), int(reli+nx/2)) )
-    # print( self.data_.shape )
-    # # Assume it contains all that we need for now
-    # box = self.data_[ 0, int(relj-ny/2):int(relj+ny/2), int(reli-nx/2):int(reli+nx/2) ]
-    
     # Generate the indices for this box regardless of tile periodicity, let the tile data handle that
     indices = np.indices( ( ny, nx ) )
     indices[0] += int( true_j - ny / 2 )
     indices[1] += int( true_i - nx / 2 )
-    # print( indices )
 
     box = self.tile_data_.get_box( indices )
     ####################################################################################################################
