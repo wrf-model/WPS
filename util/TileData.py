@@ -1,3 +1,4 @@
+from collections import deque
 import numpy as np
 
 class TileData:
@@ -11,6 +12,8 @@ class TileData:
     self.tile_x_ = tile_x
     self.tile_y_ = tile_y
     self.load_func_ = load_func
+    self.tile_cache_ = deque()
+    self.max_cache_  = 4
   
   def print_present_tile_grid( self ):
     for l in self.tiles_:
@@ -18,9 +21,21 @@ class TileData:
       print( r )
 
   def load_tile( self, tile_i, tile_j ):
+    if len( self.tile_cache_ ) == self.max_cache_:
+      # make space for incoming tile
+      tile = self.tile_cache_.popleft()
+      print( f"Removing tile {tile} from loaded tiles cache" )
+
+      data = self.tiles_[tile[0]][tile[1]]
+      self.tiles_[tile[0]][tile[1]] = None
+      del data
+      
+
     # Convert tile_i and tile_j to full ij index for the start of the tile
     # This assumes geogrid start of 1,1
     self.add_tile_by_index( tile_i, tile_j, self.load_func_( tile_i * self.tile_x_, tile_j * self.tile_y_ ) )
+
+    self.tile_cache_.append( ( tile_j, tile_i ) )
 
 
   def get_tile_index( self, i, j ):
