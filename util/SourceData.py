@@ -182,7 +182,7 @@ class SourceData:
         (increasing latitude)
                                       NE
     """
-    print( "Reading " + file )
+    # print( "Reading " + file )
     rawdata = np.fromfile( 
                           file,
                           dtype=self.index_.get_dtype()

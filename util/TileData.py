@@ -14,6 +14,7 @@ class TileData:
     self.load_func_ = load_func
     self.tile_cache_ = deque()
     self.max_cache_  = 4
+    self.debug_      = False
   
   def print_present_tile_grid( self ):
     for l in self.tiles_:
@@ -24,7 +25,7 @@ class TileData:
     if len( self.tile_cache_ ) == self.max_cache_:
       # make space for incoming tile
       tile = self.tile_cache_.popleft()
-      print( f"Removing tile {tile} from loaded tiles cache" )
+      if self.debug_: print( f"Removing tile {tile} from loaded tiles cache" )
 
       data = self.tiles_[tile[0]][tile[1]]
       self.tiles_[tile[0]][tile[1]] = None
@@ -77,16 +78,16 @@ class TileData:
 
     data = self.tiles_[ true_tile_j ][ true_tile_i ]
     if data is None:
-      print( f"Tile at {true_tile_i} {true_tile_j} is not loaded yet. Loading..." )
+      if self.debug_: print( f"Tile at {true_tile_i} {true_tile_j} is not loaded yet. Loading..." )
       self.load_tile( true_tile_i, true_tile_j )
       # Grab the data again
       data = self.tiles_[ true_tile_j ][ true_tile_i ]
     else:
-      print( f"Tile at {true_tile_i} {true_tile_j} is already loaded" )
+      if self.debug_: print( f"Tile at {true_tile_i} {true_tile_j} is already loaded" )
 
   
     if rotate:
-      print( f"Tile at {tile_i} {tile_j} must be rotated" )
+      if self.debug_: print( f"Tile at {tile_i} {tile_j} must be rotated" )
       data = np.rot90( data, 2 )
 
     return data
@@ -115,7 +116,7 @@ class TileData:
     # Now we have our tile set easily accessible based on the 1-to-1 mapping of indices to tile idx
     
     for tile in uniq_tiles_list:
-      print( f"Processing tile {tile}")
+      if self.debug_: print( f"Processing tile {tile}")
       # Get the box indices corresponding to this tile
       box_indices = np.logical_and( as_tile_idx[0] == tile[0], as_tile_idx[1] == tile[1] )
 
@@ -130,6 +131,6 @@ class TileData:
     #     relj = indices[0,j,i] % self.tile_y_
     #     box[j,i] = tiles[tuple(as_tile_idx[:,j,i])][relj,reli]
 
-    self.print_present_tile_grid()
+    if self.debug_: self.print_present_tile_grid()
 
     return box
