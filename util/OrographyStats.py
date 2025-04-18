@@ -39,14 +39,14 @@ class OrographyStats:
     self.oa_[0] = ( nu -nd ) / ( nu + nd ) if ( ( nu + nd ) > 0 ) else 0.0
 
     # oa2 is the orographic asymmetry in the South direction
-    nu = np.sum( self.box_[:int(self.box_.shape[0]/2),:] > self.mean_ )
-    nd = np.sum( self.box_[int(self.box_.shape[0]/2):,:] > self.mean_ )
+    nu = np.sum( self.box_[int(self.box_.shape[0]/2):,:] > self.mean_ )
+    nd = np.sum( self.box_[:int(self.box_.shape[0]/2),:] > self.mean_ )
     self.oa_[1] = ( nu -nd ) / ( nu + nd ) if ( ( nu + nd ) > 0 ) else 0.0
 
     # Pre-compute the geometric diagonal of the box
     slope = self.box_.shape[1] / self.box_.shape[0]
     j, i  = np.indices( self.box_.shape )
-    upstream = i <= ( j * slope )
+    upstream = np.flip( i <= ( j * slope ), axis=0 )
 
     # oa3 is the orographic asymmetry in the South-West direction
     nu = np.sum( self.box_[upstream] > self.mean_ )
@@ -74,13 +74,13 @@ class OrographyStats:
     # of the area of the box in the wind direction...
 
     # ol3 is the effective orographic length in the South-West direction
-    interiorA = self.box_[int(self.box_.shape[0]/2):,int(self.box_.shape[1]/2):] # first half of x second half of y
-    interiorB = self.box_[:int(self.box_.shape[0]/2),:int(self.box_.shape[1]/2)] # second half of x first half of y
+    interiorA = self.box_[int(self.box_.shape[0]/2):,int(self.box_.shape[1]/2):] # first half of x first half of y
+    interiorB = self.box_[:int(self.box_.shape[0]/2),:int(self.box_.shape[1]/2)] # second half of x second half of y
 
     self.ol_[2] = ( np.sum( interiorA > self.hc_ ) + np.sum( interiorB > self.hc_ ) ) / ( interiorA.size + interiorB.size )
 
     # ol4 is the effective orographic length in the North-West direction
-    interiorA = self.box_[:int(self.box_.shape[0]/2),:int(self.box_.shape[1]/2)] # second half of x first half of y
-    interiorB = self.box_[int(self.box_.shape[0]/2):,int(self.box_.shape[1]/2):] # first half of x second half of y
+    interiorA = self.box_[int(self.box_.shape[0]/2):,:int(self.box_.shape[1]/2)] # first half of x second half of y
+    interiorB = self.box_[:int(self.box_.shape[0]/2),int(self.box_.shape[1]/2):] # second half of x first half of y
 
     self.ol_[3] = ( np.sum( interiorA > self.hc_ ) + np.sum( interiorB > self.hc_ ) ) / ( interiorA.size + interiorB.size )
