@@ -104,6 +104,7 @@ if ( ${USE_MPI} )
   add_compile_definitions(
                           USE_MPI=1
                           DM_PARALLEL
+                          _MPI
                           )
 
   if ( DEFINED WRF_MPI_Fortran_FLAGS AND NOT "${WRF_MPI_Fortran_FLAGS}" STREQUAL "" )
