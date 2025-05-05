@@ -39,8 +39,8 @@ class OrographyStats:
     self.oa_[0] = ( nu -nd ) / ( nu + nd ) if ( ( nu + nd ) > 0 ) else 0.0
 
     # oa2 is the orographic asymmetry in the South direction
-    nu = np.sum( self.box_[int(self.box_.shape[0]/2):,:] > self.mean_ )
-    nd = np.sum( self.box_[:int(self.box_.shape[0]/2),:] > self.mean_ )
+    nu = np.sum( self.box_[:int(self.box_.shape[0]/2),:] > self.mean_ )
+    nd = np.sum( self.box_[int(self.box_.shape[0]/2):,:] > self.mean_ )
     self.oa_[1] = ( nu -nd ) / ( nu + nd ) if ( ( nu + nd ) > 0 ) else 0.0
 
     # Pre-compute the geometric diagonal of the box
