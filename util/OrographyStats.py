@@ -74,8 +74,8 @@ class OrographyStats:
     # of the area of the box in the wind direction...
 
     # ol3 is the effective orographic length in the South-West direction
-    interiorA = self.box_[int(self.box_.shape[0]/2):,int(self.box_.shape[1]/2):] # first half of x first half of y
-    interiorB = self.box_[:int(self.box_.shape[0]/2),:int(self.box_.shape[1]/2)] # second half of x second half of y
+    interiorA = self.box_[:int(self.box_.shape[0]/2),:int(self.box_.shape[1]/2)] # first half of x first half of y
+    interiorB = self.box_[int(self.box_.shape[0]/2):,int(self.box_.shape[1]/2):] # second half of x second half of y
 
     self.ol_[2] = ( np.sum( interiorA > self.hc_ ) + np.sum( interiorB > self.hc_ ) ) / ( interiorA.size + interiorB.size )
 
