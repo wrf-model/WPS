@@ -74,7 +74,7 @@
       real , dimension(maxlvl) :: plvl
       integer :: nlvl
       integer , dimension(maxlvl) :: level_array
-      real :: glevel1, glevel2
+      integer :: glevel1, glevel2
       logical :: first = .true.
       real :: pmin
 
