@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
-import sys
 import os
 import re
 import argparse
 from collections import OrderedDict
 
-from netCDF4 import Dataset
+import netCDF4 as nc4
 
 from SourceData import SourceData
 from OrographyStats import OrographyStats
@@ -90,7 +89,7 @@ def main():
                       default="topo_gmted2010_30s"
                       )
   parser.add_argument(
-                      "-n", "--no_progress",
+                      "-hp", "--hide_progress",
                       help="Hide the progress bar",
                       action="store_true"
                       )
@@ -112,7 +111,7 @@ def main():
 
   for geo in geo_files:
     print( f"Processing {geo}" )
-    geo_data = Dataset( geo, "r+" )
+    geo_data = nc4.Dataset( geo, "r+" )
 
     xlat = geo_data.variables[ "XLAT_M" ]
     xlon = geo_data.variables[ "XLONG_M" ]
@@ -131,10 +130,15 @@ def main():
     ol3  = geo_data.variables[ "OL3" ]
     ol4  = geo_data.variables[ "OL4" ]
 
+    if "MAX_EL" in geo_data.variables:
+      max_el = geo_data.variables["MAX_EL"]
+    else:
+      max_el = geo_data.createVariable( "MAX_EL", "f4", ( var.dimensions ) )
+
     ns_size = xlat.shape[1]
     we_size = xlat.shape[2]
 
-    if not options.no_progress:
+    if not options.hide_progress:
       progerss_bar( 0, ns_size * we_size, length=50 )
     for j in range( ns_size ):
       for i in range( we_size ):
@@ -155,7 +159,9 @@ def main():
         ol2[0, j, i] = oro_stats.ol[1]
         ol3[0, j, i] = oro_stats.ol[2]
         ol4[0, j, i] = oro_stats.ol[3]
-        if not options.no_progress:
+
+        max_el[0, j, i] = oro_stats.max
+        if not options.hide_progress:
           progerss_bar( i + j * we_size + 1, ns_size * we_size, length=50 )
 
     geo_data.close()
