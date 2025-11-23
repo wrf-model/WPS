@@ -448,6 +448,16 @@ name=URB_PARAM
         rel_path=default:NUDAPT44_1km/
         flag_in_output=FLAG_URB_PARAM
 ===============================
+name=URB_PARAM
+        priority=2
+        optional=yes
+        dest_type=continuous
+        fill_missing = 0.
+        z_dim_name=num_urb_params
+        interp_option=default: average_gcell(2.0)+nearest_neighbor
+        rel_path=default:gloucp2020_30s/
+        flag_in_output=FLAG_URB_PARAM
+===============================
 name=FRC_URB2D
         priority=1
         optional=yes
@@ -455,6 +465,15 @@ name=FRC_URB2D
         fill_missing = 0.
         interp_option=default: average_gcell(2.0)+four_pt
         rel_path=default:urbfrac_nlcd2011/
+        flag_in_output=FLAG_FRC_URB2D
+===============================
+name=FRC_URB2D
+        priority=2
+        optional=yes
+        dest_type=continuous
+        fill_missing = 0.
+        interp_option=default: average_gcell(2.0)+four_pt
+        rel_path=default:urbfrac_gaia2020_30s/
         flag_in_output=FLAG_FRC_URB2D
 ===============================
 name=IMPERV
@@ -465,6 +484,16 @@ name=IMPERV
         masked=water
         fill_missing=0.
         rel_path = default:nlcd2011_imp_ll_9s/
+        flag_in_output=FLAG_IMPERV
+===============================
+name=IMPERV
+        priority=2
+        optional=yes
+        dest_type=continuous
+        interp_option = default:average_gcell(2.0)+four_pt
+        masked=water
+        fill_missing=0.
+        rel_path=default:urbfrac_gaia2020_30s/
         flag_in_output=FLAG_IMPERV
 ===============================
 name=CANFRA
