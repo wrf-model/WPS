@@ -493,7 +493,7 @@ name=IMPERV
         interp_option = default:average_gcell(2.0)+four_pt
         masked=water
         fill_missing=0.
-        rel_path=default:urbfrac_gaia2020_30s/
+        rel_path=default:impfrac_gaia2020_30s/
         flag_in_output=FLAG_IMPERV
 ===============================
 name=CANFRA
