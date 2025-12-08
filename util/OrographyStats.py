@@ -7,7 +7,7 @@ class OrographyStats:
 
     self.mean = np.mean( self.box )
     # var (actulally stddev)
-    self.std  = np.std( self.box, mean=self.mean )
+    self.std  = np.std( self.box )
     self.max = np.max( box )
 
     # Critical height used in calculation of orographic effective length
