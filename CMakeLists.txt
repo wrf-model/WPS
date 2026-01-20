@@ -161,8 +161,8 @@ list( TRANSFORM WPS_DEFINITIONS_LIST REPLACE "^-D(.*)" "\\1" )
 add_compile_definitions( 
                         ${WPS_DEFINITIONS_LIST}
                         ${WPS_UNDEFINITIONS_LIST}
-                        $<$<COMPILE_LANGUAGE:Fortran>:USE_JPEG2000>
-                        $<$<COMPILE_LANGUAGE:Fortran>:USE_PNG>
+                        USE_JPEG2000
+                        USE_PNG
                         )
 # Whole project flags
 add_compile_options(
