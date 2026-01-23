@@ -106,8 +106,8 @@ def main():
   if "max_dom" in nml["share"]:
     max_dom = int(nml["share"]["max_dom"])
   geo_files = [ f"geo_em.d{dom_id + 1:02d}.nc" for dom_id in range( max_dom ) ]
-  box_size_x  = float( nml["geogrid"]["dx"] )
-  box_size_y  = float( nml["geogrid"]["dy"] )
+  box_size_x  = float( nml["geogrid"]["dx"] ) * 2
+  box_size_y  = float( nml["geogrid"]["dy"] ) * 2
 
   for geo in geo_files:
     print( f"Processing {geo}" )
