@@ -63,8 +63,8 @@ class OrographyStats:
     self.oa[2] = ( nu - nd ) / ( nu + nd ) if ( ( nu + nd ) > 0 ) else 0.0
 
     # oa4 is the orographic asymmetry in the North-West direction
-    upstream   = np.flip( upstream, axis=1 )
-    downstream = np.flip( downstream, axis=1 )
+    upstream   = np.flip( upstream, axis=0 )
+    downstream = np.flip( downstream, axis=0 )
     nu = np.sum( self.box[upstream] > self.mean )
     nd = np.sum( self.box[downstream] > self.mean )
     self.oa[3] = ( nu - nd ) / ( nu + nd ) if ( ( nu + nd ) > 0 ) else 0.0
