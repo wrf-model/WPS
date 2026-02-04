@@ -98,7 +98,6 @@ def main():
   datapath= nml["geogrid"]["geog_data_path"]
 
   topo_data   = os.path.join( datapath, options.dataset )
-  #  "/home/aislas/ext_data/wrf/DATA/WPS_GEOG/topo_gmted2010_30s"
   topo_source = SourceData( options.dataset, topo_data )
 
   # For now just get cmdline arg

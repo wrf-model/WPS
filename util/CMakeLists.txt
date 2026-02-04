@@ -11,7 +11,6 @@ add_executable( calc_ecmwf_p )
 add_executable( mod_levs )
 if ( DEFINED WRF_DIR )
   add_executable( int2nc )
-  add_executable( compute_gwdo )
 endif()
 add_executable( height_ukmo )
 
@@ -57,27 +56,6 @@ if ( DEFINED WRF_DIR )
                             PRIVATE
                               ${netCDF_INCLUDE_DIRS}
                             )
-  target_link_libraries(
-                        compute_gwdo
-                        PRIVATE
-                          WRF::WRF_Core
-                          netCDF::netcdff
-                        )
-    set_target_properties( 
-                          compute_gwdo
-                          PROPERTIES
-                            # Just dump everything in here
-                            Fortran_MODULE_DIRECTORY ${CMAKE_INSTALL_PREFIX}/modules/util/compute_gwdo
-                            Fortran_FORMAT           FREE
-                          )
-    install(
-          TARGETS compute_gwdo
-          EXPORT ${EXPORT_NAME}Targets
-          RUNTIME DESTINATION bin/
-          ARCHIVE DESTINATION lib/
-          LIBRARY DESTINATION lib/
-          )
-
 endif()
 
 # Every single target
@@ -88,7 +66,7 @@ foreach( TARGET ${ALL_UTIL_TARGETS} util_common )
                         ${TARGET}
                         PROPERTIES
                           # Just dump everything in here
-                          Fortran_MODULE_DIRECTORY ${CMAKE_INSTALL_PREFIX}/modules/util/${TARGET}/
+                          Fortran_MODULE_DIRECTORY ${CMAKE_INSTALL_PREFIX}/modules/util/
                           Fortran_FORMAT           FREE
                         )
 
@@ -99,11 +77,6 @@ foreach( TARGET ${ALL_UTIL_TARGETS} util_common )
                           PRIVATE
                             util_common
                           )
-    target_include_directories(
-                              ${TARGET}
-                              PRIVATE
-                                $<TARGET_PROPERTY:util_common,Fortran_MODULE_DIRECTORY>
-                              )
   endif()
 
   # Add these to the export targets

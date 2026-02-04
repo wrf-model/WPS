@@ -114,34 +114,6 @@ class SourceData:
     self._pts_per_deg  = int( 1.0 / self._index.dx )
     self._subgrid_m_dx = 2.0 * np.pi * self._earth_radius / self._npts_x
 
-    # # These are all probably wrong
-    # if self._index.projection_ == "lambert":
-    #   self._projection = cartopy.crs.LambertConformal(
-    #                                                   central_longitude  =self._index.known_lon_,
-    #                                                   central_latitude   =self._index.known_lat_,
-    #                                                   standard_parallels =( self._index.truelat1_, self._index.truelat2_ )
-    #                                                   )
-    # elif self._index.projection_ == "polar_wgs84" or self._index.projection_ == "polar":
-    #   self._projection = cartopy.crs.Stereographic(
-    #                                                 central_longitude   =self._index.known_lon_,
-    #                                                 central_latitude    =self._index.known_lat_,
-    #                                                 true_scale_latitude =self._index.truelat1_
-    #                                                 )
-    # elif self._index.projection_ == "albers_nad83":
-    #   self._projection = cartopy.crs.AlbersEqualArea(
-    #                                                 central_longitude   =self._index.known_lon_,
-    #                                                 central_latitude    =self._index.known_lat_,
-    #                                                 standard_parallels =( self._index.truelat1_, self._index.truelat2_ )
-    #                                                 )
-    # elif self._index.projection_ == "mercator":
-    #   self._projection = cartopy.crs.Mercator(
-    #                                           central_longitude   =self._index.known_lon_,
-    #                                           # central_latitude    =self._index.known_lat_,
-    #                                           latitude_true_scale =self._index.truelat1_
-    #                                           )
-    # elif self._index.projection_ == "regular_ll":
-    #   self._projection = cartopy.crs.LambertCylindrical( central_longitude   =self._index.known_lon_ )
-
     self._tile_data  = TileData(
                                 int( int( 360.0 / self._index.dx ) / self._index.tile_x ),
                                 int( int( 180.0 / self._index.dy ) / self._index.tile_y ),
@@ -179,7 +151,6 @@ class SourceData:
         (increasing latitude)
                                       NE
     """
-    # print( "Reading " + file )
     rawdata = np.fromfile(
                           file,
                           dtype=self._index.get_dtype()
