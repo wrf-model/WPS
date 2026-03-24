@@ -105,8 +105,16 @@ def main():
   if "max_dom" in nml["share"]:
     max_dom = int(nml["share"]["max_dom"])
   geo_files = [ f"geo_em.d{dom_id + 1:02d}.nc" for dom_id in range( max_dom ) ]
-  box_size_x  = float( nml["geogrid"]["dx"] ) * 2
-  box_size_y  = float( nml["geogrid"]["dy"] ) * 2
+
+  # Scale-awareness, require min box size 4x4 using nominal dx of orographic data
+  sg_delta = topo_source._subgrid_m_dx
+  dc = min( float( nml["geogrid"]["dx"] ), float( nml["geogrid"]["dy"] ) ) * 2
+  hratio = dc / sg_delta
+  if hratio < 4.0:
+    dc = sg_delta * 4.0
+
+  box_size_x  = dc
+  box_size_y  = dc
 
   for geo in geo_files:
     print( f"Processing {geo}" )
@@ -117,7 +125,8 @@ def main():
 
     # Fields to overwrite
     con  = geo_data.variables[ "CON" ]
-    var  = geo_data.variables[ "VAR" ]
+    # Correct std deviation for scale awareness changes
+    var  = geo_data.variables[ "VAR" ] * (hratio * 0.25 if ( hratio < 4.0 ) else 1)
 
     oa1  = geo_data.variables[ "OA1" ]
     oa2  = geo_data.variables[ "OA2" ]
