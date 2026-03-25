@@ -125,8 +125,7 @@ def main():
 
     # Fields to overwrite
     con  = geo_data.variables[ "CON" ]
-    # Correct std deviation for scale awareness changes
-    var  = geo_data.variables[ "VAR" ] * (hratio * 0.25 if ( hratio < 4.0 ) else 1)
+    var  = geo_data.variables[ "VAR" ]
 
     oa1  = geo_data.variables[ "OA1" ]
     oa2  = geo_data.variables[ "OA2" ]
@@ -156,7 +155,8 @@ def main():
 
         oro_stats  = OrographyStats( box )
         con[0, j, i] = oro_stats.con
-        var[0, j, i] = oro_stats.std
+        # Correct std deviation for scale awareness changes
+        var[0, j, i] = oro_stats.std * (hratio * 0.25 if ( hratio < 4.0 ) else 1)
 
         oa1[0, j, i] = oro_stats.oa[0]
         oa2[0, j, i] = oro_stats.oa[1]
