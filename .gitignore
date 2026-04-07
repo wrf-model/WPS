@@ -13,3 +13,5 @@ grib2
 GRIBFILE.*
 *.o
 FILE:*
+WPS_GEOG
+install
