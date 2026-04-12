@@ -50,8 +50,7 @@ def _pad_str(s: str, n: int) -> bytes:
 
 def _fortran_unformatted_record(fh: BinaryIO, payload: bytes) -> None:
 
-    # This function writes one gfortran sequential unformatted record. With -fconvert=big-endian,
-    # gfortran also uses big-endian 32-bit record length tags (see WPS arch/configure.defaults).
+    # This function writes one gfortran sequential unformatted record using big-endian 32-bit length tags.
 
     n = len(payload)
     len_be = struct.pack(">I", n)
@@ -282,9 +281,3 @@ def sort_fields_fortran_order(
         )
         out.extend(slab for _, slab in at_level)
     return out
-
-
-
-
-
-

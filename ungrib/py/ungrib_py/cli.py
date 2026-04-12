@@ -9,6 +9,7 @@ from pathlib import Path
 from ungrib_py.namelist_wps import parse_namelist_wps
 from ungrib_py.parallel_ungrib import run_ungrib_parallel
 
+
 def main(argv: list[str] | None = None) -> int:
 
     # This function parses CLI options, reads namelist.wps, and runs parallel ungrib.
@@ -57,11 +58,6 @@ def main(argv: list[str] | None = None) -> int:
     for w in written:
         print(" ", w)
     return 0
-
-
-
-
-
 
 
 

@@ -53,7 +53,7 @@ _GRAVITY_M_S2: float = 9.81
 
 def _is_pressure_level_pa(lev: float) -> bool:
 
-    # Isobaric levels in WPS intermediate use Pa; match rrpr "plvl < 200000" and count_distinct_pressure_levels_pa.
+    # This function returns True if lev is a plausible isobaric pressure in Pa for WPS intermediate fields.
 
     lf = float(lev)
     return 50.0 <= lf <= 120000.0
@@ -61,7 +61,7 @@ def _is_pressure_level_pa(lev: float) -> bool:
 
 def _delete_surface_geopotential_sources(bucket: dict[tuple[float, str], FieldSlab]) -> None:
 
-    # SOILGEO / surface GEOPT are not written by Fortran WPS output when desc is blank; drop for metgrid.
+    # This function removes surface SOILGEO/GEOPT slabs from the bucket when they should not reach metgrid.
 
     for k in list(bucket.keys()):
         lev, nm = k
@@ -74,7 +74,7 @@ def _delete_surface_geopotential_sources(bucket: dict[tuple[float, str], FieldSl
 
 def _hgt_field_meta_from_vtable(rows: list[VtableEntry] | None) -> tuple[str, str, str]:
 
-    # Prefer the HGT row from the same Vtable as Fortran/Python ungrib (e.g. ungrib_out/Vtable).
+    # This function returns (name, units, desc) for derived HGT from GEOPT, preferring the Vtable HGT row.
 
     if rows:
         for r in rows:
@@ -89,7 +89,7 @@ def ensure_hgt_from_geopt(
     vtable_rows: list[VtableEntry] | None = None,
 ) -> None:
 
-    # Fortran rrpr.F: HGT (m) = GEOPT (m^2 s^-2) / g on isobaric levels; metgrid reads HGT as GHT (METGRID.TBL).
+    # This function adds HGT slabs from isobaric GEOPT by dividing geopotential by gravity (Fortran rrpr).
 
     name9, units25, desc46 = _hgt_field_meta_from_vtable(vtable_rows)
     for key in list(bucket.keys()):
@@ -120,7 +120,7 @@ def drop_fields_blank_vtable_desc(
     all_rows: list[VtableEntry],
 ) -> None:
 
-    # Fortran output.F (iflag=2): fields whose Vtable description is all blanks are not written to intermediate.
+    # This function drops fields whose Vtable description is all blanks, matching Fortran output.F iflag=2.
 
     by_name: dict[str, list[VtableEntry]] = {}
     for r in all_rows:
@@ -137,9 +137,7 @@ def drop_fields_blank_vtable_desc(
 
 def ensure_soilt000_for_metgrid(bucket: dict[tuple[float, str], FieldSlab]) -> None:
 
-    # METGRID.TBL ICON fills derived SOILT level 0 from SOILT000(200100). Vtable.ICONp uses SOILT001 for the top layer.
-    # If SOILT000 is absent, that output level is skipped and NUM_METGRID_SOIL_LEVELS can be 7 vs namelist 8.
-    # Duplicate the shallowest present SOILT* slab as SOILT000 when needed (also covers SOILT001 match failures).
+    # This function ensures SOILT000 exists by copying the shallowest SOILT* slab when METGRID.TBL expects it.
 
     levels = {k[0] for k in bucket}
     for lev in levels:
@@ -159,10 +157,10 @@ def ensure_soilt000_for_metgrid(bucket: dict[tuple[float, str], FieldSlab]) -> N
             )
             break
 
+
 def ensure_soilhgt_from_soilgeo(bucket: dict[tuple[float, str], FieldSlab]) -> None:
 
-    # Fortran ungrib runs rrpr.F: SOILHGT (m) from SOILGEO (m^2 s^-2) when SOILHGT is missing.
-    # Also accept surface GEOPT (same units) or surface HGT already in meters (some Vtables).
+    # This function fills SOILHGT at 200100 from SOILGEO/GEOPT or surface HGT when SOILHGT is missing.
 
     for (lev, name) in bucket:
         if name.strip() != "SOILHGT":
@@ -172,6 +170,9 @@ def ensure_soilhgt_from_soilgeo(bucket: dict[tuple[float, str], FieldSlab]) -> N
             return
 
     def find_at_surface(names: tuple[str, ...]) -> FieldSlab | None:
+
+        # This function returns the first bucket field matching names at surface level codes.
+
         for (lev, name), fld in bucket.items():
             if name.strip() not in names:
                 continue
@@ -208,10 +209,10 @@ def ensure_soilhgt_from_soilgeo(bucket: dict[tuple[float, str], FieldSlab]) -> N
         data=np.asfortranarray(arr.astype(np.float32)),
     )
 
+
 def ecmwf_surface_geopotential_vtable_row(gid: int, rows: list[VtableEntry]) -> VtableEntry | None:
 
-    # ERA5 / ECMWF surface geopotential is often paramId 129 (or shortName=z); Vtable.ERA-interim.pl has no GRIB2 columns so match_entry fails.
-    # Prefer SOILGEO, then GEOPT, when discipline 0 / surface type 1 matches typical orography GRIB2.
+    # This function picks SOILGEO or GEOPT Vtable row for ECMWF surface geopotential when GRIB2 columns are blank.
 
     pid = _try_get(gid, "paramId")
     pid_ok = False
@@ -234,6 +235,7 @@ def ecmwf_surface_geopotential_vtable_row(gid: int, rows: list[VtableEntry]) -> 
     if geopt:
         return geopt[0]
     return None
+
 
 def _iget(gid: int, key: str) -> int:
 
@@ -888,6 +890,7 @@ def pick_vtable_row_ecmwf_soil_layer151(
             return candidates[idx]
     return None
 
+
 def pick_vtable_row(gid: int, rows: list[VtableEntry]) -> VtableEntry | None:
 
     # This function selects the Vtable row for a GRIB message, including soil depth matching.
@@ -921,12 +924,14 @@ def pick_vtable_row(gid: int, rows: list[VtableEntry]) -> VtableEntry | None:
         return m
     return ecmwf_surface_geopotential_vtable_row(gid, rows)
 
+
 def values_to_slab(values: np.ndarray, ni: int, nj: int) -> np.ndarray:
 
     # This function reshapes ecCodes 1-D values to a Fortran-order (ni, nj) slab.
 
     arr = values.reshape((nj, ni), order="C")
     return np.asfortranarray(arr.T.astype(np.float32))
+
 
 def extract_file(
     path: str | Path,
@@ -999,13 +1004,6 @@ def iter_grib_filenames() -> Iterator[str]:
         for b in letters:
             for c in letters:
                 yield f"GRIBFILE.{a}{b}{c}"
-
-
-
-
-
-
-
 
 
 

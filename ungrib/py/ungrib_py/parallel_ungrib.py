@@ -58,7 +58,12 @@ def count_distinct_pressure_levels_pa(
     return len(levels)
 
 def merge_by_time(
-    parts: list[tuple[dict, MapInfo | None]],
+    parts: list[
+        tuple[
+            dict[str, dict[tuple[float, str], FieldSlab]],
+            MapInfo | None,
+        ]
+    ],
     hstart: str,
     hend: str,
     all_vtable_rows: list[VtableEntry],
@@ -139,11 +144,6 @@ def run_ungrib_parallel(
         write_wps_intermediate_v5(str(out_path), hdate, map_info, fields)
         written.append(str(out_path))
     return written
-
-
-
-
-
 
 
 
