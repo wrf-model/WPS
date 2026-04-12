@@ -198,40 +198,40 @@ def _map_extension_bytes_be(m: MapInfo) -> bytes:
 
     # This function builds the map projection extension record with big-endian floats.
 
-    start = _pad_str(m.startloc[:8], 8).decode("ascii")
+    start_b = _pad_str(m.startloc[:8], 8)
     if m.igrid == 0:
         buf = bytearray()
-        buf.extend(_pad_str(start, 8))
+        buf.extend(start_b)
         for v in (m.lat1, m.lon1, m.dy, m.dx, m.r_earth_km):
             buf.extend(_be_f32(v))
         return bytes(buf)
     if m.igrid == 1:
         buf = bytearray()
-        buf.extend(_pad_str(start, 8))
+        buf.extend(start_b)
         for v in (m.lat1, m.lon1, m.dx, m.dy, m.truelat1, m.r_earth_km):
             buf.extend(_be_f32(v))
         return bytes(buf)
     if m.igrid == 3:
         buf = bytearray()
-        buf.extend(_pad_str(start, 8))
+        buf.extend(start_b)
         for v in (m.lat1, m.lon1, m.dx, m.dy, m.lov, m.truelat1, m.truelat2, m.r_earth_km):
             buf.extend(_be_f32(v))
         return bytes(buf)
     if m.igrid == 5:
         buf = bytearray()
-        buf.extend(_pad_str(start, 8))
+        buf.extend(start_b)
         for v in (m.lat1, m.lon1, m.dx, m.dy, m.lov, m.truelat1, m.r_earth_km):
             buf.extend(_be_f32(v))
         return bytes(buf)
     if m.igrid == 4:
         buf = bytearray()
-        buf.extend(_pad_str(start, 8))
+        buf.extend(start_b)
         for v in (m.lat1, m.lon1, m.dx, m.dy, m.r_earth_km):
             buf.extend(_be_f32(v))
         return bytes(buf)
     if m.igrid == 6:
         buf = bytearray()
-        buf.extend(_pad_str(start, 8))
+        buf.extend(start_b)
         for v in (m.lat1, m.lon1, m.dx, m.dy, m.centerlat, m.centerlon, m.r_earth_km):
             buf.extend(_be_f32(v))
         return bytes(buf)
@@ -281,19 +281,6 @@ def sort_fields_fortran_order(
         )
         out.extend(slab for _, slab in at_level)
     return out
-
-def sort_fields_for_output(
-    items: list[tuple[float, str, FieldSlab]],
-    vtable_rows: list[VtableEntry],
-) -> list[FieldSlab]:
-
-    # This function sorts field items for WPS intermediate output (alias for sort_fields_fortran_order).
-
-    return sort_fields_fortran_order(items, vtable_rows)
-
-
-
-
 
 
 

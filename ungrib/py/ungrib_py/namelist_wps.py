@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import NamedTuple
 
 class UngribNamelist(NamedTuple):
+    # Parsed &share / &ungrib keys; debug_level and ordered_by_date are not used by ungrib_py yet.
     hstart: str
     hend: str
     interval_seconds: int
