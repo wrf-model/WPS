@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Iterator
 from pathlib import Path
+import struct
 
 import numpy as np
 
@@ -11,6 +12,30 @@ import eccodes
 
 from ungrib_py.intermediate import FieldSlab, MapInfo
 from ungrib_py.vtable import BLANK, SPLAT, VtableEntry, match_entry
+
+_GDT32769_MAPGRID: tuple[int, ...] = (
+    1,
+    1,
+    4,
+    1,
+    4,
+    1,
+    4,
+    4,
+    4,
+    4,
+    4,
+    -4,
+    4,
+    1,
+    -4,
+    4,
+    4,
+    4,
+    1,
+    4,
+    4,
+)
 
 _SOILT_SHALLOW_FIRST: tuple[str, ...] = (
     "SOILT001",
@@ -457,6 +482,89 @@ def grid_relative_wind(gid: int) -> bool:
     bit4 = (flags >> 3) & 1
     return bit4 != 0
 
+def _grib2_section_bytes(msg: bytes, section_number: int) -> bytes | None:
+
+    # This function returns the raw bytes of a GRIB2 section with the given section number.
+
+    pos = 16
+    while pos + 5 <= len(msg):
+        sec_len = struct.unpack_from(">I", msg, pos)[0]
+        if sec_len < 5 or pos + sec_len > len(msg):
+            return None
+        if msg[pos + 4] == section_number:
+            return msg[pos : pos + sec_len]
+        pos += sec_len
+    return None
+
+def _ncep32769_template_values(template_bytes: bytes) -> tuple[int, ...]:
+
+    # This function unpacks GDT 3.32769 template integers using the NCEP g2lib mapgrid octet map.
+
+    idx = 0
+    out: list[int] = []
+    for w in _GDT32769_MAPGRID:
+        n = abs(w)
+        chunk = template_bytes[idx : idx + n]
+        if len(chunk) != n:
+            raise ValueError("truncated GDT 3.32769 template bytes")
+        if w == 1:
+            out.append(chunk[0])
+        else:
+            out.append(struct.unpack(">i", chunk)[0])
+        idx += n
+    if idx != len(template_bytes):
+        raise ValueError("GDT 3.32769 template byte length mismatch")
+    return tuple(out)
+
+def _map_info_ncep_rotated_latlon(gid: int, src: str, r_earth: float, gw: bool, startloc: str) -> MapInfo:
+
+    # This function builds MapInfo for NCEP rotated lat-lon (GDT 3.32769) like rd_grib2.F map%igrid=6.
+
+    msg = eccodes.codes_get_message(gid)
+    sec3 = _grib2_section_bytes(msg, 3)
+    if sec3 is None or len(sec3) < 14:
+        raise ValueError("missing GRIB2 section 3 for ncep_32769")
+    gdt = struct.unpack_from(">H", sec3, 12)[0]
+    if gdt != 32769:
+        raise ValueError(f"expected GDT 32769 in section 3, got {gdt}")
+    tpl = sec3[14:]
+    vals = _ncep32769_template_values(tpl)
+    basic = vals[9]
+    if basic not in (0, 255):
+        raise ValueError(
+            "GDT 3.32769 with non-zero basic angle is unsupported in ungrib_py (extend _map_info_ncep_rotated_latlon)"
+        )
+    di_raw = vals[16]
+    dj_raw = vals[17]
+    la2_raw = vals[14]
+    lo2_raw = vals[15]
+    ni = _iget(gid, "Ni")
+    nj = _iget(gid, "Nj")
+    lat1 = _fget(gid, "latitudeOfFirstGridPointInDegrees")
+    lon1 = _fget(gid, "longitudeOfFirstGridPointInDegrees")
+    di_deg = float(di_raw) / 1e9
+    dj_deg = float(dj_raw) / 1e9
+    center_lat = float(la2_raw) / 1e6
+    center_lon = float(lo2_raw) / 1e6
+    return MapInfo(
+        source=src,
+        igrid=6,
+        nx=ni,
+        ny=nj,
+        startloc=startloc,
+        lat1=lat1,
+        lon1=lon1,
+        dx=di_deg,
+        dy=dj_deg,
+        lov=0.0,
+        truelat1=0.0,
+        truelat2=0.0,
+        r_earth_km=r_earth,
+        grid_wind=gw,
+        centerlat=center_lat,
+        centerlon=center_lon,
+    )
+
 def map_info_from_grib(gid: int) -> MapInfo:
 
     # This function builds WPS MapInfo from ecCodes grid description for supported projections.
@@ -579,6 +687,9 @@ def map_info_from_grib(gid: int) -> MapInfo:
             centerlat=0.0,
             centerlon=0.0,
         )
+
+    if gt == "ncep_32769":
+        return _map_info_ncep_rotated_latlon(gid, src, r_earth, gw, startloc)
 
     raise ValueError(f"unsupported gridType={gt!r} for Python ungrib (extend map_info_from_grib)")
 

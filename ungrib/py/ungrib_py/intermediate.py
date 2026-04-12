@@ -232,7 +232,8 @@ def _map_extension_bytes_be(m: MapInfo) -> bytes:
     if m.igrid == 6:
         buf = bytearray()
         buf.extend(start_b)
-        for v in (m.lat1, m.lon1, m.dx, m.dy, m.centerlat, m.centerlon, m.r_earth_km):
+        # Fortran output.F writes map%dy before map%dx; metgrid read_met reads dx then dy (same file order).
+        for v in (m.lat1, m.lon1, m.dy, m.dx, m.centerlat, m.centerlon, m.r_earth_km):
             buf.extend(_be_f32(v))
         return bytes(buf)
     raise ValueError(f"unsupported igrid={m.igrid} for WPS v5 writer")
