@@ -11,7 +11,7 @@ from OrographyStats import OrographyStats
 
 
 # https://stackoverflow.com/a/34325723
-def progerss_bar( iteration, total, prefix="", suffix="", precision=1, length=100, fill="*", empty="-", end="\r"):
+def progress_bar( iteration, total, prefix="", suffix="", precision=1, length=100, fill="*", empty="-", end="\r"):
   """Print out a progress bar based on iteration/total of fill
   iteration  : current iteration
   total      : total iterations
@@ -44,7 +44,7 @@ def read_nml( filename ):
   Index slices, multiple key-value pairs on the same line,
   and other features are NOT supported. For full support
   please utilize f90nml.
-  Spaces between key and value and commas does not matter.
+  Spaces between key-value assignment and commas separated values do not matter.
   Multivalue entries MUST be delimited by commas.
   """
   contents = ""
@@ -146,7 +146,7 @@ def main():
     we_size = xlat.shape[2]
 
     if not options.hide_progress:
-      progerss_bar( 0, ns_size * we_size, length=50 )
+      progress_bar( 0, ns_size * we_size, length=50 )
     for j in range( ns_size ):
       for i in range( we_size ):
         lat = xlat[0, j, i]
@@ -170,7 +170,7 @@ def main():
 
         max_el[0, j, i] = oro_stats.max
         if not options.hide_progress:
-          progerss_bar( i + j * we_size + 1, ns_size * we_size, length=50 )
+          progress_bar( i + j * we_size + 1, ns_size * we_size, length=50 )
 
     geo_data.close()
 

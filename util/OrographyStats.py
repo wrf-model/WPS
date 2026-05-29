@@ -6,7 +6,7 @@ class OrographyStats:
     self.box  = box
 
     self.mean = np.mean( self.box )
-    # var (actulally stddev)
+    # var (actually stddev)
     self.std  = np.std( self.box )
     self.max = np.max( box )
 
