@@ -111,12 +111,13 @@ class SourceData:
 
     self._projection   = None
     self._npts_x       = int( 360.0 / self._index.dx )
+    self._npts_y       = int( 180.0 / self._index.dy )
     self._pts_per_deg  = int( 1.0 / self._index.dx )
     self._subgrid_m_dx = 2.0 * np.pi * self._earth_radius / self._npts_x
 
     self._tile_data  = TileData(
-                                int( int( 360.0 / self._index.dx ) / self._index.tile_x ),
-                                int( int( 180.0 / self._index.dy ) / self._index.tile_y ),
+                                int( self._npts_x / self._index.tile_x ),
+                                int( self._npts_y / self._index.tile_y ),
                                 self._index.tile_x,
                                 self._index.tile_y,
                                 load_func=lambda i, j:
@@ -182,7 +183,7 @@ class SourceData:
       delta_lat = lat - self._index.known_lat
       delta_lon = lon - self._index.known_lon
 
-      i = ( delta_lon / self._index.dx + self._index.known_x ) % int( 360.0 / self._index.dx )
+      i = ( delta_lon / self._index.dx + self._index.known_x ) % self._npts_x
       j = ( delta_lat / self._index.dy + self._index.known_y )
 
     return i, j
