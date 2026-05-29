@@ -72,7 +72,7 @@ def read_nml( filename ):
 
 def main():
   parser = argparse.ArgumentParser(
-                                    "./compute_gwdo.py",
+                                    "compute_gwdo.py",
                                     description="Compute GWDO ancillary fields directly and update geogrid files",
                                     formatter_class=argparse.ArgumentDefaultsHelpFormatter
                                     )
@@ -84,7 +84,7 @@ def main():
                       )
   parser.add_argument(
                       "-d", "--dataset",
-                      help="Topographic dataset to use, in geogrid format",
+                      help="Topographic dataset to use, in geogrid format. Must be a global lat-lon dataset (i.e. projection=regular_ll covering entire globe)",
                       type=str,
                       default="topo_gmted2010_30s"
                       )
