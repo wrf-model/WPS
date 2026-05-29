@@ -104,7 +104,7 @@ class IndexData:
 
 class SourceData:
   def __init__( self, name, path ):
-    self._earth_radius = 6371229.0
+    self._earth_radius = 6370000.0 # Use the same earth radius as used in geogrid
     self._name         = name
     self._source_path  = path
     self._index        = IndexData( self._source_path )
