@@ -25,18 +25,16 @@ target_sources(
                   cio.c
                   module_debug.F
                   misc_definitions_module.F
+                  debug_cio.c
+                  module_datarray.F
+                  gridinfo.F
+                  filelist.F
                 )
 
 target_sources(
                 ungrib
                 PRIVATE
-                  debug_cio.c
-                  module_stringutil.F
-                  table.F
-                  module_datarray.F
-                  gridinfo.F
                   new_storage.F
-                  filelist.F
                   ungrib.F
                   output.F
                   rrpr.F
@@ -50,15 +48,10 @@ target_sources(
                 g1print
                 PRIVATE
                   g1print.F
-                  gribcode.F
-                  module_debug.F
-                  debug_cio.c
                 )
 
 target_sources(
                 g2print
                 PRIVATE
-                  filelist.F
-                  gridinfo.F
                   g2print.F
                 )
