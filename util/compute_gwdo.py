@@ -141,6 +141,8 @@ def main():
       max_el = geo_data.variables["MAX_EL"]
     else:
       max_el = geo_data.createVariable( "MAX_EL", "f4", ( var.dimensions ) )
+      # Initialize with same attributes as VAR
+      max_el.setncatts( { k : var.getncattr(k) for k in  var.ncattrs() } )
 
     ns_size = xlat.shape[1]
     we_size = xlat.shape[2]
