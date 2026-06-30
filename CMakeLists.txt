@@ -44,7 +44,11 @@ include( wrf_case_setup )
 wrf_get_version( ${PROJECT_SOURCE_DIR}/README )
 
 # Disable WRF-specifics entirely
-set( USE_WRF      ON CACHE BOOL "USE_WRF"     )
+set( USE_WRF          ON CACHE BOOL "USE_WRF"         )
+set( USE_DOUBLE      OFF CACHE BOOL "USE_DOUBLE"      )
+set( USE_MPI         OFF CACHE BOOL "USE_MPI"         )
+set( BUILD_EXTERNALS OFF CACHE BOOL "BUILD_EXTERNALS" )
+
 
 ################################################################################
 ##
