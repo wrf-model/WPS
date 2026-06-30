@@ -583,12 +583,12 @@ def projectSpecificOptions( options, stanzaCfg ) :
 
   ##############################################################################
   # Decompose the weird way to write the logic for DM/SM 
-  USE_MPI = False
+  useMPI = False
   if ( stanzaCfg.serialOpt_ or stanzaCfg.smparOpt_ ) and ( stanzaCfg.dmparOpt_ or stanzaCfg.dmsmOpt_ ) :
     # togglable
     # we can safely check this since the user would not have been able to select this stanza if it couldn't be disabled
     if stanzaCfg.dmCompilersAvailable() :
-      useMPI       = not( input( "[DM]    Use MPI?    Default [N] [y/N] : " ).lower() in yesValues )
+      useMPI       = input( "[DM]    Use MPI?    Default [N] [y/N] : " ).lower() in yesValues
     else :
       useMPI = False
   else:
