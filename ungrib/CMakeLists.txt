@@ -6,35 +6,12 @@ add_library   ( pgu )
 add_subdirectory( src )
 
 set_target_properties( 
-                      pgu
+                      ungrib g1print g2print pgu
                       PROPERTIES
                         # Just dump everything in here
                         Fortran_MODULE_DIRECTORY ${CMAKE_INSTALL_PREFIX}/modules/ungrib/
                         Fortran_FORMAT           FREE
-                      )
-
-set_target_properties( 
-                      ungrib
-                      PROPERTIES
-                        # Just dump everything in here
-                        Fortran_MODULE_DIRECTORY ${CMAKE_INSTALL_PREFIX}/modules/ungrib/
-                        Fortran_FORMAT           FREE
-                      )
-
-set_target_properties( 
-                      g1print
-                      PROPERTIES
-                        # Just dump everything in here
-                        Fortran_MODULE_DIRECTORY ${CMAKE_INSTALL_PREFIX}/modules/ungrib/
-                        Fortran_FORMAT           FREE
-                      )
-
-set_target_properties( 
-                      g2print
-                      PROPERTIES
-                        # Just dump everything in here
-                        Fortran_MODULE_DIRECTORY ${CMAKE_INSTALL_PREFIX}/modules/ungrib/
-                        Fortran_FORMAT           FREE
+                        COMPILE_DEFINITIONS      _UNGRIB
                       )
 
 # Control dependencies and linking
