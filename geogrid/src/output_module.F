@@ -469,6 +469,7 @@ module output_module
       ifieldstatus = 0
       nfields = 0
       optstatus = 0
+      is_subgrid_var = .false.
       do while (ifieldstatus == 0)
    
          call get_next_output_fieldname(nest_num, fieldname, ndims, &
