@@ -137,12 +137,12 @@ def main():
     ol3  = geo_data.variables[ "OL3" ]
     ol4  = geo_data.variables[ "OL4" ]
 
-    if "MAX_EL" in geo_data.variables:
-      max_el = geo_data.variables["MAX_EL"]
+    if "ELVMAX" in geo_data.variables:
+      elvmax = geo_data.variables["ELVMAX"]
     else:
-      max_el = geo_data.createVariable( "MAX_EL", "f4", ( var.dimensions ) )
+      elvmax = geo_data.createVariable( "ELVMAX", "f4", ( var.dimensions ) )
       # Initialize with same attributes as VAR
-      max_el.setncatts( { k : var.getncattr(k) for k in  var.ncattrs() } )
+      elvmax.setncatts( { k : var.getncattr(k) for k in  var.ncattrs() } )
 
     ns_size = xlat.shape[1]
     we_size = xlat.shape[2]
@@ -170,7 +170,7 @@ def main():
         ol3[0, j, i] = oro_stats.ol[2]
         ol4[0, j, i] = oro_stats.ol[3]
 
-        max_el[0, j, i] = oro_stats.max
+        elvmax[0, j, i] = oro_stats.max
         if not options.hide_progress:
           progress_bar( i + j * we_size + 1, ns_size * we_size, length=50 )
 
