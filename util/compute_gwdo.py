@@ -141,8 +141,12 @@ def main():
       elvmax = geo_data.variables["ELVMAX"]
     else:
       elvmax = geo_data.createVariable( "ELVMAX", "f4", ( var.dimensions ) )
-      # Initialize with same attributes as VAR
-      elvmax.setncatts( { k : var.getncattr(k) for k in  var.ncattrs() } )
+      # Initialize with same attributes as VAR, but setting correct
+      # units and description
+      elvmax_attrs = { k : var.getncattr(k) for k in var.ncattrs() }
+      elvmax_attrs[ "units" ] = "m"
+      elvmax_attrs[ "description" ] = "Maximum sub-grid orographic height"
+      elvmax.setncatts( elvmax_attrs )
 
     ns_size = xlat.shape[1]
     we_size = xlat.shape[2]
