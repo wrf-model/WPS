@@ -108,17 +108,18 @@ def main():
 
   # Scale-awareness, require min box size 4x4 using nominal dx of orographic data
   sg_delta = topo_source._subgrid_m_dx
-  dc = min( float( nml["geogrid"]["dx"] ), float( nml["geogrid"]["dy"] ) ) * 2
-  hratio = dc / sg_delta
-  if hratio < 4.0:
-    dc = sg_delta * 4.0
-
-  box_size_x  = dc
-  box_size_y  = dc
 
   for geo in geo_files:
     print( f"Processing {geo}" )
     geo_data = nc4.Dataset( geo, "r+" )
+
+    dc = min( geo_data.DX, geo_data.DY ) * 2
+    hratio = dc / sg_delta
+    if hratio < 4.0:
+      dc = sg_delta * 4.0
+
+    box_size_x  = dc
+    box_size_y  = dc
 
     xlat = geo_data.variables[ "XLAT_M" ]
     xlon = geo_data.variables[ "XLONG_M" ]
