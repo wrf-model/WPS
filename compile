@@ -13,24 +13,23 @@ else
 endif
 
 set DEV_TOP = `pwd`
-set WRF_DIR_PRE =
 set first_char = `grep ^WRF_DIR configure.wps | awk '{print $3}' | cut -c -1`
 
 
 ## test for Cygwin on Windows
 grep CYGWIN_NT configure.wps >& /dev/null
 if ( $status == 0 ) then
-	ls -l */*/*cio.c | grep '^l'
-	if ( $status == 0 ) then
-		echo Symbolic links are not handled properly by pgcc on Windows.  Run arch/fixlinks in this directory and try again.
-		exit(1)
-	endif
+   ls -l */*/*cio.c | grep '^l'
+   if ( $status == 0 ) then
+     echo Symbolic links are not handled properly by pgcc on Windows.  Run arch/fixlinks in this directory and try again.
+     exit
+   endif
 else
-	if ( "$first_char" == "/" ) then
-		set WRF_DIR_PRE =
-	else
-		set WRF_DIR_PRE = ${DEV_TOP}/
-	endif
+   if ( "$first_char" == "/" ) then
+	set WRF_DIR_PRE	=
+   else
+	set WRF_DIR_PRE	=	${DEV_TOP}/
+   endif
 endif
 
 if      ( ${#argv} == 0 ) then
@@ -82,32 +81,32 @@ else if ( $1 == int2nc      ) then
 	set names	=	( int2nc )
 	set NAMES	=	( UTIL )
 else
-	echo "*****"
-	echo " "
+        echo "*****"
+        echo " "
 	echo "Unrecognized compile target $1."
-	echo " "
-	echo "Usage: compile [target]"
-	echo "where target is one of"
-	echo "   wps"
-	echo "   util"
-	echo "   geogrid"
-	echo "   ungrib"
-	echo "   metgrid"
-	echo "   g1print"
-	echo "   g2print"
-	echo "   plotfmt"
-	echo "   rd_intermediate"
-	echo "   plotgrids"
-	echo "   mod_levs"
-	echo "   avg_tsfc"
-	echo "   calc_ecmwf_p"
-	echo "   height_ukmo"
-	echo "   int2nc"
-	echo " "
-	echo " or just run compile with no target to build everything."
-	echo " "
-	echo "*****"
-	exit(1)
+        echo " "
+        echo "Usage: compile [target]"
+        echo "where target is one of"
+        echo "   wps"
+        echo "   util"
+        echo "   geogrid"
+        echo "   ungrib"
+        echo "   metgrid"
+        echo "   g1print"
+        echo "   g2print"
+        echo "   plotfmt"
+        echo "   rd_intermediate"
+        echo "   plotgrids"
+        echo "   mod_levs"
+        echo "   avg_tsfc"
+        echo "   calc_ecmwf_p"
+        echo "   height_ukmo"
+        echo "   int2nc"
+        echo " "
+        echo " or just run compile with no target to build everything."
+        echo " "
+        echo "*****"
+        exit(1)
 endif
 
 # Build list of final executables that should exist for the selected target.
@@ -124,26 +123,26 @@ end
 
 # Print out WPS version, system info, and compiler/version
 echo "============================================================================================== "
-echo " "
-echo Version 4.6.0
-echo " "
-uname -a
-echo " "
-set comp = ( `grep "^SFC" configure.wps | cut -d"=" -f2-` )
-if      ( "$comp[1]" == "gfortran" ) then
-	gfortran --version
-else if ( "$comp[1]" == "pgf90" ) then
-	pgf90 --version
-else if ( "$comp[1]" == "ifort" ) then
-	ifort -V
-else if ( "$comp[1]" == "ifx" ) then
-	ifx -V
-else
-	echo "Not sure how to figure out the version of this compiler: $comp[1]"
-endif
-echo " "
-echo "============================================================================================== "
-echo " "
+  echo " "
+  echo Version 4.6.0
+  echo " "
+  uname -a
+  echo " "
+  set comp = ( `grep "^SFC" configure.wps | cut -d"=" -f2-` )
+  if      ( "$comp[1]" == "gfortran" ) then
+    gfortran --version
+  else if ( "$comp[1]" == "pgf90" ) then
+    pgf90 --version
+  else if ( "$comp[1]" == "ifort" ) then
+    ifort -V
+  else if ( "$comp[1]" == "ifx" ) then
+    ifx -V
+  else
+    echo "Not sure how to figure out the version of this compiler: $comp[1]"
+  endif
+  echo " "
+  echo "============================================================================================== "
+  echo " "
 
 
 echo " "
@@ -164,34 +163,23 @@ foreach f ( $names )
 	set link_path = ""
 
 	if ("$NAMES[$count]" == "UTIL") then
-
 		( cd util ; make -i -r WRF_DIR_PRE="${WRF_DIR_PRE}" DEV_TOP="${DEV_TOP}" TARGET="${f}.exe" CPP_TARGET="$NAMES[$count]" all )
-
 		set exe_path = "util/src/${f}.exe"
 		set link_path = "util/${f}.exe"
-
 	else if ("$NAMES[$count]" == "GRIBUTIL") then
-
 		( cd ungrib ; make -i -r WRF_DIR_PRE="${WRF_DIR_PRE}" DEV_TOP="${DEV_TOP}" TARGET="${f}.exe" CPP_TARGET="$NAMES[$count]" all )
-
 		set exe_path = "ungrib/src/${f}.exe"
 		set link_path = "util/${f}.exe"
-
-		if ( -e ${exe_path} ) then
+		if ( -e ungrib/src/${f}.exe ) then
 			( cd util ; ln -sf ../ungrib/src/${f}.exe . )
 		endif
-
 	else
-
 		( cd $f ; make -i -r WRF_DIR_PRE="${WRF_DIR_PRE}" DEV_TOP="${DEV_TOP}" TARGET="${f}.exe" CPP_TARGET="$NAMES[$count]" all )
-
 		set exe_path = "${f}/src/${f}.exe"
 		set link_path = "${f}.exe"
-
-		if ( -e ${exe_path} ) then
+		if ( -e ${f}/src/${f}.exe ) then
 			ln -sf ${f}/src/${f}.exe .
 		endif
-
 	endif
 
 	echo " "
@@ -221,7 +209,6 @@ foreach f ( $names )
 	echo " "
 
 	@ count ++
-
 end
 
 echo " "
