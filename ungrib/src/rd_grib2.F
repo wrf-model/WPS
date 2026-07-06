@@ -115,6 +115,7 @@ C  SET ARGUMENTS
       ! Open a byte-addressable file.
       CALL BAOPENR(junit,gribflnm,IOS)
       first = .true.
+
       if (ios.eq.0) then 
       VERSION: do
 
@@ -239,7 +240,6 @@ C  SET ARGUMENTS
 
            ! Indicator of model (or whatever) which generated the data.
            iprocess = gfld%ipdtmpl(5)
-
 
            if (icenter.eq.7) then
              if (iprocess.eq.81) then
@@ -734,7 +734,20 @@ C  SET ARGUMENTS
      &                         (10.**(-1.*gfld%ipdtmpl(11)))
                    glevel2 = 100. * gfld%ipdtmpl(15)*
      &                         (10.**(-1.*gfld%ipdtmpl(14)))
-                end if
+! The following if-block accounts for 2024 changes to IFS soil fields. 
+! They use a local table and a level greater than 255 which ungrib cannot unpack.
+                  if (icenter .eq. 98 .and.
+     &                gfld%discipline .eq. 192 .and.
+     &                gfld%ipdtmpl(1) .eq. 128 .and.
+     &                gfld%ipdtmpl(10).eq. 106) then
+                      glevel1 = gfld%ipdtmpl(12)
+                      glevel2 = gfld%ipdtmpl(15)
+                      if ( glevel1 .eq. 100. .and.
+     &                     glevel2 .lt. -1.e+9 ) then
+                        glevel2 = 255.
+                      endif
+                  endif   ! IFS test
+                end if    ! ipdtmpl 14/15 test
                 TMP8LOOP: do j = 1, maxvar
                   if ((g2code(4,j) .eq. 106) .and.
      &               (gfld%ipdtmpl(1) .eq. g2code(2,j)) .and.  !! Added by Dr.Haiqing SONG, 20181201
@@ -753,9 +766,31 @@ C  SET ARGUMENTS
                   cycle MATCH_LOOP
                 endif
 !MGD         if (debug_level .gt. 50) write(6,*) 'my_field is now ',my_field
-              endif
+              endif    ! end of 106 processing
 
-              ! Level (eg. 10000 mb)
+	      if ( gfld%ipdtmpl(10) .eq. 151 ) then
+	      ! post Nov 2024 IFS soil level processing
+	      ! level values are in the grib1 columns in the Vtable
+                TMP9LOOP: do j = 1, maxvar
+                  if ((g2code(4,j) .eq. 151) .and.
+     &               (gfld%ipdtmpl(2) .eq. g2code(3,j)) .and.
+     &               (gfld%ipdtmpl(12) .eq. gcode(j)) .and.
+     &               (gfld%ipdtmpl(15) .eq. lcode(j)) ) then
+                    glevel1 = level1(j)
+		    glevel2 = level2(j)
+                    my_field = namvar(j)
+		    exit TMP9LOOP
+		  endif
+		enddo TMP9LOOP
+                if (j .gt. maxvar ) then
+                  write(6,'(a,i3,a,i3,a)') 'Soil levels ',
+     &               gfld%ipdtmpl(12),' and ',gfld%ipdtmpl(15),
+     &           ' in the GRIB2 file, were not found in the Vtable'
+                  cycle MATCH_LOOP
+		endif
+	      endif   ! end of 151 processing
+
+              ! Assign the proper level (eg. Pressure level, sigma level, or surface)
               if(gfld%ipdtmpl(10).eq.100) then
                  ! Pressure level (range from 1000mb to 0mb)
                  level=gfld%ipdtmpl(12) *
@@ -789,8 +824,9 @@ C  SET ARGUMENTS
      &              (gfld%ipdtmpl(10).eq.10) ) then
                  ! NCEP cloud layers used for plotting
                    level=200100.
-              elseif(gfld%ipdtmpl(10).eq.106.or.
-     &               gfld%ipdtmpl(10).eq.1) then
+              elseif(gfld%ipdtmpl(10).eq.106.or.     ! soil levels
+     &               gfld%ipdtmpl(10).eq.1 .or. 
+     &               gfld%ipdtmpl(10).eq.151) then   ! ecmwf soil
                  ! Misc near ground/surface levels
                  level=200100.
               elseif(gfld%ipdtmpl(10).eq.6) then

@@ -40,7 +40,7 @@
 !
 !$$$
 
-      integer,parameter :: MAXPARAM=832
+      integer,parameter :: MAXPARAM=842
 
       type gribparam
           integer :: g1tblver
@@ -902,6 +902,17 @@
        data paramlist(830) /gribparam(2,255,0,1,19,'PTYPE')/
        data paramlist(831) /gribparam(2,255,0,6,11,'CDCB')/
        data paramlist(832) /gribparam(2,255,0,6,12,'CDCTOP')/
+! Added 04/14/25  for ECMWF IFS
+       data paramlist(833) /gribparam(2,255,2,3,18,'SOT  ')/
+       data paramlist(834) /gribparam(2,255,2,0,25,'VSW  ')/
+       data paramlist(835) /gribparam(2,255,192,128,39,'SWVL1')/
+       data paramlist(836) /gribparam(2,255,192,128,40,'SWVL2')/
+       data paramlist(837) /gribparam(2,255,192,128,41,'SWVL3')/
+       data paramlist(838) /gribparam(2,255,192,128,42,'SWVL4')/
+       data paramlist(839) /gribparam(2,255,192,128,139,'STL1 ')/
+       data paramlist(840) /gribparam(2,255,192,128,170,'STL2 ')/
+       data paramlist(841) /gribparam(2,255,192,128,183,'STL3 ')/
+       data paramlist(842) /gribparam(2,255,192,128,236,'STL4 ')/
 
       contains
 
