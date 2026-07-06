@@ -44,7 +44,11 @@ include( wrf_case_setup )
 wrf_get_version( ${PROJECT_SOURCE_DIR}/README )
 
 # Disable WRF-specifics entirely
-set( USE_WRF      ON CACHE BOOL "USE_WRF"     )
+set( USE_WRF          ON CACHE BOOL "USE_WRF"         )
+set( USE_DOUBLE      OFF CACHE BOOL "USE_DOUBLE"      )
+set( USE_MPI         OFF CACHE BOOL "USE_MPI"         )
+set( BUILD_EXTERNALS OFF CACHE BOOL "BUILD_EXTERNALS" )
+
 
 ################################################################################
 ##
@@ -104,6 +108,7 @@ if ( ${USE_MPI} )
   add_compile_definitions(
                           USE_MPI=1
                           DM_PARALLEL
+                          _MPI
                           )
 
   if ( DEFINED WRF_MPI_Fortran_FLAGS AND NOT "${WRF_MPI_Fortran_FLAGS}" STREQUAL "" )
@@ -161,8 +166,8 @@ list( TRANSFORM WPS_DEFINITIONS_LIST REPLACE "^-D(.*)" "\\1" )
 add_compile_definitions( 
                         ${WPS_DEFINITIONS_LIST}
                         ${WPS_UNDEFINITIONS_LIST}
-                        $<$<COMPILE_LANGUAGE:Fortran>:USE_JPEG2000>
-                        $<$<COMPILE_LANGUAGE:Fortran>:USE_PNG>
+                        USE_JPEG2000
+                        USE_PNG
                         )
 # Whole project flags
 add_compile_options(

@@ -328,6 +328,8 @@ C  SET ARGUMENTS
              map%source = 'UKMO'
            else if (icenter .eq. 78 .or. icenter .eq. 79 ) then
              map%source = 'DWD'
+           else if (icenter .eq. 38) then 
+             map%source = 'CMA'
            else
              map%source = 'unknown model and orig center'
            end if
@@ -735,9 +737,10 @@ C  SET ARGUMENTS
                 end if
                 TMP8LOOP: do j = 1, maxvar
                   if ((g2code(4,j) .eq. 106) .and.
+     &               (gfld%ipdtmpl(1) .eq. g2code(2,j)) .and.  !! Added by Dr.Haiqing SONG, 20181201
      &               (gfld%ipdtmpl(2) .eq. g2code(3,j)) .and.
-     &               (glevel1 .eq. level1(j)) .and.
-     &               ((glevel2 .eq. level2(j)) .or.
+     &               (nint(glevel1) .eq. level1(j)) .and.
+     &               ((nint(glevel2) .eq. level2(j)) .or.
      &                                   (level2(j) .le. -88))) then
                     my_field = namvar(j)
                     exit TMP8LOOP
