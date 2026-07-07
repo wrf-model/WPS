@@ -893,6 +893,33 @@ ARFLAGS             =
 CC_TOOLS            =
 
 ########################################################################################################################
+#ARCH    AMD Linux x86_64, AOCC flang compiler with AOCC clang   # serial serial_NO_GRIB2 dmpar dmpar_NO_GRIB2
+#
+COMPRESSION_LIBS    = CONFIGURE_COMP_L
+COMPRESSION_INC     = CONFIGURE_COMP_I
+FDEFS               = CONFIGURE_FDEFS
+SFC                 = flang
+SCC                 = clang
+DM_FC               = mpifort
+DM_CC               = mpicc
+FC                  = CONFIGURE_FC
+CC                  = CONFIGURE_CC
+LD                  = $(FC)
+FFLAGS              = $(FORMAT_FREE) -Ofast -ffast-math -fPIC -Mbyteswapio -Mstack_arrays -funroll-loops -ftree-vectorize -fopenmp -fveclib=AMDLIBM
+F77FLAGS            = $(FORMAT_FIXED) -Ofast -ffast-math -fPIC -Mbyteswapio -Mstack_arrays -funroll-loops -ftree-vectorize -fopenmp -fveclib=AMDLIBM
+FORMAT_FREE         = -Mfreeform
+FORMAT_FIXED        = -Mfixed
+FCSUFFIX            =
+FNGFLAGS            = $(FFLAGS)
+LDFLAGS = -m64 -Ofast -Mstack_arrays -fopenmp -lomp -Wl,--allow-multiple-definition -Wl,-mllvm -Wl,-enable-loop-reversal -Wl,-mllvm -Wl,-enable-gather -Wl,-mllvm -Wl,-vectorize-non-contiguous-memory-aggressively -lamdlibm
+CFLAGS              = -w -O3 -fPIC -fopenmp -D_UNDERSCORE
+CPP                 = /usr/bin/cpp -P -traditional
+CPPFLAGS            = -D_UNDERSCORE -DBYTESWAP -DLINUX -DIO_NETCDF -DIO_BINARY -DIO_GRIB1 -DBIT32 -DNO_SIGNAL CONFIGURE_MPI
+ARFLAGS             =
+RANLIB              = llvm-ranlib
+CC_TOOLS            =
+
+########################################################################################################################
 #ARCH    NULL   # serial serial_NO_GRIB2 dmpar dmpar_NO_GRIB2
 
 #DM_FC              = 

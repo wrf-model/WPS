@@ -2,7 +2,7 @@
 
 if ( ! -e configure.wps ) then
 	echo "Do 'configure' first"
-	exit ( 1 ) 
+	exit ( 1 )
 endif
 
 if  ( ( ! $?NETCDF ) && ( -d netcdf_links ) ) then
@@ -109,6 +109,18 @@ else
         exit(1)
 endif
 
+# Build list of final executables that should exist for the selected target.
+set expected_exes = ( )
+set count = 1
+foreach f ( $names )
+	if ( ( "$NAMES[$count]" == "UTIL" ) || ( "$NAMES[$count]" == "GRIBUTIL" ) ) then
+		set expected_exes = ( $expected_exes util/${f}.exe )
+	else
+		set expected_exes = ( $expected_exes ${f}.exe )
+	endif
+	@ count ++
+end
+
 # Print out WPS version, system info, and compiler/version
 echo "============================================================================================== "
   echo " "
@@ -141,26 +153,106 @@ else
 endif
 echo " "
 
+set START_OF_COMPILE = `date`
+set build_failed = 0
+
 set count = 1
 foreach f ( $names )
+
+	set exe_path = ""
+	set link_path = ""
+
 	if ("$NAMES[$count]" == "UTIL") then
 		( cd util ; make -i -r WRF_DIR_PRE="${WRF_DIR_PRE}" DEV_TOP="${DEV_TOP}" TARGET="${f}.exe" CPP_TARGET="$NAMES[$count]" all )
+		set exe_path = "util/src/${f}.exe"
+		set link_path = "util/${f}.exe"
 	else if ("$NAMES[$count]" == "GRIBUTIL") then
 		( cd ungrib ; make -i -r WRF_DIR_PRE="${WRF_DIR_PRE}" DEV_TOP="${DEV_TOP}" TARGET="${f}.exe" CPP_TARGET="$NAMES[$count]" all )
+		set exe_path = "ungrib/src/${f}.exe"
+		set link_path = "util/${f}.exe"
 		if ( -e ungrib/src/${f}.exe ) then
 			( cd util ; ln -sf ../ungrib/src/${f}.exe . )
 		endif
 	else
 		( cd $f ; make -i -r WRF_DIR_PRE="${WRF_DIR_PRE}" DEV_TOP="${DEV_TOP}" TARGET="${f}.exe" CPP_TARGET="$NAMES[$count]" all )
+		set exe_path = "${f}/src/${f}.exe"
+		set link_path = "${f}.exe"
 		if ( -e ${f}/src/${f}.exe ) then
 			ln -sf ${f}/src/${f}.exe .
 		endif
 	endif
+
+	echo " "
+	echo "=========================================================================="
+	echo "build started:   ${START_OF_COMPILE}"
+	echo "build completed:" `date`
+	echo " "
+
+	if ( -e ${exe_path} && -e ${link_path} ) then
+		echo "--->                  ${f}.exe successfully built                  <---"
+		echo " "
+		ls -l ${exe_path} ${link_path}
+	else
+		echo "---> Problems building ${f}.exe, look for errors in the build log  <---"
+		echo " "
+		if ( ! -e ${exe_path} ) then
+			echo "Missing executable: ${exe_path}"
+		endif
+		if ( ! -e ${link_path} ) then
+			echo "Missing linked executable: ${link_path}"
+		endif
+		set build_failed = 1
+	endif
+
+	echo " "
+	echo "=========================================================================="
+	echo " "
+
 	@ count ++
 end
 
+echo " "
+echo "=========================================================================="
+echo "Final WPS executable check"
+echo "build started:   ${START_OF_COMPILE}"
+echo "build completed:" `date`
+echo " "
+
+set final_failed = 0
+
+foreach exe ( $expected_exes )
+	if ( ! -e ${exe} ) then
+		set final_failed = 1
+	endif
+end
+
+if ( $final_failed == 0 ) then
+	echo "--->                  Requested executables successfully built                  <---"
+	echo " "
+	ls -l $expected_exes
+else
+	echo "---> Problems building one or more requested executables, look for errors in the build log  <---"
+	echo " "
+	foreach exe ( $expected_exes )
+		if ( -e ${exe} ) then
+			ls -l ${exe}
+		else
+			echo "Missing executable: ${exe}"
+		endif
+	end
+	set build_failed = 1
+endif
+
+echo " "
+echo "=========================================================================="
+echo " "
+
 if ( $temp_netcdf == 1 ) then
 	unsetenv NETCDF
+endif
+
+if ( $build_failed == 1 ) then
+	exit(1)
 endif
 
 exit(0)
