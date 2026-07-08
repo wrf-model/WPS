@@ -189,7 +189,7 @@ CPPFLAGS            = -D_UNDERSCORE -DBYTESWAP -DLINUX -DIO_NETCDF -DBIT32 -DNO_
 RANLIB              = ranlib
 
 ########################################################################################################################
-#ARCH    Linux x86_64, gfortran   # serial serial_NO_GRIB2 dmpar dmpar_NO_GRIB2
+#ARCH    Linux x86_64 aarch64, gfortran   # serial serial_NO_GRIB2 dmpar dmpar_NO_GRIB2
 #
 COMPRESSION_LIBS    = CONFIGURE_COMP_L
 COMPRESSION_INC     = CONFIGURE_COMP_I
