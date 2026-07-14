@@ -192,7 +192,6 @@ if [ $? -eq 0 ] ; then
 fi
 
 wrf_dir="none"
-standard_wrf_dirs="WRF WRF-4.0.3 WRF-4.0.2 WRF-4.0.1 WRF-4.0 WRFV3"
 
 if [ ${nowrf} -eq 0 ]; then
    #
@@ -201,14 +200,25 @@ if [ ${nowrf} -eq 0 ]; then
    # the WRF I/O library from the code in $WRF_DIR
    #
    if [ -z "$WRF_DIR" ]; then
-   #   for d in WRF WRF-4.0.3 WRF-4.0.2 WRF-4.0.1 WRF-4.0 WRFV3; do
-      for d in ${standard_wrf_dirs}; do
-         if [ -e ../${d}/external/io_netcdf/libwrfio_nf.a ]; then
-            echo "Found what looks like a valid WRF I/O library in ../${d}"
-            wrf_dir="../${d}"
+      # find WRF dir
+      if [ -e "../WRF/external/io_netcdf/libwrfio_nf.a" ]; then
+        echo "Found what looks like a valid WRF I/O library in ../WRF"
+        WRF_DIR="../WRF"
+      else
+        # If the WRF directory does not exist or libwrfio_nf.a is not found, search for directories starting with WRF-4 in descending order of version number
+        for dir in $(ls .. | grep '^WRF-4' | sort -rV); do
+          if [ -e "../$dir/external/io_netcdf/libwrfio_nf.a" ]; then
+            echo "Found what looks like a valid WRF I/O library in ../$dir"
+            WRF_DIR="../$dir"
             break
-         fi
-      done
+          fi
+        done
+        # If still not found, finally try to search for the WRFV3 directory
+        if [ -z "$WRF_DIR" ] && [ -e "../WRFV3/external/io_netcdf/libwrfio_nf.a" ]; then
+          echo "Found what looks like a valid WRF I/O library in ../WRFV3"
+          WRF_DIR="../WRFV3"
+        fi
+      fi
    else
       if [ ! -e ${WRF_DIR}/external/io_netcdf/libwrfio_nf.a ]; then
          echo ""
