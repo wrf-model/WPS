@@ -6,6 +6,10 @@
 /*        Return code for fewer data read/written than requested */
 /*  v1.2: Add cray compatibility  20 April 1998                  */
 
+#ifndef _FILE_OFFSET_BITS
+#define _FILE_OFFSET_BITS 64
+#endif
+
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -85,21 +89,22 @@
 /*   to system. */
 #if defined _UNDERSCORE
   int ba_cio_
-         (int * mode, int * start, int *newpos, int * size, int * no, 
+         (int * mode, long long * start, long long *newpos, int * size, int * no,
           int * nactual, int * fdes, const char *fname, char *datary, 
           int  namelen, int  datanamelen) {
 #elif defined _DOUBLEUNDERSCORE
   int ba_cio__
-         (int * mode, int * start, int *newpos, int * size, int * no, 
+         (int * mode, long long * start, long long *newpos, int * size, int * no,
           int * nactual, int * fdes, const char *fname, char *datary, 
           int  namelen, int  datanamelen) {
 #else
   int ba_cio
-         (int * mode, int * start, int *newpos, int * size, int * no, 
+         (int * mode, long long * start, long long *newpos, int * size, int * no,
           int * nactual, int * fdes, const char *fname, char *datary, 
           int  namelen, int  datanamelen) {
 #endif
-  int i, j, jret, seekret;
+  int i, j, jret;
+  off_t seekret;
   char *realname, *tempchar;
   int tcharval;
   size_t count;
@@ -224,16 +229,16 @@
   else if (BAREAD & *mode ) {
   /* Read in some data */
     if (! (*mode & NOSEEK) ) {
-      seekret = lseek(*fdes, *start, SEEK_SET);
+      seekret = lseek(*fdes, (off_t)*start, SEEK_SET);
       if (seekret == -1) {
         #ifdef VERBOSE
-          printf("error in seeking to %d\n",*start);
+          printf("error in seeking to %lld\n",(long long)*start);
         #endif
         return -6;
       }
       #ifdef VERBOSE
       else {
-         printf("Seek successful, seek ret %d, start %d\n", seekret, *start);
+         printf("Seek successful, seek ret %lld, start %lld\n", (long long)seekret, (long long)*start);
       }
       #endif
     }
@@ -261,7 +266,7 @@
     #endif
     }
     *nactual = jret;
-    *newpos = *start + jret;
+    *newpos = *start + (long long)jret;
   }
 /* Done with reading */
  
@@ -274,10 +279,10 @@
   }
   else if ( BAWRITE & *mode ) {
     if (! (*mode & NOSEEK) ) {
-      seekret = lseek(*fdes, *start, SEEK_SET);
+      seekret = lseek(*fdes, (off_t)*start, SEEK_SET);
       if (seekret == -1) {
       #ifdef VERBOSE
-        printf("error in seeking to %d\n",*start);
+        printf("error in seeking to %lld\n",(long long)*start);
       #endif
         return -8;
       }
@@ -300,14 +305,14 @@
       printf("wrote %d bytes instead\n", jret);
     #endif
       *nactual = jret;
-      *newpos = *start + jret;
+      *newpos = *start + (long long)jret;
     }
     else {
     #ifdef VERBOSE
        printf("wrote %d bytes \n", jret);
     #endif
        *nactual = jret;
-       *newpos = *start + jret;
+       *newpos = *start + (long long)jret;
     }
   }
 /* Done with writing */
@@ -337,21 +342,22 @@
 } 
 #if defined _UNDERSCORE
   int banio_
-         (int * mode, int * start, int *newpos, int * size, int * no, 
+         (int * mode, long long * start, long long *newpos, int * size, int * no,
           int * nactual, int * fdes, const char *fname, char *datary, 
           int  namelen ) {
 #elif defined _DOUBLEUNDERSCORE
   int banio__
-         (int * mode, int * start, int *newpos, int * size, int * no, 
+         (int * mode, long long * start, long long *newpos, int * size, int * no,
           int * nactual, int * fdes, const char *fname, char *datary, 
           int  namelen ) {
 #else
   int banio
-         (int * mode, int * start, int *newpos, int * size, int * no, 
+         (int * mode, long long * start, long long *newpos, int * size, int * no,
           int * nactual, int * fdes, const char *fname, char *datary, 
           int  namelen ) {
 #endif
-  int i, j, jret, seekret;
+  int i, j, jret;
+  off_t seekret;
   char *realname, *tempchar;
   int tcharval;
 
@@ -475,16 +481,16 @@
   else if (BAREAD & *mode ) {
   /* Read in some data */
     if (! (*mode & NOSEEK) ) {
-      seekret = lseek(*fdes, *start, SEEK_SET);
+      seekret = lseek(*fdes, (off_t)*start, SEEK_SET);
       if (seekret == -1) {
         #ifdef VERBOSE
-          printf("error in seeking to %d\n",*start);
+          printf("error in seeking to %lld\n",(long long)*start);
         #endif
         return -6;
       }
       #ifdef VERBOSE
       else {
-         printf("Seek successful, seek ret %d, start %d\n", seekret, *start);
+         printf("Seek successful, seek ret %lld, start %lld\n", (long long)seekret, (long long)*start);
       }
       #endif
     }
@@ -495,13 +501,13 @@
         printf("read in %d items of %d \n",jret/(*size), *no);
       #endif
       *nactual = jret/(*size);
-      *newpos = *start + jret;
+      *newpos = *start + (long long)jret;
     }  
     #ifdef VERBOSE
       printf("read in %d items \n", jret/(*size));
     #endif
     *nactual = jret/(*size);
-    *newpos = *start + jret;
+    *newpos = *start + (long long)jret;
   }
 /* Done with reading */
  
@@ -514,16 +520,16 @@
   }
   else if ( BAWRITE & *mode ) {
     if (! (*mode & NOSEEK) ) {
-      seekret = lseek(*fdes, *start, SEEK_SET);
+      seekret = lseek(*fdes, (off_t)*start, SEEK_SET);
       if (seekret == -1) {
       #ifdef VERBOSE
-        printf("error in seeking to %d\n",*start);
+        printf("error in seeking to %lld\n",(long long)*start);
       #endif
         return -8;
       }
       #ifdef VERBOSE
       else {
-        printf("Seek successful, seek ret %d, start %d\n", seekret, *start);
+        printf("Seek successful, seek ret %lld, start %lld\n", (long long)seekret, (long long)*start);
       }
       #endif
     }
@@ -534,14 +540,14 @@
       printf("wrote %d items instead\n", jret/(*size) );
     #endif
       *nactual = jret/(*size) ;
-      *newpos = *start + jret;
+      *newpos = *start + (long long)jret;
     }
     else {
     #ifdef VERBOSE
        printf("wrote %d items \n", jret/(*size) );
     #endif
        *nactual = jret/(*size) ;
-       *newpos = *start + jret;
+       *newpos = *start + (long long)jret;
     }
   }
 /* Done with writing */

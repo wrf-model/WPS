@@ -39,6 +39,7 @@ C$$$
       PARAMETER(LSEEK=512)
       CHARACTER Z(LSEEK)
       CHARACTER Z4(4)
+      INTEGER(KIND=8) :: ISEEK, LSKIP, KS, KS2
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       LGRIB=0
       KS=ISEEK
@@ -59,7 +60,8 @@ C  LOOK FOR 'GRIB...1' IN PARTIAL SECTION
 C  LOOK FOR '7777' AT END OF GRIB MESSAGE
             IF (I1.EQ.1) CALL GBYTE(Z,KG,(K+4)*8,3*8)
             IF (I1.EQ.2) CALL GBYTE(Z,KG,(K+12)*8,4*8)
-            CALL BAREAD(LUGB,KS+K+KG-4,4,K4,Z4)
+            KS2=KS+K+KG-4
+            CALL BAREAD(LUGB,KS2,4,K4,Z4)
             IF(K4.EQ.4) THEN
               CALL GBYTE(Z4,I4,0,4*8)
               IF(I4.EQ.926365495) THEN

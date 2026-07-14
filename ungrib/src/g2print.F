@@ -161,8 +161,8 @@ end program g2print
       character(len=8)  :: pabbrev
       character(len=20) :: labbrev
       character(len=80) :: tabbrev
-      integer :: lskip, lgrib
-      integer :: junit, itot, icount, iseek
+      integer(kind=8) :: lskip, iseek
+      integer :: lgrib, junit, itot, icount
       integer :: grib_edition
       integer :: i, j, ireaderr, ith
       integer :: currlen
@@ -1010,7 +1010,8 @@ end program g2print
       integer :: listsec0(3)
       integer :: listsec1(13)
       character(len=*)  :: gribflnm
-      integer :: lskip, lgrib
+      integer(kind=8) :: lskip, iseek
+      integer :: lgrib
       integer :: junit
       integer :: grib_edition
       integer :: i, j, ireaderr

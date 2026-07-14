@@ -89,6 +89,7 @@ C$$$
       USE BACIO_MODULE
       CHARACTER CFN*(*)
       CHARACTER(80) CMSG
+      INTEGER(KIND=8) :: IB, JB
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       IF(LU.LT.001.OR.LU.GT.999) THEN
         IRET=6
@@ -130,6 +131,7 @@ C
 C$$$
       USE BACIO_MODULE
       CHARACTER CFN*(*)
+      INTEGER(KIND=8) :: IB, JB
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       IF(LU.LT.001.OR.LU.GT.999) THEN
         IRET=6
@@ -171,6 +173,7 @@ C
 C$$$
       USE BACIO_MODULE
       CHARACTER CFN*(*)
+      INTEGER(KIND=8) :: IB, JB
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       IF(LU.LT.001.OR.LU.GT.999) THEN
         IRET=6
@@ -212,6 +215,7 @@ C
 C$$$
       USE BACIO_MODULE
       CHARACTER CFN*(*)
+      INTEGER(KIND=8) :: IB, JB
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       IF(LU.LT.001.OR.LU.GT.999) THEN
         IRET=6
@@ -253,6 +257,7 @@ C
 C$$$
       USE BACIO_MODULE
       CHARACTER CFN*(*)
+      INTEGER(KIND=8) :: IB, JB
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       IF(LU.LT.001.OR.LU.GT.999) THEN
         IRET=6
@@ -293,6 +298,7 @@ C   LANGUAGE: FORTRAN 90
 C
 C$$$
       USE BACIO_MODULE
+      INTEGER(KIND=8) :: IB, JB
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       IF(LU.LT.001.OR.LU.GT.999) THEN
         IRET=6
@@ -342,10 +348,13 @@ C   LANGUAGE: FORTRAN 90
 C
 C$$$
       USE BACIO_MODULE
+      INTEGER(KIND=8) :: IB
+      INTEGER(KIND=8) :: JB, IB0
       CHARACTER A(NB)
       CHARACTER CFN
       PARAMETER(NY=4096,MY=4)
-      INTEGER NS(MY),NN(MY)
+      INTEGER(KIND=8) :: NS(MY)
+      INTEGER NN(MY)
       CHARACTER Y(NY,MY)
       DATA LUX/0/
       SAVE JY,NS,NN,Y,LUX
@@ -362,13 +371,15 @@ C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         KA=0
         RETURN
       ENDIF
+      IB0=0
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 C  UNBUFFERED I/O
       IF(BAOPTS(1).NE.1) THEN
         IF(IB.GE.0) THEN
           IRET=BA_CIO(BACIO_READ,IB,JB,1,NB,KA,FD(LU),CFN,A)
         ELSE
-          IRET=BA_CIO(BACIO_READ+BACIO_NOSEEK,0,JB,1,NB,KA,FD(LU),CFN,A)
+          IRET=BA_CIO(BACIO_READ+BACIO_NOSEEK,IB0,JB,1,NB,KA,
+     &               FD(LU),CFN,A)
         ENDIF
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 C  BUFFERED I/O
@@ -456,6 +467,8 @@ C   LANGUAGE: FORTRAN 90
 C
 C$$$
       USE BACIO_MODULE
+      INTEGER(KIND=8) :: IB
+      INTEGER(KIND=8) :: JB, IB0
       CHARACTER A(NB)
       CHARACTER CFN
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -467,11 +480,13 @@ C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         KA=0
         RETURN
       ENDIF
+      IB0=0
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       IF(IB.GE.0) THEN
         IRET=BA_CIO(BACIO_WRITE,IB,JB,1,NB,KA,FD(LU),CFN,A)
       ELSE
-        IRET=BA_CIO(BACIO_WRITE+BACIO_NOSEEK,0,JB,1,NB,KA,FD(LU),CFN,A)
+        IRET=BA_CIO(BACIO_WRITE+BACIO_NOSEEK,IB0,JB,1,NB,KA,
+     &              FD(LU),CFN,A)
       ENDIF
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       END
@@ -508,6 +523,7 @@ C   LANGUAGE: FORTRAN 90
 C
 C$$$
       USE BACIO_MODULE
+      INTEGER(KIND=8) :: JB, IB0
       CHARACTER A(NB)
       CHARACTER CFN
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -517,8 +533,9 @@ C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       IF(NB.LE.0) THEN
         RETURN
       ENDIF
+      IB0=0
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-      IRET=BA_CIO(BACIO_WRITE+BACIO_NOSEEK,0,JB,1,NB,KA,FD(LU),CFN,A)
+      IRET=BA_CIO(BACIO_WRITE+BACIO_NOSEEK,IB0,JB,1,NB,KA,FD(LU),CFN,A)
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       RETURN
       END
