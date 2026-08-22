@@ -567,6 +567,82 @@ def _map_info_ncep_rotated_latlon(gid: int, src: str, r_earth: float, gw: bool, 
         centerlon=center_lon,
     )
 
+def _rotated_ll_recentered_i(ni: int, lon1: float, dlon: float) -> tuple[int, float, float]:
+
+    # This function returns (nx, interp_weight, first_lon) of the center-symmetric i-axis that
+    # metgrid's Cassini handling needs: read_met_module.F anchors grid index (nx+1)/2 at the
+    # rotated origin, so an off-center i-axis must be shifted (dropping one column) to fit.
+
+    mid = lon1 + (ni - 1) * dlon / 2.0
+    if abs(mid) < 1e-6:
+        return ni, 0.0, lon1
+    if abs(mid) > dlon / 2.0 + 1e-6:
+        raise ValueError("rotated_ll i-axis midpoint is more than half a cell off the rotated origin")
+    new_ni = ni - 1
+    new_lon1 = -(new_ni - 1) * dlon / 2.0
+    return new_ni, (new_lon1 - lon1) / dlon, new_lon1
+
+def recenter_rotated_ll_values(gid: int, vals: np.ndarray, ni: int, nj: int) -> tuple[np.ndarray, int]:
+
+    # This function linearly interpolates rotated_ll rows onto the center-symmetric i-axis.
+
+    lon1 = _fget(gid, "longitudeOfFirstGridPointInDegrees")
+    if lon1 > 180.0:
+        lon1 -= 360.0
+    new_ni, w, _ = _rotated_ll_recentered_i(ni, lon1, _fget(gid, "iDirectionIncrementInDegrees"))
+    if new_ni == ni:
+        return vals, ni
+    v = vals.reshape((nj, ni))
+    out = (1.0 - w) * v[:, :new_ni] + w * v[:, 1:]
+    out = np.where((v[:, :new_ni] < -1e29) | (v[:, 1:] < -1e29), -1.0e30, out)
+    return out.reshape(-1), new_ni
+
+def _map_info_rotated_latlon(gid: int, src: str, r_earth: float, gw: bool, startloc: str) -> MapInfo:
+
+    # This function builds MapInfo for GDT 3.1 rotated lat-lon (e.g. RRFS North America) as igrid=6.
+    # metgrid derives the rotation from centerlat/centerlon (pole_lat=90-centerlat, pole_lon=180,
+    # xlonc=-centerlon), so centerlat/centerlon must be the earth coordinates of the rotated origin.
+
+    ni = _iget(gid, "Ni")
+    nj = _iget(gid, "Nj")
+    lat1 = _fget(gid, "latitudeOfFirstGridPointInDegrees")
+    lon1 = _fget(gid, "longitudeOfFirstGridPointInDegrees")
+    if lon1 > 180.0:
+        lon1 -= 360.0
+    dlon = _fget(gid, "iDirectionIncrementInDegrees")
+    dlat = _fget(gid, "jDirectionIncrementInDegrees")
+    sp_lat = _fget(gid, "latitudeOfSouthernPoleInDegrees")
+    sp_lon = _fget(gid, "longitudeOfSouthernPoleInDegrees")
+    if sp_lon > 180.0:
+        sp_lon -= 360.0
+    center_lat = 90.0 + sp_lat
+    center_lon = sp_lon
+    rot = float(_try_get(gid, "angleOfRotationInDegrees", 0.0) or 0.0)
+    mid_lat = lat1 + (nj - 1) * dlat / 2.0
+    if rot != 0.0 or center_lat <= 0.0 or abs(mid_lat) > 1e-6 or _iget(gid, "jScansPositively") != 1:
+        raise ValueError(
+            "only unrotated-angle, north-centered, j-symmetric rotated_ll grids are supported (extend _map_info_rotated_latlon)"
+        )
+    nx, _, lon1 = _rotated_ll_recentered_i(ni, lon1, dlon)
+    return MapInfo(
+        source=src,
+        igrid=6,
+        nx=nx,
+        ny=nj,
+        startloc=startloc,
+        lat1=lat1,
+        lon1=lon1,
+        dx=dlon,
+        dy=dlat,
+        lov=0.0,
+        truelat1=0.0,
+        truelat2=0.0,
+        r_earth_km=r_earth,
+        grid_wind=gw,
+        centerlat=center_lat,
+        centerlon=center_lon,
+    )
+
 def map_info_from_grib(gid: int) -> MapInfo:
 
     # This function builds WPS MapInfo from ecCodes grid description for supported projections.
@@ -689,6 +765,9 @@ def map_info_from_grib(gid: int) -> MapInfo:
             centerlat=0.0,
             centerlon=0.0,
         )
+
+    if gt == "rotated_ll":
+        return _map_info_rotated_latlon(gid, src, r_earth, gw, startloc)
 
     if gt == "ncep_32769":
         return _map_info_ncep_rotated_latlon(gid, src, r_earth, gw, startloc)
@@ -974,7 +1053,13 @@ def extract_file(
                     map_info = mi
                 ni = _iget(gid, "Ni")
                 nj = _iget(gid, "Nj")
+                # bitmapped points (e.g. the ERA5 sea-ice cover over land) must carry the WPS
+                # missing flag -1.E30 so metgrid discards them; without this ecCodes substitutes
+                # its default placeholder 9999., which metgrid treats as valid data
+                eccodes.codes_set(gid, "missingValue", -1.0e30)
                 vals = np.asarray(eccodes.codes_get_values(gid), dtype=np.float64)
+                if _sget(gid, "gridType") == "rotated_ll":
+                    vals, ni = recenter_rotated_ll_values(gid, vals, ni, nj)
                 slab = values_to_slab(vals, ni, nj)
                 if (ni, nj) != (mi.nx, mi.ny):
                     continue
