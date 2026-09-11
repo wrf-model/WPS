@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ungrib-py"
+version = "0.1.0"
+description = "Parallel GRIB2 to WPS intermediate (Python ungrib core)"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+  "numpy>=1.22",
+  "eccodes>=1.7.0",
+]
+
+[project.scripts]
+ungrib-py = "ungrib_py.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["ungrib_py*"]
