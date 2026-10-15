@@ -473,7 +473,7 @@ module interp_module
       real :: search_extrap
   
       ! Local variables
-      integer :: i, j
+      integer :: i, j, parent_depth
       real :: distance
       logical :: found_valid
       type (bitarray) :: b
@@ -501,6 +501,7 @@ module interp_module
          qdata = q_remove(q) 
          i = qdata%x
          j = qdata%y
+         parent_depth = qdata%depth
 
          if (present(mask_array) .and. present(maskval) .and. present(mask_relational)) then
             if (mask_relational == '>' .and. mask_array(i,j) <= maskval .and. array(i,j,izz) /= msgval) then
@@ -518,10 +519,10 @@ module interp_module
 
          if (i-1 >= start_x) then
             if (.not. bitarray_test(b, (i-1)-start_x+1, j-start_y+1)) then
-               if (qdata%depth < interp_opts(idx-1)) then       ! idx-1, since idx was incremented before call to this subroutine
+               if (parent_depth < interp_opts(idx-1)) then       ! idx-1, since idx was incremented before call to this subroutine
                   qdata%x = i-1
                   qdata%y = j
-                  qdata%depth = qdata%depth+1
+                  qdata%depth = parent_depth+1
                   call q_insert(q, qdata)
                   call bitarray_set(b, (i-1)-start_x+1, j-start_y+1)
                end if
@@ -529,10 +530,10 @@ module interp_module
          end if  
          if (i+1 <= end_x) then
             if (.not. bitarray_test(b, (i+1)-start_x+1, j-start_y+1)) then
-               if (qdata%depth < interp_opts(idx-1)) then       ! idx-1, since idx was incremented before call to this subroutine
+               if (parent_depth < interp_opts(idx-1)) then       ! idx-1, since idx was incremented before call to this subroutine
                   qdata%x = i+1
                   qdata%y = j
-                  qdata%depth = qdata%depth+1
+                  qdata%depth = parent_depth+1
                   call q_insert(q, qdata)
                   call bitarray_set(b, (i+1)-start_x+1, j-start_y+1)
                end if
@@ -540,10 +541,10 @@ module interp_module
          end if  
          if (j-1 >= start_y) then
             if (.not. bitarray_test(b, i-start_x+1, (j-1)-start_y+1)) then
-               if (qdata%depth < interp_opts(idx-1)) then       ! idx-1, since idx was incremented before call to this subroutine
+               if (parent_depth < interp_opts(idx-1)) then       ! idx-1, since idx was incremented before call to this subroutine
                   qdata%x = i
                   qdata%y = j-1
-                  qdata%depth = qdata%depth+1
+                  qdata%depth = parent_depth+1
                   call q_insert(q, qdata)
                   call bitarray_set(b, i-start_x+1, (j-1)-start_y+1)
                end if
@@ -551,10 +552,10 @@ module interp_module
          end if  
          if (j+1 <= end_y) then
             if (.not. bitarray_test(b, i-start_x+1, (j+1)-start_y+1)) then
-               if (qdata%depth < interp_opts(idx-1)) then       ! idx-1, since idx was incremented before call to this subroutine
+               if (parent_depth < interp_opts(idx-1)) then       ! idx-1, since idx was incremented before call to this subroutine
                   qdata%x = i
                   qdata%y = j+1
-                  qdata%depth = qdata%depth+1
+                  qdata%depth = parent_depth+1
                   call q_insert(q, qdata)
                   call bitarray_set(b, i-start_x+1, (j+1)-start_y+1)
                end if
